@@ -22,5 +22,13 @@ def sha(p):
 for a in reg.get("artifacts",[]):
     p=ROOT/a.get("local_path","")
     if p.exists() and a.get("sha256") and sha(p)!=a["sha256"]: errors.append(f"hash_mismatch:{a['artifact_id']}")
+ghsync=ROOT/"state/github_sync.json"
+if ghsync.exists():
+    gh=json.loads(ghsync.read_text())
+    if not gh.get("full_source_import_complete"): warnings.append("github_full_source_import_incomplete")
+else:
+    warnings.append("github_sync_state_missing")
+dr=ROOT/"state/drive_sync.json"
+if not dr.exists(): warnings.append("drive_sync_state_missing")
 print(json.dumps({"ok":not errors,"errors":errors,"warnings":warnings},indent=2))
 sys.exit(1 if errors else 0)
