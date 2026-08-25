@@ -1,0 +1,14 @@
+{
+  "repository": "rotprods/motion-OS",
+  "installation_verified": true,
+  "repository_permissions": {"admin": true, "push": true},
+  "default_branch": "main",
+  "bootstrap_branch": "bootstrap/canonical-reconcile",
+  "bootstrap_pr": 6,
+  "bootstrap_pr_state": "draft",
+  "issues": [1,2,3,4,5],
+  "control_plane_remote": true,
+  "full_source_import_complete": false,
+  "main_contains_full_source": false,
+  "last_verified_at": "2026-08-25T15:57:57.396225+00:00"
+}
