@@ -1,0 +1,24 @@
+{
+  "root_folder_id": "1RsHZbf6yGE92L3wnbyxriCMx47HeBAOB",
+  "progress_wave_folder_id": "1_0T8zxvTrBeDnOOsz3fetATbf673wJnz",
+  "reconciliation_folder_id": "1xItu4yHyi-D4bRCt_W0XrIcbxzZEkHMb",
+  "reconciliation_report_id": "1NYNkM7QrHgzLJOgGOa60WJEZWaKC6_XM",
+  "bundle_id": "11MfvG7a3IBueIbXL1-_3qY-lxq3e_GOo",
+  "source_snapshot_id": "1H4uA9MsNxYhkQZbEmwU_HdTnVGBsftCe",
+  "sha_manifest_id": "1JTvqQhFFjsMo1BTXEdYCWsa0jlg7q3Wf",
+  "project_state_snapshot_id": "1DxxARRr-qnggAX0_hvn7_ZYJEiCJJg-M",
+  "artifact_registry_snapshot_id": "1lGWzcIiG9TrQqc488l-wUD6Mhlo4K2DL",
+  "goal_snapshot_id": "1U63H3pUaoV4NrwPavzCmoLE16PaEca5y",
+  "state_snapshot_id": "1OeVmZWWKv0mrL_q9ryxrLUHtTrDJWOIW",
+  "handoff_snapshot_id": "1sZYNzE55EsbMb_0PIIUiHAWUyf_vXFli",
+  "tasks_snapshot_id": "1aHv34H9XpC3l9tlW28Pc9mkPxPkk-3_z",
+  "sync_attestation_id": "1vXm32ZC2PtEWjwgwzaY0HpfJuD5H7Twx",
+  "rc_artifacts": {
+    "RC01": "1A7yPuFcY9m_EIL7_cWnAxN7OeZHOZvgt",
+    "RC02": "12RenBMM-XG2fU32oKYLZIzZYDc2GzPii",
+    "RC03": "1fQ4hIi3wF45383-PKIfPD-uZvx8O58bO",
+    "RC04": "16QGvldGqqWFJSw8BOahmXFD5E0DK6Chz",
+    "RC05": "1Ruz0NWEQsrLEPRtpE3-Z-4ONdPas7mAE",
+    "RC06": "1r3y35J735DhfyW4e5rDBcTRTdEKPPnrf"
+  }
+}
