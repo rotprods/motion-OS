@@ -50,12 +50,16 @@ def _intent_from_row(row: sqlite3.Row | None) -> RenderIntent | None:
 
 
 class SQLiteTransactionalRenderStore:
-    """Transactional single-authority store with leases and monotonically increasing fencing tokens.
+    """Transactional single-authority store with leases and monotonic fencing tokens.
 
     SQLite is appropriate for one shared host / filesystem authority. It is intentionally
     *not* advertised as safe across independent hosts or network filesystems. Multi-host
     deployments must implement RenderStateStore against a real transactional database
     (e.g. Postgres) while preserving the fencing semantics in this contract.
+
+    Fencing generations live in a separate durable table so releasing a lease never
+    resets the token sequence. This is essential: a stale worker must remain fenced out
+    even after the previous active lease row has been deleted and ownership is reacquired.
     """
 
     def __init__(self, path: str | Path, *, timeout_s: float = 5.0) -> None:
@@ -75,6 +79,10 @@ class SQLiteTransactionalRenderStore:
         with self._connect() as conn:
             conn.executescript(
                 """
+                CREATE TABLE IF NOT EXISTS lease_generations (
+                    resource_id TEXT PRIMARY KEY,
+                    last_fencing_token INTEGER NOT NULL
+                );
                 CREATE TABLE IF NOT EXISTS leases (
                     resource_id TEXT PRIMARY KEY,
                     owner_id TEXT NOT NULL,
@@ -111,15 +119,22 @@ class SQLiteTransactionalRenderStore:
         expires = now + timedelta(seconds=ttl_s)
         with self._connect() as conn:
             conn.execute("BEGIN IMMEDIATE")
-            row = conn.execute("SELECT * FROM leases WHERE resource_id=?", (resource_id,)).fetchone()
-            if row is not None:
-                current_expiry = datetime.fromisoformat(row["expires_at"])
-                if current_expiry > now and row["owner_id"] != owner_id:
+            active = conn.execute("SELECT * FROM leases WHERE resource_id=?", (resource_id,)).fetchone()
+            if active is not None:
+                current_expiry = datetime.fromisoformat(active["expires_at"])
+                if current_expiry > now and active["owner_id"] != owner_id:
                     conn.execute("ROLLBACK")
                     raise RuntimeError("resource lease already held")
-                token = int(row["fencing_token"]) + 1
-            else:
-                token = 1
+
+            generation = conn.execute(
+                "SELECT last_fencing_token FROM lease_generations WHERE resource_id=?", (resource_id,)
+            ).fetchone()
+            token = (int(generation["last_fencing_token"]) if generation is not None else 0) + 1
+            conn.execute(
+                "INSERT INTO lease_generations(resource_id,last_fencing_token) VALUES(?,?) "
+                "ON CONFLICT(resource_id) DO UPDATE SET last_fencing_token=excluded.last_fencing_token",
+                (resource_id, token),
+            )
             conn.execute(
                 "INSERT INTO leases(resource_id, owner_id, fencing_token, expires_at) VALUES(?,?,?,?) "
                 "ON CONFLICT(resource_id) DO UPDATE SET owner_id=excluded.owner_id, "
@@ -139,6 +154,8 @@ class SQLiteTransactionalRenderStore:
             raise RuntimeError("lease expired")
 
     def renew_lease(self, lease: Lease, ttl_s: float = 30.0) -> Lease:
+        if ttl_s <= 0:
+            raise ValueError("positive ttl required")
         expires = _utcnow() + timedelta(seconds=ttl_s)
         with self._connect() as conn:
             conn.execute("BEGIN IMMEDIATE")
@@ -151,6 +168,8 @@ class SQLiteTransactionalRenderStore:
         with self._connect() as conn:
             conn.execute("BEGIN IMMEDIATE")
             self._assert_live_lease(conn, lease)
+            # Delete only the active ownership row. `lease_generations` remains durable so
+            # the next owner receives a strictly larger fencing token.
             conn.execute("DELETE FROM leases WHERE resource_id=?", (lease.resource_id,))
             conn.execute("COMMIT")
 
@@ -188,3 +207,10 @@ class SQLiteTransactionalRenderStore:
         with self._connect() as conn:
             row = conn.execute("SELECT COUNT(*) AS n FROM events WHERE intent_id=?", (intent_id,)).fetchone()
         return int(row["n"])
+
+    def current_fencing_token(self, resource_id: str) -> int | None:
+        with self._connect() as conn:
+            row = conn.execute(
+                "SELECT last_fencing_token FROM lease_generations WHERE resource_id=?", (resource_id,)
+            ).fetchone()
+        return int(row["last_fencing_token"]) if row is not None else None
