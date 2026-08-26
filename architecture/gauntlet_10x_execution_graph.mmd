@@ -1,0 +1,65 @@
+flowchart LR
+  B[Brief / Source Video] --> MODE{Execution Mode}
+
+  MODE -->|GENERATE| SEM[Semantic Behavior Compiler]
+  SEM --> MS[Motion System Lock]
+  MS --> SC[Scene Contracts]
+  SC --> GCR[Grammar Critic]
+  GCR --> CMP[Remotion / Framer Compiler]
+
+  MODE -->|ANALYZE| ING[FFprobe Ingest]
+  ING --> SH[Shot Segmenter]
+  SH --> KF[Keyframe Planner]
+  KF --> VIS[Color / Layout Signals]
+  KF --> MOT[Trajectory / Flow Signals]
+  B --> AUD[Audio Events / Transcript]
+  VIS --> FP[Feature Pack]
+  MOT --> FP
+  AUD --> FP
+  FP --> NORM[Evidence-bound Normalizer]
+  NORM --> MSJ[MotionStyle2JSON]
+  MSJ --> CMP
+  MSJ --> STORE[SQLite Style Signature Store]
+  STORE --> RET[Similarity Retrieval]
+  RET --> MS
+
+  MODE -->|RECONSTRUCT_EXACT| FE[Frame Evidence]
+  FE --> TRACK[Persistent IDs / Absolute State]
+  TRACK --> TL[Per-frame / Dense / Hybrid Timeline]
+  TL --> SVG[SVG + JS Player]
+  SVG --> FID[Frame Fidelity Gate]
+
+  CMP --> RENDER[Renderer Runtime]
+  RENDER --> Q[Multi-vertical Gauntlet]
+  FID --> Q
+  GCR --> Q
+  FP --> Q
+
+  Q -->|PROMOTE| SUCCESS[Success Memory]
+  Q -->|HOLD| FAIL[Failure / Gap Memory]
+  SUCCESS --> PLAN[Living Plans]
+  FAIL --> PLAN
+  PLAN --> GRAPH[Graph Delta]
+  GRAPH --> TASKS[Task Delta]
+  TASKS --> SEM
+  TASKS --> ING
+  TASKS --> FE
+
+  subgraph VerticalGates[Gauntlet Vertical Gates]
+    V1[Extraction]
+    V2[Evidence]
+    V3[Normalization]
+    V4[Compiler]
+    V5[Reconstruction]
+    V6[Grammar]
+    V7[Creative]
+    V8[Operations]
+  end
+  Q --> V1
+  Q --> V2
+  Q --> V3
+  Q --> V4
+  Q --> V5
+  Q --> V6
+  Q --> V7
+  Q --> V8
