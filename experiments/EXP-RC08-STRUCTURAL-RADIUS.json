@@ -1,0 +1,9 @@
+{
+  "experiment_id": "EXP-RC08-STRUCTURAL-RADIUS",
+  "hypothesis": "Adding editorial/depth/kinetic overlays around validated RC06 beats will materially improve professional finish.",
+  "result": "REJECTED",
+  "reason": "Branches remained compositionally too similar to RC06 despite measurable edge/contrast changes.",
+  "promoted_candidate": null,
+  "system_change": "Adopt Structural Repair Operator v2 and increase branch diversity/search radius.",
+  "next_experiment": "RC09: structural re-layout / asset / camera / primitive-family tournament."
+}
