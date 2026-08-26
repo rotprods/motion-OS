@@ -5,7 +5,7 @@ Provide a deterministic reconstruction mode separate from creative generation:
 
 ```text
 video / PNG sequence
-→ frame evidence
+→ physical frame evidence
 → vector/raster segmentation
 → persistent element tracking
 → absolute coordinate reconstruction
@@ -24,14 +24,15 @@ video / PNG sequence
 
 ## Inputs by confidence
 - BEST: PNG frame sequence + fps + resolution + duration
-- GOOD: MP4 + reliable metadata
+- GOOD: MP4 + reliable metadata + physical decode
 - WEAK: sparse screenshots
 - DESCRIPTION ONLY: cannot claim exactness
 
 ## Reconstruction representations
-- full per-frame state map
-- dense keyframes + explicit interpolation exceptions
+- full per-frame vector state map
+- dense vector keyframes + explicit interpolation exceptions
 - hybrid: per-frame for high-motion/text/cursor; keyframes for stable transforms
+- **exact raster-sequence baseline** for genuinely non-vectorizable regions/source frames
 
 ## Layer classification
 Vector exact candidates: text, UI cards, icons, lines, paths, circles/rings, masks, clips, badges, counters, pointers.
@@ -46,7 +47,7 @@ E. fidelity uncertainties
 F. capture requirements
 
 ## Hard gates
-Exact strings/line breaks, stable IDs/anchors, absolute coordinates, no invented glyph morph or blur, no hidden interpolation, explicit unknowns.
+Exact strings/line breaks, stable IDs/anchors, absolute coordinates, no invented glyph morph or blur, no hidden interpolation, explicit unknowns, content-addressed source evidence.
 
 ## Implemented after Gauntlet 10X
 - `src/reconstruction/fidelity.py`: per-element, per-frame and timeline fidelity metrics.
@@ -56,17 +57,43 @@ Exact strings/line breaks, stable IDs/anchors, absolute coordinates, no invented
 - `src/reconstruction/svg_player.py`: actual SVG+JS deterministic frame player using persistent IDs and embedded timeline JSON.
 - unit tests for zero-error exact replay and text-integrity regression.
 
+## Implemented in Real Analysis Superwave
+- Phase 04 now provides physical FFmpeg-decoded frames with SHA256 identity as a common evidence root.
+- `src/reconstruction/raster_sequence.py` implements an explicit `exact_raster_sequence` fallback for non-vectorizable frames.
+- every raster frame retains frame number, timestamp, file path and source SHA.
+- timeline gets a deterministic SHA256.
+- emitted HTML/JS player displays exact frame assets without adding blur/morph/easing.
+- `verify_raster_records()` fails if a source frame mutates after timeline creation.
+
+This is deliberately called **raster-sequence reconstruction**, not vector reconstruction. It establishes a fidelity floor and cleanly separates “exact replay” from “successful vectorization”.
+
 ## Remaining hard proof
-- reconstruct a known MOTION.OS scene from exported PNG frames.
-- rasterize emitted SVG and compute pixel/SSIM comparison.
+- reconstruct a known MOTION.OS vectorizable scene from exported PNG frames.
+- segment vectorizable vs raster layers and replace raster baseline layers progressively with actual SVG elements.
+- rasterize emitted vector/hybrid output and compute pixel/SSIM comparison against source frames.
 - measure bbox/timing errors against ground truth.
-- deterministic replay hash across two independent runs.
+- deterministic replay hash across two independent runs/environments.
 
 ## Definition of Done
-Reconstruct a known test scene from exported frames and demonstrate thresholded frame fidelity with reproducible SVG/JS output and uncertainty report.
+Reconstruct a known test scene from exported frames and demonstrate thresholded frame fidelity with reproducible SVG/JS or justified hybrid output and uncertainty report. A 100% raster replay alone does **not** satisfy the vector reconstruction objective; it only satisfies the non-vectorizable fallback contract.
 
 ## Learning delta from Phase 04
-Phase 04 extraction can provide measurements, but creative MotionStyle2JSON labels never substitute frame-exact coordinate evidence.
+Phase 04 measurements can accelerate segmentation/tracking, but creative MotionStyle2JSON labels never substitute exact coordinate/frame evidence.
 
 ## Learning delta from Gauntlet 10X
-The reconstruction vertical now has an executable fidelity gate and player. The remaining problem is empirical source reconstruction, not representation design.
+The reconstruction vertical gained an executable fidelity gate and SVG player. The remaining problem became empirical source reconstruction.
+
+## Learning delta from Real Analysis Superwave
+The exactness chain now begins at content-addressed physical frames rather than abstract measurements. New strategy:
+
+```text
+physical frame evidence
+→ exact raster baseline
+→ identify vectorizable layers
+→ replace one layer family at a time with SVG
+→ rasterize candidate
+→ compare to source
+→ keep replacement only if fidelity remains inside gate
+```
+
+This gives the Gauntlet a monotonic reconstruction path: compactness/vectorization can improve only after fidelity is protected.
