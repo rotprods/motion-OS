@@ -1,0 +1,48 @@
+flowchart TD
+    A[Content Manifest] --> B{Schema current?}
+    B -- no --> C[Migrate deterministically]
+    C --> D[Preflight]
+    B -- yes --> D
+    D -- fail --> X[ABSTAIN / REVISE]
+    D -- pass --> E[Seal Manifest]
+    E --> F[Replay Fingerprint]
+    F --> G{Explicit render authorization?}
+    G -- no --> H[Dry-run package only]
+    G -- yes --> I[Budget + concurrency gate]
+    I -- fail --> X
+    I -- pass --> J[Deterministic Render Intent ID]
+    J --> K{Intent exists in ledger?}
+    K -- yes --> L[RECONCILE_REQUIRED]
+    K -- no --> M[Append AUTHORIZED event]
+    M --> N[Compile provider request]
+    N --> O[Submit to provider]
+    O --> P{Acknowledgement observed?}
+    P -- yes --> Q[Append ACKNOWLEDGED / RUNNING]
+    P -- no, definitely before accept --> R[FAILED_RETRYABLE]
+    P -- ambiguous --> L
+    Q --> S{Provider terminal state}
+    S -- completed + valid asset --> T[Append COMPLETED]
+    S -- failed known --> U[FAILED_FINAL]
+    S -- malformed / asset missing --> L
+    L --> V[Provider reconciliation lookup]
+    V --> W{Job exists?}
+    W -- yes --> Q
+    W -- no + bounded retry available --> R
+    W -- unknown --> X
+    T --> Y[Verify manifest seal before downstream]
+    Y -- fail --> X
+    Y -- pass --> Z[Downstream edit graph]
+    Z --> AA[Performance observation]
+    AA --> AB[Correlation/Hypothesis]
+    AB --> AC[Repeated pattern / controlled test]
+    AC --> AD{Explicit promotion approval}
+    AD -- no --> AE[Keep as evidence only]
+    AD -- yes --> AF[Promoted learning rule]
+
+    GH[GitHub control truth] --> RR[Replica digests]
+    DR[Drive recovery replica] --> RR
+    LB[Library command replica] --> RR
+    RR --> RS{Hashes/revisions agree?}
+    RS -- yes --> RT[Replica MATCH]
+    RS -- canonical newer --> RU[STALE_REPLICA / refresh allowed]
+    RS -- replica newer or divergent --> RV[CONFLICT / manual reconciliation]
