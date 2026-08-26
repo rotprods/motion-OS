@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "authority": "GITHUB_CONTROL_TRUTH",
+  "render_defaults": {
+    "explicit_authorization_required": true,
+    "max_credits_per_render": 20,
+    "max_credits_per_day": 120,
+    "max_concurrent_renders": 2,
+    "max_retries": 1,
+    "reconcile_before_retry": true,
+    "unknown_cost_behavior": "WARN_AND_REQUIRE_EXPLICIT_AUTHORIZATION",
+    "ambiguous_provider_state_behavior": "RECONCILE_REQUIRED"
+  },
+  "provider": {
+    "heygen": {
+      "allowed_statuses": ["waiting", "pending", "queued", "processing", "running", "completed", "failed"],
+      "allowed_url_schemes": ["https", "http"],
+      "max_telemetry_duration_s": 3600
+    }
+  },
+  "notes": [
+    "Budget numbers are conservative defaults, not billing truth; provider cost metadata must override estimates when available.",
+    "Do not automatically resubmit when a provider job may already exist.",
+    "Render authorization is separate from content preflight approval."
+  ]
+}
