@@ -51,30 +51,40 @@ def affected_subgraph(g, roots, max_hops=2, padding=.25):
     )
 
 
-DEFAULT_INVALIDATION_RELATIONS = frozenset({
-    'REQUIRES',
-    'DEPENDS_ON',
-    'DRIVES',
-    'SHAPES',
-    'MATERIALIZES_AS',
-    'CONTAINS',
-    'USES',
-    'ANIMATED_BY',
-    'CONSTRAINED_BY',
-    'ENTERS_VIA',
-    'EXITS_VIA',
-    'SOURCED_FROM',
-    'DERIVED_FROM',
-    'CONDITIONS',
-    'COMPILES_TO',
-    'RENDERED_BY',
-    'REQUIRES_SKILL',
-    'SYNC_WITH',
-    'GENERATES',
-    'PRODUCED_BY',
-    'ROUTES_TO',
-    'EVALUATES',
-})
+# Causal direction answers: "if dependency changes, what must be recomputed?"
+# forward: edge.source affects edge.target
+# reverse: edge.target affects edge.source
+# both: synchronization or coupled relationship
+INVALIDATION_DIRECTION: dict[str, str] = {
+    'DRIVES': 'forward',
+    'SHAPES': 'forward',
+    'MATERIALIZES_AS': 'forward',
+    'CONTAINS': 'forward',
+    'CONDITIONS': 'forward',
+    'COMPILES_TO': 'forward',
+    'GENERATES': 'forward',
+    'INVALIDATES': 'forward',
+
+    'REQUIRES': 'reverse',
+    'DEPENDS_ON': 'reverse',
+    'USES': 'reverse',
+    'ANIMATED_BY': 'reverse',
+    'CONSTRAINED_BY': 'reverse',
+    'ENTERS_VIA': 'reverse',
+    'EXITS_VIA': 'reverse',
+    'SOURCED_FROM': 'reverse',
+    'SUPPORTED_BY': 'reverse',
+    'DERIVED_FROM': 'reverse',
+    'RENDERED_BY': 'reverse',
+    'REQUIRES_SKILL': 'reverse',
+    'PRODUCED_BY': 'reverse',
+    'ROUTES_TO': 'reverse',
+    'EVALUATES': 'reverse',
+
+    'SYNC_WITH': 'both',
+}
+
+DEFAULT_INVALIDATION_RELATIONS = frozenset(INVALIDATION_DIRECTION)
 
 
 @dataclass(frozen=True)
@@ -85,6 +95,17 @@ class InvalidationResult:
     traversal_edges: tuple[tuple[str, str, str], ...]
 
 
+def _causal_neighbors(graph, node_id: str, allowed: set[str]):
+    for edge in graph.edges:
+        if edge.kind not in allowed:
+            continue
+        direction = INVALIDATION_DIRECTION.get(edge.kind)
+        if direction in {'forward', 'both'} and edge.source == node_id:
+            yield edge.target, (edge.source, edge.kind, edge.target)
+        if direction in {'reverse', 'both'} and edge.target == node_id:
+            yield edge.source, (edge.source, edge.kind, edge.target)
+
+
 def descendant_invalidation(
     graph,
     roots: Iterable[str],
@@ -92,31 +113,29 @@ def descendant_invalidation(
     relation_kinds: Iterable[str] = DEFAULT_INVALIDATION_RELATIONS,
     stop_kinds: Iterable[str] = (),
 ) -> InvalidationResult:
-    """Return causal descendants that must be recomputed after root mutation.
+    """Return causal dependents that must be recomputed after root mutation.
 
-    Direction is source → target. This is intentionally different from the
-    legacy bidirectional repair-neighborhood function above.
+    Traversal direction is relation-aware. Example: `Layer USES TypographyRole`
+    means a TypographyRole mutation invalidates Layer, not the reverse.
     """
     root_set = set(roots)
     for root in root_set:
-        graph.node(root)  # explicit missing-root failure
+        graph.node(root)
     allowed = set(relation_kinds)
     stop = set(stop_kinds)
     seen = set(root_set)
     queue = deque(sorted(root_set))
     traversed: list[tuple[str, str, str]] = []
     while queue:
-        source = queue.popleft()
-        for edge in graph.edges:
-            if edge.source != source or edge.kind not in allowed:
+        current = queue.popleft()
+        for neighbor, evidence_edge in _causal_neighbors(graph, current, allowed):
+            traversed.append(evidence_edge)
+            if neighbor in seen:
                 continue
-            traversed.append((edge.source, edge.kind, edge.target))
-            if edge.target in seen:
-                continue
-            seen.add(edge.target)
-            target = graph.node(edge.target)
+            seen.add(neighbor)
+            target = graph.node(neighbor)
             if target.kind not in stop:
-                queue.append(edge.target)
+                queue.append(neighbor)
     all_ids = {node.id for node in graph.nodes}
     return InvalidationResult(
         roots=tuple(sorted(root_set)),
