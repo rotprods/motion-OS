@@ -60,7 +60,9 @@ def _graph_proximity(graph, candidate_node_id: str | None, anchors: tuple[str, .
     anchor_set = set(anchors) & ids
     if not anchor_set:
         return 0.0
-    queue = deque((candidate_node_id, 0))
+    # deque() consumes an iterable. The traversal state is one tuple, not the
+    # two independent values that would otherwise expand the node id string.
+    queue = deque([(candidate_node_id, 0)])
     seen = {candidate_node_id}
     while queue:
         current, hops = queue.popleft()
