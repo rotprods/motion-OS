@@ -43,7 +43,7 @@
   "cta": {"text":"Comenta EDITAR y te mando el repositorio.","placement":"PRE_PAYOFF","target_beat_id":"B05_CTA"},
   "moral": "El editor no desaparece: pasa de cortar clips a dirigir un sistema que edita por él.",
   "duration_target_s": 38,
-  "duration_estimate_s": null,
+  "duration_estimate_s": 42.68,
   "avatar": {
     "provider":"heygen",
     "profile_id":"heygen_rot_canonical_v1",
@@ -53,7 +53,7 @@
     "aspect_ratio":"9:16",
     "speed":1.05
   },
-  "render": {"provider_job_id":"586ec436ee394f83a6781ca353830429","status":"waiting","actual_duration_s":null,"asset_ref":null,"credits_used":null},
+  "render": {"provider_job_id":"586ec436ee394f83a6781ca353830429","status":"completed","actual_duration_s":42.6318,"asset_ref":"heygen://video/586ec436ee394f83a6781ca353830429","credits_used":null},
   "claim_notes": [
     {"claim":"OpenMontage is an open-source GitHub repository used as the source topic.","evidence_strength":"DIRECT","source_ref":"https://github.com/calesthio/OpenMontage"},
     {"claim":"Repository capability counts are time-sensitive and must be reverified before publication.","evidence_strength":"TIME_SENSITIVE","source_ref":"https://github.com/calesthio/OpenMontage"}
