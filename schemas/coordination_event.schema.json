@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://motion.os/schemas/coordination_event.schema.json",
+  "title": "MOTION.OS Coordination Event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id", "schema_version", "event_type", "aggregate_type", "aggregate_id",
+    "project_id", "agent_id", "session_id", "occurred_at", "recorded_at",
+    "correlation_id", "payload", "provenance_hash"
+  ],
+  "properties": {
+    "event_id": {"type": "string", "format": "uuid"},
+    "schema_version": {"type": "integer", "minimum": 1},
+    "event_type": {"type": "string", "minLength": 3},
+    "aggregate_type": {"type": "string", "minLength": 1},
+    "aggregate_id": {"type": "string", "minLength": 1},
+    "project_id": {"type": "string", "pattern": "^motion://project/"},
+    "run_id": {"type": ["string", "null"]},
+    "session_id": {"type": "string", "pattern": "^motion://session/"},
+    "agent_id": {"type": "string", "pattern": "^motion://agent/"},
+    "causation_id": {"type": ["string", "null"]},
+    "correlation_id": {"type": "string", "minLength": 1},
+    "expected_revision": {"type": ["integer", "string", "null"]},
+    "occurred_at": {"type": "string", "format": "date-time"},
+    "recorded_at": {"type": "string", "format": "date-time"},
+    "git": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "properties": {
+        "repository": {"type": "string"},
+        "branch": {"type": ["string", "null"]},
+        "sha": {"type": ["string", "null"]},
+        "pr_number": {"type": ["integer", "null"]}
+      }
+    },
+    "payload": {"type": "object"},
+    "evidence_refs": {"type": "array", "items": {"type": "string"}},
+    "provenance_hash": {"type": "string", "pattern": "^[a-fA-F0-9]{64}$"},
+    "sensitivity": {"enum": ["PUBLIC", "INTERNAL", "CONFIDENTIAL", "RESTRICTED"]}
+  }
+}
