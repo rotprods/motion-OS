@@ -3,16 +3,15 @@
 Program: Graph-Native MOTION.OS Studio Engine
 Master plan: `plans/phase_05_graph_native_studio_engine_masterplan.md`
 Master issue: #36
-Policy: update after every significant implementation batch; run tests after significant changes; never mark a checkpoint complete without evidence.
+Policy: update after every significant implementation batch; test after significant changes; never mark runtime/authority complete from compiler-only evidence.
 
 ## Global state
-- Current macro-phase: P05.9 Composition Blueprints / Lava-like Primitive System
-- Current execution checkpoint: E21→E22
+- Current macro-phase: P05.10→P05.15 Renderer / QA / Studio convergence
+- Current execution checkpoint: E23→E29 runtime verification
 - Release status: BLOCKED
 - Branch: `feat/superwave-real-analysis`
 - Active PR: #35
-- PR mergeability: TRUE at latest check
-- External CI state: BLOCKED_BY_GITHUB_ACTIONS_STARTUP_FAILURE / newest HEADs have no runs
+- External CI state: UNVERIFIED / historical Actions startup failure with zero jobs
 
 ## Execution checkpoint map — 29 checkpoints
 - [x] E01 Baseline freeze + current-module ownership map
@@ -35,125 +34,142 @@ Policy: update after every significant implementation batch; run tests after sig
 - [x] E18 Success/Failure/Renderer/Asset memory planes
 - [x] E19 Provider contracts + provenance policy
 - [x] E20 Asset fitness / license / technical gates
-- [ ] E21 Lava-like semantic primitive contract
-- [ ] E22 Graph-native composition blueprints
-- [ ] E23 Remotion production compiler/runtime
-- [ ] E24 HyperFrames production compiler/runtime
-- [ ] E25 Lottie supported-subset + SVG interoperability
-- [ ] E26 Multi-renderer router + FFmpeg compositor
-- [ ] E27 Graph-native QA + DefectGraph
-- [ ] E28 Localized repair tournament + regression proof
-- [ ] E29 Studio inspector + session-close + zero-context recovery
+- [x] E21 Lava-like semantic primitive contract — IMPLEMENTED V1
+- [x] E22 Graph-native composition blueprints — IMPLEMENTED V1
+- [ ] E23 Remotion production compiler/runtime — COMPILER IMPLEMENTED; PHYSICAL RUNTIME PENDING
+- [ ] E24 HyperFrames production compiler/runtime — COMPILER IMPLEMENTED; PHYSICAL RUNTIME PENDING
+- [ ] E25 Lottie supported-subset + SVG interoperability — SUBSET/EMBED CONTRACT IMPLEMENTED; REAL PLAYER ROUNDTRIP PENDING
+- [ ] E26 Multi-renderer router + FFmpeg compositor — ROUTER/ASSEMBLY CONTRACT IMPLEMENTED; PHYSICAL COMPOSITE PENDING
+- [ ] E27 Graph-native QA + DefectGraph — CORE IMPLEMENTED; AUTHORITATIVE VIDEO CRITIC PENDING
+- [ ] E28 Localized repair tournament + regression proof — CORE IMPLEMENTED; PHYSICAL PARTIAL-RERENDER PROOF PENDING
+- [ ] E29 Studio inspector + session-close + zero-context recovery — INSPECTOR/MANIFEST IMPLEMENTED; REAL RELEASE RECOVERY PROOF PENDING
 
 ---
 
-## LOG
+## Completed batches
 
 ### Batch 01 — E01→E04 Contracts
-Status: IMPLEMENTED / CANONICAL MERGE PENDING CI
-Artifacts: ADR-005, EditingGraph schema, Skill schema, ProviderAsset schema, contract tests.
-Evidence: Draft 2020-12 validation PASS; positive fixtures PASS; invalid SHA rejection PASS.
+Implemented ADR-005, EditingGraph schema, Skill schema, ProviderAsset schema and contract tests. Draft 2020-12 fixtures and negative SHA case passed in isolated validation.
 
 ### Batch 02 — E05→E07 Typed Graph Core
-Status: IMPLEMENTED / CANONICAL MERGE PENDING CI
-Artifacts: `src/graph/ontology.py`, `src/graph/editing_graph.py`, typed graph tests.
-Evidence: deterministic graph serialization/hash round-trip PASS; legacy migration PASS; illegal relation rejection PASS.
-Decision: existing MotionGraph remains compatibility layer; no GraphV2 rewrite.
+Implemented canonical node/edge ontology, backward-compatible `TypedEditingGraph`, deterministic canonical JSON/hash and legacy migration. No GraphV2 rewrite.
 
 ### Batch 03 — E08→E09 Causal Impact + Execution DAG
-Status: IMPLEMENTED / CANONICAL MERGE PENDING CI
-Artifacts: relation-aware invalidation in `impact.py`; deterministic execution planning/cache keys in `scheduler.py`; execution DAG tests.
-Gauntlet correction: dependency direction is relation-aware, not always source→target.
-Evidence:
-- TypographyRole mutation invalidates Layer→Composition, preserves source/style evidence.
-- Source mutation invalidates Style→Layer→Composition.
-- Renderer mutation invalidates Composition without invalidating semantic/extraction evidence.
-- `extract → normalize → compile` ordering PASS.
-- runtime-version cache invalidation PASS.
+Implemented relation-aware invalidation and deterministic execution/cache planning. Critical Gauntlet correction: dependency direction is semantic per relation rather than naive source→target.
 
 ### Batch 04 — E10→E14 Director → Editing → Audio
-Status: IMPLEMENTED / CANONICAL MERGE PENDING CI
-Artifacts:
-- `src/direction/{contracts,compiler}.py`
-- `src/editing/{compiler,audio_graph}.py`
-- Director/editing/audio tests.
-Guarantees:
-- full timeline coverage;
-- semantic-before-primitives;
-- explicit motion purpose and attention target per beat;
-- negative motion rules encoded as graph nodes;
-- one primary attention Layer max per Scene;
-- camera no-shake contracts;
-- typography readability strict;
-- transitions derived from existing state;
-- each Scene has audio event or intentional silence contract.
-Evidence: cumulative local harness through E14: 5 tests PASS, 0 failures.
+Implemented DirectorGraph, semantic-before-primitives, full timeline/attention contracts, Scene/Shot/Layer/Track/Camera/Material/Typography graph and synchronized AudioCue/MusicBeat/VoiceLine graph.
 
 ### Batch 05 — E15→E16 Skill Registry + Runtime
-Status: IMPLEMENTED / CANONICAL MERGE PENDING CI
-Artifacts:
-- `src/skills/registry.py`
-- `src/skills/runtime.py`
-- `tests/test_phase05_skill_runtime.py`
-Capabilities:
-- typed SkillSpec and capability inventory;
-- explicit tool/provider/capability requirements;
-- authority threshold;
-- fallback chains with cycle protection;
-- dependency DAG execution;
-- downstream BLOCKED when prerequisite fails;
-- executor absence cannot silently PASS;
-- execution evidence writes Run/Skill/ToolCall L3 nodes.
-Evidence:
-- Pinterest-unavailable → explicit local fallback PASS.
-- FFmpeg missing → BLOCKED with missing capability/tool evidence.
-- dependency order PASS.
-- fallback selected skill recorded in trace PASS.
-- non-strict failed dependency propagation PASS.
-- cumulative local harness through E16: 6 tests PASS, 0 failures.
+Implemented typed skills, capability inventory, dependency DAG, authority thresholds, fallback traces and L3 Run/Skill/ToolCall evidence. Missing tools/capabilities cannot silently PASS.
 
 ### Batch 06 — E17→E20 GraphRAG + Provider/Asset Intelligence
-Status: IMPLEMENTED V1 / CANONICAL MERGE PENDING CI
-Artifacts:
-- `src/knowledge/memory_store.py`
-- `src/rag/hybrid.py`
-- `src/providers/{contracts,policy}.py`
-- `src/assets/fitness.py`
-- `tests/test_phase05_rag_assets.py`
-GraphRAG behavior:
-1. hard filters: licensing / renderer / asset type / aspect ratio;
-2. controlled component scores;
-3. vector similarity;
-4. graph-neighborhood proximity;
-5. explainable ranking.
-Memory planes now modeled in SQLite: reference/style/motion/success/failure/renderer/asset/user_feedback.
-Provider policy:
-- Pinterest → reference-only by default;
-- Pexels → commercial candidate but license review required;
-- Flaticon → license/attribution review required;
-- Swishy → code/composition pattern reference, no blind copying;
-- local/Drive → owned only when provenance confirms it;
-- generated → still policy/provenance gated.
-Asset gate:
-DISCOVER → POLICY/LICENSE → HASH → semantic/style/technical fitness → promotion/quarantine.
-Evidence:
-- unlicensed memory hard-filtered from retrieval PASS.
-- graph-close style outranks graph-far alternative PASS.
-- retrieval explanation present PASS.
-- Pinterest reference can promote only as approved_reference PASS.
-- unverified Pexels candidate quarantined PASS.
-- owned hashed local asset approved PASS.
-- cumulative local harness through E20: 7 tests PASS, 0 failures.
+Implemented SQLite memory planes, explainable hybrid retrieval, provider policy and asset fitness/provenance gates. Pinterest remains reference-first; Pexels/Flaticon/Swishy/local/generated assets are policy-gated.
+
+### Batch 07 — E21→E22 Semantic Motion Language + Blueprints
+Status: IMPLEMENTED V1
+
+Implemented:
+- evolved primitive registry into semantic/Lava-like motion components;
+- intent, attention role, channel, physics/easing, renderer-support, forbidden-combination and QA metadata;
+- graph-native blueprint registry for Apple Product Reveal, SaaS UI Proof, Hyper Reward, Audio Pulse, Editorial Kinetic, Minimal Orbit and Portal Glass;
+- blueprints are structural and contain no fixed campaign copy.
+
+Hard invariants:
+- semantic intent before primitive selection;
+- typography readability before transform;
+- particles remain micro-attention unless explicitly justified;
+- transitions derive from existing state/geometry where possible;
+- blueprint ≠ template.
+
+### Batch 08 — E23→E26 Renderer Stack Superwave
+Status: IMPLEMENTED CONTRACTS / PHYSICAL RUNTIME VERIFICATION PENDING
+
+Implemented:
+1. `src/compilers/remotion_graph.py`
+   - EditingGraph → deterministic Remotion graph spec;
+   - scene/layer ordering, camera/audio links, assets/provenance;
+   - project file emitter;
+   - SSR render contract aligned to `bundle → selectComposition → renderMedia`;
+   - deterministic spec hash.
+2. `src/compilers/hyperframes.py`
+   - EditingGraph → deterministic HTML/GSAP scene/timeline spec;
+   - project emitter (`index.html`, `motion.js`, `motion-spec.json`);
+   - paused global timeline + seek contract;
+   - deterministic spec hash.
+3. `src/compilers/lottie.py`
+   - controlled supported subset;
+   - exact rejection of unsupported features/expressions;
+   - vector-subgraph compiler;
+   - stable-ID/text-integrity embed contract for Remotion/HyperFrames.
+4. `src/renderers/multirender.py`
+   - per-Layer renderer assignment;
+   - support matrix for Remotion/HyperFrames/Lottie/SVG/video plates;
+   - unresolved-layer hard failure;
+   - deterministic render manifest.
+5. `src/renderers/assembly.py`
+   - global-clock render artifact contract;
+   - duration/resolution/fps integrity gates;
+   - deterministic multi-render composite plan;
+   - FFmpeg filter-graph planning.
+6. `tests/test_phase05_render_stack.py`.
+
+Isolated smoke evidence executed during implementation:
+- Python syntax compilation for all four new modules: PASS.
+- one-scene/three-layer graph → Remotion spec: PASS.
+- same graph → HyperFrames spec: PASS.
+- supported Lottie shape subset: PASS.
+- renderer assignment: SUBJECT→Remotion, TYPOGRAPHY→HyperFrames: PASS.
+- composite-plan construction: PASS.
+
+Authority boundary:
+- Remotion and HyperFrames contracts report `authority=compiler_ready`.
+- They are NOT `renderer_executed` until a real Node/runtime installation renders media and the output is probed.
+- E23/E24 therefore remain open.
+
+### Batch 09 — E27→E29 Graph QA / Repair / Recovery Core
+Status: IMPLEMENTED CORE / AUTHORITATIVE PROOFS PENDING
+
+Implemented:
+1. `src/qa/graph_critic.py`
+   - graph contract validation;
+   - missing-provenance and typography-integrity findings;
+   - competing-primary-attention detection;
+   - findings materialize as L3 `QAResult` + `Defect` nodes with evidence edges.
+2. `src/qa/graph_repair.py`
+   - defect-bound repair candidate generation;
+   - minimal / structural / renderer-swap strategies;
+   - descendant invalidation determines affected subgraph;
+   - unaffected nodes become regression-protected set;
+   - promotion only among candidates that pass regression.
+3. `src/studio/inspector.py`
+   - graph/timeline/node inventory;
+   - unresolved renderer-layer detection;
+   - provenance-gap detection;
+   - deterministic project snapshot;
+   - zero-context recovery manifest linking Git SHA, graph hash, asset/render manifests, QA and artifact refs.
+4. `tests/test_phase05_graph_qa_repair_studio.py`.
+
+Important truth:
+- E27 requires authoritative temporal/video critic evidence before completion.
+- E28 requires an actual localized rerender proving protected regions remain within regression threshold.
+- E29 requires a real released artifact set and successful zero-context recovery rehearsal.
+
+---
+
+## Current architecture achieved
+`Brief → DirectorGraph → GraphRAG → VisualDNA/Assets → MotionSystem → EditingGraph → Skill DAG → semantic primitives/blueprints → per-layer renderer routing → Remotion/HyperFrames/Lottie/SVG/video contracts → composite plan → Graph QA → DefectGraph → localized repair candidates → Studio recovery manifest`.
+
+## Remaining critical path
+1. repair GitHub Actions startup / obtain full repository CI on current HEAD;
+2. provision/test real Remotion runtime and render graph-driven MP4;
+3. provision/test real HyperFrames runtime and render graph-driven MP4;
+4. execute Lottie player/embed roundtrip;
+5. physically compose multiple renderer artifacts through FFmpeg and probe exact duration/fps/resolution/audio;
+6. run authoritative temporal/creative critic against produced master;
+7. force a defect, localized rerender, protected-region regression comparison, promote/rollback;
+8. create release artifact registry + Drive/Git provenance and perform zero-context recovery rehearsal;
+9. execute the five authoritative validation projects from the masterplan.
 
 ## CI / PR truth
-- PR #35 remains open and mergeable at latest check.
-- GitHub Actions is not generating runs for current HEADs.
-- Earlier PR-triggered Actions run ended in `startup_failure` with zero jobs.
-- Full repository CI is UNVERIFIED; no merge to `main` is allowed yet.
-
-## Next — E21→E22
-- evolve primitive registry into semantic/Lava-like portable motion components;
-- encode intent, attention role, channels, physics/easing envelopes, renderer support, forbidden combinations and QA;
-- add graph-native composition blueprints: Apple Product Reveal, SaaS UI Proof, Hyper Reward, Audio Pulse, Editorial Kinetic, Minimal Orbit, Portal Glass;
-- blueprints must contain structural requirements, never fixed copy;
-- grammar/semantic routing chooses primitive families before renderer compilation.
+PR #35 remains the bootstrap/superwave branch. It is intentionally not merged while full gates are unavailable. Historical Actions behavior: `startup_failure` before any job and later HEADs without workflow runs. Compiler/unit smoke evidence does not substitute for repository CI or renderer runtime evidence.
