@@ -1,0 +1,17 @@
+{
+  "wave": "WAVE_05_UNSEEN_BRIEF_NEW_HERO",
+  "brief": "Launch a surgical robotics system that operates through a keyhole.",
+  "beats": ["SEE", "REACH", "OPERATE"],
+  "hero_asset_family": "procedural articulated surgical end-effector / robotic instrument",
+  "styles": [
+    {"style": "clinical_product", "claim": "generalization_fixture"},
+    {"style": "surgical_hud", "claim": "generalization_fixture"},
+    {"style": "biotech_editorial", "claim": "generalization_fixture"},
+    {"style": "industrial_engineering", "claim": "generalization_fixture"}
+  ],
+  "source_fps": 15,
+  "delivery_fps": 30,
+  "diversity_dimensions": ["layout", "typography", "material", "motion_grammar", "hero_representation", "density"],
+  "result": "PASS_DIVERSITY_DISCOVERY_ONLY",
+  "truth": "Wave 05 proves unseen-domain routing and a new hero-asset family. It is not production-release evidence."
+}
