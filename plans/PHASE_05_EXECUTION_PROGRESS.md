@@ -6,13 +6,13 @@ Master issue: #36
 Policy: update after every significant implementation batch; run tests after significant changes; never mark a checkpoint complete without evidence.
 
 ## Global state
-- Current macro-phase: P05.6 Skill Registry & Runtime
-- Current execution checkpoint: E15→E16
+- Current macro-phase: P05.9 Composition Blueprints / Lava-like Primitive System
+- Current execution checkpoint: E21→E22
 - Release status: BLOCKED
 - Branch: `feat/superwave-real-analysis`
 - Active PR: #35
 - PR mergeability: TRUE at latest check
-- External CI state: BLOCKED_BY_GITHUB_ACTIONS_STARTUP_FAILURE / newest HEAD has no runs
+- External CI state: BLOCKED_BY_GITHUB_ACTIONS_STARTUP_FAILURE / newest HEADs have no runs
 
 ## Execution checkpoint map — 29 checkpoints
 - [x] E01 Baseline freeze + current-module ownership map
@@ -29,12 +29,12 @@ Policy: update after every significant implementation batch; run tests after sig
 - [x] E12 Beat / Scene / Layer / Track graph
 - [x] E13 Camera / Depth / Material / Typography graph
 - [x] E14 Audio / Music / VO event graph + AV sync contracts
-- [ ] E15 Skill registry + capability resolver
-- [ ] E16 Skill dependency DAG + fallback/authority trace
-- [ ] E17 GraphRAG neighborhood retrieval + hybrid ranking
-- [ ] E18 Success/Failure/Renderer/Asset memory planes
-- [ ] E19 Provider contracts + provenance policy
-- [ ] E20 Asset fitness / license / technical gates
+- [x] E15 Skill registry + capability resolver
+- [x] E16 Skill dependency DAG + fallback/authority trace
+- [x] E17 GraphRAG neighborhood retrieval + hybrid ranking
+- [x] E18 Success/Failure/Renderer/Asset memory planes
+- [x] E19 Provider contracts + provenance policy
+- [x] E20 Asset fitness / license / technical gates
 - [ ] E21 Lava-like semantic primitive contract
 - [ ] E22 Graph-native composition blueprints
 - [ ] E23 Remotion production compiler/runtime
@@ -51,101 +51,109 @@ Policy: update after every significant implementation batch; run tests after sig
 
 ### Batch 01 — E01→E04 Contracts
 Status: IMPLEMENTED / CANONICAL MERGE PENDING CI
-
-Implemented:
-- `architecture/ADR_005_STUDIO_ENGINE_MIGRATION.md`
-- `schemas/editing_graph.schema.json`
-- `schemas/skill.schema.json`
-- `schemas/provider_asset.schema.json`
-- `tests/test_phase05_contracts.py`
-
-Evidence:
-- Draft 2020-12 schema self-validation PASS.
-- EditingGraph fixture PASS.
-- Skill contract fixture PASS.
-- Pinterest reference-only provenance fixture PASS.
-- invalid SHA256 rejection PASS.
+Artifacts: ADR-005, EditingGraph schema, Skill schema, ProviderAsset schema, contract tests.
+Evidence: Draft 2020-12 validation PASS; positive fixtures PASS; invalid SHA rejection PASS.
 
 ### Batch 02 — E05→E07 Typed Graph Core
 Status: IMPLEMENTED / CANONICAL MERGE PENDING CI
-
-Implemented:
-- `src/graph/ontology.py`: GraphLevel, NodeKind, RelationKind, level registry, relation legality, legacy aliases.
-- `src/graph/editing_graph.py`: backward-compatible TypedEditingGraph, deterministic canonical JSON/hash, strict levels/relations, legacy migration adapter.
-- `tests/test_phase05_typed_graph.py`.
-
-Evidence:
-- local isolated graph suite PASS.
-- deterministic hash/round-trip PASS.
-- legacy `Brief → Beat PRECEDES` migration PASS.
-- illegal `Scene MATERIALIZES_AS Renderer` rejected.
-
-Decision:
-Existing `MotionGraph` remains compatibility layer; Studio Engine uses `TypedEditingGraph`. No GraphV2 rewrite.
+Artifacts: `src/graph/ontology.py`, `src/graph/editing_graph.py`, typed graph tests.
+Evidence: deterministic graph serialization/hash round-trip PASS; legacy migration PASS; illegal relation rejection PASS.
+Decision: existing MotionGraph remains compatibility layer; no GraphV2 rewrite.
 
 ### Batch 03 — E08→E09 Causal Impact + Execution DAG
 Status: IMPLEMENTED / CANONICAL MERGE PENDING CI
-
-Implemented:
-- extended `src/graph/impact.py` without removing legacy `affected_subgraph()`.
-- relation-aware causal invalidation direction: forward/reverse/bidirectional according to dependency semantics.
-- extended `src/graph/scheduler.py` with deterministic ExecutionPlan, dependency topology and cache keys.
-- `tests/test_phase05_execution_dag.py`.
-
-Important correction discovered during Gauntlet:
-Naive source→target invalidation was wrong for relations such as `Layer USES TypographyRole` and `StyleSignature DERIVED_FROM Asset`. The engine now asks which node is the dependency and which is the dependent for each relation.
-
+Artifacts: relation-aware invalidation in `impact.py`; deterministic execution planning/cache keys in `scheduler.py`; execution DAG tests.
+Gauntlet correction: dependency direction is relation-aware, not always source→target.
 Evidence:
-- typography mutation invalidates TypographyRole→Layer→Composition while Source/Style remain preserved.
-- source mutation invalidates Source→Style→Layer→Composition while Typography/Renderer remain preserved.
-- renderer mutation invalidates Composition but not evidence/semantic nodes.
-- `extract → normalize → compile` execution order PASS.
-- stable cache keys deterministic; runtime version changes cache key.
-- local E05→E09 suite: 3 tests PASS, 0 failures.
+- TypographyRole mutation invalidates Layer→Composition, preserves source/style evidence.
+- Source mutation invalidates Style→Layer→Composition.
+- Renderer mutation invalidates Composition without invalidating semantic/extraction evidence.
+- `extract → normalize → compile` ordering PASS.
+- runtime-version cache invalidation PASS.
 
-### Batch 04 — E10→E14 Director → Editing → Audio Graph
+### Batch 04 — E10→E14 Director → Editing → Audio
 Status: IMPLEMENTED / CANONICAL MERGE PENDING CI
+Artifacts:
+- `src/direction/{contracts,compiler}.py`
+- `src/editing/{compiler,audio_graph}.py`
+- Director/editing/audio tests.
+Guarantees:
+- full timeline coverage;
+- semantic-before-primitives;
+- explicit motion purpose and attention target per beat;
+- negative motion rules encoded as graph nodes;
+- one primary attention Layer max per Scene;
+- camera no-shake contracts;
+- typography readability strict;
+- transitions derived from existing state;
+- each Scene has audio event or intentional silence contract.
+Evidence: cumulative local harness through E14: 5 tests PASS, 0 failures.
 
-Implemented:
-- `src/direction/contracts.py`: emotion, physics, beat and DirectorSpec contracts plus negative motion rules.
-- `src/direction/compiler.py`: brief/semantic behavior → L1 DirectorGraph.
-- `src/editing/compiler.py`: DirectorGraph → Scene/Shot/Layer/Track/Camera/Material/Typography/Transition graph.
-- `src/editing/audio_graph.py`: AudioCue/MusicBeat/VoiceLine nodes and explicit scene synchronization contracts.
-- tests: `test_phase05_director_compiler.py`, `test_phase05_editing_audio.py`.
-
-Director guarantees now encoded:
-- full timeline coverage.
-- each beat has narrative function, primary attention target and explicit motion purpose.
-- semantic behavior is selected before primitive candidates.
-- master negative rules exist as graph nodes.
-- one primary attention Layer maximum per Scene.
-- camera defaults to no-shake directed rigs rather than magical motion.
-- typography is readability-strict.
-- transitions originate from existing geometry/state where possible.
-- every scene has explicit audio event or intentional-silence choreography.
-
+### Batch 05 — E15→E16 Skill Registry + Runtime
+Status: IMPLEMENTED / CANONICAL MERGE PENDING CI
+Artifacts:
+- `src/skills/registry.py`
+- `src/skills/runtime.py`
+- `tests/test_phase05_skill_runtime.py`
+Capabilities:
+- typed SkillSpec and capability inventory;
+- explicit tool/provider/capability requirements;
+- authority threshold;
+- fallback chains with cycle protection;
+- dependency DAG execution;
+- downstream BLOCKED when prerequisite fails;
+- executor absence cannot silently PASS;
+- execution evidence writes Run/Skill/ToolCall L3 nodes.
 Evidence:
-- Director timeline 0→duration with no gap/overlap PASS.
-- semantic `autonomy`→controller_node and `bottleneck`→geometric_narrowing PASS.
-- 3 scenes / 9 canonical layers / 2 transitions for 3-beat fixture PASS.
-- camera/material/typography contracts present PASS.
-- brushed-aluminum Visual DNA maps to brushed_metal material PASS.
-- audio cues per scene + BPM anchors + overlapping VO sync PASS.
-- cumulative local E05→E14 test harness: 5 tests PASS, 0 failures.
+- Pinterest-unavailable → explicit local fallback PASS.
+- FFmpeg missing → BLOCKED with missing capability/tool evidence.
+- dependency order PASS.
+- fallback selected skill recorded in trace PASS.
+- non-strict failed dependency propagation PASS.
+- cumulative local harness through E16: 6 tests PASS, 0 failures.
+
+### Batch 06 — E17→E20 GraphRAG + Provider/Asset Intelligence
+Status: IMPLEMENTED V1 / CANONICAL MERGE PENDING CI
+Artifacts:
+- `src/knowledge/memory_store.py`
+- `src/rag/hybrid.py`
+- `src/providers/{contracts,policy}.py`
+- `src/assets/fitness.py`
+- `tests/test_phase05_rag_assets.py`
+GraphRAG behavior:
+1. hard filters: licensing / renderer / asset type / aspect ratio;
+2. controlled component scores;
+3. vector similarity;
+4. graph-neighborhood proximity;
+5. explainable ranking.
+Memory planes now modeled in SQLite: reference/style/motion/success/failure/renderer/asset/user_feedback.
+Provider policy:
+- Pinterest → reference-only by default;
+- Pexels → commercial candidate but license review required;
+- Flaticon → license/attribution review required;
+- Swishy → code/composition pattern reference, no blind copying;
+- local/Drive → owned only when provenance confirms it;
+- generated → still policy/provenance gated.
+Asset gate:
+DISCOVER → POLICY/LICENSE → HASH → semantic/style/technical fitness → promotion/quarantine.
+Evidence:
+- unlicensed memory hard-filtered from retrieval PASS.
+- graph-close style outranks graph-far alternative PASS.
+- retrieval explanation present PASS.
+- Pinterest reference can promote only as approved_reference PASS.
+- unverified Pexels candidate quarantined PASS.
+- owned hashed local asset approved PASS.
+- cumulative local harness through E20: 7 tests PASS, 0 failures.
 
 ## CI / PR truth
-- PR #35 remains open and mergeable.
-- Current branch HEADs are not receiving GitHub Actions runs.
-- Earlier PR run ended in `startup_failure` with zero jobs.
-- Therefore no claim of full repository CI green is allowed.
-- NO merge to `main` until Actions executes successfully or external startup issue is resolved and equivalent full gate is obtained.
+- PR #35 remains open and mergeable at latest check.
+- GitHub Actions is not generating runs for current HEADs.
+- Earlier PR-triggered Actions run ended in `startup_failure` with zero jobs.
+- Full repository CI is UNVERIFIED; no merge to `main` is allowed yet.
 
-## Next — E15→E16
-Implement first-class Skill Registry and capability runtime:
-- typed registry loaded from skill contracts;
-- capability inventory;
-- dependency resolution;
-- authority/cost/latency-aware selection;
-- explicit fallback traces;
-- provider/tool availability cannot silently become PASS;
-- skill executions attach ToolCall/Skill/Run evidence to the graph.
+## Next — E21→E22
+- evolve primitive registry into semantic/Lava-like portable motion components;
+- encode intent, attention role, channels, physics/easing envelopes, renderer support, forbidden combinations and QA;
+- add graph-native composition blueprints: Apple Product Reveal, SaaS UI Proof, Hyper Reward, Audio Pulse, Editorial Kinetic, Minimal Orbit, Portal Glass;
+- blueprints must contain structural requirements, never fixed copy;
+- grammar/semantic routing chooses primitive families before renderer compilation.
