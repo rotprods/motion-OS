@@ -1,0 +1,65 @@
+flowchart TD
+    U[User Expert Knowledge] --> CP[copy_pastes / immutable source]
+    CP --> PE[Proposition Extractor]
+    PE --> CMP[Compare Canon]
+
+    CMP -->|additive/refinement| PLAN[Living Phase Plan]
+    CMP -->|conflict| CR[Conflict Resolver]
+    CMP -->|time-sensitive capability| CAP[Capability Registry]
+    CMP -->|example only| EX[Example Library]
+
+    CR --> PLAN
+    CAP --> PLAN
+    EX --> PLAN
+
+    PLAN --> GD[Graph Delta]
+    GD --> TASK[Task / Checkpoint Delta]
+    TASK --> IMP[Implementation / Experiment]
+    IMP --> QA[QA + Benchmark]
+    QA -->|promote| CANON[Canonical Config / Schema / Code]
+    QA -->|quarantine| Q[Quarantine / Failure Memory]
+    QA -->|rollback| RB[Rollback]
+
+    CANON --> SM[Success Memory]
+    Q --> FM[Failure Memory]
+    RB --> FM
+    SM --> PLAN
+    FM --> PLAN
+
+    subgraph Phase04[Phase 04 Visual-DNA Extraction]
+      V[Source Video] --> ING[Ingest / FFprobe]
+      ING --> SH[Shot Detection]
+      SH --> KF[Keyframes]
+      KF --> OCR[OCR / Text Tracks]
+      KF --> COL[Color / Gradient]
+      KF --> LAY[Layout / Grid]
+      KF --> MOT[Optical Flow / Motion Tracks]
+      KF --> FX[FX Heuristics]
+      KF --> AST[Asset / Material Typing]
+      V --> AUD[Audio / Transcript / Beats]
+
+      OCR --> FP[Feature Pack]
+      COL --> FP
+      LAY --> FP
+      MOT --> FP
+      FX --> FP
+      AST --> FP
+      AUD --> FP
+      SH --> FP
+
+      FP --> NORM[LLM Normalizer]
+      NORM --> TAX[Controlled Taxonomy]
+      TAX --> MS[MotionStyle2JSON]
+      MS --> SIG[Style Signature + Evidence]
+      MS --> REM[Remotion Compiler]
+      MS --> FR[Framer Motion Compiler]
+      SIG --> KB[Knowledge Store]
+    end
+
+    KB --> GEN[GENERATE Planner]
+    FP --> REC[RECONSTRUCT_EXACT Measurement Support]
+    GEN --> IMP
+    REC --> IMP
+
+    classDef evidence fill:#eef,stroke:#446;
+    class CP,V,KF,FP,SIG evidence;

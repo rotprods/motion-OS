@@ -1,0 +1,46 @@
+version: 1
+phases:
+  phase_01:
+    name: motion_grammar_and_brand_energy
+    status: canonical_foundation
+    source_archive: copy_pastes/README.md
+    plan: plans/phase_01_motion_grammar_and_brand_energy.md
+    canonical_outputs:
+      - config/motion_grammars.yaml
+      - config/style_families.yaml
+    depends_on: []
+    feeds: [phase_02, phase_04]
+  phase_02:
+    name: professional_motion_system
+    status: canonical_foundation
+    source_archive: copy_pastes/README.md
+    plan: plans/phase_02_professional_motion_system.md
+    canonical_outputs:
+      - knowledge/motion_grammar/PROFESSIONAL_MOTION_SYSTEM.md
+    depends_on: [phase_01]
+    feeds: [phase_04]
+  phase_03:
+    name: exact_svg_reconstruction
+    status: canonical_foundation
+    source_archive: copy_pastes/README.md
+    plan: plans/phase_03_exact_svg_reconstruction.md
+    canonical_outputs:
+      - schemas/svg_reconstruction.schema.json
+      - config/execution_modes.yaml
+    depends_on: []
+    feeds: [phase_04]
+  phase_04:
+    name: visual_dna_extraction_and_style_compiler
+    status: planned_and_contracts_bootstrapped
+    source_archive:
+      - copy_pastes/phase_04_a_extraction_pipeline.md
+      - copy_pastes/phase_04_b_motionstyle2json_master.md
+      - copy_pastes/phase_04_c_reverse_engineer_templates_and_style_dna.md
+    plan: plans/phase_04_visual_dna_extraction_and_style_compiler.md
+    canonical_outputs:
+      - schemas/feature_pack.schema.json
+      - schemas/motionstyle2json.schema.json
+      - config/visual_dna_taxonomy.yaml
+      - architecture/phase_learning_graph.mmd
+    depends_on: [phase_01, phase_02, phase_03]
+    feeds: [generate, reconstruct_exact, reference_intelligence]

@@ -1,0 +1,153 @@
+version: 1.0.0
+policy:
+  closed_catalog_default: true
+  unknown_value: other
+  require_evidence_for_confidence_ge: 0.45
+  exact_font_identity_requires_external_evidence: true
+  incompatible_styles_must_be_chaptered_or_mode_separated: true
+
+style_families:
+  - editorial_minimal
+  - neon_dark
+  - ui_saas_glow
+  - frosted_atmosphere
+  - eco_handdrawn_green
+  - kinetic_type
+  - 3d_soft_pastel
+  - data_map_minimal
+  - print_editorial
+  - minimal_orbit
+  - portal_glass_ui
+  - premium_product
+  - dark_technical
+  - experimental_kinetic
+  - other
+
+typography:
+  - grotesk_modern
+  - serif_editorial
+  - mono_tech
+  - handwritten_marker
+  - rounded_geometric
+  - system_sans
+  - other
+
+composition_patterns:
+  - centered_hero
+  - split_layout
+  - floating_cards
+  - stacked_panels
+  - full_bleed
+  - type_wall
+  - modular_grid
+  - dashboard
+  - map_field
+  - product_portrait
+  - orbital_centered
+  - hero_card
+  - other
+
+motion_primitives:
+  - fade_in
+  - fade_out
+  - slide_in
+  - slide_out
+  - scale_pop
+  - reveal_mask
+  - smear
+  - glow_trace
+  - camera_dolly
+  - camera_pan
+  - camera_tilt
+  - parallax_shift
+  - stagger
+  - typing
+  - cursor_blink
+  - underline_draw
+  - card_enter
+  - card_expand
+  - collapse
+  - orbit
+  - assemble
+  - condense_to_brand
+  - audio_pulse
+  - match_motion
+  - foreground_occlusion
+  - other
+
+transitions:
+  - cut
+  - fade
+  - cross_dissolve
+  - match_move
+  - match_cut
+  - whip_pan
+  - wipe
+  - slide
+  - zoom
+  - glow_wipe
+  - shape_morph
+  - rack_focus_sim
+  - other
+
+materials:
+  - glass
+  - matte_plastic
+  - brushed_metal
+  - polished_metal
+  - paper
+  - clay
+  - ceramic
+  - soft_polycarbonate
+  - raster_photo
+  - other
+
+fx_tokens:
+  - bloom
+  - glow
+  - blur_in
+  - blur_out
+  - motion_blur
+  - grain_subtle
+  - vignette
+  - soft_shadow
+  - ambient_occlusion
+  - light_leak
+  - scrim
+  - reflection_subtle
+  - other
+
+easing_presets:
+  - linear
+  - ease_in_out_cubic
+  - ease_out_cubic
+  - ease_in_cubic
+  - spring_soft
+  - spring_snappy
+  - step
+  - other
+
+camera_rigs:
+  - overhead
+  - macro_slider
+  - ui_plate
+  - virtual_orthographic_2_5d
+  - locked_tripod
+  - other
+
+motion_energy:
+  - calm
+  - low
+  - medium
+  - high
+  - hyper
+
+style_tensions:
+  minimal_orbit_vs_portal_glass:
+    resolution: mode_separation
+    shared_bridge: circular_orbital_transition_grammar
+    forbidden_default: fifty_fifty_blend
+  flat_stroke_vs_soft_3d:
+    resolution: choose_primary_mode_per_scene
+  single_accent_vs_gradient:
+    resolution: one_gradient_per_scene_and_one_hero_emphasis
