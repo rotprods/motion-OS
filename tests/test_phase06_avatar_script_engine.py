@@ -100,6 +100,7 @@ def test_avatar_request_uses_tts_not_display_text():
 
 def test_render_telemetry_ingestion_is_non_destructive():
     manifest = load_fixture()
+    original_duration = manifest["render"].get("actual_duration_s")
     updated = ingest_render_telemetry(
         manifest,
         provider_job_id="job-1",
@@ -110,7 +111,7 @@ def test_render_telemetry_ingestion_is_non_destructive():
     )
     assert updated["render"]["actual_duration_s"] == 38.4
     assert updated["semantic_beats"] == manifest["semantic_beats"]
-    assert manifest["render"]["actual_duration_s"] is None
+    assert manifest["render"]["actual_duration_s"] == original_duration
 
 
 def test_estimator_accounts_for_pause_and_phonetic_expansion():
