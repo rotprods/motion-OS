@@ -1,78 +1,89 @@
-# Phase 06 — Define Goal + Checkpoints
+# Phase 06 — Goal + Checkpoints
 
 ## Goal
-Build a production-grade upstream **Avatar Script & Voice Engine** that converts a raw idea/source into a validated 30–45s avatar-video package with predictable duration, simple language, strong retention architecture, correct TTS pronunciation, configurable avatar/voice routing, provenance, and a graph-ready semantic handoff for downstream MOTION.OS editing.
-
-## North-star acceptance
-A new agent can take a raw idea and produce, without conversational context:
-1. an explicit ICP and primary viral driver (MONEY / LOVE / HEALTH / PERSONAL_GROWTH),
-2. one core transformation,
-3. a scored hook set and selected hook,
-4. semantic beats with stable IDs and ~3s information cadence,
-5. display script + provider-safe TTS script,
-6. CTA + moral/payoff,
-7. a duration estimate inside 30–45s (preferred 35–40s),
-8. a configurable avatar render request,
-9. render telemetry ingestion,
-10. a validated handoff manifest consumed downstream by editing/motion agents.
-
-## Hard boundaries
-This phase owns content intelligence, narration, voice/avatar generation and upstream semantic metadata. It does not own motion graphics, overlays, B-roll placement, visual grammar, timeline compositing, grade or final export.
+Convert any valid source into a 30–45s avatar-led vertical video asset plus a graph-native semantic handoff manifest, optimized for a concrete ICP, human viral driver, retention, factual integrity, pronunciation, reproducibility and downstream editability; then close the loop with real render and social-performance telemetry.
 
 ## Checkpoints
 
-### CP0 — Collision-safe persistence
-PASS when source, plan, goal/checkpoints and graph exist on an isolated branch and no downstream visual/render file is modified.
+### CP00 — Collision safety
+PASS when Phase 06 changes remain isolated from active downstream Studio Engine/motion ownership except explicit shared-contract deltas.
 
-### CP1 — Contract authority
-PASS when a JSON Schema validates a real manifest and requires source refs, claim notes, semantic beat IDs, display/TTS separation, CTA, moral, avatar profile and render telemetry fields.
+### CP01 — Source + claim authority
+PASS when every factual source can be serialized into SourcePack with source refs and claims classified as VERIFIED, HIGH_CONFIDENCE, INFERRED, OPINION, TIME_SENSITIVE or UNSUPPORTED.
 
-### CP2 — Configurable production profile
-PASS when HeyGen avatar/voice/output defaults live in config rather than script logic.
+### CP02 — Audience intelligence
+PASS when each content item has a situational ICP with sophistication, awareness, pains, pleasures, fears, aspirations, objections, identity/status concerns, proof preference and language ceiling.
 
-### CP3 — Deterministic script QA
-PASS when code rejects:
-- target duration outside 30–45s,
-- estimated duration outside 30–45s,
-- duplicate/malformed beat IDs,
-- missing CTA,
-- missing moral/payoff,
-- missing provenance/claim notes,
-- display/TTS contamination rules where applicable.
+### CP03 — Driver/subdriver routing
+PASS when a primary driver MONEY/LOVE/HEALTH/PERSONAL_GROWTH and useful subdrivers are explicit and auditable.
 
-### CP4 — Duration calibration
-PASS when estimator supports per-profile words/sec, punctuation pause cost and phonetic expansion; known 62.8245s and 82.8343s renders are retained as negative calibration evidence.
+### CP04 — Angle tournament
+PASS when 5–12 non-duplicate angles can be represented and ranked by ICP relevance, pain/pleasure intensity, novelty, credibility, shareability, visualizability, CTA compatibility and brand fit.
 
-### CP5 — TTS normalization
-PASS when pronunciation overrides produce provider-safe speech text without changing canonical display text.
+### CP05 — Hook tournament
+PASS when hooks from multiple families are ranked and the winner meets configured threshold before script compilation.
 
-### CP6 — Strategy contracts
-PASS when the manifest can encode ICP, pain/pleasure, primary/secondary viral driver, hook candidates/scores, core thesis and semantic retention beats.
+### CP06 — Retention graph
+PASS when stable beat IDs serialize and no semantic dead span >3.5s is accepted without explicit reason.
 
-### CP7 — Avatar request + telemetry
-PASS when code can build a provider request from profile + manifest and ingest provider job/status/actual duration/asset ref without coupling to the downstream renderer.
+### CP07 — Script compiler
+PASS when semantic, spoken and TTS text are separate artifacts compiled from the beat graph rather than one monolithic paragraph.
 
-### CP8 — Downstream graph handoff
-PASS when each semantic beat has stable ID, intended function and optional downstream edit cues; serialized round-trip preserves IDs.
+### CP08 — Simplicity + factual QA
+PASS when script satisfies child/older non-technical comprehension intent, claim provenance, one-core-transformation, CTA and moral gates.
 
-### CP9 — Test gate
-PASS when Phase 06 unit/contract tests pass locally/CI and repository health remains green.
+### CP09 — Duration model
+PASS V1 when known long failures are rejected and at least one real production render is predicted within target. Production PASS requires >=5 real renders and normalized mean error <=7%.
 
-### CP10 — Empirical calibration
-PASS after >=10 scripts / >=4 topic families / >=5 actual avatar renders, mean duration prediction error <=10%, and human scores >=8.5 for hook, clarity, cadence, CTA and payoff.
+### CP10 — Speech/TTS normalization
+PASS when pronunciation overrides do not contaminate display text and provider-ready TTS text is deterministic.
 
-## Execution state
-- CP0: IMPLEMENTED
-- CP1: IMPLEMENTED
-- CP2: IMPLEMENTED
-- CP3: IMPLEMENTED
-- CP4: IMPLEMENTED_V1; empirical recalibration open
-- CP5: IMPLEMENTED
-- CP6: IMPLEMENTED_CONTRACT
-- CP7: IMPLEMENTED_ADAPTER_CONTRACT; live provider transport remains external
-- CP8: IMPLEMENTED
-- CP9: CODE_READY; CI evidence pending branch run
-- CP10: OPEN — requires production data
+### CP11 — Voice/avatar routing
+PASS when provider profile is configurable and the canonical HeyGen profile can be selected without hard-coding creative logic.
 
-## Promotion rule
-Do not mark Phase 06 VERIFIED until CP9 has authoritative CI evidence. Do not mark it empirically calibrated until CP10 passes with real render/performance data.
+### CP12 — Provider render
+PASS when a preflight-approved manifest can compile to provider payload and a real provider render can be launched through the active runtime/connector.
+
+### CP13 — Render telemetry
+PASS when provider job ID, status, actual duration, asset refs and failure fields can be ingested into the same manifest.
+
+### CP14 — Downstream handoff
+PASS when semantic beat IDs, edit cues, CTA, moral, claims and render metadata can be consumed without re-solving audience strategy.
+
+### CP15 — Performance ingestion
+PASS when published metrics can be attached to content IDs and attribution fields.
+
+### CP16 — Learning/calibration
+PASS when performance and render-duration evidence can calibrate future driver, angle, hook, CTA, duration and profile decisions without overwriting raw evidence.
+
+### CP17 — Batch production
+PASS when >=10 scripts across >=4 topic families can be validated through the same contracts and >=5 real avatar renders exist.
+
+### CP18 — Autonomous content factory
+Production definition of done: >=30 real productions; >=5 topic families; all four human drivers represented; duration MAE <=7%; human clarity >=9; hook >=9; CTA >=8.5; claim violations=0; pronunciation error <=1%; provider failures recoverable; stable beat IDs survive downstream; performance attribution available.
+
+## Current state
+- CP00: PASS — dedicated branch/PR and zero known path overlap with PR #35 at last collision scan.
+- CP01: IMPLEMENTED V2 contract.
+- CP02: IMPLEMENTED V1/V2 manifest contract.
+- CP03: IMPLEMENTED deterministic router primitives + policy.
+- CP04: IMPLEMENTED ranking contract; generative candidate production remains agent/LLM responsibility.
+- CP05: IMPLEMENTED ranking contract + hook families.
+- CP06: IMPLEMENTED stable beat/dead-span validators.
+- CP07: IMPLEMENTED display/TTS split; semantic/spoken are defined V2 contracts.
+- CP08: IMPLEMENTED deterministic preflight baseline; human creative scoring remains empirical.
+- CP09: CALIBRATED V1 — OpenMontage real render 42.6318s; prior 82.8343s and 62.8245s examples retained as reject evidence.
+- CP10: IMPLEMENTED.
+- CP11: IMPLEMENTED.
+- CP12: REAL PROVIDER LOOP PROVEN through HeyGen connector for OpenMontage.
+- CP13: IMPLEMENTED + real duration ingested.
+- CP14: IMPLEMENTED contract/edit cues.
+- CP15: IMPLEMENTED data structure; real social metrics not yet ingested.
+- CP16: IMPLEMENTED attribution/calibration primitives; needs production corpus.
+- CP17: OPEN empirical scale gate.
+- CP18: OPEN production scale gate.
+
+## Persistence map
+- GitHub: software/control truth.
+- Google Drive `MOTION.OS_CANONICAL/08_PHASE06_CONTENT_AVATAR_ENGINE`: recovery and runbook truth.
+- ChatGPT Library `/MOTION.OS/commands/HEYGEN_COMMAND_SYSTEM.md`: persistent command retrieval truth.
