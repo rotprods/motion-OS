@@ -1,0 +1,62 @@
+execution_modes:
+  GENERATE:
+    objective: original_professional_motion_design
+    optimizer:
+      - semantic_clarity
+      - motion_grammar_fidelity
+      - product_authenticity
+      - professional_finish
+      - brand_alignment
+      - audio_visual_sync
+    required_inputs:
+      - brief
+    optional_inputs:
+      - references
+      - brand_kit
+      - script
+      - assets
+    pipeline:
+      - intent
+      - reference_analysis
+      - visual_dna
+      - motion_system_compile
+      - semantic_behavior_map
+      - storyboard
+      - asset_plan
+      - primitive_route
+      - render
+      - qa
+      - repair
+
+  RECONSTRUCT_EXACT:
+    objective: source_frame_fidelity
+    optimizer:
+      - frame_fidelity
+      - text_integrity
+      - geometry_consistency
+      - timing_fidelity
+      - deterministic_replay
+    preferred_inputs:
+      - png_frame_sequence
+      - source_fps
+      - source_resolution
+    accepted_inputs:
+      - mp4
+      - frame_references
+      - description
+    weak_input_policy: mark_unknowns_and_never_claim_exact
+    pipeline:
+      - ingest
+      - frame_extract
+      - segment_motion_types
+      - classify_vector_raster_layers
+      - persistent_id_tracking
+      - coordinate_reconstruction
+      - timeline_compile
+      - svg_or_hybrid_emit
+      - frame_diff_qa
+      - uncertainty_report
+
+invariant:
+  never_use_generation_quality_score_as_reconstruction_fidelity_score: true
+  never_claim_exact_from_description_only: true
