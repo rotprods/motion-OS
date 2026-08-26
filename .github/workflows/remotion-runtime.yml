@@ -1,0 +1,58 @@
+name: Remotion Runtime
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  render-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: runtime/remotion/package.json
+      - name: Install FFmpeg runtime
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e '.[dev]'
+      - name: Build compiler-derived runtime spec
+        run: python scripts/build_remotion_runtime_fixture.py
+      - name: Install pinned Remotion runtime
+        working-directory: runtime/remotion
+        run: npm install --no-audit --no-fund
+      - name: Resolve compositions from generated spec
+        working-directory: runtime/remotion
+        run: npx remotion compositions src/index.ts
+      - name: Render compiler-derived composition
+        working-directory: runtime/remotion
+        run: |
+          mkdir -p out
+          npx remotion render src/index.ts MotionOSRuntime out/runtime.mp4 --codec=h264 --log=verbose
+      - name: Verify rendered MP4 against compiler contract
+        run: |
+          python scripts/verify_remotion_render.py \
+            --spec runtime/remotion/src/runtimeSpec.json \
+            --video runtime/remotion/out/runtime.mp4 \
+            --out runtime/remotion/render_evidence.json
+      - name: Repo health
+        run: python scripts/repo_health.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: remotion-runtime-proof
+          path: |
+            runtime/remotion/out/runtime.mp4
+            runtime/remotion/src/runtimeSpec.json
+            runtime/remotion/compiler_evidence.json
+            runtime/remotion/render_evidence.json
+          retention-days: 14
