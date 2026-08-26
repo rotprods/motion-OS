@@ -1,0 +1,6 @@
+{
+  "orbital_mission_control": {"palette":"near-black + mint telemetry", "grammar":"radar/orbit/scan", "type":"technical sans/mono"},
+  "editorial_cartography": {"palette":"warm paper + rust", "grammar":"topographic lines/location markers", "type":"serif editorial"},
+  "kinetic_data_sculpture": {"palette":"white + black + electric blue", "grammar":"particle topology/data bars", "type":"bold grotesk"},
+  "chrome_fashion_future": {"palette":"silver + charcoal + bronze", "grammar":"metallic orb/luxury product field", "type":"high-contrast serif"}
+}
