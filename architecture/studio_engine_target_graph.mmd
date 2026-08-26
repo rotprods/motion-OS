@@ -1,0 +1,72 @@
+flowchart TD
+  U[Brief / Source / References] --> D[Director OS Compiler]
+  U --> AN[Physical Analyze Pipeline]
+  AN --> FP[FeaturePack Evidence]
+  FP --> VN[MotionStyle2JSON / Visual DNA]
+
+  subgraph KG[GraphRAG Knowledge Planes]
+    RM[Reference Memory]
+    SM[Style Memory]
+    MM[Motion Memory]
+    SU[Success Memory]
+    FM[Failure Memory]
+    RRM[Renderer Memory]
+    AM[Asset Memory]
+  end
+
+  VN --> KG
+  D --> SG[Semantic Creative Graph]
+  KG --> RET[Hybrid GraphRAG Retrieval]
+  RET --> SG
+
+  SG --> EG[Editing Graph]
+  EG --> BG[Beat / Scene Graph]
+  EG --> LG[Layer / Track Graph]
+  EG --> CG[Camera / Depth / Material Graph]
+  EG --> AG[Audio / Music / VO Graph]
+  EG --> TG[Transition / Primitive Graph]
+
+  subgraph PROVIDERS[Provider + Asset Intelligence]
+    PIN[Pinterest Reference]
+    PEX[Pexels]
+    FLA[Flaticon]
+    SWI[Swishy Pattern Reference]
+    LOC[Local / Drive]
+    GEN[Generated Assets]
+  end
+
+  PROVIDERS --> AI[License / Hash / Fitness / Provenance]
+  AI --> LG
+
+  EG --> SK[Skill DAG / Capability Resolver]
+  SK --> RR[Renderer Router]
+
+  subgraph RENDERERS[Renderer Backends]
+    REM[Remotion]
+    HF[HyperFrames]
+    LOT[Lottie Subset]
+    SVG[SVG + JS]
+    VID[Generated / Raster Plates]
+  end
+
+  RR --> RENDERERS
+  RENDERERS --> COMP[FFmpeg / Multi-renderer Compositor]
+  COMP --> MASTER[Master Artifact]
+
+  MASTER --> QA[Technical + Temporal + Grammar + Brand + Creative Critics]
+  QA -->|pass| REL[Release + Attestation]
+  QA -->|defect| DEF[Defect Graph]
+  DEF --> ROOT[Root Cause]
+  ROOT --> CAND[Repair Candidate Subgraphs]
+  CAND --> IMP[Impact / Descendant Analysis]
+  IMP --> SK
+  REL --> SU
+  DEF --> FM
+  REL --> RRM
+
+  subgraph LEVELS[Three-level invariant]
+    L1[L1 Semantic Intent]
+    L2[L2 Editing / Motion]
+    L3[L3 Render / Evidence]
+    L1 --> L2 --> L3
+  end

@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://motion.os/schemas/provider_asset.schema.json",
+  "title": "MOTION.OS Provider Asset Candidate",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["asset_id", "provider", "source_ref", "asset_type", "policy", "provenance", "fitness", "status"],
+  "properties": {
+    "asset_id": {"type": "string", "minLength": 1},
+    "provider": {"enum": ["pinterest", "pexels", "flaticon", "swishy", "local", "drive", "generated", "web_other"]},
+    "source_ref": {"type": "string", "minLength": 1},
+    "asset_type": {"enum": ["reference", "image", "video", "icon", "vector", "texture", "template_reference", "code_reference", "audio", "font_reference", "other"]},
+    "sha256": {"type": ["string", "null"], "pattern": "^[a-fA-F0-9]{64}$"},
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["usage_class", "license_state"],
+      "properties": {
+        "usage_class": {"enum": ["reference_only", "evaluation_only", "commercial_candidate", "owned", "generated"]},
+        "license_state": {"enum": ["unknown", "needs_review", "permitted", "restricted", "owned"]},
+        "license_ref": {"type": ["string", "null"]},
+        "attribution_required": {"type": ["boolean", "null"]},
+        "notes": {"type": ["string", "null"]}
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["discovered_at", "discovery_method"],
+      "properties": {
+        "discovered_at": {"type": "string", "format": "date-time"},
+        "discovery_method": {"type": "string", "minLength": 1},
+        "query": {"type": ["string", "null"]},
+        "parent_reference_id": {"type": ["string", "null"]},
+        "downloaded_at": {"type": ["string", "null"], "format": "date-time"}
+      }
+    },
+    "technical": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "width": {"type": ["integer", "null"], "minimum": 1},
+        "height": {"type": ["integer", "null"], "minimum": 1},
+        "duration_s": {"type": ["number", "null"], "minimum": 0},
+        "has_alpha": {"type": ["boolean", "null"]},
+        "format": {"type": ["string", "null"]}
+      }
+    },
+    "fitness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["semantic_match", "style_match", "technical_fit", "licensing_confidence"],
+      "properties": {
+        "resolution": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "semantic_match": {"type": "number", "minimum": 0, "maximum": 1},
+        "style_match": {"type": "number", "minimum": 0, "maximum": 1},
+        "technical_fit": {"type": "number", "minimum": 0, "maximum": 1},
+        "transparency_quality": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "licensing_confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "aggregate_score": {"type": ["number", "null"], "minimum": 0, "maximum": 1}
+      }
+    },
+    "status": {"enum": ["discovered", "quarantined", "approved_reference", "approved_asset", "rejected"]},
+    "rejection_reasons": {"type": "array", "items": {"type": "string"}}
+  }
+}

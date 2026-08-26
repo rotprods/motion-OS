@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://motion.os/schemas/skill.schema.json",
+  "title": "MOTION.OS Skill Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["skill_id", "version", "inputs", "outputs", "requires", "authority", "deterministic", "failure_modes", "fallbacks", "qa"],
+  "properties": {
+    "skill_id": {"type": "string", "pattern": "^[a-z0-9_\\-]+$"},
+    "version": {"type": "string", "minLength": 1},
+    "description": {"type": "string"},
+    "inputs": {"type": "array", "items": {"$ref": "#/$defs/io"}},
+    "outputs": {"type": "array", "items": {"$ref": "#/$defs/io"}},
+    "requires": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "tools": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "providers": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "authority": {"enum": ["fixture", "evidence_only", "inferred", "measured", "ground_truth", "authoritative"]},
+    "deterministic": {"type": "boolean"},
+    "cost_class": {"enum": ["low", "medium", "high", "external_metered"]},
+    "latency_class": {"enum": ["interactive", "seconds", "minutes", "batch"]},
+    "failure_modes": {"type": "array", "items": {"type": "string"}},
+    "fallbacks": {"type": "array", "items": {"type": "string"}},
+    "qa": {"type": "array", "items": {"type": "string"}},
+    "graph_effects": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "creates_node_kinds": {"type": "array", "items": {"type": "string"}},
+        "creates_relations": {"type": "array", "items": {"type": "string"}},
+        "may_mutate": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  },
+  "$defs": {
+    "io": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "schema_ref"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "schema_ref": {"type": "string", "minLength": 1},
+        "required": {"type": "boolean", "default": true}
+      }
+    }
+  }
+}
