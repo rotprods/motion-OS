@@ -48,13 +48,20 @@ def reconcile(canonical: ReplicaDigest, replica: ReplicaDigest) -> ReplicaStatus
 
 def reconciliation_report(canonical: ReplicaDigest, replicas: list[ReplicaDigest]) -> dict[str, Any]:
     states = {r.replica: reconcile(canonical, r).value for r in replicas}
-    safe_to_refresh = [name for name, state in states.items() if state in {ReplicaStatus.STALE_REPLICA.value, ReplicaStatus.MISSING.value}]
+    refresh_candidates = [
+        name
+        for name, state in states.items()
+        if state in {ReplicaStatus.STALE_REPLICA.value, ReplicaStatus.MISSING.value}
+    ]
     conflicts = [name for name, state in states.items() if state == ReplicaStatus.CONFLICT.value]
     return {
         "canonical": canonical.to_dict(),
         "replicas": [r.to_dict() for r in replicas],
         "states": states,
-        "safe_to_refresh": safe_to_refresh,
+        "refresh_candidates": refresh_candidates,
         "conflicts": conflicts,
-        "automatic_write_allowed": not conflicts,
+        # Reconciliation is evidence/advice only. A caller must explicitly authorize
+        # any Drive/Library/GitHub mutation after reviewing the report.
+        "automatic_write_allowed": False,
+        "write_requires_explicit_authorization": True,
     }
