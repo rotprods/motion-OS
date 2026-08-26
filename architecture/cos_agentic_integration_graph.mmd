@@ -1,0 +1,93 @@
+flowchart TB
+  subgraph DEV[Developer Agents]
+    A1[Agent A · Remotion #34]
+    A2[Agent B · Studio #35]
+    A3[Agent C · Content/Avatar #37]
+    AX[Future agents]
+  end
+
+  subgraph BOOT[Bootstrap Coordination]
+    GH[GitHub Issue #39\nappend-only developer events]
+    REG[Agent Registry]
+  end
+
+  subgraph KERNEL[Durable Agentic Coordination Kernel]
+    API[Coordination API]
+    EV[(Durable Event Log)]
+    LEASE[(Leases + Fencing)]
+    HEAD[(Aggregate Revisions)]
+    OUT[(Outbox / Inbox)]
+    SNAP[(Snapshots)]
+    CTX[Context Pack Compiler]
+    CONFLICT[Conflict + Impact Engine]
+  end
+
+  subgraph MOTION[MOTION.OS Domain Runtime]
+    CI[Content Intelligence]
+    AV[Avatar Factory]
+    ST[Studio Engine]
+    RM[Renderers]
+    QA[Temporal + Creative QA]
+    PUB[Publishing / Analytics]
+  end
+
+  subgraph COS[COS Graph Engine · compute/projection]
+    ADAPTER[MOTION COS Adapter]
+    DG[Development Graph]
+    PG[Production Graph]
+    KG[Knowledge Graph]
+    PERF[Performance Graph]
+    RG[Resilience Graph]
+    GRAG[GraphRAG / Traversal / Context Inputs]
+  end
+
+  subgraph PERSIST[Other canonical surfaces]
+    GIT[GitHub\nexecutable truth]
+    DRIVE[Drive\nartifacts + recovery]
+  end
+
+  A1 --> GH
+  A2 --> GH
+  A3 --> GH
+  AX --> GH
+  GH --> API
+  REG --> API
+
+  API --> EV
+  API --> LEASE
+  API --> HEAD
+  EV --> OUT
+  EV --> SNAP
+  EV --> ADAPTER
+  LEASE --> CONFLICT
+  ADAPTER --> DG
+  ADAPTER --> PG
+  ADAPTER --> KG
+  ADAPTER --> PERF
+  ADAPTER --> RG
+  DG --> GRAG
+  PG --> GRAG
+  KG --> GRAG
+  PERF --> GRAG
+  RG --> GRAG
+  GRAG --> CTX
+  CONFLICT --> CTX
+  CTX --> API
+
+  CI --> API
+  AV --> API
+  ST --> API
+  RM --> API
+  QA --> API
+  PUB --> API
+
+  API --> GIT
+  API --> DRIVE
+  GIT --> API
+  DRIVE --> API
+
+  CI --> AV --> ST --> RM --> QA --> PUB
+  PUB -.performance events.-> EV
+
+  classDef canonical fill:#fff,stroke:#111,stroke-width:2px;
+  class EV,LEASE,HEAD,GIT,DRIVE canonical;
