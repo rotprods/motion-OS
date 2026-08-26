@@ -6,7 +6,7 @@ Build the robust bridge between raw reference video and reusable, evidence-bound
 ```text
 VIDEO
  ↓
-DETERMINISTIC / LOW-LEVEL EXTRACTION
+PHYSICAL DECODE + DETERMINISTIC / LOW-LEVEL EXTRACTION
  ↓
 FEATURE PACK
  ↓
@@ -19,7 +19,7 @@ COMPILER TARGETS + STYLE SIGNATURE
 GENERATE / RECONSTRUCT / RETRIEVE
 ```
 
-The LLM is not the primary measurement engine when a measurable signal exists.
+The LLM is not the primary measurement engine when a measurable signal exists. Runtime provider state is part of evidence authority: unavailable is a valid state; fabricated fallback is not.
 
 ## CP4.1 Contracts — VERIFIED
 - Feature Pack JSON Schema
@@ -28,34 +28,68 @@ The LLM is not the primary measurement engine when a measurable signal exists.
 - extraction/learning graph
 - schema + traceability tests
 
-## CP4.2 Technical ingest — IMPLEMENTED V1
-- `src/extraction/ingest.py`: FFprobe normalization, rational FPS, metadata, source SHA256.
-- `src/extraction/segmentation.py`: deterministic change-score shot segmentation, full-coverage validation, keyframe planning.
-- tests cover FPS rationality, shot continuity and keyframe invariants.
+## CP4.2 Technical ingest — VERIFIED V2
+- `src/extraction/ingest.py`: FFprobe normalization, rational FPS, metadata and source SHA256.
+- `src/extraction/providers.py`: physical FFmpeg PNG decode; every retained frame receives SHA256 evidence identity.
+- real adjacent-frame change scoring combines luminance and edge-structure deltas.
+- adaptive robust shot threshold uses median/MAD rather than a global magic constant.
+- `src/extraction/segmentation.py`: contiguous shot segmentation + keyframe plan.
+- physical keyframe records bind frame index, timestamp, shot and SHA256 artifact reference.
+- synthetic real-MP4 ground-truth E2E test creates 90 source frames, encodes H.264, decodes the MP4 and requires recovery of boundaries at frames 30/60 within <=1 frame.
 
-Production adapter still needed for computing real histogram scores and writing extracted keyframe images.
+Remaining: benchmark against a historical/native MOTION.OS master, not only the controlled synthetic fixture.
 
-## CP4.3 Visual signals — IMPLEMENTED CORE / PROVIDERS OPEN
-- `src/extraction/visual.py`: deterministic quantized palette, luminance/contrast, gradient candidate and bbox layout inference.
-- `src/extraction/motion.py`: trajectory direction, speed, easing hypothesis and camera/local motion separation.
-- OCR provider, real optical-flow provider and image FX/material detectors remain open integrations.
+## CP4.3 Visual signals — REAL PROVIDERS V1
+- pixel palette and gradient measurement from retained keyframes.
+- OCR: optional real Tesseract provider with confidence, normalized bbox, evidence frame and deterministic continuity tracking.
+- optical flow: optional real OpenCV Farneback dense flow measuring global dx/dy, local residual motion and camera-likelihood.
+- layout: current measured path derives anchor/grid signals primarily from OCR boxes; richer object/card/layout detection remains open.
+- FX/material: measured contrast/edge/highlight/blur proxies + evidence-bound material candidates. These are deliberately labeled heuristic/inferred, not ground-truth material recognition.
+- provider capability registry distinguishes `measured`, `unavailable` and failure states.
 
-## CP4.4 Audio — IMPLEMENTED METRICS / PROVIDERS OPEN
-- `src/extraction/audio_metrics.py`: nearest-event AV sync, hit-rate/delta metrics, event density and transcript coverage.
-- Whisper/transcript and onset extraction remain provider integrations.
+Runtime rule: the absence of OpenCV/Tesseract does not fabricate empty measured observations. It emits an explicit provider-unavailable warning.
 
-## CP4.5 Feature Pack + normalizer — IMPLEMENTED V1
-- `src/extraction/feature_pack.py`: assembly, coverage warnings, schema validation and evidence coverage.
-- `src/normalization/motionstyle.py`: controlled style inference, evidence claims, assumptions segregation, camera/depth/transition contracts and schema-valid MotionStyle2JSON.
-- crucial invariant: when measured micro-choreography is insufficient, the normalizer records the gap instead of fabricating 12 events.
+## CP4.4 Audio — REAL SIGNAL PROVIDER V1
+- FFmpeg physical PCM decode.
+- RMS envelope + transient/onset candidate timestamps from measured energy deltas.
+- onset candidates are not mislabeled as semantic music beats.
+- optional local Whisper provider implemented; unavailable/model/runtime failures remain explicit.
+- existing AV-sync metrics consume measured visual/audio timestamps.
 
-## CP4.6 Compiler — IMPLEMENTED V1
-- `src/compilers/remotion.py`: deterministic scene-spec/TypeScript emitter + scene coverage validation.
-- `src/compilers/framer.py`: required Framer contracts and easing presets.
+Remaining: production verification of transcript provider and stronger beat/music event semantics.
 
-## CP4.7 Knowledge loop — IMPLEMENTED V1 / SCALE BENCHMARK OPEN
-- `src/knowledge/style_store.py`: SQLite style-signature store + evidence-aware cosine retrieval.
-- no external vector DB until corpus size/latency justifies it.
+## CP4.5 Feature Pack + normalizer — VERIFIED E2E V2
+- `src/extraction/pipeline.py` orchestrates MP4 → decode → shots/keyframes → visual/motion/OCR/FX/audio → Feature Pack.
+- provider provenance and authority are persisted.
+- `src/extraction/feature_pack.py` validates the measurement pack.
+- `src/normalization/motionstyle.py` emits schema-valid MotionStyle2JSON with evidence-bound inference and separated assumptions.
+- crucial invariant: normalization never fabricates micro-choreography to satisfy a quantity target.
+
+## CP4.6 Compiler — VERIFIED E2E V2
+- MotionStyle2JSON compiles to deterministic Remotion scene spec and TypeScript.
+- scene coverage must exactly equal project duration before the pipeline succeeds.
+- Framer Motion contracts remain available for interactive/prototype targets.
+- current E2E benchmark reaches Remotion spec generation from a physically encoded MP4.
+
+Remaining: actual Remotion production runtime render and frame comparison.
+
+## CP4.7 Knowledge loop — IMPLEMENTED V1 / CORPUS EXECUTION NEXT
+- SQLite StyleSignature storage + evidence-aware cosine retrieval exists.
+- corpus runner is the next scale step: analyze heterogeneous videos, persist signatures, measure retrieval usefulness and taxonomy stability.
+- external vector DB remains deferred until corpus/latency evidence justifies it.
+
+## Ground-truth benchmark policy
+`src/extraction/benchmark.py` reports dimensions separately:
+- shot precision / recall / F1
+- mean/max boundary error in frames
+- OCR recall
+- palette RGB distance
+- evidence counts and warnings
+
+It intentionally does NOT collapse incomparable extraction dimensions into one vanity score.
+
+Synthetic fixture authority: `ground_truth_measurement` for the controlled source construction.
+Real-world style/creative authority: still requires real reference corpus and temporal critic.
 
 ## Measurement contracts
 ### Feature Pack
@@ -66,41 +100,49 @@ video, style_system, camera_rigs, shots with camera/depth/transition/motion/micr
 
 ## QA hard rules
 - timestamps in range and shots contiguous.
-- measurable facts cannot be invented by normalizer.
+- every retained physical frame is content-addressable.
+- measurable facts cannot be invented by the normalizer.
 - exact font identity requires evidence.
 - major inferred labels carry confidence + evidence.
+- unavailable providers are explicit capability states.
 - incompatible modes are chaptered rather than averaged.
-- compiler scene boundaries must cover total duration.
-- every creative/reconstruction promotion requires appropriate authority, not fixture-only evidence.
+- compiler scene boundaries cover total duration exactly.
+- creative/reconstruction promotion requires appropriate authority, not fixture-only evidence.
 
 ## Storage
 Current scale: SQLite-compatible relational knowledge + Drive artifacts + graph lineage. External vector DB remains deferred.
 
-## Graph delta after Gauntlet 10X
-Added executable nodes/edges for:
-`FFprobeIngest → ShotSegmenter → KeyframePlanner → VisualSignals/MotionSignals/AudioMetrics → FeaturePackAssembler → EvidenceBoundNormalizer → MotionStyle2JSON → RemotionCompiler/FramerCompiler → StyleStore → Retrieval → MotionSystem`.
-Exact reconstruction branches from measured frame evidence into `FidelityGate → SVGJSPlayer` and never uses creative labels as exact geometry.
+## Graph delta — Real Analysis Superwave
+Canonical measurement chain is now:
+
+`SourceMP4 → FFprobe → FFmpegPhysicalDecode → FrameSHA → ChangeScore → ShotBoundary/Keyframe → Pixel/OCR/OpticalFlow/FX/AudioEvidence → CapabilityGate → FeaturePack → SchemaGate → MotionStyle2JSON → SchemaGate → RemotionCompiler → CoverageGate → GroundTruthBenchmark`.
+
+Optional providers branch through `AVAILABLE/UNAVAILABLE`; only AVAILABLE providers may create measured claims.
 
 ## Definition of Done
-Still requires an empirical corpus run:
-- one known MOTION.OS source with ground-truth timeline,
-- >=10 heterogeneous references,
-- extraction accuracy, timing error, evidence coverage and taxonomy consistency,
-- useful retrieval,
-- >=3 compiled references,
-- no chat dependency.
+Phase 04 is not fully closed until:
+- a known historical/native MOTION.OS source is benchmarked against ground truth,
+- >=10 heterogeneous external/reference videos are analyzed,
+- taxonomy consistency and evidence coverage are measured,
+- retrieval produces demonstrably useful neighbors,
+- >=3 analyzed references compile and render through real Remotion runtime,
+- no chat dependency is required.
 
-## Current status after Gauntlet 10X
+## Current status after Real Analysis Superwave
 Architecture/contracts: HIGH MATURITY.
-Core deterministic algorithms: IMPLEMENTED V1.
-Provider integrations: PARTIAL.
-Corpus benchmark: OPEN.
-Production renderer proof: OPEN.
+Physical decode + shot/keyframe evidence: VERIFIED IN CI.
+Ground-truth synthetic MP4 benchmark: VERIFIED IN CI.
+OCR/OpenCV/Whisper implementations: OPTIONAL PROVIDERS / production capability verification still required.
+End-to-end FeaturePack → MotionStyle → Remotion spec: VERIFIED IN CI.
+Heterogeneous corpus benchmark: OPEN.
+Production Remotion render proof: OPEN.
+HyperFrames runtime proof: OPEN.
 Authoritative temporal critic: OPEN.
 
 ## Next highest-leverage work
-1. Real frame extractor + histogram/optical-flow provider using FFmpeg/OpenCV.
-2. OCR provider abstraction with tracked blocks.
-3. audio onset/transcript provider.
-4. ground-truth benchmark runner against a known MOTION.OS render.
-5. feed retrieved StyleSignature into grammar selection and compare generated outputs.
+1. Execute the pipeline against a known MOTION.OS master with declared timeline ground truth.
+2. Analyze >=10 heterogeneous references through a corpus runner and persist StyleSignatures.
+3. Install/verify OpenCV + Tesseract in the production analysis image and quantify their accuracy, not just availability.
+4. Upgrade layout/object tracking beyond OCR-only evidence.
+5. Connect compiled Remotion spec to actual Remotion production render and compare output.
+6. Feed retrieved StyleSignature into grammar selection, render A/B candidates and measure transfer fidelity vs originality.
