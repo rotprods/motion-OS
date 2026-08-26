@@ -6,8 +6,8 @@ Master issue: #36
 Policy: update after every significant implementation batch; run tests after significant changes; never mark a checkpoint complete without evidence.
 
 ## Global state
-- Current macro-phase: P05.0 Baseline Freeze & Architecture Contract
-- Current execution checkpoint: E01→E04
+- Current macro-phase: P05.2 Impact / Dependency / Execution DAG
+- Current execution checkpoint: E08→E09
 - Release status: BLOCKED
 - Branch: `feat/superwave-real-analysis`
 - Active PR: #35
@@ -18,9 +18,9 @@ Policy: update after every significant implementation batch; run tests after sig
 - [x] E02 Architecture ADRs + migration invariants — IMPLEMENTED / evidence recorded
 - [x] E03 EditingGraph contract — IMPLEMENTED / isolated schema validation PASS
 - [x] E04 Skill + ProviderAsset contracts — IMPLEMENTED / isolated schema validation PASS
-- [ ] E05 Typed node ontology
-- [ ] E06 Typed edge registry + legal relation matrix
-- [ ] E07 Graph validation + deterministic serialization + migrations
+- [x] E05 Typed node ontology — IMPLEMENTED / local behavior test PASS
+- [x] E06 Typed edge registry + legal relation matrix — IMPLEMENTED / local behavior test PASS
+- [x] E07 Graph validation + deterministic serialization + migrations — IMPLEMENTED / deterministic round-trip PASS
 - [ ] E08 Descendant impact / invalidation engine
 - [ ] E09 Topological execution planner + cache keys
 - [ ] E10 Director OS structured contracts
@@ -51,26 +51,12 @@ Policy: update after every significant implementation batch; run tests after sig
 ### 2026-08-26 — Batch 01 / E01→E04 implemented
 Status: IMPLEMENTED_LOCALLY / PR_GATE_PENDING
 
-Intent:
-Freeze current verified architecture before introducing Studio Engine contracts. Extend existing graph/extraction/knowledge/render/QA modules rather than creating parallel implementations.
-
 Implemented:
 1. `architecture/ADR_005_STUDIO_ENGINE_MIGRATION.md` — ownership map and migration invariants.
 2. `schemas/editing_graph.schema.json` — L1/L2/L3 typed graph contract.
 3. `schemas/skill.schema.json` — capabilities, authority, fallback, QA and graph-effects contract.
 4. `schemas/provider_asset.schema.json` — provider, policy/license, provenance, technical fitness and status contract.
 5. `tests/test_phase05_contracts.py` — representative contract fixtures and invalid-hash rejection.
-
-Verified baseline ownership:
-- `src/extraction/*` → measurement/evidence plane.
-- `src/normalization/*` → evidence normalization.
-- `src/knowledge/*` → GraphRAG seed / style memory.
-- `src/graph/*` → causal graph, impact, mutation, scheduler seed.
-- `src/primitives/*` → future semantic/Lava-like primitive layer.
-- `src/compilers/*` → renderer compiler seeds.
-- `src/renderers/*` → renderer contracts/router/partial/compositor.
-- `src/qa/*` → critic/Gauntlet foundations.
-- `src/agents/*` → future skill orchestration seed.
 
 Test evidence:
 - JSON Schema Draft 2020-12 self-validation: PASS for all three new schemas.
@@ -79,16 +65,50 @@ Test evidence:
 - Pinterest reference-only provenance fixture validation: PASS.
 - Invalid SHA256 negative test: PASS.
 
+### 2026-08-26 — Batch 02 / E05→E07 implemented
+Status: IMPLEMENTED_LOCALLY / PR_GATE_PENDING
+
+Implemented:
+1. `src/graph/ontology.py`
+   - `GraphLevel`, `NodeKind`, `RelationKind`.
+   - canonical node→level mapping.
+   - legacy aliases for existing `Beat`, `Asset`, `Renderer`, etc.
+   - relation legality registry by graph level.
+2. `src/graph/editing_graph.py`
+   - `TypedEditingGraph` extends existing `MotionGraph` rather than replacing it.
+   - strict level checks and relation validation.
+   - stable provenance/continuity fields.
+   - deterministic canonical JSON and SHA256 content hash.
+   - contract round-trip.
+   - additive `from_legacy()` migration adapter.
+3. `tests/test_phase05_typed_graph.py`
+   - node-level mapping.
+   - legal/illegal relation tests.
+   - deterministic serialization/hash round-trip.
+   - wrong-level rejection.
+   - illegal edge rejection.
+   - legacy graph migration.
+
+Local test evidence:
+- isolated TypedEditingGraph behavioral suite: `1 passed` (combined assertions), 0 failures.
+- deterministic content hash before/after round-trip: PASS.
+- legacy `Brief → Beat PRECEDES` migration: PASS.
+- invalid `Scene MATERIALIZES_AS Renderer`: rejected as intended.
+
+Architecture decision:
+- Existing `MotionGraph` remains the compatibility layer for old scripts/tests.
+- New Studio Engine code uses `TypedEditingGraph`.
+- No parallel GraphV2 rewrite was introduced.
+
 CI truth:
-- PR #35 became mergeable after creation, but GitHub Actions then produced a `startup_failure` before any job existed.
-- Latest contract HEAD did not receive workflow runs yet.
-- Therefore full repo CI is NOT claimed green and PR #35 must NOT merge until workflows execute successfully or the external Actions startup problem is resolved.
+- PR #35 is currently reported mergeable by GitHub.
+- GitHub Actions is still not producing workflow runs for the newest HEAD.
+- An earlier PR-triggered run ended in `startup_failure` with zero jobs, indicating infrastructure/startup rather than a test failure.
+- Full repo CI is therefore still UNVERIFIED for this branch and merge remains forbidden.
 
-Decision:
-E01–E04 are implementation-complete with isolated contract evidence, but P05.0 promotion to main remains blocked by external CI startup. It is safe to design E05–E07 on the same branch, but no canonical merge/promotion will occur without full gates.
-
-Next:
-- E05 typed node ontology aligned with existing `src/graph/model.py`.
-- E06 legal edge relation registry.
-- E07 deterministic graph serialization/migration adapter.
-- rerun full CI after the next meaningful batch and inspect Actions startup state.
+Next batch E08→E09:
+- extend current `impact.py` instead of replacing it;
+- typed descendant invalidation semantics;
+- topological execution planning over `DEPENDS_ON` / `REQUIRES`;
+- stable cache keys derived from upstream graph state + capability/runtime inputs;
+- prove that typography-only mutation does not invalidate extraction evidence while source mutation does.
