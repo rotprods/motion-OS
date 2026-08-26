@@ -43,34 +43,20 @@ Current capability metadata:
 These values are time-sensitive provider metadata, not permanent design laws.
 
 ## Output contract
-Every successful run returns:
-- chosen ICP
-- primary/secondary driver
-- pain/pleasure map
-- winning angle + tournament scores
-- winning hook + tournament scores
-- semantic beat graph
-- display/spoken/TTS scripts
-- pronunciation overrides
-- CTA placement
-- moral/payoff
-- duration estimate
-- preflight QA report
-- provider request or render metadata
-- downstream edit cues
-- provenance/claim notes
+Every successful run returns ICP, driver/subdrivers, pain/pleasure map, winning angle and hook, semantic beat graph, display/spoken/TTS scripts, pronunciation overrides, CTA placement, moral/payoff, duration estimate, QA report, provider request/render metadata, downstream edit cues and claim provenance.
 
 ## Render rule
-`/heygen` does not spend provider credits by default. Rendering requires either `render=true` or explicit natural-language intent such as “lanza”, “genera”, “renderiza” or equivalent.
+`/heygen` does not spend provider credits by default. Rendering requires either `render=true` or explicit natural-language intent such as “lanza”, “genera”, “renderiza” o equivalente.
 
 ## Quality rule
-Do not render if:
-- estimated duration is outside 30–45s;
-- claim provenance is missing for factual claims;
-- core transformation is unclear;
-- hook is below the configured threshold;
-- CTA/moral contract is missing;
-- stable beat IDs fail validation.
+Do not render if estimated duration is outside 30–45s, claim provenance is missing, core transformation is unclear, hook is below threshold, CTA/moral contract is missing, or stable beat IDs fail validation.
 
 ## Downstream boundary
 The output avatar video is an intermediate asset. Motion graphics, PNG overlays, B-roll, animated typography, compositing, final sound design, grade and export are owned by the downstream editing graph.
+
+## Persistence
+- GitHub: canonical software/control contract.
+- Drive: `MOTION.OS_CANONICAL/08_PHASE06_CONTENT_AVATAR_ENGINE` for recovery/runbook truth.
+- ChatGPT Library: `/MOTION.OS/commands/HEYGEN_COMMAND_SYSTEM.md` for persistent command retrieval.
+
+Important: `/heygen` is a MOTION.OS command convention, not a native ChatGPT product slash-command registration. An agent should retrieve this contract when `/heygen` is invoked and execute it with the available tools/connectors.
