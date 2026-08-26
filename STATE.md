@@ -13,11 +13,13 @@
 ## Product state
 - Phase: v0.9.1 creative convergence + generalization validation.
 - Release: **BLOCKED**.
-- Working master: **RC06**.
-- RC05: historical superseded baseline.
-- RC07: rendered candidate, currently **HOLD / NOT PROMOTED**; preserves the validated RC06 transition with protected-region SSIM 0.998589 but the creative delta is still too modest without stronger semantic evidence.
-- Wave 03: unseen autonomous-browser launch brief rendered across four new grammars: industrial white product, motorsport broadcast, Japanese techno editorial, space mission control.
-- Baseline sampled semantic RC05: 8.653/10; fresh authoritative full-video scoring still required for RC06/RC07.
+- Working master candidate selected for promotion: **RC09E**.
+- RC06: prior working master retained for lineage and rollback.
+- RC07: HOLD / NOT PROMOTED.
+- RC08: structural-diversity discovery only; no branch promoted.
+- RC09: four structural exploration branches + exploit branch E. RC09E preserves the canonical narrative and validated 6.65–7.50s RC06 transition while materially improving hero framing, SYSTEM hierarchy and final-frame structure.
+- RC09E technical: 1080×1920, 30 fps source, 10.000 s, AAC audio preserved.
+- Wave 05: unseen surgical-robotics brief across clinical product, surgical HUD, biotech editorial and industrial engineering; new articulated robotic-instrument hero family.
 - Primitive qualification: 15 verified / 30 quarantined.
 - Benchmark definition: 25 briefs / 5 style families.
 
