@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0.0",
+  "project_id": "motion://project/motion-os",
+  "bootstrap_bus": "https://github.com/rotprods/motion-OS/issues/39",
+  "authority_state": "BOOTSTRAP_GITHUB_BUS",
+  "active_workstreams": [
+    {
+      "slot": "A",
+      "agent_id": "motion://agent/developer/remotion-runtime",
+      "branch": "feat/remotion-runtime-proof",
+      "pr_number": 34,
+      "authority_domain": ["renderer:remotion:physical-runtime-proof"],
+      "shared_contracts": ["MotionStyle2JSON->Remotion scene spec", "renderer qualification evidence"],
+      "forbidden_without_coordination": ["phase06-content-authority", "studio-engine-redesign"]
+    },
+    {
+      "slot": "B",
+      "agent_id": "motion://agent/developer/studio-analysis",
+      "branch": "feat/superwave-real-analysis",
+      "pr_number": 35,
+      "authority_domain": ["studio-engine", "visual-dna-analysis", "real-analysis-runtime"],
+      "shared_contracts": ["Phase06->Studio handoff", "renderer input contracts"],
+      "forbidden_without_coordination": ["phase06-content-authority", "remotion-proof-authority"]
+    },
+    {
+      "slot": "C",
+      "agent_id": "motion://agent/developer/content-avatar",
+      "branch": "feat/avatar-script-engine",
+      "pr_number": 37,
+      "authority_domain": ["phase06-content-intelligence", "avatar-factory", "render-authority"],
+      "shared_contracts": ["stable-beat-identity", "provenance-root", "replay-fingerprint", "Phase06->Studio handoff"],
+      "forbidden_without_coordination": ["studio-engine-internals", "remotion-proof-contract"]
+    }
+  ],
+  "rules": {
+    "single_owner_per_active_resource": true,
+    "semantic_overlap_requires_decision_event": true,
+    "handoff_required_before_session_end": true,
+    "proposed_implemented_executed_verified_are_distinct": true,
+    "graph_is_projection_not_source_of_truth": true
+  }
+}
