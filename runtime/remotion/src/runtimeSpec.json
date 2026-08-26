@@ -1,0 +1,9 @@
+{
+  "project": {"fps": 30, "width": 640, "height": 360, "duration_frames": 90},
+  "zOrder": ["ui", "subject", "background"],
+  "scenes": [
+    {"id": "S01", "from": 0, "durationInFrames": 30, "camera": {"motion": "static"}, "depth": {"layers_z": []}, "transition": {"type": "cut", "at_ms_global": 0}, "events": []},
+    {"id": "S02", "from": 30, "durationInFrames": 30, "camera": {"motion": "static"}, "depth": {"layers_z": []}, "transition": {"type": "cut", "at_ms_global": 1000}, "events": []},
+    {"id": "S03", "from": 60, "durationInFrames": 30, "camera": {"motion": "static"}, "depth": {"layers_z": []}, "transition": {"type": "cut", "at_ms_global": 2000}, "events": []}
+  ]
+}
