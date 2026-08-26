@@ -12,7 +12,7 @@
     "guardrail_metrics":{"type":"array","items":{"type":"string"}},
     "baseline_query":{"type":["object","null"]},
     "manipulated_variable":{"enum":["HOOK","FIRST_FRAME","DURATION","PROOF_ORDER","CTA_PLACEMENT","VISUAL_TREATMENT","OTHER"]},
-    "variants":{"type":"array","minItems":2,"items":{"type":"object","required":["variant_id"],"properties":{"variant_id":{"type":"string"},"content_id":{"type":["string","null"]},"value":{"type":{} }}}},
+    "variants":{"type":"array","minItems":2,"items":{"type":"object","required":["variant_id"],"properties":{"variant_id":{"type":"string"},"content_id":{"type":["string","null"]},"value":{}}}},
     "platforms":{"type":"array","items":{"type":"string"}},
     "audience_constraints":{"type":["object","null"]},
     "sample_target":{"type":["integer","null"],"minimum":1},
