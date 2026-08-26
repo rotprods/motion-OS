@@ -14,13 +14,14 @@
   "provider": {
     "heygen": {
       "allowed_statuses": ["waiting", "pending", "queued", "processing", "running", "completed", "failed"],
-      "allowed_url_schemes": ["https", "http"],
+      "allowed_url_schemes": ["https"],
       "max_telemetry_duration_s": 3600
     }
   },
   "notes": [
     "Budget numbers are conservative defaults, not billing truth; provider cost metadata must override estimates when available.",
     "Do not automatically resubmit when a provider job may already exist.",
-    "Render authorization is separate from content preflight approval."
+    "Render authorization is separate from content preflight approval.",
+    "Provider-delivered asset URLs are HTTPS-only in production authority paths. Local development must not weaken this provider contract."
   ]
 }
