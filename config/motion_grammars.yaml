@@ -1,0 +1,63 @@
+version: 1
+universal:
+  one_dominant_idea_per_beat: true
+  text_integrity: absolute
+  motion_requires_intent: true
+  chaos_requires_hierarchy: true
+  final_frame_stability: required
+  repeated_scale_opacity_limit: 2
+  ui_camera_default: orthographic_2_5d
+
+grammars:
+  APPLE_PREMIUM_DESKTOP:
+    energy: calm_premium
+    pacing_s: [1.5, 4.0]
+    palette: [off_white, graphite, soft_silver, deep_black]
+    accents: [restrained_cool_blue, subtle_cyan]
+    typography: modern_sans_sfpro_google_sans_like
+    materials: [brushed_aluminum, matte_ui, selective_frosted_glass, restrained_reflection]
+    layout: [generous_whitespace, realistic_desktop_proportions, precise_alignment]
+    primitives: [panel_expand, modal_seed_to_full_card, cursor_typing, smooth_ui_zoom, card_unfold, desktop_to_workspace, parallax_push, mask_reveal]
+    negatives: [generic_saas, startup_aesthetic, crypto_dashboard, gaming_aesthetic, excessive_glass, cheap_3d, cramped_layout]
+
+  HYPER_COMMERCIAL_GAMIFIED:
+    energy: hyper_reward
+    pacing_s: [0.7, 1.2]
+    camera: [xy_whip, micro_z_push, orthographic_2_5d]
+    primitives: [spring_snap, card_pop, count_up, icon_burst, badge_unlock, trim_paths, leaderboard_ascent, controlled_confetti, reward_condense, hold_readability]
+    negatives: [random_chaos, fake_product_ui, mascot_drift, text_warp, childish_cheap_render]
+
+  HYPER_COMMERCIAL_AUDIO:
+    energy: hyper_rhythmic
+    pacing_s: [0.7, 1.2]
+    camera: [xy_whip, micro_z_push, layered_card_depth]
+    primitives: [player_expand, playlist_stack, save_toggle, lyric_reveal, waveform_draw, audio_pulse, cover_wall, stats_count, multi_device_flow, collect_to_logo]
+    negatives: [generic_music_ui, random_waveform_spam, muddy_blacks, text_warp, cheap_glitch]
+
+brand_overlays:
+  DUOLINGO_FLUID_GAME_UI:
+    base_grammar: HYPER_COMMERCIAL_GAMIFIED
+    tokens:
+      green: '#58CC02'
+      dark_green: '#46A302'
+      cream: '#FFFDF7'
+      xp_gold: '#FFC800'
+      heart_red: '#FF4B4B'
+      gem_blue: '#56CCF2'
+      streak_orange: '#FF8A00'
+    semantics: [streak, xp, hearts, badges, lesson_cards, progress, ranking, gems, completion]
+    hard_gates: [mascot_integrity, logo_integrity, ui_authenticity, text_integrity]
+
+  SPOTIFY_FLUID_AUDIO_UI:
+    base_grammar: HYPER_COMMERCIAL_AUDIO
+    tokens:
+      black: '#000000'
+      spotify_black: '#121212'
+      card_dark: '#181818'
+      green: '#1ED760'
+      white: '#FFFFFF'
+      soft_gray: '#B3B3B3'
+      pulse_pink: '#FF4FD8'
+      pulse_blue: '#58A6FF'
+    semantics: [player, playlist, lyrics, discovery, save, artist, stats, multi_device, audio_pulse]
+    hard_gates: [logo_integrity, player_logic, ui_authenticity, text_integrity, audio_visual_sync]

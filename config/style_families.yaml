@@ -4,3 +4,14 @@ styles:
   - dark_technical
   - premium_product
   - experimental_kinetic
+  - apple_premium_desktop
+  - hyper_commercial_gamified
+  - hyper_commercial_audio
+
+motion_grammar_registry: config/motion_grammars.yaml
+
+policy:
+  style_family_is_not_motion_grammar: true
+  allow_style_plus_grammar_composition: true
+  require_negative_constraints: true
+  require_final_hold_contract: true
