@@ -1,0 +1,8 @@
+{
+  "baseline": "RC06",
+  "promotion": false,
+  "decision": "HOLD_NO_PROMOTION",
+  "authoritative_semantic_qa": false,
+  "reason": "Mechanical metrics changed, but all candidates remained visually too close to the baseline composition. No material creative win was demonstrated.",
+  "working_master_after_tournament": "RC06"
+}

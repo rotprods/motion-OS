@@ -1,0 +1,14 @@
+{
+  "baseline": "RC06",
+  "candidate_family": "RC08_BRANCHING_TOURNAMENT",
+  "strategies": {
+    "A_specimen_editorial": {"mean_contrast": 32.8845, "mean_edge_density": 0.117711},
+    "B_cinematic_depth": {"mean_contrast": 32.5473, "mean_edge_density": 0.112327},
+    "C_kinetic_system": {"mean_contrast": 32.8709, "mean_edge_density": 0.117372},
+    "D_minimal_luxury": {"mean_contrast": 32.8755, "mean_edge_density": 0.115975}
+  },
+  "decision": "HOLD_NO_PROMOTION",
+  "reason": "Visual inspection found all four branches still too close to RC06's established editorial grammar. The repair operator remains additive/overlay-biased; mechanical variation is insufficient evidence of a material creative improvement.",
+  "learning": "Next convergence search must allow structural re-layout, hero-asset substitution, camera/depth changes and beat reconstruction inside isolated subgraphs rather than cosmetic overlays.",
+  "release_authority": "NON_AUTHORITATIVE"
+}

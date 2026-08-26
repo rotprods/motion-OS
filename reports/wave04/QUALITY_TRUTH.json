@@ -1,0 +1,9 @@
+{
+  "fixture_type": "generalization_search",
+  "source_fps": 15,
+  "delivery_fps": 30,
+  "authoritative_semantic_qa": false,
+  "production_release_candidate": false,
+  "valid_claims": ["unseen brief rendered", "four distinct visual grammars generated", "contact-sheet visual review completed"],
+  "invalid_claims": ["production ready", "9/10 quality", "renderer qualification", "authoritative temporal QA"]
+}

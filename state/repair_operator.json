@@ -1,0 +1,9 @@
+{
+  "version":"2.0",
+  "status":"ACTIVE_FOR_NEXT_CONVERGENCE",
+  "anti_cosmetic_rule":true,
+  "min_branches":4,
+  "min_primitive_families":3,
+  "min_layout_topologies":2,
+  "structural_dimensions":["layout_topology","hero_asset_strategy","camera_depth","typography_hierarchy","primitive_family","transition_mechanism","beat_allocation","material_lighting"]
+}

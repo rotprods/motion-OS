@@ -1,0 +1,7 @@
+{
+  "A_specimen_editorial": {"mean_contrast": 32.8844958386, "mean_edge_density": 0.1177111392},
+  "B_cinematic_depth": {"mean_contrast": 32.5472893340, "mean_edge_density": 0.1123267396},
+  "C_kinetic_system": {"mean_contrast": 32.8709390355, "mean_edge_density": 0.1173716330},
+  "D_minimal_luxury": {"mean_contrast": 32.8755044938, "mean_edge_density": 0.1159750281},
+  "note": "Mechanical metrics are evidence only and were explicitly insufficient to justify promotion."
+}
