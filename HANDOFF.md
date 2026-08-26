@@ -1,41 +1,30 @@
 # HANDOFF.md — MOTION.OS
 
-## Start here
-1. Use GitHub `rotprods/motion-OS` → `main`.
-2. Read `AGENTS.md`.
-3. Read `GOAL.md`.
-4. Read `STATE.md`.
-5. Read `TASKS.md`.
-6. Inspect `state/project_state.json`, `state/github_sync.json`, `state/drive_sync.json`.
-7. Inspect `registry/artifact_registry.json`.
-8. Read the latest Drive reconciliation attestation.
-9. Continue the highest-priority open product P0.
+## Start
+1. Use GitHub `rotprods/motion-OS`, branch `main`.
+2. Read `AGENTS.md` → `GOAL.md` → `STATE.md` → `TASKS.md`.
+3. Inspect `state/project_state.json` and `registry/artifact_registry.json`.
+4. Inspect Drive `06_PROGRESS_TRACKING` and `07_RECONCILIATION`.
+5. Continue the highest-priority open P0/P1.
 
-## Canonical infrastructure
-GitHub `main` now contains the canonical software/control plane. PR #10 passed:
-- CI Python 3.11
-- CI Python 3.12
-- Repo Health
-- Security Baseline
+## Current creative truth
+- **RC06 is the canonical working master.**
+- RC05 is superseded, retained for lineage.
+- RC07 exists as a selective-repair candidate but is currently HOLD / NOT PROMOTED because the delta is modest and no authoritative temporal critic has scored it.
+- RC07 preserves the validated 6.65–7.50s RC06 transition with protected-region SSIM 0.998589.
+- Wave 03 demonstrates an unseen autonomous-browser brief across four new visual grammars; it is a generalization fixture, not production-release evidence.
 
-Heavy/generated media does not belong in Git and remains in Drive.
+## Next creative move
+Do not keep adding cosmetic overlays to RC07. The next convergence candidate should make a materially stronger design change on one isolated defect cluster, ideally hero-object framing/depth or SYSTEM choreography, then run branch tournament + regression QA.
 
-## Drive
-Root: `MOTION.OS_CANONICAL`
-Folder ID: `1RsHZbf6yGE92L3wnbyxriCMx47HeBAOB`
-
-Reconciliation vault: `07_RECONCILIATION`
-Folder ID: `1xItu4yHyi-D4bRCt_W0XrIcbxzZEkHMb`
-
-Latest GitHub canonical attestation:
-`GITHUB_CANONICAL_ATTESTATION.json`
-Drive ID: `1wrX8eE7lBBzitYmB2VcHmIcb-bXJyWz6`
-
-## Creative truth
-RC05 is working master. RC06 is still a candidate until formal promote/rollback evidence is completed.
+## Remaining hard gates
+- HyperFrames real production runtime.
+- Remotion real production runtime.
+- Authoritative full-video temporal critic.
+- Creative convergence >=9.
 
 ## Do not
-- redesign the persistence architecture;
-- call fixture/contact-sheet QA authoritative full-video QA;
-- claim HyperFrames/Remotion verified until a real runtime render exists;
-- move heavy rendered media into Git.
+- treat sampled/contact-sheet QA as authoritative temporal QA;
+- claim HyperFrames/Remotion verified without a real runtime render;
+- move generated media into Git;
+- redesign persistence while current P0 gates remain.
