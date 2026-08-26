@@ -1,0 +1,55 @@
+flowchart TD
+  A[Idea / URL / Repo / News / User Thought] --> B[Source normalization + claim map]
+  B --> C[ICP model]
+  C --> C1[Pains]
+  C --> C2[Pleasures]
+  C --> C3[Objections]
+  C --> C4[Psychographic fit]
+  C --> D[Viral driver router]
+  D --> D1[MONEY]
+  D --> D2[LOVE]
+  D --> D3[HEALTH]
+  D --> D4[PERSONAL GROWTH]
+  D --> E[Core transformation thesis]
+  E --> F[Hook tournament]
+  F --> G[Retention beat graph ~3s cadence]
+  G --> G1[Hook]
+  G --> G2[Promise / intro]
+  G --> G3[Proof / mechanism]
+  G --> G4[Escalation / contrast]
+  G --> G5[CTA opportunity]
+  G --> G6[Payoff]
+  G --> G7[Moral / close]
+  G --> H[Script draft]
+  H --> I[Simplicity + claim + duration gates]
+  I --> J[TTS normalization]
+  J --> J1[Display text]
+  J --> J2[TTS text]
+  J --> J3[Pronunciation overrides]
+  J --> K[Voice router]
+  K --> L[Avatar router]
+  L --> M[Avatar render provider]
+  M --> N[Render telemetry]
+  N --> N1[Actual duration]
+  N --> N2[Provider status]
+  N --> N3[Asset reference]
+  N --> N4[Cost / credits]
+  N --> O[Avatar content handoff manifest]
+  O --> P[Downstream MOTION.OS edit graph]
+  P --> P1[Motion graphics]
+  P --> P2[Visual systems]
+  P --> P3[PNG / overlays]
+  P --> P4[B-roll / composition]
+  P --> P5[Audio / master]
+  P --> Q[Final master]
+  Q --> R[Performance metrics]
+  R --> C
+  R --> F
+  R --> I
+
+  classDef upstream fill:#eef,stroke:#446;
+  classDef downstream fill:#efe,stroke:#464;
+  classDef evidence fill:#ffe,stroke:#664;
+  class A,B,C,D,E,F,G,H,I,J,K,L,M upstream;
+  class N,O evidence;
+  class P,P1,P2,P3,P4,P5,Q downstream;
