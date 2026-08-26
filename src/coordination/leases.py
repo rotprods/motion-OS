@@ -6,48 +6,16 @@ from threading import RLock
 from typing import Any
 from uuid import uuid4
 
+from .resources import canonicalize_resource, resource_overlap
+
 
 def utc_now() -> datetime:
     return datetime.now(timezone.utc)
 
 
-def _tree_prefix(uri: str) -> str | None:
-    if not uri.startswith("tree:"):
-        return None
-    raw = uri[len("tree:"):]
-    for suffix in ("/**", "/*"):
-        if raw.endswith(suffix):
-            raw = raw[: -len(suffix)]
-            break
-    return raw.rstrip("/")
-
-
 def resources_overlap(left: str, right: str) -> bool:
-    """Return whether two canonical resource scopes can address the same mutable unit.
-
-    Exact semantic resources (`contract:`, `schema:`, `capability:`...) overlap only
-    when equal. `tree:` scopes overlap descendant `file:`/`tree:` paths.
-    """
-    if left == right:
-        return True
-
-    ltree = _tree_prefix(left)
-    rtree = _tree_prefix(right)
-    lfile = left[len("file:"):] if left.startswith("file:") else None
-    rfile = right[len("file:"):] if right.startswith("file:") else None
-
-    def contains(prefix: str, path: str) -> bool:
-        prefix = prefix.rstrip("/")
-        path = path.rstrip("/")
-        return path == prefix or path.startswith(prefix + "/")
-
-    if ltree is not None and rfile is not None:
-        return contains(ltree, rfile)
-    if rtree is not None and lfile is not None:
-        return contains(rtree, lfile)
-    if ltree is not None and rtree is not None:
-        return contains(ltree, rtree) or contains(rtree, ltree)
-    return False
+    """Backward-compatible string API backed by the canonical resolver."""
+    return resource_overlap(canonicalize_resource(left), canonicalize_resource(right))
 
 
 @dataclass(frozen=True, slots=True)
@@ -122,11 +90,12 @@ class ReferenceLeaseAuthority:
         if ttl_seconds <= 0:
             raise ValueError("ttl_seconds must be > 0")
         now = now or utc_now()
+        canonical_resource = canonicalize_resource(resource_uri).uri
 
         with self._lock:
             self._expire_locked(now)
             for active in self._leases.values():
-                if active.status != "ACTIVE" or not resources_overlap(active.resource_uri, resource_uri):
+                if active.status != "ACTIVE" or not resources_overlap(active.resource_uri, canonical_resource):
                     continue
                 if scope == "READ" and active.scope != "EXCLUSIVE_WRITE":
                     continue
@@ -138,12 +107,12 @@ class ReferenceLeaseAuthority:
                     f"resource overlaps active {active.scope} lease {active.lease_id} held by {active.agent_id}"
                 )
 
-            generation_key = resource_uri
+            generation_key = canonical_resource
             token = self._generation.get(generation_key, 0) + 1
             self._generation[generation_key] = token
             lease = Lease(
                 lease_id=str(uuid4()),
-                resource_uri=resource_uri,
+                resource_uri=canonical_resource,
                 scope=scope,
                 agent_id=agent_id,
                 session_id=session_id,
@@ -184,6 +153,7 @@ class ReferenceLeaseAuthority:
 
     def assert_write_authorized(self, lease_id: str, fencing_token: int, resource_uri: str, *, now: datetime | None = None) -> Lease:
         now = now or utc_now()
+        requested = canonicalize_resource(resource_uri).uri
         with self._lock:
             self._expire_locked(now)
             lease = self._leases.get(lease_id)
@@ -191,7 +161,7 @@ class ReferenceLeaseAuthority:
                 raise StaleFencingToken("active write lease required")
             if lease.fencing_token != fencing_token:
                 raise StaleFencingToken("fencing token mismatch")
-            if not resources_overlap(lease.resource_uri, resource_uri):
+            if not resources_overlap(lease.resource_uri, requested):
                 raise StaleFencingToken("lease does not cover requested resource")
             return lease
 
