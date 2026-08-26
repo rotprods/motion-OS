@@ -4,8 +4,6 @@
 - GitHub software source of truth: **ACTIVE on `main`**.
 - Canonical GitHub repo: `rotprods/motion-OS`.
 - Canonical bootstrap PR: **#10 MERGED**.
-- Bootstrap merge SHA: `aeb8abb3820edf322c4dfb6313f3f8d2a9809b8b`.
-- Latest main state commit after sync metadata: `23d51f52858963330eb0e6f5a1f8a9be1d332d87`.
 - CI Python 3.11: PASS.
 - CI Python 3.12: PASS.
 - Repo Health: PASS.
@@ -16,18 +14,29 @@
 ## Product state
 - Phase: v0.9.1 creative convergence.
 - Release: **BLOCKED**.
-- Working master: RC05.
-- RC06: candidate pending formal promote/rollback.
-- Sampled semantic RC05: **8.653/10**, non-authoritative for production release.
+- Working master: **RC06**.
+- RC05: superseded working master; retained as historical baseline.
+- RC06 promotion: **FORMALLY APPROVED** on localized transition evidence.
+- Promotion scope: 6.65–7.50s MOVEMENT→SYSTEM transition.
+- RC06 removes the RC05 energy/occupancy valley while keeping pre/post regions near-invariant apart from encoding-level differences.
+- Baseline sampled semantic score remains **8.653/10** until RC06 receives a fresh semantic pass; this is non-authoritative for production release.
 - Primitive qualification: 15 verified / 30 quarantined.
 - Benchmark definition: 25 briefs / 5 style families.
 - Wave 02 zero-style generalization fixtures: 4 style families.
+- Next creative candidate: **RC07**.
 
 ## Remaining P0 product gates
 1. Verify HyperFrames production runtime.
 2. Verify Remotion production runtime.
 3. Connect authoritative full-video temporal multimodal critic.
 4. Converge canonical RC to semantic/creative release thresholds >=9.
+
+## RC07 focus
+- reduce early hero-object over-scale/crop;
+- increase mid-beat motion energy without clutter;
+- improve SYSTEM depth/choreography;
+- tighten typography and final professional finish;
+- preserve the validated RC06 transition unless new evidence disproves it.
 
 ## Persistence
 - GitHub = software truth.
