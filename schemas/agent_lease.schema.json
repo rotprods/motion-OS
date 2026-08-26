@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://motion.os/schemas/agent_lease.schema.json",
+  "title": "MOTION.OS AgentLease v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version","lease_id","project_id","resource_key","owner_agent_id","session_id","workstream_id","generation","acquired_at","expires_at","state"],
+  "properties": {
+    "schema_version": {"const":"1.0.0"},
+    "lease_id": {"type":"string","minLength":8},
+    "project_id": {"type":"string","pattern":"^motion://project/"},
+    "resource_key": {"type":"string","minLength":3},
+    "owner_agent_id": {"type":"string","pattern":"^motion://agent/"},
+    "session_id": {"type":"string","pattern":"^motion://session/"},
+    "workstream_id": {"type":"string","minLength":1},
+    "branch": {"type":["string","null"]},
+    "pr_number": {"type":["integer","null"],"minimum":1},
+    "generation": {"type":"integer","minimum":1},
+    "expected_state_version": {"type":["integer","null"],"minimum":0},
+    "acquired_at": {"type":"string","format":"date-time"},
+    "heartbeat_at": {"type":["string","null"],"format":"date-time"},
+    "expires_at": {"type":"string","format":"date-time"},
+    "released_at": {"type":["string","null"],"format":"date-time"},
+    "state": {"enum":["ACTIVE","RELEASED","EXPIRED","REVOKED"]},
+    "semantic_scope": {"type":"array","items":{"type":"string"},"uniqueItems":true,"default":[]},
+    "path_scope": {"type":"array","items":{"type":"string"},"uniqueItems":true,"default":[]}
+  }
+}
