@@ -7,9 +7,25 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from 'remotion';
-import spec from './runtimeSpec.json';
+import rawSpec from './runtimeSpec.json';
 
-type RuntimeScene = (typeof spec.scenes)[number];
+type RuntimeEvent = {at_frame?: number; id?: string; action?: string};
+type RuntimeScene = {
+  id: string;
+  from: number;
+  durationInFrames: number;
+  camera: {motion: string; [key: string]: unknown};
+  depth: Record<string, unknown>;
+  transition: {type: string; [key: string]: unknown};
+  events: RuntimeEvent[];
+};
+type RuntimeSpec = {
+  project: {fps: number; width: number; height: number; duration_frames: number};
+  zOrder: string[];
+  scenes: RuntimeScene[];
+};
+
+const spec = rawSpec as unknown as RuntimeSpec;
 
 const hashScene = (value: string) => {
   let h = 2166136261;
@@ -48,7 +64,7 @@ const Scene: React.FC<{scene: RuntimeScene; index: number}> = ({scene, index}) =
   const eventPulse = scene.events.length
     ? Math.max(
         ...scene.events.map((event) => {
-          const local = Number(event.at_frame ?? 0) - scene.from;
+          const local = Number(event.at_frame ?? scene.from) - scene.from;
           return interpolate(frame, [local - 2, local, local + 5], [0, 1, 0], {
             extrapolateLeft: 'clamp',
             extrapolateRight: 'clamp',
