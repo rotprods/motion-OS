@@ -81,8 +81,8 @@ PASS when a deterministic root commits source identity → claims → semantic b
 
 ## Execution state
 - CP0: IMPLEMENTED
-- CP1: IMPLEMENTED_V2 — explicit schema version/migration registry added; schema files still need version assertions in latest green CI
-- CP2: IMPLEMENTED_V1 — scanner/redaction/quarantine primitives added; privileged-prompt integration still needs runtime proof
+- CP1: IMPLEMENTED_V2 — explicit schema version/migration registry added and exercised under latest-head CI
+- CP2: IMPLEMENTED_V1 — scanner/redaction/quarantine primitives added; privileged-prompt integration still needs live runtime proof
 - CP3: IMPLEMENTED_V1 — deterministic claim IDs + factual beat lineage gate
 - CP4: IMPLEMENTED_CONTRACT
 - CP5: IMPLEMENTED_V1 — attention refresh + cognitive-load warnings
@@ -94,13 +94,17 @@ PASS when a deterministic root commits source identity → claims → semantic b
 - CP11: IMPLEMENTED_V3 — stable beats + manifest integrity seal + replay fingerprint + provenance root; downstream runtime verification remains open
 - CP12: IMPLEMENTED_V1 — causal stages + explicit promotion approval
 - CP13: IMPLEMENTED_V1 — migration registry + GitHub-canonical replica digest/reconciliation primitives; real Drive/Library revision automation remains open
-- CP14: CI_EVIDENCE_PARTIAL — authoritative CI executed 108 tests on an earlier head: 106 passed, 1 failed, 1 skipped; failure was traced to a stale fixture-state assertion and corrected. New fuzz/authority tests added; latest-head green run still required.
+- CP14: PASS_LATEST_HEAD — authoritative CI run `32993729448` on head `fe9633aaaf3d445c0e89ff19aed7e6737f173d22`: Python 3.11 PASS, Python 3.12 PASS, analysis-runtime PASS, compileall PASS, full pytest PASS, repo-health PASS. Dedicated Repo Health workflow also PASS.
 - CP15: OPEN — requires production data
-- CP16: IMPLEMENTED_V1_SINGLE_HOST — SQLite transactional store + leases/fencing/stale-writer rejection tests written; multi-host Postgres-class adapter and runtime proof open
-- CP17: IMPLEMENTED_V1 — source-to-avatar provenance chain + `/heygen` integration + handoff contract implemented; downstream enforcement open
+- CP16: IMPLEMENTED_V1_SINGLE_HOST_CI — SQLite transactional store + durable fencing generations + stale-writer rejection are covered by latest-head green CI; live worker-crash recovery and multi-host Postgres-class authority remain open
+- CP17: IMPLEMENTED_V1_CI — source-to-avatar provenance chain + `/heygen` integration + handoff contract pass latest-head CI; downstream enforcement remains open
 
-## CI incident resolved in code
-Authoritative GitHub Actions run `32992848085` reached the full pytest step and reported exactly one Phase 06 failure: `test_render_telemetry_ingestion_is_non_destructive` assumed the real OpenMontage fixture still had `actual_duration_s=None`. The fixture had intentionally been calibrated to `42.6318`. The test now snapshots the original value and verifies non-destructive behavior without coupling to fixture history.
+## CI incidents converted into invariants
+### Incident 1 — fixture history coupling
+Run `32992848085` exposed a stale test assumption: `test_render_telemetry_ingestion_is_non_destructive` assumed the calibrated OpenMontage fixture still had `actual_duration_s=None`, although real provider calibration correctly persisted `42.6318`. The test was corrected to snapshot the fixture's original value and verify non-destructive behavior independent of fixture history.
+
+### Incident 2 — fencing token reset
+Run `32993357902` executed 114 tests and caught a real authority bug: after lease release, the implementation deleted the only persisted fencing token, so the next owner received token `1` again. This broke the monotonic fencing invariant and could allow a stale worker to become indistinguishable from a later generation. The fix separates durable `lease_generations` from active `leases`; release removes ownership but never generation history. Latest-head run `32993729448` proves the regression test now passes on Python 3.11 and 3.12.
 
 ## Promotion rule
-Do not mark Phase 06 VERIFIED until CP14 has a fresh authoritative green CI run for the latest head. Do not call CP16 multi-host production authority until a network transactional database implementation and concurrent-host evidence exist. Do not mark the system empirically calibrated until CP15 passes. Any P0 violation in source isolation, claim lineage, spend safety, TTS protected-token integrity, manifest/provenance integrity or provider-state reconciliation blocks promotion regardless of aggregate score.
+CP14 now has authoritative latest-head green evidence. Phase 06 as a whole is still not empirically VERIFIED/production-complete: do not call CP16 multi-host production authority until a network transactional database implementation and concurrent-host evidence exist, do not call CP17 downstream-enforced until the editing runtime verifies provenance/seal before execution, and do not mark the system empirically calibrated until CP15 passes. Any P0 violation in source isolation, claim lineage, spend safety, TTS protected-token integrity, manifest/provenance integrity or provider-state reconciliation blocks promotion regardless of aggregate score.
