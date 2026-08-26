@@ -1,0 +1,19 @@
+{
+  "candidate": "RC07",
+  "baseline": "RC06",
+  "decision": "HOLD_AS_CANDIDATE_NOT_PROMOTED",
+  "protected_region_s": [6.65, 7.50],
+  "protected_region_ssim_all": 0.998589,
+  "protected_region_psnr_average_db": 51.138534,
+  "pre_region_ssim_all": 0.987186,
+  "post_region_ssim_all": 0.984169,
+  "changes": [
+    "early macro specimen framing to make the coin crop feel intentional",
+    "MOVEMENT velocity rails and registration cues",
+    "SYSTEM faux-parallax card-edge/depth rails",
+    "final-frame microheader and anchor details"
+  ],
+  "assessment": "The validated RC06 MOVEMENT→SYSTEM repair is effectively preserved. RC07 improves intentionality and polish, but the visual delta is still too modest to justify promotion without stronger semantic/creative evidence.",
+  "qa_authority": "NON_AUTHORITATIVE_SAMPLED_AND_MECHANICAL",
+  "release_status": "BLOCKED"
+}
