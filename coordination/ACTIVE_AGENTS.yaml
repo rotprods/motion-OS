@@ -1,0 +1,54 @@
+schema_version: 1
+project: motion://project/MOTION.OS
+updated_at: 2026-08-26T19:30:00Z
+authority: bootstrap_registry
+agents:
+  - agent_id: motion://agent/remotion-runtime
+    runtime: unknown
+    status: ACTIVE
+    branch: feat/remotion-runtime-proof
+    pr: 34
+    mission: Verify real Remotion production runtime from MOTION.OS compiler spec.
+    owned_scopes:
+      - capability:renderer/remotion
+      - evidence:remotion-runtime
+    shared_contracts:
+      - contract:scene-spec
+    notes: Must not redefine upstream content/avatar or Studio handoff semantics without coordination.
+
+  - agent_id: motion://agent/studio-engine
+    runtime: unknown
+    status: ACTIVE
+    branch: feat/superwave-real-analysis
+    pr: 35
+    mission: Physical video analysis + graph-native Studio Engine execution convergence.
+    owned_scopes:
+      - phase:04/visual-dna
+      - capability:studio-engine
+      - capability:physical-analysis
+    shared_contracts:
+      - contract:motionstyle2json
+      - contract:studio-entry
+    notes: Downstream owner. Should consume sealed Phase06 handoff rather than fork upstream semantics.
+
+  - agent_id: motion://agent/content-avatar
+    runtime: unknown
+    status: ACTIVE
+    branch: feat/avatar-script-engine
+    pr: 37
+    mission: Content Intelligence + Avatar Factory + distributed authority hardening.
+    owned_scopes:
+      - phase:06/content-intelligence
+      - capability:avatar-factory
+      - capability:render-authority
+    shared_contracts:
+      - contract:avatar-handoff
+      - contract:stable-beat-identity
+      - contract:provenance-root
+      - contract:replay-fingerprint
+    notes: Existing lease/fencing/idempotency semantics are canonical inputs to Phase07 design.
+
+bootstrap_rules:
+  - This file is a bootstrap read model, not the final authority store.
+  - After Postgres Coordination Kernel exists, active state is projected here rather than manually authored.
+  - Unknown runtime identity must be replaced with canonical session identity on agent registration.
