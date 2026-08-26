@@ -1,0 +1,12 @@
+#!/usr/bin/env python3
+from pathlib import Path
+import json,subprocess,datetime,hashlib,sys
+ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
+from src.qa.alignment import validate_weights,validate_checkpoints,release_readiness
+run_id=datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%SZ')+'_forensic_v08';out=ROOT/'data'/'alignment_runs'/run_id;out.mkdir(parents=True,exist_ok=True)
+weights=validate_weights(ROOT/'config/alignment_weights.json');checkpoints=validate_checkpoints(ROOT/'state/checkpoints.json');release=release_readiness(ROOT/'state/project_state.json',ROOT/'forensics/semantic_review_v08_asset_slice.json');pytest=subprocess.run(['python','-m','pytest','-q'],cwd=ROOT,capture_output=True,text=True);state=json.loads((ROOT/'state/project_state.json').read_text());tasks=json.loads((ROOT/'state/next_actions.json').read_text());claim_rows=json.loads((ROOT/'forensics/assistant_claims.json').read_text());source=json.loads((ROOT/'forensics/source_inventory.json').read_text());hard=[]
+if not weights['ok']:hard.append('WEIGHT_SUM_INVALID')
+if not checkpoints['ok']:hard.append('CHECKPOINT_STATE_INVALID')
+if pytest.returncode!=0:hard.append('TEST_FAILURE')
+if release['ready']:hard.append('UNSAFE_RELEASE_STATE')
+result={'run_id':run_id,'phase_results':{'source_inventory':'PASS' if source['sources'] else 'FAIL','claim_audit':'PASS' if claim_rows else 'FAIL','weight_validation':'PASS' if weights['ok'] else 'FAIL','checkpoint_validation':'PASS' if checkpoints['ok'] else 'FAIL','test_suite':'PASS' if pytest.returncode==0 else 'FAIL','release_truthfulness':'PASS' if not release['ready'] else 'FAIL'},'tests':{'returncode':pytest.returncode,'stdout':pytest.stdout,'stderr':pytest.stderr},'weights':weights,'checkpoints':checkpoints,'release':release,'current_bottleneck':state.get('highest_leverage_bottleneck','creative_output_quality'),'selected_next_intervention':tasks[0],'hard_failures':hard,'verdict':'ALIGNMENT_BASELINE_ACCEPTED' if not hard else 'REJECTED','important_note':'This Gauntlet accepts the forensic/refactor baseline, not the visual product. Production motion release remains blocked.'};(out/'result.json').write_text(json.dumps(result,indent=2,ensure_ascii=False));(ROOT/'state/current_iteration.json').write_text(json.dumps({'run_id':run_id,'verdict':result['verdict'],'next':tasks[0]},indent=2));print(json.dumps(result,indent=2));raise SystemExit(0 if not hard else 1)
