@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://motion.os/schemas/context_pack.schema.json",
+  "title": "MOTION.OS ContextPack v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version","context_pack_id","project_id","generated_for","generated_at","event_watermark","projection_version","projection_hash","goal","state","active_workstreams","accepted_decisions","blockers","dependencies","evidence_refs","next_safe_actions","pack_hash"],
+  "properties": {
+    "schema_version":{"const":"1.0.0"},
+    "context_pack_id":{"type":"string"},
+    "project_id":{"type":"string","pattern":"^motion://project/"},
+    "generated_for":{"type":"string","pattern":"^motion://agent/"},
+    "requested_scope":{"type":"array","items":{"type":"string"},"uniqueItems":true},
+    "generated_at":{"type":"string","format":"date-time"},
+    "event_watermark":{"type":"string"},
+    "projection_version":{"type":"string"},
+    "projection_hash":{"type":"string","pattern":"^[a-f0-9]{64}$"},
+    "goal":{"type":"object"},
+    "state":{"type":"object"},
+    "active_workstreams":{"type":"array","items":{"type":"object"}},
+    "leases":{"type":"array","items":{"type":"object"}},
+    "accepted_decisions":{"type":"array","items":{"type":"object"}},
+    "blockers":{"type":"array","items":{"type":"object"}},
+    "dependencies":{"type":"array","items":{"type":"object"}},
+    "git_refs":{"type":"array","items":{"type":"object"}},
+    "evidence_refs":{"type":"array","items":{"type":"object"}},
+    "graph_neighborhood":{"type":"object"},
+    "next_safe_actions":{"type":"array","items":{"type":"string"},"minItems":1},
+    "sensitivity_ceiling":{"enum":["PUBLIC","INTERNAL","CONFIDENTIAL","RESTRICTED"]},
+    "pack_hash":{"type":"string","pattern":"^[a-f0-9]{64}$"}
+  }
+}
