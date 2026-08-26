@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://motion-os.local/schemas/svg_reconstruction.schema.json",
+  "title": "MOTION.OS Exact SVG Reconstruction",
+  "type": "object",
+  "required": ["meta", "reconstruction_policy", "segmentation", "persistent_elements", "qa_gates"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["mode", "source_type", "fps", "total_frames", "resolution", "viewBox"],
+      "properties": {
+        "title": {"type": "string"},
+        "mode": {"const": "exact_frame_reconstruction"},
+        "source_type": {"enum": ["video", "frame_sequence", "description"]},
+        "duration_s": {"type": "number", "minimum": 0},
+        "fps": {"type": "number", "exclusiveMinimum": 0},
+        "total_frames": {"type": "integer", "minimum": 1},
+        "resolution": {
+          "type": "array", "prefixItems": [{"type":"integer","minimum":1},{"type":"integer","minimum":1}], "minItems": 2, "maxItems": 2
+        },
+        "viewBox": {
+          "type": "array", "items": {"type":"number"}, "minItems": 4, "maxItems": 4
+        }
+      }
+    },
+    "reconstruction_policy": {
+      "type": "object",
+      "required": ["priority", "text_integrity", "no_drift", "interpolation_policy", "unknown_policy"],
+      "properties": {
+        "priority": {"const": "frame_fidelity"},
+        "text_integrity": {"const": "strict"},
+        "no_drift": {"const": "strict"},
+        "interpolation_policy": {"enum": ["minimal_only", "none"]},
+        "unknown_policy": {"const": "explicit"}
+      }
+    },
+    "segmentation": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["segment_id", "frames", "stability", "recommended_encoding"],
+        "properties": {
+          "segment_id": {"type": "string"},
+          "frames": {"type":"array","items":{"type":"integer","minimum":0},"minItems":2,"maxItems":2},
+          "description": {"type":"string"},
+          "stability": {"enum":["static","low_motion","high_motion","typing","cursor_click","raster_heavy","transition"]},
+          "recommended_encoding": {"enum":["per_frame","dense_keyframes","hybrid"]}
+        }
+      }
+    },
+    "persistent_elements": {
+      "type": "array",
+      "items": {
+        "type":"object",
+        "required":["id","type","continuity_lock"],
+        "properties": {
+          "id":{"type":"string"},
+          "type":{"type":"string"},
+          "continuity_lock":{"const":"strict"},
+          "text_integrity":{"type":"boolean"},
+          "bbox_ref":{"type":["array","null"]},
+          "notes":{"type":"string"}
+        }
+      }
+    },
+    "qa_gates": {
+      "type":"array",
+      "items":{"type":"object","required":["name","pass_if"],"properties":{"name":{"type":"string"},"pass_if":{"type":"string"}}}
+    }
+  }
+}
