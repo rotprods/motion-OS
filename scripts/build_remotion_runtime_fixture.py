@@ -3,11 +3,15 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
+import sys
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from src.compilers.remotion import compile_remotion_scene_spec, validate_scene_coverage
 
 
-ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "runtime" / "remotion" / "src" / "runtimeSpec.json"
 EVIDENCE = ROOT / "runtime" / "remotion" / "compiler_evidence.json"
 
