@@ -1,0 +1,11 @@
+{
+  "convergence": {
+    "id": "RC09_STRUCTURAL_SEARCH",
+    "required_branches": 4,
+    "requirements": ["3+ primitive families", "2+ layout topologies", "structural not overlay-only", "regression protection"]
+  },
+  "generalization": {
+    "id": "WAVE_05_NEW_ASSET_FAMILY",
+    "requirements": ["unseen brief", "new hero asset family", "4+ style families", "no recolor-only branches"]
+  }
+}
