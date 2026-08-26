@@ -1,0 +1,14 @@
+{
+  "working_master": "RC06",
+  "rc08": {"status": "HOLD_NO_PROMOTION", "branches": 4},
+  "wave04": {
+    "status": "DIVERSITY_FIXTURE_COMPLETE",
+    "brief_domain": "climate_intelligence",
+    "styles": 4,
+    "production_release_authority": false
+  },
+  "next": {
+    "convergence": "RC09_STRUCTURAL_SEARCH",
+    "generalization": "WAVE_05_NEW_ASSET_FAMILY"
+  }
+}
