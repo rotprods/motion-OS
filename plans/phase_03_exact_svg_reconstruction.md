@@ -34,40 +34,39 @@ video / PNG sequence
 - hybrid: per-frame for high-motion/text/cursor; keyframes for stable transforms
 
 ## Layer classification
-### Vector exact candidates
-text, UI cards, icons, lines, paths, circles/rings, masks, clips, badges, counters, pointers.
-
-### Non-vectorizable / hybrid candidates
-photographic footage, organic changing texture, film grain, raster plates, complex baked shadows, video montage.
+Vector exact candidates: text, UI cards, icons, lines, paths, circles/rings, masks, clips, badges, counters, pointers.
+Hybrid candidates: footage, changing organic texture, grain, raster plates, baked shadows and montage content.
 
 ## Output contract
-A. `SVG_FRAME_RECON_PLAN`
-B. `SVG_ASSET_MAP`
-C. `SVG_TIMELINE_FRAME_DATA`
-D. actual `SVG_IMPLEMENTATION`
-E. max-8 fidelity uncertainty notes
-F. capture requirements if needed
+A. SVG_FRAME_RECON_PLAN
+B. SVG_ASSET_MAP
+C. SVG_TIMELINE_FRAME_DATA
+D. SVG_IMPLEMENTATION
+E. fidelity uncertainties
+F. capture requirements
 
 ## Hard gates
-- exact copy strings / line breaks / accents
-- stable element IDs
-- stable anchors
-- absolute coordinate system
-- no invented glyph morph
-- no invented blur
-- no hidden interpolation replacing observable frame behavior
-- unknowns explicit
+Exact strings/line breaks, stable IDs/anchors, absolute coordinates, no invented glyph morph or blur, no hidden interpolation, explicit unknowns.
 
-## QA implementation targets
-- per-frame SSIM / pixel-diff on rasterized SVG
-- bbox error per tracked element
-- text string exact match
-- coordinate drift max
-- timing boundary error in frames
-- deterministic replay hash for identical input
+## Implemented after Gauntlet 10X
+- `src/reconstruction/fidelity.py`: per-element, per-frame and timeline fidelity metrics.
+- hard text-integrity and persistent-ID checks.
+- frame-count exactness and numeric state RMSE.
+- deterministic encoding policy: typing/high motion → per-frame; stable content → dense/hybrid.
+- `src/reconstruction/svg_player.py`: actual SVG+JS deterministic frame player using persistent IDs and embedded timeline JSON.
+- unit tests for zero-error exact replay and text-integrity regression.
+
+## Remaining hard proof
+- reconstruct a known MOTION.OS scene from exported PNG frames.
+- rasterize emitted SVG and compute pixel/SSIM comparison.
+- measure bbox/timing errors against ground truth.
+- deterministic replay hash across two independent runs.
 
 ## Definition of Done
-Reconstruct a known MOTION.OS-generated test scene from exported frames and demonstrate thresholded frame fidelity with a reproducible SVG/JS output and an uncertainty report.
+Reconstruct a known test scene from exported frames and demonstrate thresholded frame fidelity with reproducible SVG/JS output and uncertainty report.
 
 ## Learning delta from Phase 04
-Phase 04 extraction can become the measurement front-end for reconstruction, but creative `MotionStyle2JSON` labels must never replace exact coordinate/frame evidence.
+Phase 04 extraction can provide measurements, but creative MotionStyle2JSON labels never substitute frame-exact coordinate evidence.
+
+## Learning delta from Gauntlet 10X
+The reconstruction vertical now has an executable fidelity gate and player. The remaining problem is empirical source reconstruction, not representation design.
