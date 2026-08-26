@@ -1,0 +1,25 @@
+{
+  "wave": "WAVE_03_UNSEEN_BRIEF_GENERALIZATION",
+  "brief": "Launch an autonomous AI browser that can browse, reason and act without a human driver.",
+  "duration_s": 10,
+  "aspect_ratio": "9:16",
+  "source_fps": 15,
+  "delivery_fps": 30,
+  "styles": [
+    "industrial_white_product",
+    "motorsport_broadcast",
+    "japanese_techno_editorial",
+    "space_mission_control"
+  ],
+  "shared_narrative_beats": ["BROWSE", "THINK", "ACT", "AUTONOMOUS"],
+  "generalization_contract": [
+    "same objective and narrative across candidates",
+    "different composition systems",
+    "different typography systems",
+    "different color/material systems",
+    "different motion grammar",
+    "no candidate is a recolor of another"
+  ],
+  "quality_truth": "These are fast deterministic generalization fixtures. They demonstrate style-routing and grammar diversity, not production-release motion quality.",
+  "next_gate": "Repeat the unseen-brief wave through a production renderer and authoritative temporal critic, then compute evidence-bound GSR."
+}
