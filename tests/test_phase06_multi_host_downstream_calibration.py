@@ -65,6 +65,7 @@ def _observation(i: int, *, driver: str = "MONEY", topic: str = "ai") -> Product
         hook_score=9.2,
         cta_score=8.8,
         pronunciation_errors=0,
+        pronunciation_checks=20,
         claim_violations=0,
         evidence_class=EvidenceClass.OBSERVATIONAL,
     )
@@ -81,6 +82,16 @@ def test_calibration_corpus_is_append_only_jsonl_and_does_not_promote_rules():
         summary = summarize_qualification([_observation(1), _observation(2)])
         assert summary["qualified"] is False
         assert summary["automatic_rule_promotion"] is False
+        assert summary["pronunciation_checks"] == 40
+        assert summary["pronunciation_error_rate"] == 0.0
+
+
+def test_calibration_corpus_rejects_duplicate_production_ids():
+    with tempfile.TemporaryDirectory() as td:
+        corpus = AppendOnlyCalibrationCorpus(Path(td) / "observations.jsonl")
+        corpus.append(_observation(1))
+        with pytest.raises(ValueError, match="duplicate production_id"):
+            corpus.append(_observation(1))
 
 
 def test_empirical_gate_requires_full_coverage_not_just_good_scores():
@@ -94,3 +105,11 @@ def test_empirical_gate_requires_full_coverage_not_just_good_scores():
     assert summary["qualified"] is True
     assert summary["production_count"] == 30
     assert summary["topic_family_count"] == 5
+
+
+def test_empirical_gate_uses_true_pronunciation_error_rate():
+    rows = [_observation(i) for i in range(30)]
+    rows[0] = ProductionObservation(**{**rows[0].__dict__, "pronunciation_errors": 7})
+    summary = summarize_qualification(rows)
+    assert summary["pronunciation_error_rate"] > 0.01
+    assert "pronunciation_error_rate_gt_1pct" in summary["reasons"]
