@@ -9,7 +9,14 @@ from pathlib import Path
 import sys
 from typing import Any
 
-from src.coordination.snapshot import CoordinationSnapshot
+# Direct execution (`python scripts/coordination_cli.py`) puts `scripts/` rather
+# than the repository root on sys.path. Add the root deterministically before
+# importing MOTION.OS modules. This is bootstrap CLI plumbing, not package state.
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from src.coordination.snapshot import CoordinationSnapshot  # noqa: E402
 
 
 KINDS = {"HELLO", "CLAIM", "HEARTBEAT", "BLOCKED", "DECISION", "RELEASE", "CHECKPOINT", "CONFLICT"}
