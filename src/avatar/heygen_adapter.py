@@ -8,6 +8,9 @@ ALLOWED_STATUSES = {None, "waiting", "pending", "queued", "processing", "running
 ALLOWED_ASPECTS = {"9:16", "16:9"}
 ALLOWED_RESOLUTIONS = {"720p", "1080p", "4k"}
 ALLOWED_FORMATS = {"mp4", "webm"}
+MAX_SCRIPT_CHARS = 20_000
+MAX_MOTION_PROMPT_CHARS = 2_000
+MAX_TITLE_CHARS = 160
 
 
 @dataclass(frozen=True)
@@ -28,14 +31,16 @@ class HeyGenRequest:
         return {k: v for k, v in payload.items() if v is not None}
 
 
-def _safe_http_url(value: Any) -> str | None:
+def _safe_https_url(value: Any) -> str | None:
     if value in (None, ""):
         return None
     if not isinstance(value, str):
         raise ValueError("provider URL must be a string")
+    if len(value) > 4096:
+        raise ValueError("provider URL too long")
     parsed = urlparse(value)
-    if parsed.scheme not in {"https", "http"} or not parsed.netloc:
-        raise ValueError("provider URL must use http(s)")
+    if parsed.scheme != "https" or not parsed.netloc or parsed.username or parsed.password:
+        raise ValueError("provider URL must be an absolute HTTPS URL without embedded credentials")
     return value
 
 
@@ -54,11 +59,11 @@ def validate_provider_result(provider_result: dict[str, Any]) -> list[str]:
             errors.append("provider duration must be numeric")
     for field in ("video_url", "thumbnail_url"):
         try:
-            _safe_http_url(provider_result.get(field))
+            _safe_https_url(provider_result.get(field))
         except ValueError as exc:
             errors.append(f"{field}: {exc}")
     job_id = provider_result.get("id") or provider_result.get("video_id")
-    if job_id is not None and (not isinstance(job_id, str) or len(job_id) > 256):
+    if job_id is not None and (not isinstance(job_id, str) or not job_id or len(job_id) > 256):
         errors.append("provider job id malformed")
     return errors
 
@@ -66,8 +71,22 @@ def validate_provider_result(provider_result: dict[str, Any]) -> list[str]:
 def compile_request(manifest: dict[str, Any], profile: dict[str, Any], *, title: str,
                     motion_prompt: str | None = None) -> dict[str, Any]:
     script = manifest.get("script_tts_text")
-    if not script:
+    if not isinstance(script, str) or not script.strip():
         raise ValueError("manifest.script_tts_text required")
+    if len(script) > MAX_SCRIPT_CHARS:
+        raise ValueError("manifest.script_tts_text exceeds provider-safe limit")
+    if not isinstance(title, str) or not title.strip():
+        raise ValueError("title required")
+    if motion_prompt is not None and (not isinstance(motion_prompt, str) or len(motion_prompt) > MAX_MOTION_PROMPT_CHARS):
+        raise ValueError("motion prompt malformed or too long")
+
+    avatar_id = profile.get("look_id")
+    voice_id = profile.get("voice_id")
+    if not isinstance(avatar_id, str) or not avatar_id or len(avatar_id) > 256:
+        raise ValueError("profile.look_id malformed")
+    if not isinstance(voice_id, str) or not voice_id or len(voice_id) > 256:
+        raise ValueError("profile.voice_id malformed")
+
     aspect = profile.get("aspect_ratio", "9:16")
     resolution = profile.get("resolution", "1080p")
     output_format = profile.get("output_format", "mp4")
@@ -80,10 +99,10 @@ def compile_request(manifest: dict[str, Any], profile: dict[str, Any], *, title:
     if not 0.5 <= float(profile.get("speed", 1.0)) <= 1.5:
         raise ValueError("voice speed outside provider-safe range")
     request = HeyGenRequest(
-        avatarId=profile["look_id"],
-        voiceId=profile["voice_id"],
+        avatarId=avatar_id,
+        voiceId=voice_id,
         script=script,
-        title=title[:160],
+        title=title[:MAX_TITLE_CHARS],
         aspectRatio=aspect,
         resolution=resolution,
         outputFormat=output_format,
@@ -104,8 +123,8 @@ def ingest_render_telemetry(manifest: dict[str, Any], provider_result: dict[str,
         "provider_job_id": provider_result.get("id") or provider_result.get("video_id") or render.get("provider_job_id"),
         "status": provider_result.get("status", render.get("status")),
         "actual_duration_s": provider_result.get("duration", render.get("actual_duration_s")),
-        "asset_ref": _safe_http_url(provider_result.get("video_url")) or render.get("asset_ref"),
-        "thumbnail_ref": _safe_http_url(provider_result.get("thumbnail_url")) or render.get("thumbnail_ref"),
+        "asset_ref": _safe_https_url(provider_result.get("video_url")) or render.get("asset_ref"),
+        "thumbnail_ref": _safe_https_url(provider_result.get("thumbnail_url")) or render.get("thumbnail_ref"),
         "failure_code": provider_result.get("failure_code"),
         "failure_message": provider_result.get("failure_message"),
     })
