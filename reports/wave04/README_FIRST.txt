@@ -1,0 +1,1 @@
+Wave 04 tests unseen-brief style diversity. Read WAVE_04_VISUAL_REVIEW.md and QUALITY_TRUTH.json. These are search fixtures, not release candidates.
