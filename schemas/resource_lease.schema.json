@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://motion.os/schemas/resource_lease.schema.json",
+  "title": "MOTION.OS Resource Lease",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["lease_id","resource_uri","agent_id","session_id","fencing_token","acquired_at","expires_at","heartbeat_at","status"],
+  "properties": {
+    "lease_id": {"type":"string","format":"uuid"},
+    "resource_uri": {"type":"string","minLength":3},
+    "scope": {"enum":["READ","WRITE","EXCLUSIVE_WRITE"]},
+    "agent_id": {"type":"string","pattern":"^motion://agent/"},
+    "session_id": {"type":"string","pattern":"^motion://session/"},
+    "fencing_token": {"type":"integer","minimum":1},
+    "expected_revision": {"type":["string","integer","null"]},
+    "acquired_at": {"type":"string","format":"date-time"},
+    "expires_at": {"type":"string","format":"date-time"},
+    "heartbeat_at": {"type":"string","format":"date-time"},
+    "status": {"enum":["ACTIVE","RELEASED","EXPIRED","REVOKED"]},
+    "reason": {"type":["string","null"]}
+  }
+}
