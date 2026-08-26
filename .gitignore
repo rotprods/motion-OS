@@ -1,0 +1,25 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+data/runs/
+data/cache/
+data/alignment_runs/
+data/v08_asset_slice/frames/
+generated/**/*.mp4
+
+# Runtime/generated media
+/data/**/frames*/
+/data/**/branches/*/frames*/
+/data/**/*.mp4
+/data/**/*.wav
+/reports/**/*.jpg
+/reports/**/*.png
+
+state/session_close_manifest.json
+
+data/**/*.png
+data/**/*.jpg
+data/**/*.jpeg
+reports/**/*.jpeg
+forensics/*.jpg
+forensics/*.sqlite

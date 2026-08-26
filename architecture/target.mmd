@@ -1,0 +1,30 @@
+flowchart TD
+ Brief --> Intent --> CreativeStrategy --> ReferenceResearch --> VisualDNA --> StyleSynthesis --> Storyboard
+ Storyboard --> Beats
+ Beats --> AssetRequirements --> AssetPlanner --> Assets
+ Beats --> PrimitiveSelection --> MotionChoreography
+ Assets --> RendererRouter
+ MotionChoreography --> RendererRouter
+ RendererRouter --> HyperFrames
+ RendererRouter --> Remotion
+ RendererRouter --> GenerativeVideo
+ RendererRouter --> Blender3D
+ HyperFrames --> FFmpeg
+ Remotion --> FFmpeg
+ GenerativeVideo --> FFmpeg
+ Blender3D --> FFmpeg
+ FFmpeg --> Master
+ Master --> TechnicalQA
+ Master --> SemanticQA
+ Master --> CreativeDirectorQA
+ TechnicalQA --> Defects
+ SemanticQA --> Defects
+ CreativeDirectorQA --> Defects
+ Defects --> RootCause
+ RootCause --> CandidateSearch
+ CandidateSearch --> PartialRender
+ PartialRender --> Tournament
+ Tournament --> WorkingMaster
+ WorkingMaster --> GlobalQA
+ GlobalQA -->|fail| Defects
+ GlobalQA -->|pass| Release

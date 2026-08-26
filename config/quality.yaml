@@ -1,0 +1,9 @@
+quality:
+  target_score: 9.0
+  master_score: 9.5
+  max_iterations: 6
+  max_transition_timing_error_frames: 3
+  max_duration_error_frames: 1
+  require_zero_p0: true
+  require_zero_p1: true
+  provenance_coverage_required: 1.0
