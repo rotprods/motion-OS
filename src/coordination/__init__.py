@@ -18,6 +18,7 @@ from .leases import (
 )
 from .postgres_store import PostgresCoordinationStore
 from .projection import CoordinationGraphProjector, CosProjectionSink, ProjectionSnapshot
+from .snapshot import CoordinationSnapshot
 
 __all__ = [
     "ContextPack",
@@ -26,6 +27,7 @@ __all__ = [
     "CoordinationBus",
     "CoordinationEvent",
     "CoordinationGraphProjector",
+    "CoordinationSnapshot",
     "CosProjectionSink",
     "InMemoryReferenceBus",
     "Lease",
