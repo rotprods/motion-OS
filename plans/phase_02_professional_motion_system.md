@@ -5,13 +5,13 @@ Turn references + brief into a locked production system before rendering. Replac
 
 ## Pipeline
 ```text
-reference corpus (target >=20 when available)
+reference corpus
 → structural reverse engineering
 → pattern extraction
 → motion_system lock
 → semantic behavior mapping
 → scene contracts
-→ structured YAML/JSON
+→ structured contract
 → renderer compilation
 → QA
 → repair / rerender
@@ -19,75 +19,43 @@ reference corpus (target >=20 when available)
 
 ## Required `motion_system`
 ### Tokens
-- spacing system
-- radius system
-- typography roles
-- palette
-- grid
-- material presets
-- shadow / glow / grain limits
-- camera space
-- easing presets
+spacing, radii, typography roles, palette, grid, materials, FX limits, camera grammar and easing.
 
 ### Rules
-- no drift
-- text integrity
-- stable anchors
-- geometric continuity
-- one dominant idea per beat
-- every transition motivated
-- persistent IDs where continuity matters
+no drift, strict text integrity, stable anchors, geometric continuity, one dominant idea per beat, motivated transitions, persistent IDs.
 
 ### Reusable patterns
-- typing
-- split
-- expand
-- collapse
-- seed→card
-- collect→condense→brand
-- reward unlock
-- audio pulse
-- UI module build
-- object→behavior→system
+Typing, split, expand, collapse, seed→card, collect→condense→brand, reward unlock, audio pulse, UI module build, object→behavior→system.
 
-## Semantic translation layer
-Never animate sentences directly. Compile semantic concepts into behaviors first.
-Examples:
-- autonomy → controlling node / orchestration center
-- productivity → parallel branching
-- bottleneck → geometric narrowing
-- coordination → synchronized convergence
-- growth → controlled expansion / accumulation
+## Semantic translation layer — IMPLEMENTED V1
+`src/core/semantic_behavior.py` translates controlled concepts to behaviors before primitive selection.
 
-## Scene contract
-Each scene has:
-- objective
-- one primary event
-- incoming continuity
-- outgoing continuity
-- persistent layers
-- new layers
-- semantic target
-- grammar constraints
-- audio cues
-- QA criteria
+## Motion-system compiler — IMPLEMENTED V1
+`src/core/motion_system.py` emits locked tokens, rules, semantic behaviors, allowed/forbidden primitive routes, camera/material grammar and QA criteria.
+
+## Scene contract compiler — IMPLEMENTED V1
+Each scene emits objective, primary event, incoming/outgoing continuity, persistent/new layers, semantic target, grammar constraints, audio cues and QA.
 
 ## Renderer capability policy
-Model-specific duration/resolution/text constraints are time-stamped capability metadata. They are not permanent design rules.
+Model-specific duration/resolution/text constraints remain time-stamped capability metadata, never permanent design law.
 
 ## QA
-- drift
-- text sharpness/integrity
-- geometry continuity
-- rhythm
-- unnecessary visual noise
-- hierarchy
-- transition motivation
-- grammar fidelity
-- brand consistency
+Drift, text integrity, geometry continuity, rhythm, hierarchy, transition motivation, grammar fidelity and brand consistency.
 
 ## Definition of Done
 A new agent can take a plain-text brief + references, compile a deterministic `motion_system`, produce scene contracts, route primitives/renderers and explain every motion decision through semantics/rules rather than “looks cool”.
 
+## Status after Gauntlet 10X
+- semantic behavior map: IMPLEMENTED + UNIT TESTED
+- locked motion_system contract: IMPLEMENTED + UNIT TESTED
+- scene contracts: IMPLEMENTED + UNIT TESTED
+- MotionStyle2JSON → Remotion compiler: IMPLEMENTED + UNIT TESTED
+- Framer Motion compiler contracts: IMPLEMENTED + UNIT TESTED
+- reference-derived automatic grammar selection: OPEN
+- production render proof under HyperFrames/Remotion: OPEN HARD GATE
+
 ## Learning delta from Phase 04
-Reference reverse engineering becomes data-backed: the `motion_system` must increasingly compile from `MotionStyle2JSON` evidence rather than freeform LLM summaries.
+Reference reverse engineering is now data-backed: `motion_system` can compile from evidence-bound `MotionStyle2JSON`, not only freeform summaries.
+
+## Learning delta from Gauntlet 10X
+The professional system is now executable in code. The next bottleneck is not schema design; it is renderer/runtime verification and measuring whether compiled semantics improve real motion quality.
