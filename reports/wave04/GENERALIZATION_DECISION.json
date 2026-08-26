@@ -1,0 +1,8 @@
+{
+  "decision":"PASS_DIVERSITY_DISCOVERY_ONLY",
+  "style_families":4,
+  "brief_unseen":true,
+  "production_quality_claim":false,
+  "authoritative_temporal_qa":false,
+  "next":"repeat with new asset family and qualified renderer path"
+}
