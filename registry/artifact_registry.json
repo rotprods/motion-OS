@@ -8,11 +8,83 @@
     "lineage": "Graph"
   },
   "artifacts": [
-    {"artifact_id":"ART-B58105157045","type":"video_master","local_path":"data/rc_candidate/MOTION_OS_RC01.mp4","sha256":"9e61b308f3d9d35c777939e968a17b2334207bdb7d0c21fa4944c51dd98da732","status":"historical","parent":null,"wave":"WAVE_01","drive_file_id":"1A7yPuFcY9m_EIL7_cWnAxN7OeZHOZvgt","git_sha":null,"run_id":"rc01","drive_url":"https://drive.google.com/file/d/1A7yPuFcY9m_EIL7_cWnAxN7OeZHOZvgt/view"},
-    {"artifact_id":"ART-4B0A436FF2CD","type":"video_master","local_path":"data/rc_candidate/MOTION_OS_RC02.mp4","sha256":"f05f351e666f2e0f21787c0b25aa3d30b57918be19b61e7d7317ce535fbb74d3","status":"historical","parent":"RC01","wave":"WAVE_01","drive_file_id":"12RenBMM-XG2fU32oKYLZIzZYDc2GzPii","git_sha":null,"run_id":"rc02","drive_url":"https://drive.google.com/file/d/12RenBMM-XG2fU32oKYLZIzZYDc2GzPii/view"},
-    {"artifact_id":"ART-A8BFED9762F4","type":"video_master","local_path":"data/rc03/MOTION_OS_RC03.mp4","sha256":"1bbc4ea3d1ba1193a214616833e705c1cb8d783c7f18004b11d494bc4e96ced5","status":"historical","parent":"RC02","wave":"WAVE_01","drive_file_id":"1fQ4hIi3wF45383-PKIfPD-uZvx8O58bO","git_sha":null,"run_id":"rc03","drive_url":"https://drive.google.com/file/d/1fQ4hIi3wF45383-PKIfPD-uZvx8O58bO/view"},
-    {"artifact_id":"ART-EE23F2D7DC07","type":"video_master","local_path":"data/rc04/MOTION_OS_RC04.mp4","sha256":"ac197fd54550a98d7ec060a21db14fdd61d9dce383b17dc8116948b460e28bb3","status":"historical","parent":"RC03","wave":"WAVE_01","drive_file_id":"16QGvldGqqWFJSw8BOahmXFD5E0DK6Chz","git_sha":null,"run_id":"rc04","drive_url":"https://drive.google.com/file/d/16QGvldGqqWFJSw8BOahmXFD5E0DK6Chz/view"},
-    {"artifact_id":"ART-10A92F3C681A","type":"video_master","local_path":"data/rc05/MOTION_OS_RC05.mp4","sha256":"477d7f6ea357df2213c325d72d336060313f4533c52a6b277616228d6f756519","status":"working_master","parent":"RC04","wave":"WAVE_01","drive_file_id":"1Ruz0NWEQsrLEPRtpE3-Z-4ONdPas7mAE","git_sha":null,"run_id":"rc05","drive_url":"https://drive.google.com/file/d/1Ruz0NWEQsrLEPRtpE3-Z-4ONdPas7mAE/view"},
-    {"artifact_id":"ART-44C38A3E73BB","type":"video_master","local_path":"data/rc06/MOTION_OS_RC06.mp4","sha256":"fbfd4fda97b1e4d07b8477018324210324c8115c0f5b9a3515eb27ae255f0f1f","status":"candidate","parent":"RC05","wave":"WAVE_01","drive_file_id":"1r3y35J735DhfyW4e5rDBcTRTdEKPPnrf","git_sha":null,"run_id":"rc06","drive_url":"https://drive.google.com/file/d/1r3y35J735DhfyW4e5rDBcTRTdEKPPnrf/view"}
+    {
+      "artifact_id": "ART-B58105157045",
+      "type": "video_master",
+      "local_path": "data/rc_candidate/MOTION_OS_RC01.mp4",
+      "sha256": "9e61b308f3d9d35c777939e968a17b2334207bdb7d0c21fa4944c51dd98da732",
+      "status": "historical",
+      "parent": null,
+      "wave": "WAVE_01",
+      "drive_file_id": "1A7yPuFcY9m_EIL7_cWnAxN7OeZHOZvgt",
+      "git_sha": null,
+      "run_id": "rc01",
+      "drive_url": "https://drive.google.com/file/d/1A7yPuFcY9m_EIL7_cWnAxN7OeZHOZvgt/view"
+    },
+    {
+      "artifact_id": "ART-4B0A436FF2CD",
+      "type": "video_master",
+      "local_path": "data/rc_candidate/MOTION_OS_RC02.mp4",
+      "sha256": "f05f351e666f2e0f21787c0b25aa3d30b57918be19b61e7d7317ce535fbb74d3",
+      "status": "historical",
+      "parent": "RC01",
+      "wave": "WAVE_01",
+      "drive_file_id": "12RenBMM-XG2fU32oKYLZIzZYDc2GzPii",
+      "git_sha": null,
+      "run_id": "rc02",
+      "drive_url": "https://drive.google.com/file/d/12RenBMM-XG2fU32oKYLZIzZYDc2GzPii/view"
+    },
+    {
+      "artifact_id": "ART-A8BFED9762F4",
+      "type": "video_master",
+      "local_path": "data/rc03/MOTION_OS_RC03.mp4",
+      "sha256": "1bbc4ea3d1ba1193a214616833e705c1cb8d783c7f18004b11d494bc4e96ced5",
+      "status": "historical",
+      "parent": "RC02",
+      "wave": "WAVE_01",
+      "drive_file_id": "1fQ4hIi3wF45383-PKIfPD-uZvx8O58bO",
+      "git_sha": null,
+      "run_id": "rc03",
+      "drive_url": "https://drive.google.com/file/d/1fQ4hIi3wF45383-PKIfPD-uZvx8O58bO/view"
+    },
+    {
+      "artifact_id": "ART-EE23F2D7DC07",
+      "type": "video_master",
+      "local_path": "data/rc04/MOTION_OS_RC04.mp4",
+      "sha256": "ac197fd54550a98d7ec060a21db14fdd61d9dce383b17dc8116948b460e28bb3",
+      "status": "historical",
+      "parent": "RC03",
+      "wave": "WAVE_01",
+      "drive_file_id": "16QGvldGqqWFJSw8BOahmXFD5E0DK6Chz",
+      "git_sha": null,
+      "run_id": "rc04",
+      "drive_url": "https://drive.google.com/file/d/16QGvldGqqWFJSw8BOahmXFD5E0DK6Chz/view"
+    },
+    {
+      "artifact_id": "ART-10A92F3C681A",
+      "type": "video_master",
+      "local_path": "data/rc05/MOTION_OS_RC05.mp4",
+      "sha256": "477d7f6ea357df2213c325d72d336060313f4533c52a6b277616228d6f756519",
+      "status": "working_master",
+      "parent": "RC04",
+      "wave": "WAVE_01",
+      "drive_file_id": "1Ruz0NWEQsrLEPRtpE3-Z-4ONdPas7mAE",
+      "git_sha": null,
+      "run_id": "rc05",
+      "drive_url": "https://drive.google.com/file/d/1Ruz0NWEQsrLEPRtpE3-Z-4ONdPas7mAE/view"
+    },
+    {
+      "artifact_id": "ART-44C38A3E73BB",
+      "type": "video_master",
+      "local_path": "data/rc06/MOTION_OS_RC06.mp4",
+      "sha256": "fbfd4fda97b1e4d07b8477018324210324c8115c0f5b9a3515eb27ae255f0f1f",
+      "status": "candidate",
+      "parent": "RC05",
+      "wave": "WAVE_01",
+      "drive_file_id": "1r3y35J735DhfyW4e5rDBcTRTdEKPPnrf",
+      "git_sha": null,
+      "run_id": "rc06",
+      "drive_url": "https://drive.google.com/file/d/1r3y35J735DhfyW4e5rDBcTRTdEKPPnrf/view"
+    }
   ]
 }

@@ -1,0 +1,17 @@
+name: Security Baseline
+on:
+  pull_request:
+  schedule:
+    - cron: '17 5 * * 1'
+permissions:
+  contents: read
+jobs:
+  dependency-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -e '.[dev]' pip-audit
+      - run: pip-audit

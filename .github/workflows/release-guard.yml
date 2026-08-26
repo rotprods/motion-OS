@@ -1,0 +1,24 @@
+name: Release Guard
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+permissions:
+  contents: read
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Require explicit released state and zero P0 blockers
+        run: |
+          python - <<'PY'
+          import json,sys
+          s=json.load(open('state/project_state.json'))
+          ok=s.get('release_status')=='RELEASED' and not s.get('p0_blockers')
+          print(json.dumps({'release_guard':ok,'status':s.get('release_status'),'p0':s.get('p0_blockers')},indent=2))
+          sys.exit(0 if ok else 1)
+          PY

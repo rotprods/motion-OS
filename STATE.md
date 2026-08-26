@@ -12,11 +12,11 @@
 - Authoritative full-video critic: not connected.
 - Primitive qualification: 15 verified / 30 quarantined.
 - Wave 02 generalization fixtures exist across four zero-style families.
-- GitHub remote: rotprods/motion-OS.
-- Drive root: MOTION.OS_CANONICAL.
+- GitHub remote target: rotprods/motion-OS.
+- Drive persistent root: MOTION.OS_CANONICAL.
 
 ## Current P0
-1. Finish Git local ↔ GitHub ↔ Drive reconciliation.
+1. Reconcile Git local ↔ GitHub ↔ Drive.
 2. Connect authoritative full-video critic.
 3. Verify HyperFrames production runtime.
 4. Verify Remotion production runtime.
