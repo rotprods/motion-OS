@@ -1,0 +1,17 @@
+flowchart TD
+  B[Brief] --> S[Style Resolver]
+  S --> R[Reference Intelligence]
+  R --> SB[Storyboard]
+  SB --> A[Asset Orchestrator]
+  A --> G[Motion Graph]
+  G --> RR[Renderer Router]
+  RR --> HF[HyperFrames Source]
+  RR --> RM[Remotion Source]
+  RR --> NP[Native Prototype]
+  NP --> V[Video]
+  HF --> V
+  RM --> V
+  V --> Q[QA]
+  Q --> D[Defects]
+  D --> P[Graph Patches]
+  P --> G

@@ -1,0 +1,15 @@
+flowchart LR
+  B[Brief] --> S[Style]
+  S --> SB[Storyboard]
+  SB --> BT[Beat]
+  BT --> A[Asset]
+  BT --> P[Primitive]
+  A --> R[Renderer]
+  P --> R
+  R --> I[Iteration]
+  I --> M[MetricEvidence]
+  I --> Q[SemanticReview]
+  Q --> D[Defect]
+  D --> PA[Patch]
+  PA --> I2[Iteration]
+  I -->|SUPERSEDED_BY| I2

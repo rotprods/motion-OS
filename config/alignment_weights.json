@@ -1,0 +1,10 @@
+{
+  "version": "v0.8-forensic-realignment",
+  "global_domains": {"creative_quality":0.45,"trust_evidence":0.2,"autonomy":0.2,"engineering_quality":0.15},
+  "inferred_previous_emphasis":{"creative_quality":0.2,"trust_evidence":0.1,"autonomy":0.25,"engineering_quality":0.45},
+  "creative":{"motion_choreography":0.15,"composition":0.12,"typography":0.09,"art_direction":0.16,"asset_realism":0.15,"visual_originality":0.08,"transition_quality":0.08,"narrative_clarity":0.06,"style_coherence":0.07,"final_frame_memorability":0.04},
+  "engineering":{"determinism":0.12,"modularity":0.1,"test_coverage":0.08,"observability":0.1,"reproducibility":0.14,"performance":0.08,"caching":0.08,"failure_recovery":0.12,"renderer_abstraction":0.18},
+  "autonomy":{"planning_quality":0.13,"tool_selection":0.12,"root_cause_accuracy":0.14,"patch_quality":0.16,"search_diversity":0.1,"regression_avoidance":0.13,"convergence":0.14,"human_intervention_required_inverse":0.08},
+  "trust":{"claim_verification":0.28,"provenance":0.22,"metric_integrity":0.24,"uncertainty_calibration":0.16,"no_fake_success":0.1},
+  "rationale":{"creative_quality":"Largest increase: current bottleneck is visible output, not control-plane sophistication.","trust_evidence":"Raised because prior iterations overstated semantic maturity/Git continuity.","autonomy":"Kept material but subordinate to quality: autonomous low-quality convergence is failure.","engineering_quality":"Reduced globally; foundations are sufficient to pause architecture-first expansion."}
+}

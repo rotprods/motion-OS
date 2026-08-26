@@ -1,0 +1,8 @@
+REQUIRED=['composition','hierarchy','typography','motion_choreography','transition_quality','asset_realism','asset_integration','depth','lighting','style_coherence','originality','narrative_clarity','brand_alignment','final_frame_memorability','professional_finish'];THRESHOLDS={'composition':8.5,'typography':9.0,'asset_realism':8.5,'motion_choreography':9.0,'transition_quality':8.8,'professional_finish':9.0}
+def evaluate(review):
+    missing=[k for k in REQUIRED if k not in review.get('dimensions',{})];p01=[d for d in review.get('defects',[]) if d.get('severity') in ('P0','P1')];dims=review.get('dimensions',{});mean=sum(dims.values())/len(dims) if dims else 0;fails={k:{'score':dims.get(k,0),'target':v} for k,v in THRESHOLDS.items() if dims.get(k,0)<v};provider=review.get('provider',{});auth=bool(provider.get('authoritative')) and bool(review.get('evidence_bound'));temporal=bool(review.get('temporal_context_verified'))
+    if not auth:return {'verdict':'BLOCK','reason':'NON_AUTHORITATIVE_SEMANTIC_PROVIDER','semantic_mean':round(mean,3),'missing':missing,'threshold_fail':fails}
+    if not temporal:return {'verdict':'BLOCK','reason':'TEMPORAL_SEMANTIC_QA_INCOMPLETE','semantic_mean':round(mean,3),'missing':missing,'threshold_fail':fails}
+    if missing or p01:return {'verdict':'BLOCK','reason':'HARD_OR_INCOMPLETE_QA','semantic_mean':round(mean,3),'missing':missing,'p01':p01,'threshold_fail':fails}
+    if mean<9 or fails:return {'verdict':'ITERATE','reason':'QUALITY_BELOW_RELEASE','semantic_mean':round(mean,3),'threshold_fail':fails}
+    return {'verdict':'RELEASE','reason':'ALL_GATES_PASSED','semantic_mean':round(mean,3)}

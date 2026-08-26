@@ -1,0 +1,327 @@
+[
+  {
+    "id": "editorial_finance_simple",
+    "style": "editorial_finance",
+    "complexity": "simple",
+    "objective": "Explain an autonomous analytics system",
+    "duration": 10,
+    "aspect_ratio": "9:16",
+    "headline": "AUTONOMY BECOMES VISIBLE",
+    "forbidden": [
+      "generic_scale_opacity_only",
+      "low_res_hero"
+    ]
+  },
+  {
+    "id": "editorial_finance_type_heavy",
+    "style": "editorial_finance",
+    "complexity": "type_heavy",
+    "objective": "Launch a technical knowledge engine",
+    "duration": 10,
+    "aspect_ratio": "9:16",
+    "headline": "SYSTEMS THAT REMEMBER",
+    "forbidden": [
+      "generic_scale_opacity_only",
+      "low_res_hero"
+    ]
+  },
+  {
+    "id": "editorial_finance_asset_heavy",
+    "style": "editorial_finance",
+    "complexity": "asset_heavy",
+    "objective": "Present a premium hardware product",
+    "duration": 10,
+    "aspect_ratio": "9:16",
+    "headline": "OBJECT BECOMES INTERFACE",
+    "forbidden": [
+      "generic_scale_opacity_only",
+      "low_res_hero"
+    ]
+  },
+  {
+    "id": "editorial_finance_rapid_motion",
+    "style": "editorial_finance",
+    "complexity": "rapid_motion",
+    "objective": "Reveal an AI deployment platform",
+    "duration": 10,
+    "aspect_ratio": "9:16",
+    "headline": "SHIP AT MACHINE SPEED",
+    "forbidden": [
+      "generic_scale_opacity_only",
+      "low_res_hero"
+    ]
+  },
+  {
+    "id": "editorial_finance_minimal",
+    "style": "editorial_finance",
+    "complexity": "minimal",
+    "objective": "Introduce a luxury software brand",
+    "duration": 10,
+    "aspect_ratio": "9:16",
+    "headline": "LESS UI. MORE INTENT.",
+    "forbidden": [
+      "generic_scale_opacity_only",
+      "low_res_hero"
+    ]
+  },
+  {
+    "id": "swiss_brutalist_simple",
+    "style": "swiss_brutalist",
+    "complexity": "simple",
+    "objective": "Explain an autonomous analytics system",
+    "duration": 10,
+    "aspect_ratio": "9:16",
+    "headline": "AUTONOMY BECOMES VISIBLE",
+    "forbidden": [
+      "generic_scale_opacity_only",
+      "low_res_hero"
+    ]
+  },
+  {
+    "id": "swiss_brutalist_type_heavy",
+    "style": "swiss_brutalist",
+    "complexity": "type_heavy",
+    "objective": "Launch a technical knowledge engine",
+    "duration": 10,
+    "aspect_ratio": "9:16",
+    "headline": "SYSTEMS THAT REMEMBER",
+    "forbidden": [
+      "generic_scale_opacity_only",
+      "low_res_hero"
+    ]
+  },
+  {
+    "id": "swiss_brutalist_asset_heavy",
+    "style": "swiss_brutalist",
+    "complexity": "asset_heavy",
+    "objective": "Present a premium hardware product",
+    "duration": 10,
+    "aspect_ratio": "9:16",
+    "headline": "OBJECT BECOMES INTERFACE",
+    "forbidden": [
+      "generic_scale_opacity_only",
+      "low_res_hero"
+    ]
+  },
+  {
+    "id": "swiss_brutalist_rapid_motion",
+    "style": "swiss_brutalist",
+    "complexity": "rapid_motion",
+    "objective": "Reveal an AI deployment platform",
+    "duration": 10,
+    "aspect_ratio": "9:16",
+    "headline": "SHIP AT MACHINE SPEED",
+    "forbidden": [
+      "generic_scale_opacity_only",
+      "low_res_hero"
+    ]
+  },
+  {
+    "id": "swiss_brutalist_minimal",
+    "style": "swiss_brutalist",
+    "complexity": "minimal",
+    "objective": "Introduce a luxury software brand",
+    "duration": 10,
+    "aspect_ratio": "9:16",
+    "headline": "LESS UI. MORE INTENT.",
+    "forbidden": [
+      "generic_scale_opacity_only",
+      "low_res_hero"
+    ]
+  },
+  {
+    "id": "dark_technical_simple",
+    "style": "dark_technical",
+    "complexity": "simple",
+    "objective": "Explain an autonomous analytics system",
+    "duration": 10,
+    "aspect_ratio": "9:16",
+    "headline": "AUTONOMY BECOMES VISIBLE",
+    "forbidden": [
+      "generic_scale_opacity_only",
+      "low_res_hero"
+    ]
+  },
+  {
+    "id": "dark_technical_type_heavy",
+    "style": "dark_technical",
+    "complexity": "type_heavy",
+    "objective": "Launch a technical knowledge engine",
+    "duration": 10,
+    "aspect_ratio": "9:16",
+    "headline": "SYSTEMS THAT REMEMBER",
+    "forbidden": [
+      "generic_scale_opacity_only",
+      "low_res_hero"
+    ]
+  },
+  {
+    "id": "dark_technical_asset_heavy",
+    "style": "dark_technical",
+    "complexity": "asset_heavy",
+    "objective": "Present a premium hardware product",
+    "duration": 10,
+    "aspect_ratio": "9:16",
+    "headline": "OBJECT BECOMES INTERFACE",
+    "forbidden": [
+      "generic_scale_opacity_only",
+      "low_res_hero"
+    ]
+  },
+  {
+    "id": "dark_technical_rapid_motion",
+    "style": "dark_technical",
+    "complexity": "rapid_motion",
+    "objective": "Reveal an AI deployment platform",
+    "duration": 10,
+    "aspect_ratio": "9:16",
+    "headline": "SHIP AT MACHINE SPEED",
+    "forbidden": [
+      "generic_scale_opacity_only",
+      "low_res_hero"
+    ]
+  },
+  {
+    "id": "dark_technical_minimal",
+    "style": "dark_technical",
+    "complexity": "minimal",
+    "objective": "Introduce a luxury software brand",
+    "duration": 10,
+    "aspect_ratio": "9:16",
+    "headline": "LESS UI. MORE INTENT.",
+    "forbidden": [
+      "generic_scale_opacity_only",
+      "low_res_hero"
+    ]
+  },
+  {
+    "id": "experimental_kinetic_simple",
+    "style": "experimental_kinetic",
+    "complexity": "simple",
+    "objective": "Explain an autonomous analytics system",
+    "duration": 10,
+    "aspect_ratio": "9:16",
+    "headline": "AUTONOMY BECOMES VISIBLE",
+    "forbidden": [
+      "generic_scale_opacity_only",
+      "low_res_hero"
+    ]
+  },
+  {
+    "id": "experimental_kinetic_type_heavy",
+    "style": "experimental_kinetic",
+    "complexity": "type_heavy",
+    "objective": "Launch a technical knowledge engine",
+    "duration": 10,
+    "aspect_ratio": "9:16",
+    "headline": "SYSTEMS THAT REMEMBER",
+    "forbidden": [
+      "generic_scale_opacity_only",
+      "low_res_hero"
+    ]
+  },
+  {
+    "id": "experimental_kinetic_asset_heavy",
+    "style": "experimental_kinetic",
+    "complexity": "asset_heavy",
+    "objective": "Present a premium hardware product",
+    "duration": 10,
+    "aspect_ratio": "9:16",
+    "headline": "OBJECT BECOMES INTERFACE",
+    "forbidden": [
+      "generic_scale_opacity_only",
+      "low_res_hero"
+    ]
+  },
+  {
+    "id": "experimental_kinetic_rapid_motion",
+    "style": "experimental_kinetic",
+    "complexity": "rapid_motion",
+    "objective": "Reveal an AI deployment platform",
+    "duration": 10,
+    "aspect_ratio": "9:16",
+    "headline": "SHIP AT MACHINE SPEED",
+    "forbidden": [
+      "generic_scale_opacity_only",
+      "low_res_hero"
+    ]
+  },
+  {
+    "id": "experimental_kinetic_minimal",
+    "style": "experimental_kinetic",
+    "complexity": "minimal",
+    "objective": "Introduce a luxury software brand",
+    "duration": 10,
+    "aspect_ratio": "9:16",
+    "headline": "LESS UI. MORE INTENT.",
+    "forbidden": [
+      "generic_scale_opacity_only",
+      "low_res_hero"
+    ]
+  },
+  {
+    "id": "premium_product_simple",
+    "style": "premium_product",
+    "complexity": "simple",
+    "objective": "Explain an autonomous analytics system",
+    "duration": 10,
+    "aspect_ratio": "9:16",
+    "headline": "AUTONOMY BECOMES VISIBLE",
+    "forbidden": [
+      "generic_scale_opacity_only",
+      "low_res_hero"
+    ]
+  },
+  {
+    "id": "premium_product_type_heavy",
+    "style": "premium_product",
+    "complexity": "type_heavy",
+    "objective": "Launch a technical knowledge engine",
+    "duration": 10,
+    "aspect_ratio": "9:16",
+    "headline": "SYSTEMS THAT REMEMBER",
+    "forbidden": [
+      "generic_scale_opacity_only",
+      "low_res_hero"
+    ]
+  },
+  {
+    "id": "premium_product_asset_heavy",
+    "style": "premium_product",
+    "complexity": "asset_heavy",
+    "objective": "Present a premium hardware product",
+    "duration": 10,
+    "aspect_ratio": "9:16",
+    "headline": "OBJECT BECOMES INTERFACE",
+    "forbidden": [
+      "generic_scale_opacity_only",
+      "low_res_hero"
+    ]
+  },
+  {
+    "id": "premium_product_rapid_motion",
+    "style": "premium_product",
+    "complexity": "rapid_motion",
+    "objective": "Reveal an AI deployment platform",
+    "duration": 10,
+    "aspect_ratio": "9:16",
+    "headline": "SHIP AT MACHINE SPEED",
+    "forbidden": [
+      "generic_scale_opacity_only",
+      "low_res_hero"
+    ]
+  },
+  {
+    "id": "premium_product_minimal",
+    "style": "premium_product",
+    "complexity": "minimal",
+    "objective": "Introduce a luxury software brand",
+    "duration": 10,
+    "aspect_ratio": "9:16",
+    "headline": "LESS UI. MORE INTENT.",
+    "forbidden": [
+      "generic_scale_opacity_only",
+      "low_res_hero"
+    ]
+  }
+]
