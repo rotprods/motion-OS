@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "project_id": "motion://project/MOTION.OS",
+  "captured_at": "2026-08-26T19:55:00Z",
+  "main_sha": "2ac7b031f2740e64f4b8ad3cf0895f9a5e3d0868",
+  "release_status": "BLOCKED",
+  "release_gates": [
+    "HyperFrames production runtime",
+    "Remotion production runtime",
+    "authoritative full-video temporal critic",
+    "creative convergence >=9"
+  ],
+  "active_prs": [
+    {
+      "number": 34,
+      "branch": "feat/remotion-runtime-proof",
+      "state": "OPEN",
+      "title": "Remotion production runtime proof",
+      "owned_scopes": ["capability:renderer/remotion", "evidence:remotion-runtime"],
+      "shared_contracts": ["contract:scene-spec-runtime-consumption"]
+    },
+    {
+      "number": 35,
+      "branch": "feat/superwave-real-analysis",
+      "state": "OPEN",
+      "title": "Physical analysis + Studio Engine",
+      "owned_scopes": ["phase:04/visual-dna", "capability:studio-engine", "capability:physical-analysis"],
+      "shared_contracts": ["contract:motionstyle2json", "contract:studio-entry", "contract:editing-graph"]
+    },
+    {
+      "number": 37,
+      "branch": "feat/avatar-script-engine",
+      "state": "OPEN_DRAFT",
+      "title": "Content Intelligence + Avatar Factory",
+      "owned_scopes": ["phase:06/content-intelligence", "capability:avatar-factory", "capability:render-authority"],
+      "shared_contracts": ["contract:avatar-handoff", "contract:stable-beat-identity", "contract:provenance-root", "contract:replay-fingerprint"]
+    },
+    {
+      "number": 44,
+      "branch": "feat/agentic-coordination-kernel",
+      "state": "OPEN_DRAFT",
+      "title": "Agentic coordination kernel + COS graph integration",
+      "owned_scopes": ["phase:07/agentic-coordination"],
+      "shared_contracts": ["contract:coordination-event", "contract:resource-lease", "contract:context-pack", "contract:cos-projection"]
+    }
+  ],
+  "active_agents": [
+    {"agent_id":"motion://agent/remotion-runtime","status":"ACTIVE","pr":34},
+    {"agent_id":"motion://agent/studio-engine","status":"ACTIVE","pr":35},
+    {"agent_id":"motion://agent/content-avatar","status":"ACTIVE","pr":37},
+    {"agent_id":"motion://agent/coordination-architect","status":"ACTIVE","pr":44}
+  ],
+  "active_leases": [],
+  "tasks": [
+    {"task_id":"motion://task/remotion-runtime","pr":34,"depends_on":[]},
+    {"task_id":"motion://task/studio-engine","pr":35,"depends_on":["motion://task/content-avatar", "motion://task/remotion-runtime"]},
+    {"task_id":"motion://task/content-avatar","pr":37,"depends_on":[]},
+    {"task_id":"motion://task/coordination-kernel","pr":44,"depends_on":[]}
+  ],
+  "decisions": [
+    {"decision_id":"ADR-007","state":"PROPOSED","summary":"Postgres is Phase07 coordination authority target; COS is rebuildable projection."},
+    {"decision_id":"AUTHORITY-PLANE-MATRIX","state":"PROPOSED","summary":"Phase06 SQLite render authority is separate from Phase07 Postgres coordination authority."}
+  ],
+  "contracts": [
+    {"uri":"contract:avatar-handoff","revision":"phase06-v2","owner":"motion://agent/content-avatar","consumers":["motion://agent/studio-engine"]},
+    {"uri":"contract:stable-beat-identity","revision":"phase06-v2","owner":"motion://agent/content-avatar","consumers":["motion://agent/studio-engine"]},
+    {"uri":"contract:studio-entry","revision":"phase05-plan","owner":"motion://agent/studio-engine","consumers":[]},
+    {"uri":"contract:scene-spec-runtime-consumption","revision":"remotion-runtime-v1","owner":"motion://agent/remotion-runtime","consumers":["motion://agent/studio-engine"]},
+    {"uri":"contract:coordination-event","revision":1,"owner":"motion://agent/coordination-architect","consumers":[]},
+    {"uri":"contract:resource-lease","revision":1,"owner":"motion://agent/coordination-architect","consumers":[]},
+    {"uri":"contract:context-pack","revision":1,"owner":"motion://agent/coordination-architect","consumers":[]}
+  ],
+  "conflicts": [],
+  "checkpoints": [
+    {"checkpoint_id":"phase07-w0-bootstrap","bus":"github:issue:43","state":"IMPLEMENTED_UNVERIFIED"}
+  ],
+  "drive_refs": [
+    {"uri":"drive://MOTION.OS_CANONICAL","id":"1RsHZbf6yGE92L3wnbyxriCMx47HeBAOB"},
+    {"uri":"drive://MOTION.OS_CANONICAL/09_AGENTIC_COORDINATION","id":"1bSB9Y2hDtepbw__G7eiheZLfjM_FX7Kr"},
+    {"uri":"drive://MOTION.OS_CANONICAL/08_PHASE06_CONTENT_AVATAR_ENGINE","id":"1Kl5UhHpxFfklsZgW3TReKG3bDvImFIfb"}
+  ],
+  "projection": null,
+  "source_refs": [
+    {"uri":"git:AGENTS.md","revision":"main@2ac7b031","sha256":"0000000000000000000000000000000000000000000000000000000000000000","sensitivity":"INTERNAL"},
+    {"uri":"github:issue:43","revision":"bootstrap","sha256":"1111111111111111111111111111111111111111111111111111111111111111","sensitivity":"INTERNAL"}
+  ]
+}
