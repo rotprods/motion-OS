@@ -1,37 +1,42 @@
-version: 1
+version: 2
 phases:
   phase_01:
     name: motion_grammar_and_brand_energy
-    status: canonical_foundation
+    status: implemented_v1_empirical_calibration_open
     source_archive: copy_pastes/README.md
     plan: plans/phase_01_motion_grammar_and_brand_energy.md
     canonical_outputs:
       - config/motion_grammars.yaml
       - config/style_families.yaml
+      - src/core/semantic_behavior.py
+      - src/qa/grammar_critic.py
     depends_on: []
     feeds: [phase_02, phase_04]
   phase_02:
     name: professional_motion_system
-    status: canonical_foundation
+    status: implemented_v1_runtime_proof_open
     source_archive: copy_pastes/README.md
     plan: plans/phase_02_professional_motion_system.md
     canonical_outputs:
-      - knowledge/motion_grammar/PROFESSIONAL_MOTION_SYSTEM.md
+      - knowledge/production_method/PROFESSIONAL_MOTION_SYSTEM.md
+      - src/core/motion_system.py
     depends_on: [phase_01]
-    feeds: [phase_04]
+    feeds: [phase_04, generate]
   phase_03:
     name: exact_svg_reconstruction
-    status: canonical_foundation
+    status: implemented_v1_raster_fidelity_benchmark_open
     source_archive: copy_pastes/README.md
     plan: plans/phase_03_exact_svg_reconstruction.md
     canonical_outputs:
       - schemas/svg_reconstruction.schema.json
       - config/execution_modes.yaml
+      - src/reconstruction/fidelity.py
+      - src/reconstruction/svg_player.py
     depends_on: []
-    feeds: [phase_04]
+    feeds: [phase_04, reconstruct_exact]
   phase_04:
     name: visual_dna_extraction_and_style_compiler
-    status: planned_and_contracts_bootstrapped
+    status: real_mp4_e2e_verified_corpus_and_runtime_open
     source_archive:
       - copy_pastes/phase_04_a_extraction_pipeline.md
       - copy_pastes/phase_04_b_motionstyle2json_master.md
@@ -42,5 +47,13 @@ phases:
       - schemas/motionstyle2json.schema.json
       - config/visual_dna_taxonomy.yaml
       - architecture/phase_learning_graph.mmd
+      - architecture/superwave_real_analysis_graph.mmd
+      - src/extraction/providers.py
+      - src/extraction/audio_provider.py
+      - src/extraction/pipeline.py
+      - src/extraction/benchmark.py
+      - src/knowledge/style_signature.py
+      - scripts/analyze_video.py
+      - scripts/analyze_corpus.py
     depends_on: [phase_01, phase_02, phase_03]
-    feeds: [generate, reconstruct_exact, reference_intelligence]
+    feeds: [generate, reconstruct_exact, reference_intelligence, style_retrieval]

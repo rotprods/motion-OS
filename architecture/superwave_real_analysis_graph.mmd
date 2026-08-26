@@ -1,0 +1,76 @@
+flowchart TD
+  V[Source MP4] --> P[FFprobe metadata]
+  V --> D[FFmpeg physical decode]
+  D --> F[Physical PNG frames]
+  F --> H[Frame SHA256]
+  F --> C[Adjacent-frame change score]
+  C --> T[Adaptive threshold median/MAD]
+  T --> S[Shot boundaries]
+  S --> K[Keyframe selection]
+  K --> KE[Keyframe evidence frame/time/SHA]
+
+  F --> PIX[Pixel color/gradient measurements]
+  F --> OCRCAP{Tesseract available?}
+  OCRCAP -->|yes| OCR[OCR blocks + bbox + confidence]
+  OCRCAP -->|no| OCRU[provider_unavailable]
+  OCR --> TRACK[Text continuity IDs]
+  TRACK --> LAY[Layout anchors from measured boxes]
+
+  F --> CVCAP{OpenCV available?}
+  CVCAP -->|yes| FLOW[Farneback dense optical flow]
+  CVCAP -->|no| FLOWU[provider_unavailable]
+  FLOW --> CAM[Global vs local motion / camera likelihood]
+
+  F --> FX[FX pixel heuristics]
+  FX --> MAT[Material candidates / inferred authority]
+
+  V --> AUDCAP{Audio track?}
+  AUDCAP -->|yes| PCM[FFmpeg PCM decode]
+  AUDCAP -->|no| NOAUD[not_present]
+  PCM --> ENV[RMS envelope]
+  ENV --> ON[Transient/onset candidates]
+  PCM --> WHCAP{Whisper available/requested?}
+  WHCAP -->|yes| WH[Timestamped transcript]
+  WHCAP -->|no| WHU[provider_unavailable]
+
+  P --> FP[Feature Pack]
+  S --> FP
+  KE --> FP
+  PIX --> FP
+  LAY --> FP
+  OCRU --> FP
+  CAM --> FP
+  FLOWU --> FP
+  FX --> FP
+  MAT --> FP
+  ON --> FP
+  WH --> FP
+  WHU --> FP
+  NOAUD --> FP
+
+  FP --> FPSCHEMA{Feature Pack schema gate}
+  FPSCHEMA -->|pass| N[Evidence-bound normalization]
+  FPSCHEMA -->|fail| FAIL1[FAIL / repair extraction]
+  N --> MS[MotionStyle2JSON]
+  MS --> MSSCHEMA{MotionStyle schema gate}
+  MSSCHEMA -->|pass| R[Remotion compiler]
+  MSSCHEMA -->|fail| FAIL2[FAIL / repair normalizer]
+  R --> COVER{Exact scene coverage?}
+  COVER -->|pass| TS[Remotion scene spec + TypeScript]
+  COVER -->|fail| FAIL3[FAIL / compiler repair]
+
+  FP --> GT{Ground truth supplied?}
+  GT -->|yes| BENCH[Benchmark: shot F1 / frame error / color distance / OCR recall]
+  GT -->|no| OBS[Evidence artifact only; no ground-truth claim]
+  BENCH --> LEARN[Failure/success learning]
+  TS --> CORPUS[Corpus/style-signature pipeline]
+  LEARN --> PLAN[Living plans + Gauntlet]
+  CORPUS --> RETRIEVE[Style retrieval]
+  RETRIEVE --> GENERATE[Grammar + motion_system generation]
+
+  classDef measured fill:#dff7e8,stroke:#226b3a,color:#102516;
+  classDef inferred fill:#fff1ce,stroke:#8c6d1f,color:#33280b;
+  classDef unavailable fill:#f3e3e3,stroke:#8a3333,color:#321414;
+  class P,D,F,H,C,T,S,K,KE,PIX,OCR,TRACK,LAY,FLOW,CAM,PCM,ENV,ON,BENCH measured;
+  class FX,MAT,N,MS,RETRIEVE,GENERATE inferred;
+  class OCRU,FLOWU,WHU unavailable;
