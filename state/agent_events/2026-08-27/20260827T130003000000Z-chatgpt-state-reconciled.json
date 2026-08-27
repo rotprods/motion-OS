@@ -1,0 +1,25 @@
+{
+  "affected_paths": [
+    "state/project_state.json",
+    "state/agent_events/"
+  ],
+  "agent_id": "chatgpt-gpt5.6-sol",
+  "authority": "VERIFIED",
+  "branch": "main",
+  "checks": {
+    "concurrent_parent_inspected": "PASS",
+    "main_ref_confirmed": "PASS"
+  },
+  "commit_sha": "746c9243ba22452af993e78ca4db89faacc267ca",
+  "correlation_id": "LOCAL_FIRST_CI_MERGE_TRAIN_V1",
+  "event_id": "20260827T130003000000Z-chatgpt-state-reconciled",
+  "event_type": "state.reconciled",
+  "metadata": {
+    "main_parent": "6ef91a9fe092387b888d25da67006d68f455d229",
+    "observation": "Phase06 content/avatar work existed in main before the PR #46 squash commit; PR #46 itself contains the intended CI/event-bus delta."
+  },
+  "pr_number": 46,
+  "project": "MOTION.OS",
+  "summary": "Reconciled merge-time concurrency: verified PR #46 was squashed on top of main parent 6ef91a9 and did not accidentally absorb Phase06 changes into its own commit delta.",
+  "timestamp": "2026-08-27T13:00:03Z"
+}
