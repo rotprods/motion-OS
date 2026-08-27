@@ -11,7 +11,7 @@ Canonical Drive: `MOTION.OS_CANONICAL/11_AGENTIC_COORDINATION`
 PR #40 and PR #44 were created independently by concurrent agents. This is the exact failure mode Phase07 exists to eliminate: two valid but overlapping control planes created without shared enforced context.
 
 ## Canonical decision
-One implementation survives: #44. #40 remains open only until feature-parity evidence and fresh CI are green. GitHub #39/#41 and Drive11 remain the canonical control objects because they were established first and already contain useful lineage.
+One implementation survives: #44. #40 remains open only until feature-parity evidence and fresh CI are green. GitHub #39/#41 and Drive11 remain the canonical control objects because they were established first and already contain useful lineage. Duplicate Bus #43 and Epic #45 are superseded by #39/#41 and must not be used for new coordination.
 
 ## Coverage preserved from #40
 - aggregate revisions + aggregate heads → `src/coordination/event_store.py`
@@ -56,6 +56,8 @@ One implementation survives: #44. #40 remains open only until feature-parity evi
 - #37 ACTIVE → Phase06 Content Intelligence + Avatar Factory.
 - #40 OPEN → predecessor pending final supersession gate.
 - #44 ACTIVE → canonical Phase07 convergence branch.
+- #43 SUPERSEDED → duplicate Bus; canonical is #39.
+- #45 SUPERSEDED → duplicate Epic; canonical is #41.
 
 ## P0 Definition of Done
 - [x] unique #40 architectural guarantees mapped
@@ -68,7 +70,7 @@ One implementation survives: #44. #40 remains open only until feature-parity evi
 - [x] canonical epic #41
 - [x] canonical Drive11
 - [x] topology no longer treats #34/#35 as active
-- [x] #43/#45 identified as duplicate control objects
+- [x] duplicate control objects #43/#45 superseded
 - [ ] fresh current-head CI green
 - [ ] #44 synchronized/reconciled with current main and mergeability restored
 - [ ] checkpoint appended to #39 with final CI evidence
