@@ -7,10 +7,9 @@ import json
 from pathlib import Path
 import re
 import subprocess
-import sys
 import uuid
 
-from jsonschema import Draft202012Validator
+from jsonschema import Draft202012Validator, FormatChecker
 
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA = ROOT / "schemas" / "agent_event.schema.json"
@@ -33,7 +32,8 @@ def load_schema() -> dict:
 
 
 def validate_event(event: dict) -> None:
-    errors = sorted(Draft202012Validator(load_schema()).iter_errors(event), key=lambda e: list(e.path))
+    validator = Draft202012Validator(load_schema(), format_checker=FormatChecker())
+    errors = sorted(validator.iter_errors(event), key=lambda e: list(e.path))
     if errors:
         raise ValueError("; ".join(error.message for error in errors))
 
