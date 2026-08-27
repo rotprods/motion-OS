@@ -1,7 +1,11 @@
+import json
+
+import pytest
+
 from src.coordination.content_lineage import Phase06ContentLineageBridge
 from src.coordination.events import CoordinationEvent, ProvenanceRef
 from src.coordination.projection import CoordinationGraphProjector
-from src.coordination.unified_graph import UnifiedMotionGraphCompiler
+from src.coordination.unified_graph import UnifiedMotionGraphCompiler, UnifiedNode, _merge_node
 
 
 def lineage():
@@ -55,6 +59,9 @@ def test_agentic_and_content_lineage_share_same_content_identity_in_one_graph():
     assert unified.verify_hash()
     content_nodes = [node for node in unified.nodes if node.node_id == "motion://content/CNT_001"]
     assert len(content_nodes) == 1
+    props = json.loads(content_nodes[0].properties_json)
+    assert props["core_thesis"] == "systems compound"
+    assert props["hook"] == "Build systems, not tool lists."
     relations = {(edge.source, edge.relation, edge.target) for edge in unified.edges}
     assert any(target == "motion://content/CNT_001" and relation == "AFFECTS" for _, relation, target in relations)
     assert ("motion://content/CNT_001", "HAS_BEAT", "motion://content/CNT_001/beat/B01_HOOK") in relations
@@ -65,3 +72,29 @@ def test_same_sources_rebuild_same_unified_graph_hash():
     a = compiler.compile(coordination=coordination(), content_lineages=(lineage(),))
     b = compiler.compile(coordination=coordination(), content_lineages=(lineage(),))
     assert a.graph_hash == b.graph_hash
+
+
+def test_compatible_properties_are_recursively_enriched_deterministically():
+    left = UnifiedNode("motion://content/CNT_001", "Content", '{"meta":{"source":"phase06"}}')
+    right = UnifiedNode("motion://content/CNT_001", "Content", '{"meta":{"verified":true},"hook":"x"}')
+    merged_a = _merge_node(left, right)
+    merged_b = _merge_node(right, left)
+    assert merged_a == merged_b
+    assert json.loads(merged_a.properties_json) == {
+        "hook": "x",
+        "meta": {"source": "phase06", "verified": True},
+    }
+
+
+def test_contradictory_properties_fail_closed_instead_of_overwriting():
+    left = UnifiedNode("motion://content/CNT_001", "Content", '{"platform":"instagram"}')
+    right = UnifiedNode("motion://content/CNT_001", "Content", '{"platform":"youtube"}')
+    with pytest.raises(ValueError, match="contradictory node property"):
+        _merge_node(left, right)
+
+
+def test_non_object_properties_are_rejected():
+    left = UnifiedNode("motion://content/CNT_001", "Content", '{}')
+    right = UnifiedNode("motion://content/CNT_001", "Content", '[]')
+    with pytest.raises(ValueError, match="properties_json must be an object"):
+        _merge_node(left, right)
