@@ -1,0 +1,192 @@
+name: Merge Safe
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  merge_group:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: merge-safe-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  classify:
+    name: Classify changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    outputs:
+      analysis: ${{ steps.paths.outputs.analysis }}
+      remotion: ${{ steps.paths.outputs.remotion }}
+      security: ${{ steps.paths.outputs.security }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - id: paths
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git rev-parse HEAD^1 >/dev/null 2>&1; then
+            changed="$(git diff --name-only HEAD^1 HEAD)"
+          else
+            changed="$(git ls-files)"
+          fi
+          printf '%s\n' "$changed"
+          analysis=false
+          remotion=false
+          security=false
+          if grep -Eq '^(src/extraction/|src/normalization/|tests/test_real_|tests/test_style_signature_vector.py|scripts/analyze_video.py|pyproject.toml)' <<<"$changed"; then analysis=true; fi
+          if grep -Eq '^(runtime/remotion/|src/compilers/remotion|scripts/(build_remotion_runtime_fixture|verify_remotion_render).py|tests/test_remotion_runtime_contract.py|\.github/workflows/remotion-runtime.yml)' <<<"$changed"; then remotion=true; fi
+          if grep -Eq '^(pyproject.toml|requirements|uv\.lock|poetry\.lock|runtime/remotion/package(-lock)?\.json|SECURITY.md|\.github/workflows/)' <<<"$changed"; then security=true; fi
+          if [[ "${{ github.event_name }}" == "merge_group" || "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            analysis=true
+            remotion=true
+            security=true
+          fi
+          echo "analysis=$analysis" >> "$GITHUB_OUTPUT"
+          echo "remotion=$remotion" >> "$GITHUB_OUTPUT"
+          echo "security=$security" >> "$GITHUB_OUTPUT"
+
+  quick:
+    name: Local contract / Python 3.12
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e '.[dev]'
+      - name: Run the same local-first gate agents run before push
+        run: python scripts/local_verify.py quick --json-out .artifacts/local-verify.json
+      - name: Validate immutable agent event bus
+        run: python scripts/agent_event.py validate
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: merge-safe-quick-evidence
+          path: .artifacts/local-verify.json
+          if-no-files-found: ignore
+          retention-days: 7
+
+  compat311:
+    name: Compatibility / Python 3.11
+    if: github.event_name == 'merge_group' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e '.[dev]'
+      - run: python scripts/local_verify.py quick --json-out .artifacts/local-verify-311.json
+
+  analysis:
+    name: Physical analysis
+    needs: classify
+    if: needs.classify.outputs.analysis == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install physical media runtime
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends ffmpeg
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e '.[dev,analysis]'
+      - run: python scripts/local_verify.py analysis --json-out .artifacts/analysis-verify.json
+
+  remotion:
+    name: Physical Remotion runtime
+    needs: classify
+    if: needs.classify.outputs.remotion == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: runtime/remotion/package-lock.json
+      - name: Install FFmpeg runtime
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends ffmpeg
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e '.[dev]'
+      - working-directory: runtime/remotion
+        run: npm ci --no-audit --no-fund
+      - run: python scripts/local_verify.py remotion --skip-install-check --json-out .artifacts/remotion-verify.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: merge-safe-remotion-evidence
+          path: |
+            .artifacts/remotion-verify.json
+            runtime/remotion/out/runtime-local.mp4
+            runtime/remotion/render_evidence.local.json
+          if-no-files-found: ignore
+          retention-days: 7
+
+  security:
+    name: Dependency security
+    needs: classify
+    if: needs.classify.outputs.security == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e '.[dev]' pip-audit
+      - run: python scripts/local_verify.py security --skip-install-check --json-out .artifacts/security-verify.json
+
+  merge-safe:
+    name: MERGE_SAFE
+    if: always()
+    needs: [classify, quick, compat311, analysis, remotion, security]
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Require every applicable gate to pass
+        env:
+          CLASSIFY: ${{ needs.classify.result }}
+          QUICK: ${{ needs.quick.result }}
+          COMPAT311: ${{ needs.compat311.result }}
+          ANALYSIS: ${{ needs.analysis.result }}
+          REMOTION: ${{ needs.remotion.result }}
+          SECURITY: ${{ needs.security.result }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os, sys
+          states={k:os.environ[k] for k in ('CLASSIFY','QUICK','COMPAT311','ANALYSIS','REMOTION','SECURITY')}
+          print(states)
+          bad={k:v for k,v in states.items() if v not in {'success','skipped'}}
+          if bad:
+              print('MERGE_SAFE=FAIL', bad)
+              sys.exit(1)
+          print('MERGE_SAFE=PASS')
+          PY
