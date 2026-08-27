@@ -1,0 +1,43 @@
+flowchart TD
+  A[Source / Idea / URL / Repo / News / Script] --> B[Source Intelligence\nSourcePack + ClaimMap]
+  B --> C[Audience Intelligence\nSituational ICP]
+  C --> D[Pain / Pleasure / Fear / Aspiration]
+  D --> E[Viral Driver Router\nMoney · Love · Health · Personal Growth]
+  E --> F[Angle Tournament\n5–12 candidates]
+  F --> G[Core Transformation Thesis]
+  G --> H[Hook Tournament\nMulti-family scoring]
+  H --> I[Retention Graph\n~3s semantic beats]
+  I --> J[Script Compiler]
+  J --> J1[semantic_script]
+  J --> J2[script_spoken_text]
+  J --> J3[script_tts_text]
+  J3 --> K[Preflight QA\nclaims · simplicity · duration · CTA · moral]
+  K -->|fail| F
+  K -->|pass| L[TTS / Pronunciation]
+  L --> M[Voice Router]
+  M --> N[Avatar Router]
+  N --> O[Provider Adapter\nHeyGen V1]
+  O --> P[Avatar Render]
+  P --> Q[Render Telemetry\nstatus · duration · asset · cost]
+  Q --> R[Avatar Handoff Manifest]
+  R --> S[Downstream Editing Graph]
+  S --> S1[Motion Graphics]
+  S --> S2[Overlays / PNG]
+  S --> S3[B-roll]
+  S --> S4[Typography]
+  S --> S5[Sound / Grade / Export]
+  S5 --> T[Published Master]
+  T --> U[Performance Ingestion]
+  U --> V[Learning + Calibration]
+  V --> C
+  V --> E
+  V --> F
+  V --> H
+  V --> I
+  V --> M
+
+  X[/heygen command/] --> A
+  Y[(GitHub software truth)] --- B
+  Y --- R
+  Z[(Drive recovery truth)] --- R
+  W[(ChatGPT Library command truth)] --- X

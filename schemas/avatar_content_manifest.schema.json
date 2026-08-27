@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://motion.os/schemas/avatar_content_manifest.schema.json",
+  "title": "MOTION.OS Avatar Content Manifest",
+  "type": "object",
+  "required": ["content_id","source_refs","core_thesis","viral_driver","icp","pain_points","pleasure_points","hook","script_display_text","script_tts_text","pronunciation_overrides","semantic_beats","cta","moral","duration_target_s","avatar","render","claim_notes","downstream_edit_cues"],
+  "properties": {
+    "content_id": {"type":"string","minLength":1},
+    "source_refs": {"type":"array","minItems":1,"items":{"type":"string","minLength":1}},
+    "core_thesis": {"type":"string","minLength":1},
+    "viral_driver": {"enum":["MONEY","LOVE","HEALTH","PERSONAL_GROWTH"]},
+    "secondary_driver": {"type":["string","null"],"enum":["MONEY","LOVE","HEALTH","PERSONAL_GROWTH",null]},
+    "icp": {
+      "type":"object",
+      "required":["audience_label","domain_sophistication","jobs_to_be_done","pains","pleasures","fears","aspirations","objections","identity_status_concerns","psychographic_patterns","preferred_proof_style","language_complexity_ceiling"],
+      "properties": {
+        "audience_label":{"type":"string","minLength":1},
+        "domain_sophistication":{"enum":["novice","intermediate","expert","mixed"]},
+        "age_band":{"type":["string","null"]},
+        "jobs_to_be_done":{"type":"array","items":{"type":"string"}},
+        "pains":{"type":"array","items":{"type":"string"}},
+        "pleasures":{"type":"array","items":{"type":"string"}},
+        "fears":{"type":"array","items":{"type":"string"}},
+        "aspirations":{"type":"array","items":{"type":"string"}},
+        "objections":{"type":"array","items":{"type":"string"}},
+        "identity_status_concerns":{"type":"array","items":{"type":"string"}},
+        "psychographic_patterns":{"type":"array","items":{"type":"string"}},
+        "preferred_proof_style":{"type":"string"},
+        "language_complexity_ceiling":{"type":"string"}
+      },
+      "additionalProperties": true
+    },
+    "pain_points":{"type":"array","items":{"type":"string"}},
+    "pleasure_points":{"type":"array","items":{"type":"string"}},
+    "hook":{"type":"string","minLength":1},
+    "hook_candidates":{"type":"array","items":{"type":"object","required":["text","mechanism","score"],"properties":{"text":{"type":"string"},"mechanism":{"type":"string"},"score":{"type":"number","minimum":0,"maximum":10}}}},
+    "script_display_text":{"type":"string","minLength":1},
+    "script_tts_text":{"type":"string","minLength":1},
+    "pronunciation_overrides":{"type":"object","additionalProperties":{"type":"string"}},
+    "semantic_beats":{"type":"array","minItems":2,"items":{"type":"object","required":["id","function","text"],"properties":{"id":{"type":"string","pattern":"^B[0-9]{2}_[A-Z0-9_]+$"},"function":{"type":"string"},"text":{"type":"string"},"target_duration_s":{"type":["number","null"],"minimum":0},"edit_cues":{"type":"array","items":{"type":"string"}}}}},
+    "cta":{"type":"object","required":["text","placement","target_beat_id"],"properties":{"text":{"type":"string","minLength":1},"placement":{"enum":["MID_VALUE","PRE_PAYOFF","END"]},"target_beat_id":{"type":"string","pattern":"^B[0-9]{2}_[A-Z0-9_]+$"}}},
+    "moral":{"type":"string","minLength":1},
+    "duration_target_s":{"type":"number","minimum":30,"maximum":45},
+    "duration_estimate_s":{"type":["number","null"],"minimum":0},
+    "avatar":{"type":"object","required":["provider","profile_id","look_id","voice_id","resolution","aspect_ratio","speed"],"properties":{"provider":{"type":"string"},"profile_id":{"type":"string"},"look_id":{"type":"string"},"voice_id":{"type":"string"},"resolution":{"type":"string"},"aspect_ratio":{"type":"string"},"speed":{"type":"number","exclusiveMinimum":0}}},
+    "render":{"type":"object","required":["provider_job_id","status","actual_duration_s","asset_ref"],"properties":{"provider_job_id":{"type":["string","null"]},"status":{"type":["string","null"]},"actual_duration_s":{"type":["number","null"],"minimum":0},"asset_ref":{"type":["string","null"]},"credits_used":{"type":["number","null"],"minimum":0}}},
+    "claim_notes":{"type":"array","minItems":1,"items":{"type":"object","required":["claim","evidence_strength","source_ref"],"properties":{"claim":{"type":"string"},"evidence_strength":{"enum":["DIRECT","SUPPORTED","INFERRED","OPINION","TIME_SENSITIVE"]},"source_ref":{"type":"string"}}}},
+    "downstream_edit_cues":{"type":"array","items":{"type":"object","required":["beat_id","intent"],"properties":{"beat_id":{"type":"string"},"intent":{"type":"string"},"suggested_layer":{"type":["string","null"]}}}}
+  },
+  "additionalProperties": true
+}

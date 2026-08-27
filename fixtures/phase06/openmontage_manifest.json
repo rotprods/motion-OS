@@ -1,0 +1,66 @@
+{
+  "content_id": "rot-openmontage-001",
+  "source_refs": ["https://github.com/calesthio/OpenMontage"],
+  "core_thesis": "La IA no elimina al editor; cambia su trabajo de cortar clips a dirigir un sistema de producción.",
+  "viral_driver": "MONEY",
+  "secondary_driver": "PERSONAL_GROWTH",
+  "icp": {
+    "audience_label": "creadores de vídeo corto, filmmakers y editores que quieren producir más rápido",
+    "domain_sophistication": "mixed",
+    "age_band": "18-45",
+    "jobs_to_be_done": ["editar más rápido", "automatizar tareas repetitivas", "mantener ventaja profesional"],
+    "pains": ["perder horas editando", "sentirse superado por nuevas herramientas"],
+    "pleasures": ["ahorrar tiempo", "producir más", "dirigir en vez de ejecutar tareas mecánicas"],
+    "fears": ["quedarse atrás", "perder valor profesional"],
+    "aspirations": ["multiplicar producción", "convertirse en director de sistemas creativos"],
+    "objections": ["la IA no tendrá criterio", "automatizar bajará la calidad"],
+    "identity_status_concerns": ["seguir siendo un creativo valioso"],
+    "psychographic_patterns": ["curiosidad por herramientas", "orientación a eficiencia", "aversión a quedarse atrás"],
+    "preferred_proof_style": "demostración concreta + cifras del repositorio",
+    "language_complexity_ceiling": "frases cortas, vocabulario cotidiano, explicar términos técnicos"
+  },
+  "pain_points": ["horas de edición manual", "miedo a obsolescencia"],
+  "pleasure_points": ["ahorro de tiempo", "apalancamiento creativo"],
+  "hook": "Si editas vídeos, este repositorio de GitHub te puede ahorrar horas de trabajo.",
+  "hook_candidates": [
+    {"text":"Si editas vídeos, este repositorio de GitHub te puede ahorrar horas de trabajo.","mechanism":"gain/opportunity","score":9.2},
+    {"text":"Este repositorio convierte una frase en un vídeo casi completo.","mechanism":"extreme simplicity","score":8.7},
+    {"text":"Los editores no van a desaparecer, pero su trabajo sí está cambiando.","mechanism":"contradiction","score":8.8}
+  ],
+  "script_display_text": "Si editas vídeos, este repositorio de GitHub te puede ahorrar horas de trabajo. Se llama OpenMontage. Lo conectas con Claude Code y, en vez de editar tú cada cosa, simplemente le dices qué vídeo quieres. Puede investigar el tema, escribir el guion, buscar materiales, generar imágenes, crear la voz, poner subtítulos y renderizar el vídeo final. Tiene doce pipelines, más de cien herramientas y más de setecientas skills trabajando juntas. Comenta EDITAR y te mando el repositorio. El editor no desaparece: pasa de cortar clips a dirigir un sistema que edita por él.",
+  "script_tts_text": "Si editas vídeos, este repositorio de GitHub te puede ahorrar horas de trabajo. Se llama OpenMontage. Lo conectas con Clod Coud y, en vez de editar tú cada cosa, simplemente le dices qué vídeo quieres. Puede investigar el tema, escribir el guion, buscar materiales, generar imágenes, crear la voz, poner subtítulos y renderizar el vídeo final. Tiene doce pipelines, más de cien herramientas y más de setecientas skills trabajando juntas. Comenta EDITAR y te mando el repositorio. El editor no desaparece: pasa de cortar clips a dirigir un sistema que edita por él.",
+  "pronunciation_overrides": {"Claude Code":"Clod Coud"},
+  "semantic_beats": [
+    {"id":"B00_HOOK","function":"curiosity+gain","text":"Repositorio que ahorra horas","target_duration_s":3.0,"edit_cues":["repo hero"]},
+    {"id":"B01_NAME","function":"context","text":"OpenMontage","target_duration_s":2.0,"edit_cues":["title"]},
+    {"id":"B02_MECHANISM","function":"mechanism","text":"Conéctalo con Claude Code y describe el vídeo","target_duration_s":4.0,"edit_cues":["prompt-to-system"]},
+    {"id":"B03_CAPABILITIES","function":"proof","text":"Guion, materiales, imágenes, voz, subtítulos y render","target_duration_s":5.0,"edit_cues":["pipeline labels"]},
+    {"id":"B04_SCALE","function":"social proof","text":"12 pipelines, 100+ herramientas, 700+ skills","target_duration_s":4.0,"edit_cues":["scale counters"]},
+    {"id":"B05_CTA","function":"interaction","text":"Comenta EDITAR","target_duration_s":3.0,"edit_cues":["comment CTA"]},
+    {"id":"B06_REFRAME","function":"identity shift","text":"El editor no desaparece","target_duration_s":4.0,"edit_cues":["before-after role"]},
+    {"id":"B07_MORAL","function":"moral","text":"Pasa de cortar clips a dirigir el sistema","target_duration_s":5.0,"edit_cues":["system director payoff"]}
+  ],
+  "cta": {"text":"Comenta EDITAR y te mando el repositorio.","placement":"PRE_PAYOFF","target_beat_id":"B05_CTA"},
+  "moral": "El editor no desaparece: pasa de cortar clips a dirigir un sistema que edita por él.",
+  "duration_target_s": 38,
+  "duration_estimate_s": 42.68,
+  "avatar": {
+    "provider":"heygen",
+    "profile_id":"heygen_rot_canonical_v1",
+    "look_id":"49327c09aed5418383ba330e0daf0304",
+    "voice_id":"3fbb6707e4414df28da39b6cda40a4e3",
+    "resolution":"1080p",
+    "aspect_ratio":"9:16",
+    "speed":1.05
+  },
+  "render": {"provider_job_id":"586ec436ee394f83a6781ca353830429","status":"completed","actual_duration_s":42.6318,"asset_ref":"heygen://video/586ec436ee394f83a6781ca353830429","credits_used":null},
+  "claim_notes": [
+    {"claim":"OpenMontage is an open-source GitHub repository used as the source topic.","evidence_strength":"DIRECT","source_ref":"https://github.com/calesthio/OpenMontage"},
+    {"claim":"Repository capability counts are time-sensitive and must be reverified before publication.","evidence_strength":"TIME_SENSITIVE","source_ref":"https://github.com/calesthio/OpenMontage"}
+  ],
+  "downstream_edit_cues": [
+    {"beat_id":"B00_HOOK","intent":"show immediate time-saving promise","suggested_layer":"repo/browser visual"},
+    {"beat_id":"B04_SCALE","intent":"visualize system scale","suggested_layer":"motion counters/graph"},
+    {"beat_id":"B07_MORAL","intent":"land editor-to-director identity transformation","suggested_layer":"role transformation"}
+  ]
+}

@@ -1,0 +1,38 @@
+flowchart TD
+    A[UNTRUSTED SOURCE] --> B[SourcePack + fingerprint]
+    B --> C[Normalized claims]
+    C --> D[ICP / driver / angle / hook]
+    D --> E[Semantic beat graph]
+    E --> F[Display + TTS scripts]
+    F --> G[Provenance chain root]
+    G --> H[Preflight + TTS + claim gates]
+    H --> I[Manifest seal + replay fingerprint]
+    I --> J{Explicit render authorization?}
+    J -- no --> K[Dry-run package]
+    J -- yes --> L[Spend / concurrency gate]
+    L --> M[Deterministic render_intent_id]
+    M --> N[Acquire authority lease]
+    N --> O[Fencing token]
+    O --> P[Transactional RenderStateStore]
+    P --> Q[Provider submit]
+    Q --> R{Provider response}
+    R -- accepted --> S[ACK/RUNNING state]
+    R -- ambiguous --> T[RECONCILE_REQUIRED]
+    R -- failed before accept --> U[FAILED_RETRYABLE]
+    T --> V[Provider reconciliation]
+    V --> P
+    S --> W[Validated telemetry]
+    W --> X[COMPLETED]
+    X --> Y[Downstream handoff]
+    Y --> Z[Verify provenance_root + replay_fingerprint]
+    Z --> AA[Motion / edit graph]
+
+    AB[Worker A] --> N
+    AC[Worker B] --> N
+    N -->|lease turnover increments token| O
+    O -->|stale token rejected| AD[Stale writer blocked]
+
+    AE[Fuzz corpus] --> H
+    AE --> W
+    AF[CI / multiprocess tests] --> P
+    AF --> H
