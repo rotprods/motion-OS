@@ -1,0 +1,40 @@
+{
+  "affected_paths": [
+    "src/content/studio_execution_gateway.py",
+    "src/coordination/unified_graph.py",
+    "src/coordination/trust.py",
+    "src/coordination/recovery_bundle.py",
+    "src/coordination/operator_status.py",
+    ".github/workflows/merge-gate.yml",
+    ".github/workflows/coordination-ci.yml"
+  ],
+  "agent_id": "chatgpt-gpt5.6-sol",
+  "authority": "VERIFIED",
+  "branch": "main",
+  "checks": {
+    "main_head": "080dfd5c16bc06100edd716eadc770530dc47af2",
+    "post_merge_coordination_3_11": "PASS",
+    "post_merge_coordination_3_12": "PASS",
+    "phase06_contract_presence": "PASS",
+    "phase07_contract_presence": "PASS",
+    "MERGE_SAFE_presence": "PASS"
+  },
+  "commit_sha": "080dfd5c16bc06100edd716eadc770530dc47af2",
+  "correlation_id": "PHASE07_AGENTIC_COORDINATION_PROMOTION",
+  "event_id": "20260827T131601000000Z-chatgpt-main-verified-phase07",
+  "event_type": "main.verified",
+  "metadata": {
+    "post_merge_check_run_count": 2,
+    "post_merge_check_names": [
+      "coordination-contracts (3.11)",
+      "coordination-contracts (3.12)"
+    ],
+    "authority_boundary": "LOCAL_REFERENCE_VERIFIED",
+    "drive_live_bridge": "EXTERNAL_PROVIDER_UNVERIFIED",
+    "multi_host_authority": "DEFERRED_P20"
+  },
+  "pr_number": 44,
+  "project": "MOTION.OS",
+  "summary": "Main verified after Phase07 merge: Phase06 Studio authority, MERGE_SAFE train and Phase07 coordination/unified-graph surfaces coexist on main; post-merge Coordination Contracts passed on Python 3.11 and 3.12.",
+  "timestamp": "2026-08-27T13:16:01Z"
+}
