@@ -1,13 +1,8 @@
-name: Remotion Runtime
+name: Remotion Runtime (Manual)
 on:
-  pull_request:
-  push:
-    branches: [main]
+  workflow_dispatch:
 permissions:
   contents: read
-concurrency:
-  group: remotion-runtime-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 jobs:
   render-proof:
     runs-on: ubuntu-latest
@@ -23,42 +18,20 @@ jobs:
           node-version: '22'
       - name: Install FFmpeg runtime
         run: |
-          sudo apt-get update
+          sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends ffmpeg
       - run: python -m pip install --upgrade pip
       - run: pip install -e '.[dev]'
-      - name: Build compiler-derived runtime spec
-        run: python scripts/build_remotion_runtime_fixture.py
-      - name: Install pinned Remotion runtime
-        working-directory: runtime/remotion
+      - working-directory: runtime/remotion
         run: npm install --no-audit --no-fund
-      - name: Typecheck Remotion runtime
-        working-directory: runtime/remotion
-        run: npx tsc --noEmit
-      - name: Resolve compositions from generated spec
-        working-directory: runtime/remotion
-        run: npx remotion compositions src/index.ts
-      - name: Render compiler-derived composition
-        working-directory: runtime/remotion
-        run: |
-          mkdir -p out
-          npx remotion render src/index.ts MotionOSRuntime out/runtime.mp4 --codec=h264 --log=verbose
-      - name: Verify rendered MP4 against compiler contract
-        run: |
-          python scripts/verify_remotion_render.py \
-            --spec runtime/remotion/src/runtimeSpec.json \
-            --video runtime/remotion/out/runtime.mp4 \
-            --out runtime/remotion/render_evidence.json
-      - name: Repo health
-        run: python scripts/repo_health.py
+      - run: python scripts/local_verify.py remotion --skip-install-check --json-out .artifacts/remotion-manual.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: remotion-runtime-proof
           if-no-files-found: warn
           path: |
-            runtime/remotion/out/runtime.mp4
-            runtime/remotion/src/runtimeSpec.json
-            runtime/remotion/compiler_evidence.json
-            runtime/remotion/render_evidence.json
+            .artifacts/remotion-manual.json
+            runtime/remotion/out/runtime-local.mp4
+            runtime/remotion/render_evidence.local.json
           retention-days: 14
