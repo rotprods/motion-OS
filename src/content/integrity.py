@@ -22,6 +22,9 @@ DEFAULT_SEALED_FIELDS = (
     "moral",
     "duration_target_s",
     "avatar",
+    # PRV is execution authority. It must be cryptographically bound to the
+    # replay fingerprint rather than remaining mutable metadata beside it.
+    "provenance_chain",
 )
 
 
