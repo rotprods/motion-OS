@@ -6,6 +6,7 @@ promotion stage, not a requirement for local/reference verification.
 """
 
 from .bus import CoordinationBus, InMemoryReferenceBus
+from .conflicts import ConflictClass, ConflictFinding, classify_conflict
 from .context import ContextPack, ContextPackCompiler, ContextSourceRef
 from .event_store import (
     CoordinationEventStore,
@@ -30,6 +31,8 @@ from .snapshot import CoordinationSnapshot
 
 __all__ = [
     "AggregateRevisionConflict",
+    "ConflictClass",
+    "ConflictFinding",
     "ContextPack",
     "ContextPackCompiler",
     "ContextSourceRef",
@@ -53,5 +56,6 @@ __all__ = [
     "StoredEvent",
     "StaleFencingToken",
     "canonical_event_hash",
+    "classify_conflict",
     "resources_overlap",
 ]
