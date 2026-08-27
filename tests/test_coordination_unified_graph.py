@@ -46,6 +46,9 @@ def coordination():
         resource_scope=("contract:avatar-handoff",),
         payload={"content_id": "CNT_001"},
         provenance=(ProvenanceRef("phase06", "sealed-manifest:CNT_001"),),
+        event_id="00000000-0000-4000-8000-000000000001",
+        occurred_at="2026-08-27T12:00:00Z",
+        recorded_at="2026-08-27T12:00:01Z",
     )
     return CoordinationGraphProjector().build([event], projection_version=1)
 
@@ -71,6 +74,8 @@ def test_same_sources_rebuild_same_unified_graph_hash():
     compiler = UnifiedMotionGraphCompiler()
     a = compiler.compile(coordination=coordination(), content_lineages=(lineage(),))
     b = compiler.compile(coordination=coordination(), content_lineages=(lineage(),))
+    assert a.coordination_projection_hash == b.coordination_projection_hash
+    assert a.content_lineage_hashes == b.content_lineage_hashes
     assert a.graph_hash == b.graph_hash
 
 
