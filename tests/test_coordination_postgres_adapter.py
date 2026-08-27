@@ -4,7 +4,7 @@ from typing import Any
 
 import pytest
 
-from src.coordination.events import CoordinationEvent
+from src.coordination.events import CoordinationEvent, ProvenanceRef
 from src.coordination.postgres_store import PostgresCoordinationStore
 
 
@@ -46,14 +46,18 @@ class FakeConnection:
 
 def event():
     return CoordinationEvent(
-        event_type="task.started",
+        event_type="TASK_STARTED",
         aggregate_type="task",
         aggregate_id="motion://task/t1",
+        aggregate_revision=1,
+        expected_revision=0,
         project_id="motion://project/MOTION.OS",
         agent_id="motion://agent/a",
         session_id="motion://session/a",
         correlation_id="c1",
+        idempotency_key="idem-postgres-test",
         payload={"task_uri": "motion://task/t1"},
+        provenance=(ProvenanceRef("test", "fixture:postgres-adapter"),),
     )
 
 
@@ -66,7 +70,7 @@ def test_append_delegates_atomicity_to_database_function():
     assert outcome.duplicate is False
     assert "append_coordination_event" in cursor.executions[0][0]
     assert cursor.executions[0][1][0] == e.event_id
-    assert cursor.executions[0][1][16] == e.provenance_hash
+    assert e.provenance_hash in cursor.executions[0][1]
 
 
 def test_read_cursor_requires_complete_offset_pair_and_bounded_limit():
