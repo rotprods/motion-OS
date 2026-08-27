@@ -1,42 +1,16 @@
 schema_version: 1
 project: motion://project/MOTION.OS
-updated_at: 2026-08-26T19:30:00Z
-authority: bootstrap_registry
-agents:
-  - agent_id: motion://agent/remotion-runtime
-    runtime: unknown
-    status: ACTIVE
-    branch: feat/remotion-runtime-proof
-    pr: 34
-    mission: Verify real Remotion production runtime from MOTION.OS compiler spec.
-    owned_scopes:
-      - capability:renderer/remotion
-      - evidence:remotion-runtime
-    shared_contracts:
-      - contract:scene-spec
-    notes: Must not redefine upstream content/avatar or Studio handoff semantics without coordination.
+updated_at: 2026-08-27T11:10:00Z
+authority: bootstrap_read_model
 
-  - agent_id: motion://agent/studio-engine
-    runtime: unknown
-    status: ACTIVE
-    branch: feat/superwave-real-analysis
-    pr: 35
-    mission: Physical video analysis + graph-native Studio Engine execution convergence.
-    owned_scopes:
-      - phase:04/visual-dna
-      - capability:studio-engine
-      - capability:physical-analysis
-    shared_contracts:
-      - contract:motionstyle2json
-      - contract:studio-entry
-    notes: Downstream owner. Should consume sealed Phase06 handoff rather than fork upstream semantics.
-
+active_agents:
   - agent_id: motion://agent/content-avatar
     runtime: unknown
     status: ACTIVE
     branch: feat/avatar-script-engine
     pr: 37
-    mission: Content Intelligence + Avatar Factory + distributed authority hardening.
+    workstream: motion://workstream/phase06-content-avatar
+    mission: Content Intelligence + Avatar Factory + render-authority hardening and calibration.
     owned_scopes:
       - phase:06/content-intelligence
       - capability:avatar-factory
@@ -46,9 +20,68 @@ agents:
       - contract:stable-beat-identity
       - contract:provenance-root
       - contract:replay-fingerprint
-    notes: Existing lease/fencing/idempotency semantics are canonical inputs to Phase07 design.
+    notes: Phase06 SQLite/WAL authority remains a separate single-host render aggregate.
+
+  - agent_id: motion://agent/coordination-architect
+    runtime: chatgpt
+    status: ACTIVE
+    branch: feat/agentic-coordination-kernel
+    pr: 44
+    workstream: motion://workstream/phase07-agentic-coordination
+    mission: Converge Phase07 coordination contracts, cross-session context, conflict semantics and COS projection.
+    owned_scopes:
+      - phase:07/agentic-coordination
+      - contract:coordination-event
+      - contract:coordination-event-store
+      - contract:resource-lease
+      - contract:context-pack
+      - contract:cos-projection
+    shared_contracts:
+      - contract:avatar-handoff
+      - contract:studio-entry
+      - contract:scene-spec-runtime-consumption
+    notes: Must not mutate Phase06 business/render authority without explicit cross-workstream decision.
+
+reconciling_workstreams:
+  - agent_id: motion://agent/coordination-plane-predecessor
+    status: SUPERSEDE_PENDING_COVERAGE_PROOF
+    branch: infra/agentic-coordination-plane
+    pr: 40
+    workstream: motion://workstream/phase07-predecessor
+    mission: Earlier parallel coordination-plane implementation being reconciled into PR #44.
+    canonical_replacement: 44
+    preserve_guarantees:
+      - aggregate-revisions
+      - aggregate-heads
+      - idempotency-keys
+      - parent-event-ids
+      - event-watermark
+      - inbox
+      - state-snapshots
+      - command-outcome-separation
+      - structured-provenance
+
+integrated_capabilities:
+  - capability:studio-engine
+    source_pr: 38
+    source_branch: feat/phase05-studio-engine-clean
+    status: MERGED_VERIFIED_BY_REPO_HISTORY
+    notes: Replaces historical #35 as current-main Studio Engine foundation.
+  - capability:renderer/remotion
+    source_pr: 42
+    source_branch: fix/remotion-runtime-proof-v2
+    status: MERGED_RUNTIME_VERIFIED
+    notes: Replaces historical #34; commit e77b2aaf is current-main Remotion runtime proof.
+
+historical_workstreams:
+  - pr: 34
+    status: CLOSED_UNMERGED_SUPERSEDED_BY_42
+  - pr: 35
+    status: CLOSED_UNMERGED_SUPERSEDED_BY_38
 
 bootstrap_rules:
-  - This file is a bootstrap read model, not the final authority store.
-  - After Postgres Coordination Kernel exists, active state is projected here rather than manually authored.
-  - Unknown runtime identity must be replaced with canonical session identity on agent registration.
+  - This file is a bootstrap read model, never write authority.
+  - PR closed, merged, CI-green, deployed and verified are separate lifecycle facts.
+  - GitHub lifecycle drift invalidates ContextPacks that depend on this topology.
+  - Agent/session identity must be canonical motion:// URIs before protected writes.
+  - A superseded workstream stays visible as lineage, not as an active owner.
