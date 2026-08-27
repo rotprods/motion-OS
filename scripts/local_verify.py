@@ -70,7 +70,7 @@ def main() -> int:
         require_binary("npm")
         runtime = ROOT / "runtime" / "remotion"
         if not (runtime / "node_modules").exists():
-            raise SystemExit("runtime/remotion/node_modules missing; run `npm ci` locally once before remotion verification")
+            raise SystemExit("runtime/remotion/node_modules missing; run `npm install --no-audit --no-fund` locally once before remotion verification")
         results.append(run("remotion-fixture", [py, "scripts/build_remotion_runtime_fixture.py"]))
         results.append(run("remotion-typecheck", ["npx", "tsc", "--noEmit"], cwd=runtime))
         results.append(run("remotion-compositions", ["npx", "remotion", "compositions", "src/index.ts"], cwd=runtime))
