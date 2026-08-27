@@ -63,7 +63,10 @@ def test_replica_reconciliation_is_fail_closed_on_conflict():
     assert reconcile(canonical, conflict) == ReplicaStatus.CONFLICT
     report = reconciliation_report(canonical, [stale, conflict])
     assert report["automatic_write_allowed"] is False
+    assert report["write_requires_explicit_authorization"] is True
     assert "library" in report["conflicts"]
+    assert report["safe_to_refresh"] == []
+    assert "drive" in report["refresh_candidates"]
 
 
 def test_timeout_after_acceptance_never_blindly_retries():
