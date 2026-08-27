@@ -34,11 +34,15 @@ from .live_context import LiveContextCompiler
 from .planning import PlanningGraph, PlanningTask, TaskState
 from .postgres_store import PostgresCoordinationStore
 from .projection import CoordinationGraphProjector, CosProjectionSink, ProjectionSnapshot
+from .sdk import AgentCoordinationSDK, ClaimPreflight, ClaimResult
 from .snapshot import CoordinationSnapshot
 
 __all__ = [
+    "AgentCoordinationSDK",
     "AggregateRevisionConflict",
     "COS_BASELINE_COMMIT",
+    "ClaimPreflight",
+    "ClaimResult",
     "ConflictClass",
     "ConflictFinding",
     "ContextPack",
