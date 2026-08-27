@@ -4,7 +4,7 @@ from copy import deepcopy
 
 import pytest
 
-from src.content.integrity import seal_manifest
+from src.content.integrity import DEFAULT_SEALED_FIELDS, seal_manifest
 from src.content.provenance_chain import attach_provenance_chain, downstream_handoff_record
 from src.content.studio_execution_gateway import (
     StudioExecutionRejected,
@@ -97,6 +97,14 @@ def test_duplicate_manifest_beat_identity_is_fail_closed():
     sealed, handoff = _sealed_manifest()
     mutated = deepcopy(sealed)
     mutated["semantic_beats"][1]["id"] = "B00_HOOK"
-    # Integrity is now invalid as well, which must reject before identity can be consumed.
     with pytest.raises(StudioExecutionRejected):
         authorize_studio_execution(mutated, handoff)
+
+
+def test_legacy_or_custom_seal_without_provenance_is_rejected():
+    sealed, _handoff = _sealed_manifest()
+    unsealed_provenance_fields = tuple(field for field in DEFAULT_SEALED_FIELDS if field != "provenance_chain")
+    legacy = seal_manifest(sealed, fields=unsealed_provenance_fields)
+    handoff = downstream_handoff_record(legacy)
+    with pytest.raises(StudioExecutionRejected, match="provenance_chain is not covered"):
+        authorize_studio_execution(legacy, handoff)
