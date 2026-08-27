@@ -64,9 +64,7 @@ class CosProjectionSink(Protocol):
     Implementations must not write back to coordination authority as a side effect.
     """
 
-    def replace_projection(self, snapshot: ProjectionSnapshot) -> str:
-        """Load one full versioned projection and return the COS-side snapshot hash."""
-        ...
+    def replace_projection(self, snapshot: ProjectionSnapshot) -> str: ...
 
 
 def aggregate_uri(event: CoordinationEvent) -> str:
@@ -77,11 +75,7 @@ def aggregate_uri(event: CoordinationEvent) -> str:
 
 
 class CoordinationGraphProjector:
-    """Pure deterministic event→graph projection compiler.
-
-    The projector intentionally derives graph state only from immutable events.
-    Rebuilding the same ordered event sequence yields the same graph hash.
-    """
+    """Pure deterministic event→graph projection compiler."""
 
     def build(self, events: Iterable[CoordinationEvent], *, projection_version: int) -> ProjectionSnapshot:
         if projection_version < 1:
@@ -113,8 +107,11 @@ class CoordinationGraphProjector:
             add_node(GraphNode.create(target_uri, event.aggregate_type.title()))
             add_node(GraphNode.create(event_uri, "Event", {
                 "event_type": event.event_type,
+                "aggregate_revision": event.aggregate_revision,
+                "expected_revision": event.expected_revision,
                 "occurred_at": event.occurred_at,
                 "recorded_at": event.recorded_at,
+                "payload_hash": event.payload_hash,
                 "provenance_hash": event.provenance_hash,
                 "sensitivity": event.sensitivity,
             }))
@@ -124,14 +121,26 @@ class CoordinationGraphProjector:
             add_edge(GraphEdge.create(agent_uri, "EMITTED", event_uri))
             add_edge(GraphEdge.create(event_uri, "AFFECTS", target_uri))
 
-            if event.causation_id:
-                cause_uri = f"motion://event/{event.causation_id}"
+            if event.workstream_id:
+                add_node(GraphNode.create(event.workstream_id, "Workstream"))
+                add_edge(GraphEdge.create(session_uri, "WORKS_IN", event.workstream_id))
+                add_edge(GraphEdge.create(event_uri, "IN_WORKSTREAM", event.workstream_id))
+
+            causal_parents = list(event.parent_event_ids)
+            if event.causation_id and event.causation_id not in causal_parents:
+                causal_parents.append(event.causation_id)
+            for parent_id in causal_parents:
+                cause_uri = f"motion://event/{parent_id}"
                 add_node(GraphNode.create(cause_uri, "Event"))
                 add_edge(GraphEdge.create(event_uri, "CAUSED_BY", cause_uri))
 
             correlation_uri = f"motion://correlation/{event.correlation_id}"
             add_node(GraphNode.create(correlation_uri, "Correlation"))
             add_edge(GraphEdge.create(event_uri, "CORRELATED_WITH", correlation_uri))
+
+            for resource_uri in event.resource_scope:
+                add_node(GraphNode.create(resource_uri, "Resource"))
+                add_edge(GraphEdge.create(event_uri, "TOUCHES", resource_uri))
 
             if event.git:
                 repo = event.git.get("repository")
@@ -160,7 +169,7 @@ class CoordinationGraphProjector:
             if isinstance(resource_uri, str):
                 add_node(GraphNode.create(resource_uri, "Resource"))
                 add_edge(GraphEdge.create(event_uri, "TOUCHES", resource_uri))
-                if event.event_type == "work.claim_acquired":
+                if event.event_type == "WORK_CLAIMED":
                     add_edge(GraphEdge.create(agent_uri, "OWNS_LEASE", resource_uri, {
                         "fencing_token": payload.get("fencing_token"),
                         "lease_id": payload.get("lease_id"),
@@ -169,13 +178,13 @@ class CoordinationGraphProjector:
             task_uri = payload.get("task_uri")
             if isinstance(task_uri, str):
                 add_node(GraphNode.create(task_uri, "Task"))
-                if event.event_type.startswith("task."):
-                    add_edge(GraphEdge.create(agent_uri, "EXECUTES", task_uri, {"state": event.event_type.split(".", 1)[1]}))
+                if event.event_type.startswith("TASK_"):
+                    add_edge(GraphEdge.create(agent_uri, "EXECUTES", task_uri, {"state": event.event_type.removeprefix("TASK_")}))
 
             governs_uri = payload.get("governs_uri")
-            if isinstance(governs_uri, str) and event.event_type.startswith("decision."):
+            if isinstance(governs_uri, str) and event.event_type.startswith("DECISION_"):
                 add_node(GraphNode.create(governs_uri, "Resource"))
-                add_edge(GraphEdge.create(target_uri, "GOVERNS", governs_uri, {"state": event.event_type.split(".", 1)[1]}))
+                add_edge(GraphEdge.create(target_uri, "GOVERNS", governs_uri, {"state": event.event_type.removeprefix("DECISION_")}))
 
         sorted_nodes = tuple(sorted(nodes.values()))
         sorted_edges = tuple(sorted(edges.values()))
