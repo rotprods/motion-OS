@@ -8,14 +8,17 @@ promotion stage, not a requirement for local/reference verification.
 from .bus import CoordinationBus, InMemoryReferenceBus
 from .conflicts import ConflictClass, ConflictFinding, classify_conflict
 from .context import ContextPack, ContextPackCompiler, ContextSourceRef
+from .event_semantics import EventRole, event_role, outcome_satisfies_command
 from .event_store import (
     CoordinationEventStore,
     IdempotencyConflict,
     InMemoryReferenceEventStore,
     RevisionConflict as AggregateRevisionConflict,
+    StateSnapshot,
     StoredEvent,
 )
 from .events import CoordinationEvent, ProvenanceRef, canonical_event_hash
+from .inbox import InboxRecord, ReferenceInbox
 from .leases import (
     Lease,
     LeaseConflict,
@@ -42,7 +45,9 @@ __all__ = [
     "CoordinationGraphProjector",
     "CoordinationSnapshot",
     "CosProjectionSink",
+    "EventRole",
     "IdempotencyConflict",
+    "InboxRecord",
     "InMemoryReferenceBus",
     "InMemoryReferenceEventStore",
     "Lease",
@@ -51,11 +56,15 @@ __all__ = [
     "ProjectionSnapshot",
     "ProvenanceRef",
     "ReferenceCASStore",
+    "ReferenceInbox",
     "ReferenceLeaseAuthority",
     "RevisionConflict",
+    "StateSnapshot",
     "StoredEvent",
     "StaleFencingToken",
     "canonical_event_hash",
     "classify_conflict",
+    "event_role",
+    "outcome_satisfies_command",
     "resources_overlap",
 ]
