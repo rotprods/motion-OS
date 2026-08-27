@@ -1,57 +1,80 @@
 {
   "schema_version": 1,
   "project_id": "motion://project/MOTION.OS",
-  "captured_at": "2026-08-26T19:55:00Z",
-  "main_sha": "2ac7b031f2740e64f4b8ad3cf0895f9a5e3d0868",
+  "captured_at": "2026-08-27T11:10:00Z",
+  "main_sha": "e77b2aaf01e0c439306aa3374f8c8df6fea0afed",
   "release_status": "BLOCKED",
   "release_gates": [
     "HyperFrames production runtime",
-    "Remotion production runtime",
     "authoritative full-video temporal critic",
     "creative convergence >=9"
   ],
   "active_prs": [
-    {"number":34,"branch":"feat/remotion-runtime-proof","state":"OPEN","title":"Remotion production runtime proof","owned_scopes":["capability:renderer/remotion","evidence:remotion-runtime"],"shared_contracts":["contract:scene-spec-runtime-consumption"]},
-    {"number":35,"branch":"feat/superwave-real-analysis","state":"OPEN","title":"Physical analysis + Studio Engine","owned_scopes":["phase:04/visual-dna","capability:studio-engine","capability:physical-analysis"],"shared_contracts":["contract:motionstyle2json","contract:studio-entry","contract:editing-graph"]},
-    {"number":37,"branch":"feat/avatar-script-engine","state":"OPEN_DRAFT","title":"Content Intelligence + Avatar Factory","owned_scopes":["phase:06/content-intelligence","capability:avatar-factory","capability:render-authority"],"shared_contracts":["contract:avatar-handoff","contract:stable-beat-identity","contract:provenance-root","contract:replay-fingerprint"]},
-    {"number":44,"branch":"feat/agentic-coordination-kernel","state":"OPEN_DRAFT","title":"Agentic coordination kernel + COS graph integration","owned_scopes":["phase:07/agentic-coordination"],"shared_contracts":["contract:coordination-event","contract:resource-lease","contract:context-pack","contract:cos-projection"]}
+    {
+      "number": 37,
+      "branch": "feat/avatar-script-engine",
+      "state": "OPEN_DRAFT",
+      "title": "Content Intelligence + Avatar Factory",
+      "head_sha": "4c2d0ef121df29f52c25000941691d42589e8e8c",
+      "owned_scopes": ["phase:06/content-intelligence", "capability:avatar-factory", "capability:render-authority"],
+      "shared_contracts": ["contract:avatar-handoff", "contract:stable-beat-identity", "contract:provenance-root", "contract:replay-fingerprint"]
+    },
+    {
+      "number": 40,
+      "branch": "infra/agentic-coordination-plane",
+      "state": "OPEN_SUPERSEDE_PENDING_COVERAGE",
+      "title": "Predecessor agentic coordination plane",
+      "head_sha": "06748838229f1b00ee3bc4c30cbdad50b3281810",
+      "owned_scopes": ["phase:07/predecessor"],
+      "shared_contracts": ["contract:coordination-event", "contract:resource-lease", "contract:context-pack"]
+    },
+    {
+      "number": 44,
+      "branch": "feat/agentic-coordination-kernel",
+      "state": "OPEN_DRAFT_CANONICAL_CONVERGENCE",
+      "title": "Agentic coordination kernel + COS graph integration",
+      "owned_scopes": ["phase:07/agentic-coordination"],
+      "shared_contracts": ["contract:coordination-event", "contract:coordination-event-store", "contract:resource-lease", "contract:context-pack", "contract:cos-projection"]
+    }
   ],
   "active_agents": [
-    {"agent_id":"motion://agent/remotion-runtime","status":"ACTIVE","pr":34},
-    {"agent_id":"motion://agent/studio-engine","status":"ACTIVE","pr":35},
-    {"agent_id":"motion://agent/content-avatar","status":"ACTIVE","pr":37},
-    {"agent_id":"motion://agent/coordination-architect","status":"ACTIVE","pr":44}
+    {"agent_id": "motion://agent/content-avatar", "status": "ACTIVE", "pr": 37, "workstream_id": "motion://workstream/phase06-content-avatar"},
+    {"agent_id": "motion://agent/coordination-architect", "status": "ACTIVE", "pr": 44, "workstream_id": "motion://workstream/phase07-agentic-coordination"}
   ],
   "active_leases": [],
   "tasks": [
-    {"task_id":"motion://task/remotion-runtime","pr":34,"depends_on":[]},
-    {"task_id":"motion://task/studio-engine","pr":35,"depends_on":["motion://task/content-avatar","motion://task/remotion-runtime"]},
-    {"task_id":"motion://task/content-avatar","pr":37,"depends_on":[]},
-    {"task_id":"motion://task/coordination-kernel","pr":44,"depends_on":[]}
+    {"task_id": "motion://task/content-avatar", "pr": 37, "depends_on": []},
+    {"task_id": "motion://task/phase07-reconciliation", "pr": 44, "depends_on": []},
+    {"task_id": "motion://task/phase07-event-contract-v1", "pr": 44, "depends_on": ["motion://task/phase07-reconciliation"]},
+    {"task_id": "motion://task/phase07-conflict-engine", "pr": 44, "depends_on": ["motion://task/phase07-event-contract-v1"]}
   ],
   "decisions": [
-    {"decision_id":"ADR-007","state":"PROPOSED","summary":"Postgres is Phase07 coordination authority target; COS is rebuildable projection."},
-    {"decision_id":"AUTHORITY-PLANE-MATRIX","state":"PROPOSED","summary":"Phase06 SQLite render authority is separate from Phase07 Postgres coordination authority."}
+    {"decision_id": "ADR-007", "state": "ACCEPTED_FOR_DESIGN", "summary": "COS is rebuildable projection; coordination authority remains outside COS."},
+    {"decision_id": "AUTHORITY-PLANE-MATRIX", "state": "ACCEPTED", "summary": "Phase06 SQLite render authority is separate from Phase07 coordination authority."},
+    {"decision_id": "RECONCILE-40-44", "state": "EXECUTING", "summary": "PR #44 is canonical convergence branch; #40 remains open only until unique guarantees have coverage proof."}
   ],
   "contracts": [
-    {"uri":"contract:avatar-handoff","revision":"phase06-v2","owner":"motion://agent/content-avatar","consumers":["motion://agent/studio-engine"]},
-    {"uri":"contract:stable-beat-identity","revision":"phase06-v2","owner":"motion://agent/content-avatar","consumers":["motion://agent/studio-engine"]},
-    {"uri":"contract:studio-entry","revision":"phase05-plan","owner":"motion://agent/studio-engine","consumers":[]},
-    {"uri":"contract:scene-spec-runtime-consumption","revision":"remotion-runtime-v1","owner":"motion://agent/remotion-runtime","consumers":["motion://agent/studio-engine"]},
-    {"uri":"contract:coordination-event","revision":1,"owner":"motion://agent/coordination-architect","consumers":[]},
-    {"uri":"contract:resource-lease","revision":1,"owner":"motion://agent/coordination-architect","consumers":[]},
-    {"uri":"contract:context-pack","revision":1,"owner":"motion://agent/coordination-architect","consumers":[]}
+    {"uri": "contract:avatar-handoff", "revision": "phase06-v2", "owner": "motion://agent/content-avatar", "consumers": ["capability:studio-engine"]},
+    {"uri": "contract:stable-beat-identity", "revision": "phase06-v2", "owner": "motion://agent/content-avatar", "consumers": ["capability:studio-engine"]},
+    {"uri": "contract:studio-entry", "revision": "phase05-merged", "owner": null, "consumers": []},
+    {"uri": "contract:scene-spec-runtime-consumption", "revision": "remotion-runtime-v2-merged", "owner": null, "consumers": ["capability:studio-engine"]},
+    {"uri": "contract:coordination-event", "revision": "1.0.0", "owner": "motion://agent/coordination-architect", "consumers": []},
+    {"uri": "contract:coordination-event-store", "revision": "1.0.0", "owner": "motion://agent/coordination-architect", "consumers": []},
+    {"uri": "contract:resource-lease", "revision": 1, "owner": "motion://agent/coordination-architect", "consumers": []},
+    {"uri": "contract:context-pack", "revision": 1, "owner": "motion://agent/coordination-architect", "consumers": []}
   ],
-  "conflicts": [],
-  "checkpoints": [{"checkpoint_id":"phase07-w0-bootstrap","bus":"github:issue:43","state":"IMPLEMENTED_UNVERIFIED"}],
+  "conflicts": [
+    {"conflict_id": "coordination-pr40-pr44", "class": "SEMANTIC_OVERLAP", "state": "RECONCILING", "canonical_pr": 44, "predecessor_pr": 40}
+  ],
+  "checkpoints": [
+    {"checkpoint_id": "P0-reconciliation", "bus": "github:issue:39", "state": "EXECUTING"},
+    {"checkpoint_id": "P1-event-contract-v1", "bus": "github:issue:39", "state": "IMPLEMENTED_UNVERIFIED"}
+  ],
   "drive_refs": [
-    {"uri":"drive://MOTION.OS_CANONICAL","id":"1RsHZbf6yGE92L3wnbyxriCMx47HeBAOB"},
-    {"uri":"drive://MOTION.OS_CANONICAL/09_AGENTIC_COORDINATION","id":"1bSB9Y2hDtepbw__G7eiheZLfjM_FX7Kr"},
-    {"uri":"drive://MOTION.OS_CANONICAL/08_PHASE06_CONTENT_AVATAR_ENGINE","id":"1Kl5UhHpxFfklsZgW3TReKG3bDvImFIfb"}
+    {"uri": "drive://MOTION.OS_CANONICAL", "id": "1RsHZbf6yGE92L3wnbyxriCMx47HeBAOB"},
+    {"uri": "drive://MOTION.OS_CANONICAL/11_AGENTIC_COORDINATION", "id": "1sPfwQ6dw8Ocnbco-rZ8CCJZezKXTXvRP"},
+    {"uri": "drive://MOTION.OS_CANONICAL/08_PHASE06_CONTENT_AVATAR_ENGINE", "id": "1Kl5UhHpxFfklsZgW3TReKG3bDvImFIfb"}
   ],
   "projection": null,
-  "source_refs": [
-    {"uri":"git:AGENTS.md","revision":"blob:3485818e71d0b7fb70ddc81af811e70a67d99ff9","sha256":"96fca756f931c6ab0f27ff91beab2d78e305e1e900f2a0886770aae2bb58a913","sensitivity":"INTERNAL"},
-    {"uri":"github:issue:43","revision":"2026-08-26T19:47:33Z","sha256":"442a7f249f7c8d0788045d5cd8fa894bd765aa792350c211b6fe93efabd46f43","sensitivity":"INTERNAL"}
-  ]
+  "source_refs": []
 }
