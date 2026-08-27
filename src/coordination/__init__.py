@@ -18,6 +18,7 @@ from .event_store import (
     StoredEvent,
 )
 from .events import CoordinationEvent, ProvenanceRef, canonical_event_hash
+from .github_lifecycle import GitHubLifecycleSnapshot, PRLifecycle, PullRequestSnapshot
 from .inbox import InboxRecord, ReferenceInbox
 from .leases import (
     Lease,
@@ -28,6 +29,7 @@ from .leases import (
     StaleFencingToken,
     resources_overlap,
 )
+from .live_context import LiveContextCompiler
 from .postgres_store import PostgresCoordinationStore
 from .projection import CoordinationGraphProjector, CosProjectionSink, ProjectionSnapshot
 from .snapshot import CoordinationSnapshot
@@ -46,15 +48,19 @@ __all__ = [
     "CoordinationSnapshot",
     "CosProjectionSink",
     "EventRole",
+    "GitHubLifecycleSnapshot",
     "IdempotencyConflict",
     "InboxRecord",
     "InMemoryReferenceBus",
     "InMemoryReferenceEventStore",
     "Lease",
     "LeaseConflict",
+    "LiveContextCompiler",
+    "PRLifecycle",
     "PostgresCoordinationStore",
     "ProjectionSnapshot",
     "ProvenanceRef",
+    "PullRequestSnapshot",
     "ReferenceCASStore",
     "ReferenceInbox",
     "ReferenceLeaseAuthority",
