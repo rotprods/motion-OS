@@ -1,12 +1,20 @@
 """MOTION.OS multi-agent coordination primitives.
 
 The package defines authority-neutral contracts. In-memory implementations are
-reference/test backends only; production multi-host authority is PostgreSQL.
+reference/test backends only; production multi-host authority is an optional
+promotion stage, not a requirement for local/reference verification.
 """
 
 from .bus import CoordinationBus, InMemoryReferenceBus
 from .context import ContextPack, ContextPackCompiler, ContextSourceRef
-from .events import CoordinationEvent, canonical_event_hash
+from .event_store import (
+    CoordinationEventStore,
+    IdempotencyConflict,
+    InMemoryReferenceEventStore,
+    RevisionConflict as AggregateRevisionConflict,
+    StoredEvent,
+)
+from .events import CoordinationEvent, ProvenanceRef, canonical_event_hash
 from .leases import (
     Lease,
     LeaseConflict,
@@ -21,22 +29,28 @@ from .projection import CoordinationGraphProjector, CosProjectionSink, Projectio
 from .snapshot import CoordinationSnapshot
 
 __all__ = [
+    "AggregateRevisionConflict",
     "ContextPack",
     "ContextPackCompiler",
     "ContextSourceRef",
     "CoordinationBus",
     "CoordinationEvent",
+    "CoordinationEventStore",
     "CoordinationGraphProjector",
     "CoordinationSnapshot",
     "CosProjectionSink",
+    "IdempotencyConflict",
     "InMemoryReferenceBus",
+    "InMemoryReferenceEventStore",
     "Lease",
     "LeaseConflict",
     "PostgresCoordinationStore",
     "ProjectionSnapshot",
+    "ProvenanceRef",
     "ReferenceCASStore",
     "ReferenceLeaseAuthority",
     "RevisionConflict",
+    "StoredEvent",
     "StaleFencingToken",
     "canonical_event_hash",
     "resources_overlap",
