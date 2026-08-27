@@ -3,19 +3,23 @@ from dataclasses import replace
 import pytest
 
 from src.coordination.bus import InMemoryReferenceBus
-from src.coordination.events import CoordinationEvent
+from src.coordination.events import CoordinationEvent, ProvenanceRef
 
 
 def make_event(**overrides):
     data = dict(
-        event_type="task.started",
+        event_type="TASK_STARTED",
         aggregate_type="task",
         aggregate_id="motion://task/t-1",
+        aggregate_revision=1,
+        expected_revision=0,
         project_id="motion://project/MOTION.OS",
         agent_id="motion://agent/test-agent",
         session_id="motion://session/test-session",
         correlation_id="work-1",
+        idempotency_key="idem-task-started-t-1",
         payload={"task": "t-1"},
+        provenance=(ProvenanceRef("test", "fixture:test_coordination_bus"),),
     )
     data.update(overrides)
     return CoordinationEvent(**data)
@@ -25,6 +29,7 @@ def test_event_hash_is_self_verified_and_stable_for_same_content():
     event = make_event()
     rebuilt = replace(event)
     assert len(event.provenance_hash) == 64
+    assert len(event.payload_hash) == 64
     assert rebuilt.provenance_hash == event.provenance_hash
 
 
@@ -50,8 +55,8 @@ def test_same_event_id_with_different_content_fails_closed():
 
 def test_consumer_offsets_are_monotonic_and_isolated():
     bus = InMemoryReferenceBus()
-    bus.append(make_event(aggregate_id="motion://task/a", correlation_id="a"))
-    bus.append(make_event(aggregate_id="motion://task/b", correlation_id="b"))
+    bus.append(make_event(aggregate_id="motion://task/a", correlation_id="a", idempotency_key="idem-a"))
+    bus.append(make_event(aggregate_id="motion://task/b", correlation_id="b", idempotency_key="idem-b"))
 
     assert [offset for offset, _ in bus.poll("consumer-a")] == [1, 2]
     bus.acknowledge("consumer-a", 1)
@@ -65,7 +70,13 @@ def test_consumer_offsets_are_monotonic_and_isolated():
 def test_read_is_ordered_and_bounded():
     bus = InMemoryReferenceBus()
     for i in range(5):
-        bus.append(make_event(aggregate_id=f"motion://task/{i}", correlation_id=f"c-{i}"))
+        bus.append(
+            make_event(
+                aggregate_id=f"motion://task/{i}",
+                correlation_id=f"c-{i}",
+                idempotency_key=f"idem-{i}",
+            )
+        )
 
     page = bus.read(after_offset=1, limit=2)
     assert [offset for offset, _ in page] == [2, 3]
