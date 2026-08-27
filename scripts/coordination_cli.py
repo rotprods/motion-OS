@@ -16,6 +16,8 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+from src.coordination.github_lifecycle import GitHubLifecycleSnapshot  # noqa: E402
+from src.coordination.live_context import LiveContextCompiler  # noqa: E402
 from src.coordination.snapshot import CoordinationSnapshot  # noqa: E402
 
 
@@ -38,6 +40,14 @@ def dump_json(value: Any, output: str | None = None) -> None:
         sys.stdout.write(text)
 
 
+def parse_iso(value: str) -> datetime:
+    normalized = value[:-1] + "+00:00" if value.endswith("Z") else value
+    parsed = datetime.fromisoformat(normalized)
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
+
+
 def cmd_snapshot_validate(args: argparse.Namespace) -> int:
     snapshot = CoordinationSnapshot.from_mapping(load_json(args.snapshot))
     dump_json({"valid": True, "snapshot_sha256": snapshot.snapshot_sha256})
@@ -56,6 +66,37 @@ def cmd_context_compile(args: argparse.Namespace) -> int:
     )
     if not pack.verify_seal():
         raise RuntimeError("compiled ContextPack seal verification failed")
+    dump_json(asdict(pack), args.output)
+    return 0
+
+
+def cmd_live_context_compile(args: argparse.Namespace) -> int:
+    bootstrap = CoordinationSnapshot.from_mapping(load_json(args.snapshot))
+    lifecycle_raw = load_json(args.lifecycle)
+    supersessions = {
+        int(key): int(value)
+        for key, value in dict(lifecycle_raw.get("supersessions", {})).items()
+    }
+    lifecycle = GitHubLifecycleSnapshot.build(
+        repository=str(lifecycle_raw["repository"]),
+        main_sha=str(lifecycle_raw["main_sha"]),
+        prs=list(lifecycle_raw.get("prs", [])),
+        supersessions=supersessions,
+    )
+    pack = LiveContextCompiler().compile(
+        bootstrap=bootstrap,
+        github=lifecycle,
+        agent_id=args.agent_id,
+        session_id=args.session_id,
+        goal_summary=args.goal,
+        generated_at=parse_iso(args.generated_at),
+        ttl_seconds=args.ttl,
+        allowed_write_scopes=args.allow or [],
+        forbidden_write_scopes=args.forbid or [],
+        event_watermark=args.event_watermark,
+    )
+    if not pack.verify_seal():
+        raise RuntimeError("compiled live ContextPack seal verification failed")
     dump_json(asdict(pack), args.output)
     return 0
 
@@ -107,6 +148,23 @@ def build_parser() -> argparse.ArgumentParser:
     context.add_argument("--ttl", type=int, default=900)
     context.add_argument("--output")
     context.set_defaults(func=cmd_context_compile)
+
+    live = sub.add_parser(
+        "live-context-compile",
+        help="reconcile a bootstrap snapshot with fresh GitHub lifecycle state and compile a sealed ContextPack",
+    )
+    live.add_argument("snapshot")
+    live.add_argument("lifecycle", help="normalized GitHub lifecycle JSON")
+    live.add_argument("--agent-id", required=True)
+    live.add_argument("--session-id", required=True)
+    live.add_argument("--goal", required=True)
+    live.add_argument("--generated-at", required=True, help="RFC3339 timestamp; explicit for deterministic replay")
+    live.add_argument("--event-watermark", type=int)
+    live.add_argument("--allow", action="append", default=[])
+    live.add_argument("--forbid", action="append", default=[])
+    live.add_argument("--ttl", type=int, default=900)
+    live.add_argument("--output")
+    live.set_defaults(func=cmd_live_context_compile)
 
     message = sub.add_parser("message", help="generate a structured Coordination Bus message")
     message.add_argument("--kind", required=True)
