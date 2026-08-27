@@ -1,7 +1,9 @@
+import pytest
+
 from src.graph.editing_graph import TypedEditingGraph
 from src.graph.impact import descendant_invalidation, assert_invalidated, assert_preserved
 from src.graph.model import Edge
-from src.graph.scheduler import build_execution_plan, scheduler_from_plan
+from src.graph.scheduler import ExecutionPlan, ExecutionStep, build_execution_plan, scheduler_from_plan
 
 
 def build_pipeline_graph():
@@ -66,6 +68,48 @@ def test_execution_plan_respects_requires_dependency_and_is_deterministic():
     assert [job.id for job in scheduler.ready()] == ['extract']
     scheduler.mark('extract', 'DONE')
     assert [job.id for job in scheduler.ready()] == ['normalize']
+
+
+def test_filtered_static_dependency_does_not_create_unschedulable_job_dependency():
+    """Regression: Asset -> Skill used to leave Skill waiting forever on Asset."""
+    g = TypedEditingGraph('filtered_static_dep', 'project_01')
+    g.add_node(g.typed_node('asset', 'Asset', provenance_refs=['fixture']))
+    g.add_node(g.typed_node('compile', 'Skill', authority='measured'))
+    g.add_edge(Edge('compile', 'asset', 'REQUIRES', {'id': 'd_asset'}))
+
+    plan = build_execution_plan(g, executable_kinds={'Skill'})
+    assert plan.node_order() == ('compile',)
+    assert plan.steps[0].deps == ()
+    assert [job.id for job in scheduler_from_plan(plan).ready()] == ['compile']
+
+
+def test_filtered_bridge_preserves_nearest_executable_prerequisite():
+    """Adjacent family: Skill -> non-exec -> Skill must preserve execution order."""
+    g = TypedEditingGraph('filtered_bridge', 'project_01')
+    g.add_node(g.typed_node('extract', 'Skill', authority='measured'))
+    g.add_node(g.typed_node('manifest', 'Asset', provenance_refs=['fixture']))
+    g.add_node(g.typed_node('compile', 'Skill', authority='measured'))
+    g.add_edge(Edge('manifest', 'extract', 'REQUIRES', {'id': 'd_manifest_extract'}))
+    g.add_edge(Edge('compile', 'manifest', 'REQUIRES', {'id': 'd_compile_manifest'}))
+
+    plan = build_execution_plan(g, executable_kinds={'Skill'})
+    assert plan.node_order() == ('extract', 'compile')
+    assert plan.steps[0].deps == ()
+    assert plan.steps[1].deps == ('extract',)
+
+    scheduler = scheduler_from_plan(plan)
+    assert [job.id for job in scheduler.ready()] == ['extract']
+    scheduler.mark('extract', 'DONE')
+    assert [job.id for job in scheduler.ready()] == ['compile']
+
+
+def test_scheduler_fails_closed_if_external_unschedulable_dependency_leaks_into_plan():
+    bad = ExecutionPlan(
+        graph_hash='fixture',
+        steps=(ExecutionStep(node_id='compile', kind='Skill', deps=('missing',), cache_key='k'),),
+    )
+    with pytest.raises(ValueError, match='unschedulable dependencies'):
+        scheduler_from_plan(bad)
 
 
 def test_cache_key_changes_when_runtime_input_changes():
