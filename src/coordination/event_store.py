@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import hashlib
+import json
 from threading import RLock
-from typing import Protocol, Sequence
+from typing import Any, Protocol, Sequence
 
 from .events import CoordinationEvent
 
@@ -26,26 +28,35 @@ class StoredEvent:
     duplicate: bool = False
 
 
-class CoordinationEventStore(Protocol):
-    """Canonical coordination state-transition contract.
+@dataclass(frozen=True, slots=True)
+class StateSnapshot:
+    event_watermark: int
+    aggregate_heads: tuple[tuple[str, str, int], ...]
+    state_hash: str
 
-    The event store owns aggregate revision and idempotency semantics. A bus may
-    transport committed events, but must not invent aggregate authority.
-    """
+    def verify(self) -> bool:
+        payload = {
+            "event_watermark": self.event_watermark,
+            "aggregate_heads": [list(x) for x in self.aggregate_heads],
+        }
+        digest = hashlib.sha256(
+            json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        ).hexdigest()
+        return digest == self.state_hash
+
+
+class CoordinationEventStore(Protocol):
+    """Canonical coordination state-transition contract."""
 
     def append(self, event: CoordinationEvent) -> StoredEvent: ...
-
     def aggregate_revision(self, aggregate_type: str, aggregate_id: str) -> int: ...
-
+    def watermark(self) -> int: ...
+    def snapshot(self) -> StateSnapshot: ...
     def read(self, *, after_sequence: int = 0, limit: int = 100) -> Sequence[StoredEvent]: ...
 
 
 class InMemoryReferenceEventStore:
-    """Deterministic process-local semantic oracle for event-sourced coordination.
-
-    This is deliberately NOT a distributed authority. It exists to qualify the
-    contracts that a future SQLite/Postgres backend must preserve.
-    """
+    """Deterministic process-local semantic oracle for event-sourced coordination."""
 
     authority_level = "REFERENCE_TEST_ONLY"
 
@@ -59,6 +70,22 @@ class InMemoryReferenceEventStore:
     def aggregate_revision(self, aggregate_type: str, aggregate_id: str) -> int:
         with self._lock:
             return self._heads.get((aggregate_type, aggregate_id), 0)
+
+    def watermark(self) -> int:
+        with self._lock:
+            return len(self._events)
+
+    def snapshot(self) -> StateSnapshot:
+        with self._lock:
+            heads = tuple(sorted((kind, aggregate_id, rev) for (kind, aggregate_id), rev in self._heads.items()))
+            payload: dict[str, Any] = {
+                "event_watermark": len(self._events),
+                "aggregate_heads": [list(x) for x in heads],
+            }
+            digest = hashlib.sha256(
+                json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+            ).hexdigest()
+            return StateSnapshot(len(self._events), heads, digest)
 
     def append(self, event: CoordinationEvent) -> StoredEvent:
         with self._lock:
