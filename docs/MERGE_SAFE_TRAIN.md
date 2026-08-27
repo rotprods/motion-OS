@@ -9,6 +9,7 @@ Keep `main` continuously releasable without paying GitHub Actions to repeat work
 3. **`MERGE_SAFE` is the single required merge check.** It always runs a cheap Python 3.12 contract gate and selectively runs expensive analysis/Remotion/security gates only when affected paths change.
 4. **Merge queue / merge-group is the final train.** A merge-group run forces Python 3.11 compatibility plus analysis, Remotion and dependency security regardless of path classification.
 5. Existing legacy workflows remain manual/scheduled escape hatches and must not be configured as required PR checks after `MERGE_SAFE` is active.
+6. **Concurrent main advances require combined-head verification.** If another workstream lands between a candidate's last proof and its merge, the resulting combined `main` must receive a fresh full-impact `MERGE_SAFE` proof before it is declared canonically verified.
 
 ## One-time local bootstrap
 
@@ -68,6 +69,7 @@ pre-push local hook PASS
   -> merge queue
   -> merge_group full gate (3.11 + 3.12 + analysis + Remotion + security)
   -> merge to main
+  -> if base advanced concurrently: combined-head full MERGE_SAFE proof
   -> agent emits pr.merged / main.verified event
 ```
 
@@ -100,6 +102,8 @@ CI validates the entire bus schema and duplicate event IDs. Events are facts/evi
 
 ## Main hygiene
 `main` must contain only verified/canonical code and documentation. Historical branches/PRs may remain as evidence but should be closed as superseded rather than merged wholesale when their valid capabilities are already represented in `main`.
+
+After any merge that lands on a base newer than the candidate's last full proof, treat `main` as **merged but not yet canonically verified** until a full-impact proof succeeds on a branch based on that exact combined head. The proof branch may contain evidence/documentation-only changes that intentionally route through the full gate; it must not hide product changes inside a verification PR.
 
 ## Required repository-setting change
 The GitHub connector cannot mutate branch-protection/ruleset configuration in this environment. A repository admin must configure `main` once:
