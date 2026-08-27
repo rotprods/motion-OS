@@ -31,11 +31,24 @@ def load_schema() -> dict:
     return json.loads(SCHEMA.read_text(encoding="utf-8"))
 
 
+def _validate_timestamp(value: object) -> None:
+    if not isinstance(value, str):
+        raise ValueError("timestamp must be an RFC3339 string")
+    raw = value[:-1] + "+00:00" if value.endswith("Z") else value
+    try:
+        parsed = datetime.fromisoformat(raw)
+    except ValueError as exc:
+        raise ValueError("timestamp must be valid RFC3339 date-time") from exc
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise ValueError("timestamp must include an explicit timezone")
+
+
 def validate_event(event: dict) -> None:
     validator = Draft202012Validator(load_schema(), format_checker=FormatChecker())
     errors = sorted(validator.iter_errors(event), key=lambda e: list(e.path))
     if errors:
         raise ValueError("; ".join(error.message for error in errors))
+    _validate_timestamp(event.get("timestamp"))
 
 
 def emit(args: argparse.Namespace) -> Path:
