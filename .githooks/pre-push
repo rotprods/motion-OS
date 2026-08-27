@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(git rev-parse --show-toplevel)"
+cd "$ROOT"
+
+base="origin/main"
+if ! git rev-parse --verify "$base" >/dev/null 2>&1; then
+  base="HEAD~1"
+fi
+
+changed="$(git diff --name-only "$base"...HEAD 2>/dev/null || git diff --name-only HEAD~1 HEAD)"
+
+printf 'MOTION.OS pre-push local verification\n'
+python scripts/local_verify.py quick
+
+if grep -Eq '^(src/extraction/|src/normalization/|tests/test_real_|tests/test_style_signature_vector.py|scripts/analyze_video.py|pyproject.toml)' <<<"$changed"; then
+  echo 'analysis-sensitive changes detected'
+  python scripts/local_verify.py analysis
+fi
+
+if grep -Eq '^(runtime/remotion/|src/compilers/remotion|scripts/(build_remotion_runtime_fixture|verify_remotion_render).py|tests/test_remotion_runtime_contract.py)' <<<"$changed"; then
+  echo 'Remotion-sensitive changes detected'
+  python scripts/local_verify.py remotion
+fi
+
+if grep -Eq '^(pyproject.toml|requirements|uv\.lock|poetry\.lock|runtime/remotion/package(-lock)?\.json|SECURITY.md)' <<<"$changed"; then
+  if command -v pip-audit >/dev/null 2>&1; then
+    python scripts/local_verify.py security --skip-install-check
+  else
+    echo 'WARNING: dependency/security change but pip-audit is not installed locally.' >&2
+    echo 'Install with: pip install pip-audit' >&2
+    exit 1
+  fi
+fi
+
+python scripts/agent_event.py validate
