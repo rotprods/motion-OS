@@ -1,8 +1,8 @@
 # MOTION.OS Phase07 — Main Promotion Execution Plan
 
-Status: EXECUTING
+Status: EXECUTING — FINAL QUALIFICATION
 Canonical PR: #44 `feat/agentic-coordination-kernel`
-Dependent active PR: #37 `feat/avatar-script-engine`
+Phase06 dependency: #37 MERGED to `main` as `6ef91a9fe092387b888d25da67006d68f455d229`
 Canonical Bus: #39
 Canonical Epic: #41
 
@@ -24,80 +24,86 @@ Promote MOTION.OS to `main` with one coherent agentic/content/studio graph, dete
 ## Execution waves
 
 ### W1 — P11 unified content lineage closure
-- [ ] Fix deterministic property merge for shared graph identities.
-- [ ] Add compatible enrichment, recursive enrichment, contradiction and invalid-properties tests.
-- [ ] Qualify Opportunity → Content → PRV/MNF/Beats → Studio handoff → Publication → Performance → Experiment lineage.
-- [ ] Verify one graph can traverse agent/workstream/event/content/beat/performance entities.
-- [ ] Re-run Coordination Contracts + full CI.
+- [x] Fix deterministic property merge for shared graph identities.
+- [x] Add compatible enrichment, recursive enrichment, contradiction and invalid-properties tests.
+- [x] Qualify Opportunity → Content → PRV/MNF/Beats → Studio handoff → Publication → Performance → Experiment lineage.
+- [x] Verify one graph can traverse agent/workstream/event/content/beat/performance entities.
+- [x] Fix deterministic fixture identity so “same sources” means identical event IDs/timestamps.
+- [x] Re-run Coordination Contracts + full pytest on the pre-Phase06-merge candidate successfully.
 
 ### W2 — P13/P18 operator observability and UX
-- [ ] Add deterministic operator status snapshot: health, active work, conflicts, leases, stale context, replay hashes.
-- [ ] Add CLI `status`, `next`, `conflicts`, `health` or equivalent stable surface.
-- [ ] Add trace/correlation lookup by content/work/event IDs.
-- [ ] Tests for deterministic ordering and fail-closed malformed state.
+- [x] Add deterministic operator status snapshot: health, active work, conflicts, next actions and trace records.
+- [x] Add read-only CLI `status`, `health`, `next`, `conflicts`, `trace` surface.
+- [x] Add trace/correlation lookup by content/work/event IDs.
+- [x] Add deterministic ordering and malformed-input fail-visible tests.
 
 ### W3 — P14 adversarial trust-boundary expansion
-- [ ] Add untrusted-context sanitization/redaction primitives for secrets and control-instruction payloads.
-- [ ] Preserve evidence while marking untrusted data as data, never executable authority.
-- [ ] Add prompt-injection/control-plane spoofing, secret leakage and sensitivity downgrade negative tests.
-- [ ] Keep policy default-deny.
+- [x] Add untrusted-context envelope with immutable source SHA-256 provenance.
+- [x] Redact secret-like fields recursively.
+- [x] Detect control-plane/prompt-injection text while preserving it only as untrusted data.
+- [x] Add authority-spoofing, secret-leakage and deterministic sanitization negative tests.
+- [x] Keep capability policy default-deny; external payload fields never self-promote authority.
 
 ### W4 — P16 cold recovery/replay closure
-- [ ] Add zero-chat recovery bundle from canonical GitHub/lifecycle + event snapshot + projection sources.
-- [ ] Verify events → state → coordination graph → content graph → unified graph → COS shadow equivalence.
-- [ ] Verify source/hash drift invalidates the recovery/context bundle.
-- [ ] Add corrupted/missing-source fail-closed tests.
-- [ ] Drive live leg remains conditional on provider health; provider-neutral EvidenceManifest remains mandatory.
+- [x] Add zero-chat recovery bundle referencing canonical hashes instead of copying authority.
+- [x] Bind main/event/state/coordination/unified/COS/context hashes into one sealed bundle.
+- [x] Detect missing source, revision drift and content hash drift fail-closed.
+- [x] Permit explicitly optional provider sources such as Drive without fabricating evidence when unavailable.
+- [x] Add deterministic seal and corrupted/missing-source tests.
+- [ ] Live Drive leg remains blocked by provider/connector availability; provider-neutral EvidenceManifest remains mandatory.
 
 ### W5 — P17/P19 qualification and release score
-- [ ] Run dedicated Coordination Contracts on Python 3.11/3.12.
-- [ ] Run full CI on Python 3.11/3.12.
-- [ ] Run physical analysis-runtime.
-- [ ] Run Repo Health, Security Baseline, Runtime Smoke, Remotion Runtime.
-- [ ] Diff review: deletion audit, shared-file audit, review-thread audit, mergeability.
+- [x] Dedicated Coordination Contracts workflow exists on Python 3.11/3.12.
+- [ ] Run dedicated Coordination Contracts against post-#37 `main` virtual merge.
+- [ ] Run full CI on Python 3.11/3.12 against post-#37 `main` virtual merge.
+- [ ] Run physical analysis-runtime against post-#37 `main` virtual merge.
+- [ ] Run Repo Health, Security Baseline, Runtime Smoke, Remotion Runtime against post-#37 `main` virtual merge.
+- [ ] Final diff/review-thread/mergeability audit.
 - [ ] Re-rate 20D with conservative Authority=min(Build,Assurance).
 
 ### W6 — PR #37 qualification and promotion
-- [ ] Read latest #37 head and exact workflow evidence.
-- [ ] Ensure merge candidate against current main is green and mergeable.
-- [ ] Final diff/security/authority review.
-- [ ] Merge #37 to main first if #44 consumes its stable contracts or schemas.
-- [ ] Record merge SHA and update lifecycle topology.
+- [x] Read latest #37 head and exact workflow evidence.
+- [x] Diagnose failing reconciliation test (`safe_to_refresh` missing).
+- [x] Restore explicit fail-closed `safe_to_refresh` contract while keeping reconciliation advisory-only.
+- [x] Exact head `d8a31fee1929bae0d3ecfade9c74d2c6fd0b6d64` passed CI, physical analysis-runtime, Repo Health, Security Baseline, Runtime Smoke and Remotion Runtime.
+- [x] Final diff review: 59 files, additive, zero deletions; no review threads.
+- [x] Merge #37 to main first.
+- [x] Record merge SHA: `6ef91a9fe092387b888d25da67006d68f455d229`.
 
-### W7 — PR #44 rebase/reconciliation and promotion
-- [ ] Reconcile #44 against post-#37 `main` without force rewrites.
-- [ ] Resolve only real conflicts; preserve Phase06 authority.
+### W7 — PR #44 reconciliation and promotion
+- [x] Confirm #44 remains mergeable after #37 promotion and has no Phase06 authority overwrite.
+- [x] Force a new branch commit after #37 merge so GitHub must generate a fresh virtual merge against `main@6ef91a9f...`.
 - [ ] Run exact-head/virtual-merge full gates again.
 - [ ] Mark ready for review only after all gates pass.
 - [ ] Merge #44 to main with expected-head SHA.
 
 ### W8 — Post-merge main verification
-- [ ] Run/check workflows associated with the final main merge SHA when available.
+- [ ] Check workflows associated with the final main merge SHA when available.
 - [ ] Verify canonical files exist on main.
 - [ ] Verify #40 stays CLOSED_UNMERGED/SUPERSEDED and no duplicate coordination PR remains active.
 - [ ] Update #39/#41 with final merge SHAs, score and residual external blockers.
 - [ ] Close #41 only if all non-external P0–P19 gates are satisfied; otherwise leave open with a minimal residual list.
 
-## Merge order decision
-Default: `#37 → main`, then reconcile/qualify `#44 → main`.
-Reason: Phase07 P11 consumes Phase06 identity and handoff contracts. Merging Phase06 first makes those contracts canonical and allows #44 to qualify against the true production base rather than a sibling branch.
+## Merge order decision — executed
+`#37 → main` first, then `#44 → main` after full requalification.
 
-If #37 exact-head qualification fails, do not merge it. #44 may only merge first if it contains no dependency on unmerged #37 implementation and all P11 assertions are explicitly framed as compatibility with a pinned sibling contract rather than main authority.
+Reason: Phase07 P11 consumes Phase06 identity and handoff contracts. Phase06 is now canonical on main, so #44 is being qualified against the true production base rather than a sibling branch.
 
-## Release evidence required for each merge
+## Release evidence required for #44
 - PR is mergeable.
 - No unresolved review threads.
 - Exact tested head recorded.
-- CI success.
+- Virtual merge parent includes `main@6ef91a9f...` or later.
+- Coordination Contracts success.
+- CI success including Python 3.11/3.12 and physical analysis runtime.
 - Repo Health success.
 - Security Baseline success.
 - Runtime Smoke success.
 - Remotion Runtime success.
-- Coordination Contracts success for #44.
 - No unexplained destructive diff.
 
 ## Rollback
 No force pushes to main. If a merge causes main regression, create a revert PR referencing the exact merge SHA; do not rewrite branch history. Projection/COS data remains rebuildable from canonical source history.
 
 ## Definition of done
-`main` contains the qualified Phase06 authority contracts and Phase07 agentic coordination/unified-graph kernel; all available repository workflows pass on the merge candidates; operator/recovery/security surfaces are covered by tests; canonical issues/PR descriptions reflect final truth; remaining blockers are only external provider or deliberately deferred multi-host infrastructure, and are stated explicitly rather than counted as complete.
+`main` contains the qualified Phase06 authority contracts and Phase07 agentic coordination/unified-graph kernel; all available repository workflows pass on the final merge candidates; operator/recovery/security surfaces are covered by tests; canonical issues/PR descriptions reflect final truth; remaining blockers are only external provider or deliberately deferred multi-host infrastructure, and are stated explicitly rather than counted as complete.
