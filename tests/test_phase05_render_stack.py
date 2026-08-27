@@ -1,9 +1,11 @@
+import pytest
+
 from src.graph.model import MotionGraph, Node, Edge
 from src.compilers.remotion_graph import compile_editing_graph_to_remotion, emit_remotion_project_files, build_ssr_render_contract
 from src.compilers.hyperframes import compile_editing_graph_to_hyperframes, emit_hyperframes_project, build_hyperframes_render_contract
 from src.compilers.lottie import compile_vector_subgraph_to_lottie, validate_lottie_subset
 from src.renderers.multirender import assign_renderers, render_manifest
-from src.renderers.assembly import RenderArtifact, build_composite_plan
+from src.renderers.assembly import RenderArtifact, build_composite_plan, ffmpeg_filter_complex
 
 
 def fixture_graph():
@@ -67,5 +69,42 @@ def test_multi_renderer_assignments_and_composite_plan():
     assert manifest['manifest_hash']==render_manifest(graph,assignments,fps=30,width=1080,height=1920,duration_ms=1000)['manifest_hash']
     artifacts=[RenderArtifact('base','remotion','base.mov',0,1000,1080,1920,30,False,('graph:1',))]
     plan=build_composite_plan(artifacts,width=1080,height=1920,fps=30,duration_ms=1000)
-    assert plan['temporal_policy']=='exact_global_clock'
+    assert plan['temporal_policy']=='local_zero_to_exact_global_clock'
+    assert plan['z_order_policy']=='ascending_z_index_then_artifact_id'
     assert plan['provenance_required'] is True
+
+
+def test_composite_plan_uses_visual_z_order_not_start_time_or_renderer_name():
+    artifacts=[
+        RenderArtifact('top','aaa','top.mov',250,750,1080,1920,30,True,('graph:top',),z_index=9),
+        RenderArtifact('base','zzz','base.mov',0,1000,1080,1920,30,False,('graph:base',),z_index=0),
+        RenderArtifact('middle','mmm','middle.mov',100,900,1080,1920,30,True,('graph:mid',),z_index=4),
+    ]
+    plan=build_composite_plan(artifacts,width=1080,height=1920,fps=30,duration_ms=1000)
+    assert plan['input_order']==['base','middle','top']
+    assert [a['z_index'] for a in plan['artifacts']]==[0,4,9]
+
+
+def test_ffmpeg_filter_shifts_local_zero_overlay_onto_global_clock():
+    artifacts=[
+        RenderArtifact('base','remotion','base.mov',0,2000,1080,1920,30,False,('graph:base',),z_index=0),
+        RenderArtifact('overlay','hyperframes','overlay.mov',1500,2000,1080,1920,30,True,('graph:overlay',),z_index=6),
+    ]
+    plan=build_composite_plan(artifacts,width=1080,height=1920,fps=30,duration_ms=2000)
+    filters=ffmpeg_filter_complex(plan)
+    assert '[0:v]trim=duration=2.000,setpts=PTS-STARTPTS[base0]' in filters
+    assert '[1:v]trim=duration=0.500,setpts=PTS-STARTPTS+1.500/TB[ov1]' in filters
+    assert "enable='between(t,1.500,2.000)'" in filters
+
+
+def test_composite_plan_fails_closed_without_provenance_or_full_timeline_base():
+    with pytest.raises(ValueError,match='missing_provenance'):
+        build_composite_plan(
+            [RenderArtifact('base','remotion','base.mov',0,1000,1080,1920,30)],
+            width=1080,height=1920,fps=30,duration_ms=1000,
+        )
+    with pytest.raises(ValueError,match='base_must_cover_timeline'):
+        build_composite_plan(
+            [RenderArtifact('partial','remotion','partial.mov',100,1000,1080,1920,30,False,('graph:p',),z_index=0)],
+            width=1080,height=1920,fps=30,duration_ms=1000,
+        )
