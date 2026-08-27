@@ -14,17 +14,17 @@ changed="$(git diff --name-only "$base"...HEAD 2>/dev/null || git diff --name-on
 printf 'MOTION.OS pre-push local verification\n'
 python scripts/local_verify.py quick
 
-if grep -Eq '^(src/extraction/|src/normalization/|tests/test_real_|tests/test_style_signature_vector.py|scripts/analyze_video.py|pyproject.toml)' <<<"$changed"; then
+if printf '%s\n' "$changed" | python scripts/change_impact.py --check analysis >/dev/null; then
   echo 'analysis-sensitive changes detected'
   python scripts/local_verify.py analysis
 fi
 
-if grep -Eq '^(runtime/remotion/|src/compilers/remotion|scripts/(build_remotion_runtime_fixture|verify_remotion_render).py|tests/test_remotion_runtime_contract.py)' <<<"$changed"; then
+if printf '%s\n' "$changed" | python scripts/change_impact.py --check remotion >/dev/null; then
   echo 'Remotion-sensitive changes detected'
   python scripts/local_verify.py remotion
 fi
 
-if grep -Eq '^(pyproject.toml|requirements|uv\.lock|poetry\.lock|runtime/remotion/package(-lock)?\.json|SECURITY.md)' <<<"$changed"; then
+if printf '%s\n' "$changed" | python scripts/change_impact.py --check security >/dev/null; then
   if command -v pip-audit >/dev/null 2>&1; then
     python scripts/local_verify.py security --skip-install-check
   else
