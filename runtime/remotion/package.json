@@ -1,0 +1,20 @@
+{
+  "name": "motion-os-remotion-runtime",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "render": "remotion render src/index.ts MotionOSRuntime out/runtime.mp4 --codec=h264 --log=verbose",
+    "compositions": "remotion compositions src/index.ts"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.506",
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
+    "remotion": "4.0.506"
+  },
+  "devDependencies": {
+    "@types/react": "19.1.12",
+    "@types/react-dom": "19.1.9",
+    "typescript": "5.9.2"
+  }
+}

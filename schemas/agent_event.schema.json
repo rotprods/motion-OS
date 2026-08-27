@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://motion.os/schemas/agent_event.schema.json",
+  "title": "MOTION.OS Agent Event",
+  "type": "object",
+  "required": ["event_id", "event_type", "timestamp", "agent_id", "project", "branch", "summary", "authority"],
+  "properties": {
+    "event_id": {"type": "string", "minLength": 8, "maxLength": 160},
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "work.started",
+        "work.checkpoint",
+        "work.completed",
+        "work.blocked",
+        "pr.opened",
+        "pr.ready",
+        "pr.merged",
+        "main.verified",
+        "state.reconciled"
+      ]
+    },
+    "timestamp": {"type": "string", "format": "date-time"},
+    "agent_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "project": {"const": "MOTION.OS"},
+    "branch": {"type": "string", "minLength": 1, "maxLength": 255},
+    "commit_sha": {"type": ["string", "null"], "pattern": "^[0-9a-f]{7,40}$"},
+    "pr_number": {"type": ["integer", "null"], "minimum": 1},
+    "summary": {"type": "string", "minLength": 1, "maxLength": 1000},
+    "affected_paths": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "checks": {"type": "object", "additionalProperties": {"type": "string"}},
+    "authority": {
+      "type": "string",
+      "enum": ["PROPOSED", "IMPLEMENTED", "EXECUTED", "VERIFIED"]
+    },
+    "correlation_id": {"type": ["string", "null"], "maxLength": 160},
+    "metadata": {"type": "object"}
+  },
+  "additionalProperties": false
+}

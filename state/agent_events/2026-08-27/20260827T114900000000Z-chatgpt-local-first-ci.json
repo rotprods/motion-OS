@@ -1,0 +1,24 @@
+{
+  "affected_paths": [
+    ".github/workflows/",
+    "AGENTS.md",
+    "docs/MERGE_SAFE_TRAIN.md",
+    "schemas/agent_event.schema.json",
+    "scripts/agent_event.py",
+    "scripts/local_verify.py",
+    "state/project_state.json"
+  ],
+  "agent_id": "chatgpt-gpt5.6-sol",
+  "authority": "IMPLEMENTED",
+  "branch": "chore/local-first-ci-merge-train",
+  "checks": {},
+  "commit_sha": null,
+  "correlation_id": "LOCAL_FIRST_CI_MERGE_TRAIN_V1",
+  "event_id": "20260827T114900000000Z-chatgpt-local-first-ci",
+  "event_type": "work.started",
+  "metadata": {"goal": "local-first verification, cost-aware CI, merge-safe train, immutable agent event bus"},
+  "pr_number": null,
+  "project": "MOTION.OS",
+  "summary": "Configure local-first verification, consolidate GitHub Actions into a cost-aware MERGE_SAFE gate, define merge-train protocol, reconcile project state, and establish immutable per-event agent bus.",
+  "timestamp": "2026-08-27T11:49:00Z"
+}

@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "profiles": {
+    "heygen_rot_canonical_v1": {
+      "provider": "heygen",
+      "look_id": "49327c09aed5418383ba330e0daf0304",
+      "voice_id": "3fbb6707e4414df28da39b6cda40a4e3",
+      "voice_name": "Avatar IV Video - Voice",
+      "resolution": "1080p",
+      "aspect_ratio": "9:16",
+      "output_format": "mp4",
+      "speed": 1.05,
+      "expressiveness": "medium",
+      "duration_target_s": 38,
+      "duration_hard_min_s": 30,
+      "duration_hard_max_s": 45,
+      "initial_words_per_second": 2.21,
+      "pause_cost_s": {"comma": 0.10, "sentence": 0.22, "ellipsis": 0.32, "colon": 0.16},
+      "capability_status": "TIME_SENSITIVE_CAPABILITY",
+      "verified_on": "2026-08-26",
+      "calibration_status": "REAL_RENDER_V1"
+    }
+  },
+  "calibration_evidence": [
+    {"label":"api_test","actual_duration_s":82.8343,"status":"REJECT_TARGET_TOO_LONG"},
+    {"label":"complex_systems_test","actual_duration_s":62.8245,"status":"REJECT_TARGET_TOO_LONG"},
+    {"label":"openmontage_canonical_avatar","word_count":93,"actual_duration_s":42.6318,"provider_job_id":"586ec436ee394f83a6781ca353830429","status":"PASS_TARGET_RANGE","derived_base_words_per_second":2.21}
+  ]
+}
