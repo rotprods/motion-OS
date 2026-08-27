@@ -1,0 +1,91 @@
+flowchart TD
+  subgraph AUTHORITIES[Authoritative planes]
+    GH[GitHub main\nsoftware/executable truth]
+    RENDER[Phase06 SQLite/WAL\nrender aggregate authority]
+    CES[Coordination Event Store\ncoordination aggregate history\nqualified authority only]
+    DR[Drive\nheavy artifact/recovery bytes]
+  end
+
+  subgraph TRANSPORTS[Delivery / bootstrap transports]
+    BUS[Coordination Bus]
+    RT[Realtime / NOTIFY]
+    I39[GitHub Issue #39\nbootstrap coordination]
+    FILES[state/agent_events\naudit export]
+  end
+
+  subgraph PROJECTIONS[Rebuildable read models]
+    STATE[STATE.md]
+    PSTATE[state/project_state.json]
+    ACTIVE[ACTIVE_AGENTS.yaml]
+    HANDOFF[Handoff / README_FIRST]
+    STATUS[Operator status/health/next]
+    COS[COS / unified graph projection]
+  end
+
+  subgraph AGENTS[Agent execution]
+    A1[Agent A]
+    A2[Agent B]
+    AN[Agent N]
+    CP[ContextPack]
+    LEASE[Claims / leases / fencing]
+  end
+
+  subgraph PAUSE[Cognitive Pause Barrier]
+    PRQ[PAUSE_REQUESTED]
+    ACK[ACK / recoverable checkpoints]
+    REC[Authority reconciliation]
+    REBUILD[Rebuild projections]
+    REL[PAUSE_RELEASED\nnew watermark/context revision]
+  end
+
+  A1 -->|commands/events| CES
+  A2 -->|commands/events| CES
+  AN -->|commands/events| CES
+  CES --> BUS
+  CES --> RT
+  CES --> I39
+  CES --> FILES
+
+  CES --> STATE
+  CES --> PSTATE
+  CES --> ACTIVE
+  CES --> HANDOFF
+  CES --> STATUS
+  CES --> COS
+  GH --> STATE
+  GH --> PSTATE
+  GH --> ACTIVE
+  RENDER --> PSTATE
+  DR --> HANDOFF
+
+  STATE --> CP
+  PSTATE --> CP
+  ACTIVE --> CP
+  COS --> CP
+  CP --> A1
+  CP --> A2
+  CP --> AN
+  LEASE --> A1
+  LEASE --> A2
+  LEASE --> AN
+  CES --> LEASE
+
+  PRQ --> ACK --> REC --> REBUILD --> REL
+  CES --> PRQ
+  GH --> REC
+  RENDER --> REC
+  DR --> REC
+  REC --> CES
+  REBUILD --> STATE
+  REBUILD --> PSTATE
+  REBUILD --> ACTIVE
+  REBUILD --> HANDOFF
+  REBUILD --> COS
+  REL --> CP
+
+  classDef truth fill:#111,color:#fff,stroke:#555;
+  classDef projection fill:#eef,stroke:#668;
+  classDef transport fill:#ffe,stroke:#aa8;
+  class CES,GH,RENDER,DR truth;
+  class STATE,PSTATE,ACTIVE,HANDOFF,STATUS,COS projection;
+  class BUS,RT,I39,FILES transport;
