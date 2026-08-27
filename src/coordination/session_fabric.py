@@ -11,6 +11,10 @@ def _canonical_json(value: Any) -> str:
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
 
 
+def _sha256(value: Any) -> str:
+    return hashlib.sha256(_canonical_json(value).encode()).hexdigest()
+
+
 class Surface(str, Enum):
     GITHUB_BOOTSTRAP = "GITHUB_BOOTSTRAP"
     REPO_EVENT = "REPO_EVENT"
@@ -50,6 +54,13 @@ class SurfaceEvent:
             raise ValueError("logical_id required")
         if len(self.payload_hash) != 64 or any(c not in "0123456789abcdef" for c in self.payload_hash):
             raise ValueError("payload_hash must be lowercase sha256")
+        if _sha256(dict(self.event)) != self.payload_hash:
+            raise ValueError("payload_hash does not match normalized event payload")
+
+    @classmethod
+    def create(cls, surface: Surface, logical_id: str, event: Mapping[str, Any]) -> "SurfaceEvent":
+        normalized = dict(event)
+        return cls(surface, logical_id, _sha256(normalized), normalized)
 
 
 @dataclass(frozen=True, slots=True, order=True)
@@ -86,8 +97,7 @@ class SessionGraphSnapshot:
         }
 
     def verify_hash(self) -> bool:
-        expected = hashlib.sha256(_canonical_json(self.canonical_payload()).encode()).hexdigest()
-        return expected == self.projection_hash
+        return _sha256(self.canonical_payload()) == self.projection_hash
 
 
 class EventSurfaceConflict(ValueError):
@@ -173,6 +183,8 @@ class SessionGraphCompiler:
             seen_event_ids.add(event_id)
             if event.get("session_id") != identity.session_id:
                 raise ValueError("cross-session event passed to session compiler")
+            if event.get("correlation_id") != identity.correlation_id:
+                raise ValueError("cross-correlation event passed to session compiler")
             event_uri = f"motion://event/{event_id}"
             add_node(event_uri, "Event", {
                 "event_type": event.get("event_type"),
@@ -204,12 +216,11 @@ class SessionGraphCompiler:
             "nodes": [asdict(x) for x in sorted_nodes],
             "edges": [asdict(x) for x in sorted_edges],
         }
-        digest = hashlib.sha256(_canonical_json(payload).encode()).hexdigest()
         return SessionGraphSnapshot(
             session_id=identity.session_id,
             live_main_sha=live_main_sha,
             event_watermark=event_watermark,
             nodes=sorted_nodes,
             edges=sorted_edges,
-            projection_hash=digest,
+            projection_hash=_sha256(payload),
         )
