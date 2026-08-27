@@ -5,64 +5,70 @@ Scoring model:
 - **Assurance** = executed evidence maturity.
 - **Authority** = `min(Build, Assurance)`.
 
-A dimension is never promoted by file count or architectural sophistication alone. Scores below describe the **local/reference + shadow coordination system** unless explicitly marked multi-host. They do not imply distributed transactional authority.
+A dimension is never promoted by file count or architectural sophistication alone. Scores describe the qualified **local/reference + shadow + repository-merge** system unless explicitly marked multi-host. They do not imply distributed transactional authority.
 
-Snapshot: 2026-08-27 — verified through PR #44 head `bc0439326612cad8ff461e9030978296293433f9`.
+Snapshot: 2026-08-27 — final PR #44 promotion candidate after Phase06 #37 and local-first/MERGE_SAFE #46 landed on main.
 
-Evidence gates on this wave:
-- CI Python 3.11/3.12: SUCCESS
-- physical analysis-runtime: SUCCESS
-- Coordination Contracts Python 3.11/3.12: SUCCESS
-- Security Baseline: SUCCESS
-- Repo Health: SUCCESS
-- Runtime Smoke: SUCCESS
-- Remotion Runtime: SUCCESS
-- predecessor PR #40: CLOSED_UNMERGED / SUPERSEDED
+Current evidence already executed during this release wave:
+- Phase06 #37 exact-head CI Python 3.11/3.12: SUCCESS
+- Phase06 physical analysis-runtime: SUCCESS
+- Phase06 Security / Repo Health / Runtime Smoke / Remotion Runtime: SUCCESS
+- Phase06 #37: MERGED to main as `6ef91a9fe092387b888d25da67006d68f455d229`
+- MERGE_SAFE train #46: MERGED and independently recorded as verified on main
+- Phase07 Coordination Contracts Python 3.11/3.12: repeated SUCCESS on reconciled candidates
+- Phase07 quick/full tests: repeated SUCCESS on Python 3.11/3.12 before final documentation reconciliation
+- Phase07 physical analysis, Remotion and dependency security: SUCCESS on the reconciled candidate before this final canonical-doc refresh
+- predecessor #40: CLOSED_UNMERGED / SUPERSEDED
+- unified graph deterministic enrichment + contradiction rejection: QUALIFIED
+- 3-agent crash/takeover + 500 takeover rounds + 100 competitor campaign: QUALIFIED locally
+- untrusted-context redaction/control-instruction detection: QUALIFIED locally
+- sealed zero-chat recovery bundle + drift detection: QUALIFIED locally
+- operator status/health/next/conflicts/trace surface: QUALIFIED locally
+
+The **final combined-head MERGE_SAFE run after this documentation refresh remains the release gate**. Scores below intentionally do not upgrade multi-host or live-Drive authority.
 
 | # | Dimension | Build | Assurance | Authority | Current evidence / remaining gap |
 |---|---|---:|---:|---:|---|
-| D01 | Truth ownership | 9.5 | 9.0 | 9.0 | Git/Drive/Phase06 SQLite/coordination/COS boundaries explicit and exercised; multi-host authority intentionally deferred |
-| D02 | Canonical identity | 9.2 | 8.5 | 8.5 | canonical motion:// identities in events/context/planning/tests; live provider agent registration still incomplete |
-| D03 | Event state semantics | 9.2 | 8.7 | 8.7 | EventStore revisions, heads, idempotency, watermark and snapshots pass reference qualification; durable network store is P20 |
-| D04 | Event idempotency | 9.4 | 9.0 | 9.0 | duplicate event/idempotency-key conflict and inbox effect dedupe tested |
-| D05 | Ordering / causality | 9.1 | 8.8 | 8.8 | aggregate revisions, causation, parent events, correlation and replay-order rejection tested |
-| D06 | Multi-host concurrency | 7.5 | 1.0 | 1.0 | deliberately not claimed; SQL candidate exists but no network contention authority campaign |
-| D07 | Leases / fencing | 9.5 | 9.0 | 9.0 | READ/WRITE/EXCLUSIVE semantics, 500 takeovers, 100 live competitors and stale-generation rejection qualified locally |
-| D08 | CAS / stale writer control | 9.4 | 9.0 | 9.0 | stale expected revisions and stale fencing generations fail closed in reference campaign |
-| D09 | Recovery / replay | 9.0 | 8.4 | 8.4 | cold events→state→graph→COS bundle hash equivalence tested; full GitHub+Drive cold-agent drill pending |
-| D10 | Cross-session ContextPack | 9.5 | 8.8 | 8.8 | deterministic seal, semantic ordering, lifecycle/main/source/projection invalidation and live-context CLI tested |
-| D11 | Graph correctness / rebuild | 9.3 | 8.7 | 8.7 | deterministic projector + pinned COS shadow bundle/hash; actual COS backend load/query equivalence pending |
-| D12 | Provenance / evidence | 9.2 | 8.2 | 8.2 | structured provenance, payload/event hashes and revision-pinned EvidenceManifest tested; live Drive revision ingestion pending |
-| D13 | Security / policy | 8.9 | 8.2 | 8.2 | Security Baseline green + default-deny capability/resource/sensitivity negative tests; service identity enforcement pending |
-| D14 | Isolation / sensitivity | 8.8 | 8.0 | 8.0 | sensitivity ceilings/default deny tested; context redaction/prompt-injection campaign still pending |
-| D15 | Outbox / delivery recovery | 9.0 | 7.8 | 7.8 | duplicate effect, unknown-event quarantine and retry-after-handler-repair tested; durable dispatcher crash/restart pending |
-| D16 | GitHub integration | 9.3 | 8.7 | 8.7 | canonical Bus #39, Epic #41, PR lifecycle states/revision hash and live reconciliation tested; direct ingestion daemon pending |
-| D17 | Drive integration | 8.2 | 5.8 | 5.8 | canonical Drive11 + revision-pinned provider-neutral evidence contract; live checkpoint write hit connector 404 and requires retry |
-| D18 | Contract governance | 9.5 | 8.8 | 8.8 | #40/#44 real duplicate-architecture incident reconciled, canonical controls consolidated, semantic conflict engine tested |
-| D19 | Testing / adversarial qualification | 9.4 | 9.0 | 9.0 | dedicated Coordination Contracts gate, 3-agent crash/takeover test, 500 takeover + 100 contention campaign, full CI green |
-| D20 | Operator DX / observability | 8.5 | 7.6 | 7.6 | README/protocol/CLI/SDK/health metrics exist; status console and tracing exporter pending |
+| D01 | Truth ownership | 9.7 | 9.3 | 9.3 | GitHub/main + MERGE_SAFE, Drive evidence plane, Phase06 SQLite single-host authority, Phase07 local/reference state and COS boundaries are explicit and reconciled |
+| D02 | Canonical identity | 9.5 | 9.1 | 9.1 | canonical motion:// agent/session/work/content/resource identities across events, context, planning, lineage and tests |
+| D03 | Event state semantics | 9.4 | 9.0 | 9.0 | revisions, expected revisions, heads, idempotency, watermark, snapshots and replay pass reference qualification; distributed durability is P20 |
+| D04 | Event idempotency | 9.5 | 9.2 | 9.2 | duplicate event/idempotency conflicts and inbox effect dedupe are tested fail-closed |
+| D05 | Ordering / causality | 9.4 | 9.1 | 9.1 | aggregate revision order, parent/causation/correlation and deterministic replay semantics qualified |
+| D06 | Multi-host concurrency | 7.5 | 1.0 | 1.0 | intentionally unpromoted; no independent-host transactional authority campaign has been executed |
+| D07 | Leases / fencing | 9.6 | 9.3 | 9.3 | READ/WRITE/EXCLUSIVE semantics, crash takeover, 500 takeovers, 100 competitors and stale-generation rejection qualified locally |
+| D08 | CAS / stale writer control | 9.5 | 9.3 | 9.3 | stale expected revisions and stale fencing generations reject deterministically in reference campaigns |
+| D09 | Recovery / replay | 9.4 | 9.0 | 9.0 | events→state→coordination graph→unified graph→COS hashing plus sealed recovery-source drift checks; live Drive leg unavailable |
+| D10 | Cross-session ContextPack | 9.6 | 9.2 | 9.2 | deterministic seal/order, lifecycle/main/source/projection invalidation and live lifecycle reconciliation tested |
+| D11 | Unified graph correctness / rebuild | 9.6 | 9.2 | 9.2 | coordination + Phase06 content lineage share canonical content identity; compatible properties enrich recursively, contradictions fail closed; COS remains one-way shadow |
+| D12 | Provenance / evidence | 9.5 | 8.8 | 8.8 | structured provenance, payload/event hashes, Phase06 PRV/MNF preservation and revision-pinned EvidenceManifest; live Drive revision read/write unavailable |
+| D13 | Security / policy | 9.4 | 9.2 | 9.2 | dependency security green, default-deny capability/resource/sensitivity policy, untrusted-context envelope, secret redaction and authority-spoof negative tests |
+| D14 | Isolation / sensitivity | 9.3 | 9.1 | 9.1 | sensitivity ceilings/default deny plus external control-instruction detection and non-self-promoting trust envelope qualified |
+| D15 | Delivery / outbox recovery semantics | 9.2 | 8.4 | 8.4 | duplicate logical effects, unknown/poison quarantine and retry-after-repair tested; durable distributed dispatcher crash/restart is P20 |
+| D16 | GitHub / merge lifecycle integration | 9.7 | 9.3 | 9.3 | #39/#41 control objects, PR lifecycle reconciliation, immutable agent events, local-first verification and MERGE_SAFE serial promotion are integrated |
+| D17 | Drive integration | 8.3 | 5.8 | 5.8 | provider-neutral evidence/recovery contracts exist; live connector returned provider errors, so no live authority/evidence is claimed |
+| D18 | Contract governance / collision control | 9.7 | 9.3 | 9.3 | #40/#44 duplicate architecture reconciled, #37 authority consumed read-only, semantic/path/dependency/authority conflict classification and merge-train race handled explicitly |
+| D19 | Testing / adversarial qualification | 9.7 | 9.5 | 9.5 | Coordination Contracts, full tests, MERGE_SAFE subgates, 3-agent crash/takeover, deterministic contention campaign, trust/recovery/unified-graph negative tests |
+| D20 | Operator DX / observability | 9.4 | 9.1 | 9.1 | protocol/SDK/CLI plus deterministic status, health, next, conflicts and trace lookup; external dashboard/export is optional enhancement rather than correctness dependency |
 
 Approximate means:
-- **Build:** 9.0/10
-- **Assurance:** 7.9/10
-- **Authority:** 7.9/10
+- **Build:** ~9.4/10
+- **Assurance:** ~8.6/10
+- **Authority:** ~8.6/10
 
-The low D06 score is intentional: it prevents local/reference evidence from being misrepresented as multi-host authority.
+The mean is intentionally depressed by D06 and D17. This is a feature, not a scoring defect: local evidence must not silently become distributed or provider-backed authority.
 
-## Promotion rules
-### Local/reference coordination authority
-May advance toward `ASSISTED_COORDINATION` when the relevant dimensions for the requested operation are >=8.5 Authority and the operation remains within the proven local/bootstrap boundary.
+## Promotion interpretation
+### Repository / local-reference coordination
+The current candidate supports `LOCAL_REFERENCE_VERIFIED` and can support `ASSISTED_COORDINATION` within the tested authority boundary once the final combined-head `MERGE_SAFE` run succeeds.
 
-### Multi-host coordination authority
-Must remain disabled until D06 and all distributed variants of D03/D07/D08/D09/D13/D15 are >=9.0 with real network/process evidence. Postgres or another transactional backend is an implementation option at P20, not a prerequisite for local engineering.
+### Distributed multi-host authority
+`MULTI_HOST_AUTHORITY` remains disabled until D06 and the distributed variants of D03/D07/D08/D09/D13/D15 are >=9.0 with independent-process/network evidence. PostgreSQL/Supabase or an equivalent transactional backend is an optional P20 implementation choice, not a prerequisite for the current merge.
 
-## Critical path from current state
-1. P8 live Drive evidence/revision ingestion and retry the connector-backed checkpoint.
-2. P11 end-to-end Phase06 Content/Viral → Studio → publication/performance graph qualification with #37.
-3. P13 trace/correlation exporter and operator health view.
-4. P14 context redaction, prompt-injection/untrusted-source and capability-boundary adversarial campaign.
-5. P15 broader randomized multi-agent scenario matrix: contract drift, PR close/merge, context invalidation and crash recovery.
-6. P16 full zero-context recovery using GitHub + Drive + event history, no chat transcript.
-7. P18 operator `status/next/conflicts` UX.
-8. P19 final 20D gauntlet and gap closure.
-9. P20 only if real multi-host concurrent authority is required: select backend, deploy least privilege, then rerun distributed qualification rather than inheriting local scores.
+## Residual gaps after code promotion
+1. **P8 live Drive provider bridge** — retry only when connector/provider access is healthy; do not fabricate checkpoint evidence.
+2. **P20 distributed authority** — execute only if simultaneous independent-host writes become a real requirement.
+3. Optional operator dashboard/trace exporter and live COS backend load/query equivalence may raise operational assurance further but are not merge blockers for the local/reference kernel.
+4. Empirical Phase06 performance/calibration gates remain separate from code correctness and cannot be promoted by this Phase07 release.
+
+## Final release rule
+No merge from #44 until the current combined-head `MERGE_SAFE` aggregator and Coordination Contracts both pass after the latest canonical-document reconciliation, the PR is mergeable, review threads are empty and the final diff contains no unexplained destructive change.
