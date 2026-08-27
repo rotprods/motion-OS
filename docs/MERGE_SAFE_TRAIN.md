@@ -10,13 +10,21 @@ Keep `main` continuously releasable without paying GitHub Actions to repeat work
 4. **Merge queue / merge-group is the final train.** A merge-group run forces Python 3.11 compatibility plus analysis, Remotion and dependency security regardless of path classification.
 5. Existing legacy workflows remain manual/scheduled escape hatches and must not be configured as required PR checks after `MERGE_SAFE` is active.
 
-## Local commands
-After one-time environment setup:
+## One-time local bootstrap
 
 ```bash
 python -m pip install -e '.[dev,analysis]'
+pip install pip-audit
 cd runtime/remotion && npm install --no-audit --no-fund && cd ../..
+python scripts/install_git_hooks.py
+```
 
+The installer configures `core.hooksPath=.githooks`. The tracked `pre-push` hook runs `quick` on every push and automatically escalates to analysis, Remotion or dependency security when the changed paths require them. This is the preferred default: agents should not need to remember which test suite to run manually.
+
+## Local commands
+The hook is authoritative for normal push-time local checks; these commands remain available for explicit execution:
+
+```bash
 # Most changes
 python scripts/local_verify.py quick
 
@@ -27,24 +35,24 @@ python scripts/local_verify.py analysis
 python scripts/local_verify.py remotion
 
 # Dependency/security changes
-pip install pip-audit
 python scripts/local_verify.py security
 
 # Before marking a risky PR ready
 python scripts/local_verify.py merge
 ```
 
-`merge` deliberately exercises all locally available gates. If `pip-audit` is not installed it warns rather than fabricating a pass; install it before a security-sensitive PR is marked ready.
+`merge` deliberately exercises all locally available gates. If `pip-audit` is not installed it warns rather than fabricating a pass; the pre-push hook is stricter and blocks dependency/security-sensitive pushes until `pip-audit` exists.
 
 ## Cost policy
 - Do not use cloud CI as an interactive debugger.
-- Push only after the relevant local profile passes.
-- `cancel-in-progress: true` cancels obsolete runs after a new commit.
+- Push only after the relevant local profile passes; install the pre-push hook in every working checkout/agent workspace.
+- `cancel-in-progress: true` cancels obsolete cloud runs after a new commit.
 - Python 3.11 compatibility is deferred to the merge train instead of every PR commit.
 - Physical analysis runs only for extraction/normalization/media dependency changes, except merge train where it is mandatory.
 - Physical Remotion rendering runs only for runtime/compiler changes, except merge train where it is mandatory.
 - Dependency audit runs on relevant dependency/workflow changes, at merge train, and weekly scheduled baseline.
 - Runtime evidence artifacts retain 7 days in PR CI; manual proof retains 14 days.
+- Legacy `CI`, `Repo Health`, `Runtime Smoke` and `Remotion Runtime` workflows are manual-only after consolidation; they exist for diagnostics, not every commit.
 
 ## Merge train protocol
 Repository settings should require **only** the `Merge Safe / MERGE_SAFE` status for `main` and enable GitHub Merge Queue if the plan supports it.
@@ -52,9 +60,9 @@ Repository settings should require **only** the `Merge Safe / MERGE_SAFE` status
 Train lifecycle:
 
 ```text
-agent local tests PASS
+pre-push local hook PASS
   -> PR
-  -> MERGE_SAFE selective PR proof
+  -> MERGE_SAFE selective clean-runner proof
   -> code/security review
   -> Ready
   -> merge queue
