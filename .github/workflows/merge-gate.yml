@@ -37,24 +37,11 @@ jobs:
             changed="$(git ls-files)"
           fi
           printf '%s\n' "$changed"
-          analysis=false
-          remotion=false
-          security=false
-          full=false
-          if grep -Eq '^(src/extraction/|src/normalization/|tests/test_real_|tests/test_style_signature_vector.py|scripts/analyze_video.py|pyproject.toml)' <<<"$changed"; then analysis=true; fi
-          if grep -Eq '^(runtime/remotion/|src/compilers/remotion|scripts/(build_remotion_runtime_fixture|verify_remotion_render).py|tests/test_remotion_runtime_contract.py|\.github/workflows/remotion-runtime.yml)' <<<"$changed"; then remotion=true; fi
-          if grep -Eq '^(pyproject.toml|requirements|uv\.lock|poetry\.lock|runtime/remotion/package(-lock)?\.json|SECURITY.md|\.github/workflows/)' <<<"$changed"; then security=true; fi
-          if grep -Eq '^(\.github/workflows/merge-gate.yml|scripts/local_verify.py|scripts/agent_event.py|schemas/agent_event.schema.json|\.githooks/pre-push|scripts/install_git_hooks.py|docs/MERGE_SAFE_TRAIN.md|AGENTS.md)' <<<"$changed"; then full=true; fi
-          if [[ "${{ github.event_name }}" == "merge_group" || "${{ github.event_name }}" == "workflow_dispatch" || "$full" == "true" ]]; then
-            analysis=true
-            remotion=true
-            security=true
-            full=true
+          force=()
+          if [[ "${{ github.event_name }}" == "merge_group" || "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            force=(--force-full)
           fi
-          echo "analysis=$analysis" >> "$GITHUB_OUTPUT"
-          echo "remotion=$remotion" >> "$GITHUB_OUTPUT"
-          echo "security=$security" >> "$GITHUB_OUTPUT"
-          echo "full=$full" >> "$GITHUB_OUTPUT"
+          printf '%s\n' "$changed" | python scripts/change_impact.py "${force[@]}" --github-output "$GITHUB_OUTPUT"
 
   quick:
     name: Local contract / Python 3.12
