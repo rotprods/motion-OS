@@ -1,0 +1,104 @@
+import json
+import subprocess
+import sys
+
+
+def test_bootstrap_snapshot_validates_from_cli():
+    result = subprocess.run(
+        [sys.executable, "scripts/coordination_cli.py", "snapshot-validate", "coordination/bootstrap_snapshot.json"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    payload = json.loads(result.stdout)
+    assert payload["valid"] is True
+    assert len(payload["snapshot_sha256"]) == 64
+
+
+def test_context_compile_cli_emits_verified_pack(tmp_path):
+    output = tmp_path / "context.json"
+    result = subprocess.run(
+        [
+            sys.executable,
+            "scripts/coordination_cli.py",
+            "context-compile",
+            "coordination/bootstrap_snapshot.json",
+            "--agent-id", "motion://agent/test",
+            "--session-id", "motion://session/test",
+            "--goal", "continue without collisions",
+            "--allow", "contract:coordination-event",
+            "--forbid", "contract:avatar-handoff",
+            "--output", str(output),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    payload = json.loads(output.read_text(encoding="utf-8"))
+    assert payload["agent_id"] == "motion://agent/test"
+    assert payload["allowed_write_scopes"] == ["contract:coordination-event"]
+    assert payload["forbidden_write_scopes"] == ["contract:avatar-handoff"]
+    assert len(payload["seal_sha256"]) == 64
+
+
+def test_live_context_compile_cli_reconciles_pr_lifecycle(tmp_path):
+    lifecycle = tmp_path / "lifecycle.json"
+    lifecycle.write_text(json.dumps({
+        "repository": "rotprods/motion-OS",
+        "main_sha": "e77b2aaf01e0c439306aa3374f8c8df6fea0afed",
+        "supersessions": {"34": 42, "35": 38},
+        "prs": [
+            {"number": 34, "head": "feat/remotion-runtime-proof", "head_sha": "1" * 40, "base": "main", "state": "closed", "merged": False},
+            {"number": 37, "head": "feat/avatar-script-engine", "head_sha": "2" * 40, "base": "main", "state": "open", "draft": True},
+            {"number": 42, "head": "fix/remotion-runtime-proof-v2", "head_sha": "3" * 40, "base": "main", "state": "closed", "merged": True},
+            {"number": 44, "head": "feat/agentic-coordination-kernel", "head_sha": "4" * 40, "base": "main", "state": "open", "draft": True},
+        ],
+    }), encoding="utf-8")
+    output = tmp_path / "live-context.json"
+    result = subprocess.run(
+        [
+            sys.executable,
+            "scripts/coordination_cli.py",
+            "live-context-compile",
+            "coordination/bootstrap_snapshot.json",
+            str(lifecycle),
+            "--agent-id", "motion://agent/test",
+            "--session-id", "motion://session/live-test",
+            "--goal", "reconstruct current truth",
+            "--generated-at", "2026-08-27T12:00:00Z",
+            "--event-watermark", "7",
+            "--allow", "phase:07/agentic-coordination",
+            "--output", str(output),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    payload = json.loads(output.read_text(encoding="utf-8"))
+    assert [pr["number"] for pr in payload["active_prs"]] == [37, 44]
+    assert payload["main_sha"] == "e77b2aaf01e0c439306aa3374f8c8df6fea0afed"
+    assert payload["expected_revisions"]["event:watermark"] == 7
+    assert len(payload["seal_sha256"]) == 64
+
+
+def test_message_cli_fails_closed_on_unknown_kind():
+    result = subprocess.run(
+        [
+            sys.executable,
+            "scripts/coordination_cli.py",
+            "message",
+            "--kind", "MAGIC_SUCCESS",
+            "--agent-id", "motion://agent/test",
+            "--session-id", "motion://session/test",
+            "--correlation-id", "work-1",
+            "--summary", "should fail",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 2
+    assert "unsupported coordination message kind" in result.stderr

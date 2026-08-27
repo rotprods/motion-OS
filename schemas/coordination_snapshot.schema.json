@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://motion.os/schemas/coordination_snapshot.schema.json",
+  "title": "MOTION.OS Portable Coordination Snapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version","project_id","captured_at","main_sha","active_prs","active_agents","contracts","checkpoints","source_refs"],
+  "properties": {
+    "schema_version":{"type":"integer","minimum":1},
+    "project_id":{"type":"string","pattern":"^motion://project/"},
+    "captured_at":{"type":"string","format":"date-time"},
+    "main_sha":{"type":"string","minLength":7},
+    "release_status":{"type":["string","null"]},
+    "release_gates":{"type":"array","items":{"type":"string"}},
+    "active_prs":{"type":"array","items":{"type":"object","required":["number","branch","state"],"properties":{"number":{"type":"integer"},"branch":{"type":"string"},"state":{"type":"string"},"title":{"type":["string","null"]},"head_sha":{"type":["string","null"]},"owned_scopes":{"type":"array","items":{"type":"string"}},"shared_contracts":{"type":"array","items":{"type":"string"}}}}},
+    "active_agents":{"type":"array","items":{"type":"object"}},
+    "active_leases":{"type":"array","items":{"type":"object"}},
+    "tasks":{"type":"array","items":{"type":"object"}},
+    "decisions":{"type":"array","items":{"type":"object"}},
+    "contracts":{"type":"array","items":{"type":"object","required":["uri","revision"],"properties":{"uri":{"type":"string"},"revision":{"type":["string","integer"]},"owner":{"type":["string","null"]},"consumers":{"type":"array","items":{"type":"string"}}}}},
+    "conflicts":{"type":"array","items":{"type":"object"}},
+    "checkpoints":{"type":"array","items":{"type":"object"}},
+    "drive_refs":{"type":"array","items":{"type":"object"}},
+    "projection":{"type":["object","null"],"properties":{"version":{"type":"integer","minimum":1},"hash":{"type":"string","pattern":"^[a-fA-F0-9]{64}$"},"built_at":{"type":"string","format":"date-time"}}},
+    "source_refs":{"type":"array","items":{"type":"object","required":["uri","revision","sha256"],"properties":{"uri":{"type":"string"},"revision":{"type":"string"},"sha256":{"type":"string","pattern":"^[a-fA-F0-9]{64}$"},"sensitivity":{"type":"string"}}}}
+  }
+}

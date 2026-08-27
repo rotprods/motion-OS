@@ -26,3 +26,13 @@ Rules:
 16. GENERATE and RECONSTRUCT_EXACT are separate optimizers. Never use creative-quality scores as frame-fidelity scores.
 17. Measurable video facts must come from deterministic/low-level extraction when available; the LLM normalizes and classifies them rather than inventing them.
 18. Master motion rule: nothing moves without a function. Every movement must direct attention, communicate information, generate emotion, or connect states. Otherwise remove it.
+
+## Cross-agent / cross-session constitution
+19. Before any authoritative mutation, read `coordination/AGENT_PROTOCOL.md` and `coordination/ACTIVE_AGENTS.yaml`, then inspect the current Coordination Bus/checkpoint and relevant immutable `state/agent_events/`. Chat context alone is never sufficient shared state.
+20. Every concurrent agent must have canonical `agent_id` + `session_id`, declare intended write scopes and record the ContextPack/projection revision it is working from.
+21. Never silently write through an overlapping active WRITE/EXCLUSIVE_WRITE claim. Split scope, hand off, or resolve the conflict first. Branch names are not ownership locks.
+22. Shared contracts (schemas, manifests, entrypoints, provenance/replay identities, renderer interfaces) require an explicit contract claim and dependency-impact check before breaking changes.
+23. Postgres/Supabase durable state and event log are an optional future multi-host coordination authority. SQLite remains valid for single-host operational state but MUST NOT be promoted to multi-host authority without executed distributed qualification.
+24. COS Graph Engine is a deterministic derived projection/query/reasoning plane. It must be rebuildable from authoritative event/state history and must not become a hidden second source of truth.
+25. State mutation + event publication must converge on transactional-outbox semantics when a durable multi-host backend is promoted; consumers must be idempotent and recover from durable offsets. Websocket/realtime delivery is notification, not truth.
+26. Session end, blocker, contract change, PR-ready state and ownership transfer require a structured CHECKPOINT plus the canonical immutable agent-event lifecycle where applicable. A future agent must be able to resume without this conversation.

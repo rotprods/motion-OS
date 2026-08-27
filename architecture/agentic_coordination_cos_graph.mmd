@@ -1,0 +1,56 @@
+flowchart TD
+  A1[Agent / Session A] --> K[Durable Coordination Kernel]
+  A2[Agent / Session B] --> K
+  A3[Agent / Session C] --> K
+
+  K --> EL[Append-only Event Log]
+  K --> LS[Leases + Fencing]
+  K --> CAS[Revision CAS]
+  K --> CP[ContextPack Compiler]
+  K --> OB[Transactional Outbox]
+  OB --> RT[Realtime / NOTIFY Wake-up]
+  EL --> OFF[Consumer Offsets / Inbox]
+
+  GH[GitHub Executable Truth] --> K
+  DR[Drive Artifacts / Recovery] --> K
+  SQ[SQLite Single-host Operational State] --> K
+
+  EL --> PRJ[Projection Compiler]
+  GH --> PRJ
+  DR --> PRJ
+  PRJ --> COS[COS Graph Engine Projection]
+
+  COS --> TG[Task / Dependency Graph]
+  COS --> AG[Agent / Session Graph]
+  COS --> PG[PR / File / Contract Graph]
+  COS --> EG[Evidence / Artifact Graph]
+  COS --> CG[Causal Event Graph]
+  COS --> RG[Risk / Conflict Graph]
+
+  TG --> CP
+  AG --> CP
+  PG --> CP
+  EG --> CP
+  CG --> CP
+  RG --> CP
+
+  CP --> A1
+  CP --> A2
+  CP --> A3
+
+  K --> C{Collision / Stale?}
+  C -- yes --> F[Fail Closed / Conflict Resolution]
+  C -- no --> W[Authorized Work]
+  W --> GH
+  W --> DR
+  W --> EL
+
+  subgraph ACTIVE_WORKSTREAMS
+    P34[PR #34 Remotion Runtime]
+    P35[PR #35 Studio Engine]
+    P37[PR #37 Content + Avatar]
+  end
+
+  P34 --> PG
+  P35 --> PG
+  P37 --> PG
