@@ -6,8 +6,9 @@ from src.coordination.session_fabric import (
     deduplicate_surface_events, reconcile_github_lifecycle,
 )
 
-def _hash(text: str) -> str:
-    return hashlib.sha256(text.encode()).hexdigest()
+def _hash_mapping(value: dict) -> str:
+    import json
+    return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 def ident() -> SessionIdentity:
     return SessionIdentity(
@@ -25,16 +26,19 @@ def evt(event_id: str, **extra):
     return out
 
 def test_same_logical_fact_across_surfaces_deduplicates():
-    h = _hash("same")
-    rows = [SurfaceEvent(s, "logical-1", h, {"x": 1}) for s in Surface]
+    rows = [SurfaceEvent.create(s, "logical-1", {"x": 1}) for s in Surface]
     assert len(deduplicate_surface_events(rows)) == 1
 
 def test_conflicting_surface_duplicate_fails_closed():
     with pytest.raises(EventSurfaceConflict):
         deduplicate_surface_events([
-            SurfaceEvent(Surface.GITHUB_BOOTSTRAP, "logical-1", _hash("a"), {"x": 1}),
-            SurfaceEvent(Surface.RUNTIME_EVENTSTORE, "logical-1", _hash("b"), {"x": 2}),
+            SurfaceEvent.create(Surface.GITHUB_BOOTSTRAP, "logical-1", {"x": 1}),
+            SurfaceEvent.create(Surface.RUNTIME_EVENTSTORE, "logical-1", {"x": 2}),
         ])
+
+def test_surface_event_rejects_forged_payload_hash():
+    with pytest.raises(ValueError, match="does not match"):
+        SurfaceEvent(Surface.REPO_EVENT, "logical-1", "0" * 64, {"x": 1})
 
 def test_live_github_supersedes_stale_projection():
     result = reconcile_github_lifecycle({"pr:37": "OPEN", "pr:44": "OPEN_DRAFT"},
@@ -59,10 +63,13 @@ def test_session_graph_is_deterministic():
     assert any(n.node_id == ident().session_id and n.node_type == "Session" for n in a.nodes)
     assert any(e.relation == "EVENT_CAUSED_BY" for e in a.edges)
 
-def test_cross_session_event_is_rejected():
-    bad = evt("e1", session_id="motion://session/other")
+def test_cross_session_and_cross_correlation_events_are_rejected():
     with pytest.raises(ValueError, match="cross-session"):
-        SessionGraphCompiler().compile(identity=ident(), live_main_sha="080dfd5", event_watermark=1, events=[bad])
+        SessionGraphCompiler().compile(identity=ident(), live_main_sha="080dfd5", event_watermark=1,
+                                       events=[evt("e1", session_id="motion://session/other")])
+    with pytest.raises(ValueError, match="cross-correlation"):
+        SessionGraphCompiler().compile(identity=ident(), live_main_sha="080dfd5", event_watermark=1,
+                                       events=[evt("e1", correlation_id="corr-other")])
 
 def test_duplicate_event_id_and_parent_ids_are_rejected():
     with pytest.raises(ValueError, match="duplicate event_id"):
