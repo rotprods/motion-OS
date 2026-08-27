@@ -37,6 +37,9 @@ def _authority_from_manifest(manifest: Mapping[str, Any]) -> StudioExecutionCont
         raise StudioExecutionRejected("manifest provenance_chain missing")
     if not isinstance(integrity, Mapping):
         raise StudioExecutionRejected("manifest integrity block missing")
+    sealed_fields = integrity.get("sealed_fields")
+    if not isinstance(sealed_fields, list) or "provenance_chain" not in sealed_fields:
+        raise StudioExecutionRejected("provenance_chain is not covered by manifest seal")
     if not isinstance(beats, list) or not beats:
         raise StudioExecutionRejected("manifest semantic_beats missing")
 
