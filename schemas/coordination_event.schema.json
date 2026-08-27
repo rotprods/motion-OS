@@ -1,27 +1,33 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://motion.os/schemas/coordination_event.schema.json",
-  "title": "MOTION.OS Coordination Event",
+  "title": "MOTION.OS CoordinationEvent v1",
   "type": "object",
   "additionalProperties": false,
   "required": [
     "event_id", "schema_version", "event_type", "aggregate_type", "aggregate_id",
-    "project_id", "agent_id", "session_id", "occurred_at", "recorded_at",
-    "correlation_id", "payload", "provenance_hash"
+    "aggregate_revision", "project_id", "agent_id", "session_id", "correlation_id",
+    "idempotency_key", "occurred_at", "recorded_at", "payload", "provenance",
+    "payload_hash", "provenance_hash"
   ],
   "properties": {
     "event_id": {"type": "string", "format": "uuid"},
-    "schema_version": {"type": "integer", "minimum": 1},
-    "event_type": {"type": "string", "minLength": 3},
+    "schema_version": {"const": "1.0.0"},
+    "event_type": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]+$"},
     "aggregate_type": {"type": "string", "minLength": 1},
     "aggregate_id": {"type": "string", "minLength": 1},
+    "aggregate_revision": {"type": "integer", "minimum": 1},
+    "expected_revision": {"type": ["integer", "null"], "minimum": 0},
     "project_id": {"type": "string", "pattern": "^motion://project/"},
     "run_id": {"type": ["string", "null"]},
     "session_id": {"type": "string", "pattern": "^motion://session/"},
     "agent_id": {"type": "string", "pattern": "^motion://agent/"},
+    "workstream_id": {"type": ["string", "null"], "pattern": "^motion://workstream/"},
     "causation_id": {"type": ["string", "null"]},
+    "parent_event_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
     "correlation_id": {"type": "string", "minLength": 1},
-    "expected_revision": {"type": ["integer", "string", "null"]},
+    "idempotency_key": {"type": "string", "minLength": 1, "maxLength": 256},
+    "resource_scope": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
     "occurred_at": {"type": "string", "format": "date-time"},
     "recorded_at": {"type": "string", "format": "date-time"},
     "git": {
@@ -30,13 +36,30 @@
       "properties": {
         "repository": {"type": "string"},
         "branch": {"type": ["string", "null"]},
+        "base_sha": {"type": ["string", "null"]},
         "sha": {"type": ["string", "null"]},
-        "pr_number": {"type": ["integer", "null"]}
+        "pr_number": {"type": ["integer", "null"], "minimum": 1}
       }
     },
     "payload": {"type": "object"},
-    "evidence_refs": {"type": "array", "items": {"type": "string"}},
-    "provenance_hash": {"type": "string", "pattern": "^[a-fA-F0-9]{64}$"},
+    "payload_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "provenance": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["source_type", "source_id", "revision", "sha256"],
+        "properties": {
+          "source_type": {"type": "string", "minLength": 1},
+          "source_id": {"type": "string", "minLength": 1},
+          "revision": {"type": ["string", "null"]},
+          "sha256": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"}
+        }
+      }
+    },
+    "evidence_refs": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "provenance_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
     "sensitivity": {"enum": ["PUBLIC", "INTERNAL", "CONFIDENTIAL", "RESTRICTED"]}
   }
 }
