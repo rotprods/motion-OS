@@ -54,11 +54,18 @@ def reconciliation_report(canonical: ReplicaDigest, replicas: list[ReplicaDigest
         if state in {ReplicaStatus.STALE_REPLICA.value, ReplicaStatus.MISSING.value}
     ]
     conflicts = [name for name, state in states.items() if state == ReplicaStatus.CONFLICT.value]
+
+    # A stale/missing replica is only "safe" to consider for an explicitly authorized
+    # refresh when the reconciliation set contains no conflicting newer/divergent claim.
+    # The report itself remains advisory and never performs a write.
+    safe_to_refresh = [] if conflicts else list(refresh_candidates)
+
     return {
         "canonical": canonical.to_dict(),
         "replicas": [r.to_dict() for r in replicas],
         "states": states,
         "refresh_candidates": refresh_candidates,
+        "safe_to_refresh": safe_to_refresh,
         "conflicts": conflicts,
         # Reconciliation is evidence/advice only. A caller must explicitly authorize
         # any Drive/Library/GitHub mutation after reviewing the report.
