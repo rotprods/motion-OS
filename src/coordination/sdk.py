@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterable, Mapping, Protocol
+from typing import Iterable, Mapping
 
 from .conflicts import ConflictClass, ConflictFinding, classify_conflict
 from .event_store import CoordinationEventStore
@@ -107,6 +107,7 @@ class AgentCoordinationSDK:
         if stored_command.duplicate:
             raise RuntimeError("claim command replay requires outcome reconciliation before retry")
 
+        lease: Lease | None = None
         try:
             lease = self._leases.acquire(
                 resource_uri=resource_uri,
@@ -142,6 +143,15 @@ class AgentCoordinationSDK:
             )
             self._events.append(outcome)
         except Exception as exc:
+            compensation = "NOT_REQUIRED"
+            if lease is not None:
+                try:
+                    self._leases.release(lease.lease_id, lease.fencing_token)
+                    compensation = "LEASE_RELEASED"
+                except Exception:
+                    # Do not hide a failed compensation. Recovery must reconcile
+                    # the lease authority before any retry.
+                    compensation = "LEASE_RELEASE_FAILED_RECONCILE_REQUIRED"
             current = self._events.aggregate_revision(aggregate_type, aggregate_id)
             failure = CoordinationEvent(
                 event_type="WORK_CLAIM_FAILED",
@@ -158,12 +168,17 @@ class AgentCoordinationSDK:
                 parent_event_ids=(command.event_id,),
                 idempotency_key=f"{idempotency_key}:failed",
                 resource_scope=(resource_uri,),
-                payload={"resource_uri": resource_uri, "error_type": type(exc).__name__},
+                payload={
+                    "resource_uri": resource_uri,
+                    "error_type": type(exc).__name__,
+                    "compensation": compensation,
+                },
                 provenance=refs,
             )
             self._events.append(failure)
             raise
 
+        assert lease is not None
         return ClaimResult(lease=lease, command_event_id=command.event_id, outcome_event_id=outcome.event_id)
 
     def checkpoint(
