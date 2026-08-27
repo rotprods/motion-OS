@@ -8,6 +8,7 @@ promotion stage, not a requirement for local/reference verification.
 from .bus import CoordinationBus, InMemoryReferenceBus
 from .conflicts import ConflictClass, ConflictFinding, classify_conflict
 from .context import ContextPack, ContextPackCompiler, ContextSourceRef
+from .cos_adapter import COS_BASELINE_COMMIT, CosProjectionBundle, CosShadowAdapter
 from .event_semantics import EventRole, event_role, outcome_satisfies_command
 from .event_store import (
     CoordinationEventStore,
@@ -30,12 +31,14 @@ from .leases import (
     resources_overlap,
 )
 from .live_context import LiveContextCompiler
+from .planning import PlanningGraph, PlanningTask, TaskState
 from .postgres_store import PostgresCoordinationStore
 from .projection import CoordinationGraphProjector, CosProjectionSink, ProjectionSnapshot
 from .snapshot import CoordinationSnapshot
 
 __all__ = [
     "AggregateRevisionConflict",
+    "COS_BASELINE_COMMIT",
     "ConflictClass",
     "ConflictFinding",
     "ContextPack",
@@ -46,7 +49,9 @@ __all__ = [
     "CoordinationEventStore",
     "CoordinationGraphProjector",
     "CoordinationSnapshot",
+    "CosProjectionBundle",
     "CosProjectionSink",
+    "CosShadowAdapter",
     "EventRole",
     "GitHubLifecycleSnapshot",
     "IdempotencyConflict",
@@ -57,6 +62,8 @@ __all__ = [
     "LeaseConflict",
     "LiveContextCompiler",
     "PRLifecycle",
+    "PlanningGraph",
+    "PlanningTask",
     "PostgresCoordinationStore",
     "ProjectionSnapshot",
     "ProvenanceRef",
@@ -68,6 +75,7 @@ __all__ = [
     "StateSnapshot",
     "StoredEvent",
     "StaleFencingToken",
+    "TaskState",
     "canonical_event_hash",
     "classify_conflict",
     "event_role",
