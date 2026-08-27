@@ -34,6 +34,18 @@ def test_append_advances_aggregate_revision_monotonically():
     assert first.sequence_id == 1
     assert second.sequence_id == 2
     assert store.aggregate_revision("task", "motion://task/t-1") == 2
+    assert store.watermark() == 2
+
+
+def test_snapshot_is_deterministic_and_self_verified():
+    store = InMemoryReferenceEventStore()
+    store.append(make_event())
+    store.append(make_event(revision=2, expected=1, idem="idem-2", event_type="TASK_CHECKPOINTED"))
+    a = store.snapshot()
+    b = store.snapshot()
+    assert a == b
+    assert a.event_watermark == 2
+    assert a.verify()
 
 
 def test_stale_expected_revision_fails_closed():
