@@ -17,6 +17,21 @@ def _iso(dt: datetime) -> str:
     return dt.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
+def _mapping_order(item: Mapping[str, Any], *preferred_keys: str) -> tuple[Any, ...]:
+    """Stable semantic ordering with canonical JSON as final tie-breaker."""
+    preferred: list[Any] = []
+    for key in preferred_keys:
+        value = item.get(key)
+        if isinstance(value, int):
+            preferred.append((0, value))
+        elif value is None:
+            preferred.append((2, ""))
+        else:
+            preferred.append((1, str(value)))
+    preferred.append((3, _canonical_json(item)))
+    return tuple(preferred)
+
+
 @dataclass(frozen=True, slots=True)
 class ContextSourceRef:
     uri: str
@@ -130,13 +145,13 @@ class ContextPackCompiler:
             projection_hash=projection_hash,
             goal_summary=goal_summary,
             release_gates=tuple(sorted(set(release_gates))),
-            active_prs=tuple(sorted((dict(x) for x in active_prs), key=lambda x: _canonical_json(x))),
-            active_agents=tuple(sorted((dict(x) for x in active_agents), key=lambda x: _canonical_json(x))),
-            active_leases=tuple(sorted((dict(x) for x in active_leases), key=lambda x: _canonical_json(x))),
-            dependency_neighborhood=tuple(sorted((dict(x) for x in dependency_neighborhood), key=lambda x: _canonical_json(x))),
-            relevant_decisions=tuple(sorted((dict(x) for x in relevant_decisions), key=lambda x: _canonical_json(x))),
-            relevant_contracts=tuple(sorted((dict(x) for x in relevant_contracts), key=lambda x: _canonical_json(x))),
-            unresolved_conflicts=tuple(sorted((dict(x) for x in unresolved_conflicts), key=lambda x: _canonical_json(x))),
+            active_prs=tuple(sorted((dict(x) for x in active_prs), key=lambda x: _mapping_order(x, "number"))),
+            active_agents=tuple(sorted((dict(x) for x in active_agents), key=lambda x: _mapping_order(x, "agent_id"))),
+            active_leases=tuple(sorted((dict(x) for x in active_leases), key=lambda x: _mapping_order(x, "resource_uri", "lease_id"))),
+            dependency_neighborhood=tuple(sorted((dict(x) for x in dependency_neighborhood), key=lambda x: _mapping_order(x, "task_id", "id"))),
+            relevant_decisions=tuple(sorted((dict(x) for x in relevant_decisions), key=lambda x: _mapping_order(x, "decision_id", "id"))),
+            relevant_contracts=tuple(sorted((dict(x) for x in relevant_contracts), key=lambda x: _mapping_order(x, "uri"))),
+            unresolved_conflicts=tuple(sorted((dict(x) for x in unresolved_conflicts), key=lambda x: _mapping_order(x, "conflict_id", "id"))),
             checkpoint_refs=tuple(sorted(set(checkpoint_refs))),
             allowed_write_scopes=tuple(sorted(set(allowed_write_scopes))),
             forbidden_write_scopes=tuple(sorted(set(forbidden_write_scopes))),
