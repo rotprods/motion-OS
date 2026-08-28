@@ -67,6 +67,11 @@ def extract_protected_tokens(text: str) -> list[ProtectedToken]:
     return [x[2] for x in accepted]
 
 
+def _numeric_lexeme(text: str) -> str | None:
+    match = re.search(r"\d[\d.,]*", text)
+    return match.group(0) if match else None
+
+
 def _numeric_value(text: str) -> Decimal | None:
     digit_match = re.search(r"\d+(?:[.,]\d+)?", text)
     if digit_match:
@@ -80,6 +85,30 @@ def _numeric_value(text: str) -> Decimal | None:
         if re.search(rf"(?<!\w){re.escape(word)}(?!\w)", normalized):
             return Decimal(value)
     return None
+
+
+def _currency_numeric_signature(text: str) -> object | None:
+    """Return a conservative value signature for currency claims.
+
+    A single separator followed by exactly three digits is locale-ambiguous
+    (for example, ``1,000`` can be a grouped integer or a decimal depending on
+    locale).  Treat that spelling as an explicit lexeme instead of collapsing
+    it to Decimal(1), which previously let ``$1,000`` be satisfied by ``$1``.
+    Ambiguous formatting therefore requires equivalent formatting until a
+    locale-aware normalization policy is explicitly qualified.
+    """
+    lexeme = _numeric_lexeme(text)
+    if lexeme is None:
+        return _numeric_value(text)
+    separators = [char for char in lexeme if char in ".,"]
+    if len(separators) == 1:
+        separator = separators[0]
+        left, right = lexeme.split(separator, 1)
+        if len(right) == 3:
+            return ("AMBIGUOUS_GROUP_OR_DECIMAL", left.lstrip("0") or "0", separator, right)
+    if len(separators) > 1:
+        return ("FORMATTED_NUMERIC", lexeme)
+    return _numeric_value(text)
 
 
 def _currency_family(text: str) -> str | None:
@@ -110,7 +139,7 @@ def _semantic_signature(token: ProtectedToken) -> object | None:
     if token.kind == "PERCENT":
         return _numeric_value(token.original)
     if token.kind == "CURRENCY":
-        return (_numeric_value(token.original), _currency_family(token.original))
+        return (_currency_numeric_signature(token.original), _currency_family(token.original))
     if token.kind == "DATE_OR_YEAR":
         match = re.search(r"\b(?:19|20)\d{2}\b", token.original)
         return int(match.group(0)) if match else None
