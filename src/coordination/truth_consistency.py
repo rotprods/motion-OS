@@ -4,12 +4,22 @@ from dataclasses import dataclass
 from typing import Any, Iterable, Mapping
 
 
+TruthScalar = str | int | bool | None
+
+
 @dataclass(frozen=True, slots=True)
 class TruthClaim:
     surface: str
     key: str
-    value: str
+    value: TruthScalar
     current: bool = True
+
+    def __post_init__(self) -> None:
+        if not self.surface or not self.key:
+            raise ValueError("truth claim surface/key required")
+        if not isinstance(self.current, bool):
+            raise ValueError("truth claim current must be boolean")
+        _normalized(self.value)
 
 
 @dataclass(frozen=True, slots=True)
@@ -35,7 +45,11 @@ def _normalized(value: Any) -> str:
         return "null"
     if isinstance(value, bool):
         return "true" if value else "false"
-    return str(value).strip()
+    if isinstance(value, int) and not isinstance(value, bool):
+        return str(value)
+    if isinstance(value, str):
+        return value.strip()
+    raise ValueError("truth values must be scalar string/int/bool/null")
 
 
 def compile_truth_consistency(
@@ -52,7 +66,7 @@ def compile_truth_consistency(
     """
     authoritative: dict[str, str] = {}
     for key, value in live_github.items():
-        if not key.startswith(LIVE_PREFIXES):
+        if not isinstance(key, str) or not key.startswith(LIVE_PREFIXES):
             raise ValueError(f"unsupported live truth key: {key}")
         authoritative[key] = _normalized(value)
 
