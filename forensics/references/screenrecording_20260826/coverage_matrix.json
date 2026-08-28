@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0.0",
+  "video_id": "screenrecording_2026-08-26_173251",
+  "source_sha256": "9b3076cb542e358386942a0fb6b160f1345564d4326738f9a340e2b5b38e199d",
+  "definition": "100% means every observable high-salience scene/action and measured P90 change/motion peak is represented by a replicable action or explicit source-lock/unknown; it does NOT mean recovering hidden original AE project internals.",
+  "observable_action_count": 98,
+  "scene_count": 18,
+  "scene_coverage": 1.0,
+  "measured_peak_coverage": {
+    "mad_p90": 1.0,
+    "flow_p90": 1.0,
+    "mad_peak_frames": [2,64,107,117,122,145,219,224,240,244,249,254,272,329,383,535,540,548,573,578,610,615,621,655,727,819,830],
+    "flow_peak_frames": [2,36,41,64,117,124,145,159,207,212,216,224,235,242,249,272,330,383,535,548,571,578,607,613,655,727,759,779,819]
+  },
+  "closed_observable_domains": [
+    "source_timing","scene_segmentation","caption_structure","kinetic_typography","subject_object_layers","depth_occlusion","camera_reframe","transitions","fx_visible_behavior","audio_visual_sync","retention_stimuli","source_lock_boundary"
+  ],
+  "closed_spec_domains": ["after_effects_mapping","remotion_mapping","hyperframes_mapping"],
+  "unknown_source_internals": ["original_font_files","original_effect_plugin_identity","original_hidden_masks_mattes","original_audio_stems","physical_camera_intrinsics"],
+  "closure": {
+    "observable_action_coverage": 1.0,
+    "claim": "100% of currently observable high-salience replicable action classes and measured P90 change/motion peaks are represented or explicitly source-locked/unknown.",
+    "does_not_claim": "recovery of hidden original project internals",
+    "next_required_gate": "physical golden-scene reconstruction + frame-level visual/motion/audio diff"
+  }
+}
