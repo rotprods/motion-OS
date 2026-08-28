@@ -23,6 +23,19 @@ def test_currency_digits_elsewhere_do_not_satisfy_currency_contract():
     assert any("CURRENCY" in error for error in errors)
 
 
+def test_grouped_currency_cannot_collapse_to_prefix_value():
+    assert tts_integrity_errors("Cuesta $1,000.", "Cuesta $1,000.") == []
+    assert any("CURRENCY" in error for error in tts_integrity_errors("Cuesta $1,000.", "Cuesta $1."))
+    assert any("CURRENCY" in error for error in tts_integrity_errors("Cuesta €1.000.", "Cuesta €1."))
+
+
+def test_ambiguous_currency_separator_is_not_silently_reinterpreted():
+    # Until a locale-aware policy is explicitly qualified, these spellings are
+    # intentionally distinct rather than guessed to be equivalent.
+    errors = tts_integrity_errors("Cuesta $1,000.", "Cuesta $1.000.")
+    assert any("CURRENCY" in error for error in errors)
+
+
 def test_decimal_preserves_decimal_value_not_digit_concatenation():
     assert tts_integrity_errors("La ratio es 1.5.", "La ratio es 1,5.") == []
     errors = tts_integrity_errors("La ratio es 1.5.", "La ratio es 15.")
