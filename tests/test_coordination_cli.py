@@ -124,6 +124,31 @@ def test_truth_check_cli_reports_stale_current_surface(tmp_path):
     assert payload["stale_surfaces"] == ["ACTIVE_AGENTS.yaml"]
 
 
+def test_truth_check_cli_preserves_boolean_semantics_and_rejects_string_boolean(tmp_path):
+    good = tmp_path / "truth-good.json"
+    good.write_text(json.dumps({
+        "live_github": {"ci:green": True},
+        "claims": [{"surface": "machine", "key": "ci:green", "value": True, "current": True}],
+    }), encoding="utf-8")
+    good_run = subprocess.run(
+        [sys.executable, "scripts/coordination_cli.py", "truth-check", str(good)],
+        capture_output=True, text=True, check=False,
+    )
+    assert good_run.returncode == 0, good_run.stderr
+
+    bad = tmp_path / "truth-bad.json"
+    bad.write_text(json.dumps({
+        "live_github": {"ci:green": True},
+        "claims": [{"surface": "machine", "key": "ci:green", "value": True, "current": "false"}],
+    }), encoding="utf-8")
+    bad_run = subprocess.run(
+        [sys.executable, "scripts/coordination_cli.py", "truth-check", str(bad)],
+        capture_output=True, text=True, check=False,
+    )
+    assert bad_run.returncode == 2
+    assert "current must be boolean" in bad_run.stderr
+
+
 def test_message_cli_fails_closed_on_unknown_kind():
     result = subprocess.run(
         [
