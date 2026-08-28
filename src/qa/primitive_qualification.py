@@ -62,20 +62,26 @@ class PrimitiveEvidence:
         if self.evidence_kind not in {"CONTRACT", "PHYSICAL_RENDER"}:
             raise PrimitiveQualificationError("unsupported evidence_kind")
         _require_sha(self.fixture_sha256, "fixture_sha256")
+        if not self.assertions:
+            raise PrimitiveQualificationError("evidence requires explicit assertions/findings")
         if self.evidence_kind == "PHYSICAL_RENDER":
-            if not self.artifact_sha256:
-                raise PrimitiveQualificationError("physical render evidence requires artifact_sha256")
-            _require_sha(self.artifact_sha256, "artifact_sha256")
-            if self.frame_count is None or self.frame_count <= 0 or self.fps is None or not math.isfinite(self.fps) or self.fps <= 0:
-                raise PrimitiveQualificationError("physical render evidence requires positive frame_count/fps")
-            if self.visual_duration_ms is None or self.visual_duration_ms <= 0:
-                raise PrimitiveQualificationError("physical render evidence requires visual_duration_ms")
-            expected_ms = self.frame_count / self.fps * 1000.0
-            tolerance_ms = max(1000.0 / self.fps, 1.0)
-            if abs(expected_ms - self.visual_duration_ms) > tolerance_ms:
-                raise PrimitiveQualificationError("visual duration must agree with frame_count/fps authority")
-        if self.passed and not self.assertions:
-            raise PrimitiveQualificationError("passing evidence requires explicit assertions")
+            supplied_timing = any(value is not None for value in (self.frame_count, self.fps, self.visual_duration_ms))
+            if self.passed:
+                if not self.artifact_sha256:
+                    raise PrimitiveQualificationError("passing physical render evidence requires artifact_sha256")
+                if not supplied_timing:
+                    raise PrimitiveQualificationError("passing physical render evidence requires timing evidence")
+            if self.artifact_sha256 is not None:
+                _require_sha(self.artifact_sha256, "artifact_sha256")
+            if supplied_timing:
+                if self.frame_count is None or self.frame_count <= 0 or self.fps is None or not math.isfinite(self.fps) or self.fps <= 0:
+                    raise PrimitiveQualificationError("physical timing evidence requires positive frame_count/fps")
+                if self.visual_duration_ms is None or self.visual_duration_ms <= 0:
+                    raise PrimitiveQualificationError("physical timing evidence requires visual_duration_ms")
+                expected_ms = self.frame_count / self.fps * 1000.0
+                tolerance_ms = max(1000.0 / self.fps, 1.0)
+                if abs(expected_ms - self.visual_duration_ms) > tolerance_ms:
+                    raise PrimitiveQualificationError("visual duration must agree with frame_count/fps authority")
 
     def content_hash(self) -> str:
         payload = {
@@ -156,12 +162,13 @@ class PrimitiveQualificationLedger:
         if primitive is None or renderer not in primitive.renderer_support:
             raise PrimitiveQualificationError("unknown primitive/renderer pair")
         items = [e for e in self._evidence.values() if e.primitive_id == primitive_id and e.renderer == renderer]
+        # Without explicit supersession/revision semantics, any active failing evidence must win over a pass.
+        if any(not e.passed for e in items):
+            return "QUARANTINED"
         if any(e.evidence_kind == "PHYSICAL_RENDER" and e.passed for e in items):
             return "PHYSICALLY_VERIFIED"
         if any(e.evidence_kind == "CONTRACT" and e.passed for e in items):
             return "CONTRACT_VERIFIED"
-        if any(not e.passed for e in items):
-            return "QUARANTINED"
         return "UNQUALIFIED"
 
     def primitive_state(self, primitive_id: str) -> str:
