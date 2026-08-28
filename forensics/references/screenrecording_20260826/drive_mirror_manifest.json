@@ -1,11 +1,8 @@
 {
-  "schema_version": "1.1.0",
+  "schema_version": "1.2.0",
   "video_id": "screenrecording_2026-08-26_173251",
   "source_sha256": "9b3076cb542e358386942a0fb6b160f1345564d4326738f9a340e2b5b38e199d",
-  "drive_root": {
-    "name": "MOTION.OS_CANONICAL/12_REVERSE_ENGINEERING",
-    "folder_id": "1GPUW-lWs-FvCwJmtif4bHBzrzFOu2abV"
-  },
+  "drive_root": {"name":"MOTION.OS_CANONICAL/12_REVERSE_ENGINEERING","folder_id":"1GPUW-lWs-FvCwJmtif4bHBzrzFOu2abV"},
   "specimen_drive_folder_id": "1G9vveuR71XKu-0ysNz3pAoqBJ692K8qa",
   "specimen_structure": {
     "00_SOURCE": "1sKOGLqHIuF_x3YaHm7TLpNyCWy2b_dZB",
@@ -17,26 +14,32 @@
   },
   "authority_split": {
     "github": "executable contracts, schemas, validators, local runbooks and lightweight inspectable specimen indexes",
-    "drive": "durable source/evidence, full atomic action inventories, decision/operation projections and gauntlet/reconstruction artifacts",
+    "drive": "durable source/evidence, full atomic action/subevent inventories, decision/operation projections and gauntlet/reconstruction artifacts",
     "event_bus": "cross-agent lifecycle/coordination authority",
     "typed_editing_graph": "canonical semantic/editing graph; Drive decision_operation_graph is a derived evidence projection"
   },
   "canonical_drive_files": {
-    "readme_first": "1Ej2E_9Qtdqb0OPtqkbyGgHBBWB1mtrkB",
+    "readme_first_v2": "1zEFXttC5R_L1g7wqllNKhdS9nTTpapJL",
+    "readme_first_v1_archived": "1Ej2E_9Qtdqb0OPtqkbyGgHBBWB1mtrkB",
     "canon": "1bfbeW8Dmxerr38h049OD8vlBipEpE_ta",
     "action_ontology": "1SxW8he58Cz1xWh3jsgq5CSwxVRDxYei7",
-    "template": "1o-Vpflz60AOO-pSCMfqEk3zoOQ58-NvI",
-    "gauntlet_protocol": "12UvPb8Bq1Qq4WOEiZPYKFItiy7EzvHWk",
+    "template_v2_current": "1iOJUlIZetHo2L29ecxxrKOS1pBNzmhNJ",
+    "template_v1_archived": "1o-Vpflz60AOO-pSCMfqEk3zoOQ58-NvI",
+    "gauntlet_v2_current": "14E0W1HtawWcYif6QIYyO13Dj56JMZ7lP",
+    "gauntlet_v1_archived": "12UvPb8Bq1Qq4WOEiZPYKFItiy7EzvHWk",
     "local_runbook": "1GrD6hYx04Em7LJCQKWR-tjIsGxYoo_d_"
   },
   "specimen_files": {
     "source_video": "1i5WGSFNuknsHWKAvehx0SSHmBAAxdO97",
     "frame_metrics": "1m-ZOx2yUYomDxK-OIxer1WcIlSuD6DYD",
-    "full_action_inventory": "1v0sttGk3HpUgZ9Pw-OeFt0FKzMQdlxeZ",
+    "action_inventory_v1": "1v0sttGk3HpUgZ9Pw-OeFt0FKzMQdlxeZ",
+    "action_inventory_v2": "1SImm9KaLbmVbWdnIzSOTUVYSmfTajZdh",
     "full_decision_operation_graph": "1wguHRrt9BnkxDQAZ3x3HOXp9InFZlz-S",
-    "full_coverage_matrix": "1aFcsuHumjLHni7Qq1cAsSgGM6db3ZojH",
-    "gauntlet_report": "1RK_9CcFN54tz_8NI3ArBG0gyV5IzVsAI",
-    "gauntlet_runtime_report": "1yzTH3dTwO5jcT18DEhQWsdvkGMavGtcC",
+    "coverage_matrix_v1": "1aFcsuHumjLHni7Qq1cAsSgGM6db3ZojH",
+    "gauntlet_report_v1": "1RK_9CcFN54tz_8NI3ArBG0gyV5IzVsAI",
+    "gauntlet_runtime_report_v1": "1yzTH3dTwO5jcT18DEhQWsdvkGMavGtcC",
+    "gauntlet_runtime_report_v2": "1GyOLLvbgIpx_8UIb0Y7eVtiYu0VGa4Tp",
+    "deep_residual_review_v2": "1zQWEBrFPU0x81WpdGKWWkOrQHLaalk5I",
     "template_instance": "1SZrV5-t5_V6mt5Mu2ydhaXWNpbAdj70N",
     "reconstruction_next_gate": "11MiT_-s2UT0qv-1r0KR-Ur7Szp14WiUZ",
     "generalization_next_gate": "1U1E1BY0T9tomnLPw6wihXaF7r7yk-VOy"
@@ -48,7 +51,11 @@
     "G04_AUDIO_RETENTION": "1RtDEcm3PguF0_3P4_VsTGdJo1F0EUm4t",
     "G05_RENDERER_PARITY": "1bRfk1Um90j0xnBRZ8RQQnhpwZAVxGduw",
     "G06_ADVERSARIAL_MISSING_ACTION": "1WL5MNjIXeJSTzrdbcwe9wXcuwo3rqlXU",
-    "G07_COVERAGE_CLOSURE": "1j4VjIcLXlIBJ07mpRmI-iq7ip1ahFUag"
+    "G07_COVERAGE_CLOSURE": "1j4VjIcLXlIBJ07mpRmI-iq7ip1ahFUag",
+    "G08_SUBACTION_GRANULARITY": "1YbSagXewXLu5MxczrAbGRyCGa70Vh6XV",
+    "G09_LOW_THRESHOLD_RESIDUAL_REVIEW": "1m5t064AN6epw82RHpxCU7lnJkDlUEpHS"
   },
-  "promotion_note": "Drive persistence is durable evidence/recovery, not authority to promote the template. Physical reconstruction + fidelity + generalization gates remain required."
+  "current_specimen_state": "OBSERVABLE_ACTION_CLOSED_AWAITING_PHYSICAL_FIDELITY",
+  "current_counts": {"parent_actions":98,"subevents":32,"leaf_operations":121},
+  "promotion_note": "Drive persistence is durable evidence/recovery, not authority to promote the template. Physical golden-scene reconstruction + fidelity + graph-native repair + 3x generalization remain required."
 }
