@@ -14,13 +14,25 @@
   },
   "scene_count": 18,
   "caption_groups": 12,
+  "observable_atomic_actions": 98,
   "strong_mixed_audio_onsets": 22,
   "annotated_salient_stimulus_clusters": 64,
   "annotated_visual_stimulus_rate_per_s": 2.3,
   "median_annotated_stimulus_interval_ms": 254,
   "p90_annotated_stimulus_interval_ms": 939,
-  "status": "DRAFT_EXTRACTED_PARTIAL_EVIDENCE_VALIDATION",
+  "coverage": {
+    "scene": 1.0,
+    "p90_frame_change_peaks": 1.0,
+    "p90_motion_peaks": 1.0,
+    "renderer_mapping": 1.0
+  },
+  "status": "OBSERVABLE_ACTION_CLOSED_AWAITING_PHYSICAL_FIDELITY",
+  "authority_boundary": "Observable action closure covers current high-salience replicable actions and measured P90 change/motion peaks; it does not recover hidden source-project internals.",
   "promotion": {
+    "evidence_validated_observable": true,
+    "layer_model_validated_observable": true,
+    "motion_mapping_validated_observable": true,
+    "audio_sync_mapping_validated_observable": true,
     "ae_reconstruction_validated": false,
     "remotion_render_validated": false,
     "hyperframes_render_validated": false,
@@ -28,6 +40,7 @@
     "generalization_validated": false,
     "canonical_template": false
   },
+  "next_required_gate": "physical golden-scene reconstruction + frame-level visual/motion/audio diff + graph-native repair loop",
   "known_unknowns": [
     "original AE project/layers",
     "exact fonts",
