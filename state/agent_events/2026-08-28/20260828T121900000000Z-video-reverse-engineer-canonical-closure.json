@@ -1,0 +1,50 @@
+{
+  "affected_paths": [
+    "templates/reverse_engineering/TEMPLATE.md",
+    "knowledge/reconstruction/REVERSE_ENGINEERING_ACTION_ONTOLOGY.md",
+    "knowledge/reconstruction/GAUNTLET_100_PERCENT_EXTRACTION_PROTOCOL.md",
+    "schemas/reverse_engineering_action_inventory.schema.json",
+    "src/reverse_engineering/action_inventory.py",
+    "scripts/reverse_engineering_gauntlet.py",
+    "tests/test_reverse_engineering_action_inventory.py",
+    "architecture/reverse_engineering_decision_operation_graph.mmd",
+    "docs/REVERSE_ENGINEERING_LOCAL_RUNBOOK.md",
+    "forensics/references/screenrecording_20260826/"
+  ],
+  "agent_id": "motion://agent/video-reverse-engineer",
+  "authority": "EXECUTED",
+  "branch": "feat/video-reverse-engineering-templates-v1",
+  "checks": {
+    "local_action_inventory_tests": "5 passed",
+    "observable_scene_coverage": 1.0,
+    "p90_frame_change_peak_coverage": 1.0,
+    "p90_motion_peak_coverage": 1.0,
+    "renderer_mapping_coverage": 1.0
+  },
+  "commit_sha": "99898d323fae09d589db0c6bc51519b74fcf2ab4",
+  "correlation_id": "motion://work/video-reverse-engineering-templates-v1",
+  "event_id": "20260828T121900000000Z-video-reverse-engineer-canonical-closure",
+  "event_type": "work.checkpoint",
+  "metadata": {
+    "session_id": "motion://session/video-reverse-engineer/20260828T095100Z",
+    "mission_id": "motion://mission/ultra-deep-video-reverse-engineering-v2",
+    "source_sha256": "9b3076cb542e358386942a0fb6b160f1345564d4326738f9a340e2b5b38e199d",
+    "observable_atomic_actions": 98,
+    "scene_count": 18,
+    "gauntlet_loops": 7,
+    "observable_action_state": "OBSERVABLE_ACTION_CLOSED",
+    "drive_root_id": "1GPUW-lWs-FvCwJmtif4bHBzrzFOu2abV",
+    "drive_specimen_folder_id": "1G9vveuR71XKu-0ysNz3pAoqBJ692K8qa",
+    "authority_boundary": "100% observable replicable action coverage is not recovery of hidden original AE internals and is not physical reconstruction fidelity.",
+    "remaining_empirical_gates": [
+      "physical golden-scene reconstruction",
+      "frame-level visual/motion/audio fidelity diff",
+      "graph-native repair loop",
+      "three substituted-content generalization runs"
+    ]
+  },
+  "pr_number": 64,
+  "project": "MOTION.OS",
+  "summary": "Canonicalized ultra-deep reference-video reverse engineering across GitHub and MOTION.OS_CANONICAL Drive. The first professional specimen is decomposed into 98 evidence-bound atomic actions across 18 scenes, all current P90 frame-change and optical-flow peaks are mapped, all actions have AE/Remotion/HyperFrames execution paths, and the seven-loop observable-action gauntlet is closed under an explicit non-hallucination boundary. Physical reconstruction fidelity and generalization remain separate pending authority gates.",
+  "timestamp": "2026-08-28T12:19:00Z"
+}
