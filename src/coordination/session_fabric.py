@@ -107,6 +107,12 @@ class IrreversibleActionPreflight:
     live_main_sha: str
     live_event_watermark: int
 
+    def __post_init__(self) -> None:
+        if len(self.context_main_sha) < 7 or len(self.live_main_sha) < 7:
+            raise ValueError("context/live main SHA must be present")
+        if self.context_event_watermark < 0 or self.live_event_watermark < 0:
+            raise ValueError("event watermarks must be >= 0")
+
     @property
     def fresh(self) -> bool:
         return (
