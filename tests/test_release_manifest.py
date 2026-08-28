@@ -2,7 +2,7 @@ import hashlib
 
 import pytest
 
-from src.qa.creative_tournament import CreativeCandidate, REQUIRED_DIMENSIONS, run_tournament
+from src.qa.creative_tournament import CreativeCandidate, REQUIRED_DIMENSIONS, TournamentResult, run_tournament
 from src.qa.release_manifest import ReleaseManifestError, build_release_manifest
 from src.qa.temporal_multimodal import build_temporal_evidence, critique_from_provider_payload, uniform_sample_indices
 
@@ -76,21 +76,51 @@ def test_duplicate_candidate_identity_fails_closed():
         build_release_manifest(result, [a, a])
 
 
-def test_missing_release_candidate_fails_closed():
+def test_candidate_set_substitution_fails_closed():
     a = candidate("a")
     b = candidate("b")
     result = run_tournament([a])
-    with pytest.raises(ReleaseManifestError, match="release candidate missing"):
+    with pytest.raises(ReleaseManifestError, match="deterministic recomputation"):
         build_release_manifest(result, [b])
 
 
-def test_ranking_candidate_set_mismatch_fails_closed():
+def test_candidate_set_extension_fails_closed():
     a = candidate("a", creative_score=9.6)
     b = candidate("b", creative_score=9.1)
     c = candidate("c", creative_score=9.0)
     result = run_tournament([a, b])
-    with pytest.raises(ReleaseManifestError, match="ranking and candidate set disagree"):
+    with pytest.raises(ReleaseManifestError, match="deterministic recomputation"):
         build_release_manifest(result, [a, b, c])
+
+
+def test_tampered_release_candidate_fails_closed():
+    a = candidate("a", creative_score=9.6)
+    b = candidate("b", creative_score=9.1)
+    canonical = run_tournament([a, b])
+    tampered = TournamentResult(
+        winner_id=canonical.winner_id,
+        ranked_candidate_ids=canonical.ranked_candidate_ids,
+        release_candidate_id="b" if canonical.release_candidate_id == "a" else "a",
+        blocked_candidate_ids=canonical.blocked_candidate_ids,
+        reasons=canonical.reasons,
+    )
+    with pytest.raises(ReleaseManifestError, match="deterministic recomputation"):
+        build_release_manifest(tampered, [a, b])
+
+
+def test_tampered_ranking_fails_closed():
+    a = candidate("a", creative_score=9.6)
+    b = candidate("b", creative_score=9.1)
+    canonical = run_tournament([a, b])
+    tampered = TournamentResult(
+        winner_id=canonical.winner_id,
+        ranked_candidate_ids=tuple(reversed(canonical.ranked_candidate_ids)),
+        release_candidate_id=canonical.release_candidate_id,
+        blocked_candidate_ids=canonical.blocked_candidate_ids,
+        reasons=canonical.reasons,
+    )
+    with pytest.raises(ReleaseManifestError, match="deterministic recomputation"):
+        build_release_manifest(tampered, [a, b])
 
 
 def test_manifest_hash_changes_when_temporal_evidence_changes():
