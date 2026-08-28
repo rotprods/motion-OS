@@ -37,16 +37,35 @@ def inspect_graph_contract(graph) -> list[GraphQAFinding]:
     return findings
 
 def attach_findings(graph, findings:list[GraphQAFinding], *, run_id:str="qa_run") -> list[str]:
-    created=[]
-    if run_id not in {n.id for n in graph.nodes}:
+    """Attach one immutable QA execution to the graph.
+
+    QAResult and Defect identities are scoped by ``run_id`` so equivalent findings
+    from different executions remain distinct historical evidence. Reusing the same
+    run identity with colliding result IDs fails closed instead of silently folding
+    two executions into one history.
+    """
+    run_id=str(run_id).strip()
+    if not run_id:
+        raise ValueError("run_id must be non-empty")
+
+    existing={n.id for n in graph.nodes}
+    if run_id not in existing:
         graph.add_node(graph.typed_node(run_id,"Run",data={"kind":"graph_qa"},authority="authoritative",provenance_refs=["graph_critic"]))
+        existing.add(run_id)
+
+    created=[]
     for idx,f in enumerate(findings,1):
-        qid=f"qa:{idx:03d}:{f.code.lower()}"
-        did=f"defect:{idx:03d}:{f.code.lower()}"
-        graph.add_node(graph.typed_node(qid,"QAResult",data={"code":f.code,"severity":f.severity,"message":f.message,"evidence":list(f.evidence),"target":f.node_id},authority="authoritative",provenance_refs=["graph_critic"]))
-        graph.add_node(graph.typed_node(did,"Defect",data={"code":f.code,"severity":f.severity,"message":f.message},authority="authoritative",provenance_refs=[qid]))
+        qid=f"qa:{run_id}:{idx:03d}:{f.code.lower()}"
+        did=f"defect:{run_id}:{idx:03d}:{f.code.lower()}"
+        collisions=[node_id for node_id in (qid,did) if node_id in existing]
+        if collisions:
+            raise ValueError(f"QA run identity collision: {collisions}")
+
+        graph.add_node(graph.typed_node(qid,"QAResult",data={"run_id":run_id,"code":f.code,"severity":f.severity,"message":f.message,"evidence":list(f.evidence),"target":f.node_id},authority="authoritative",provenance_refs=["graph_critic",run_id]))
+        graph.add_node(graph.typed_node(did,"Defect",data={"run_id":run_id,"code":f.code,"severity":f.severity,"message":f.message},authority="authoritative",provenance_refs=[qid]))
         graph.add_edge(Edge(qid,f.node_id,"EVALUATES",{"id":f"e_{qid}_target"}))
         graph.add_edge(Edge(qid,did,"FLAGS",{"id":f"e_{qid}_{did}"}))
         graph.add_edge(Edge(qid,run_id,"PRODUCED_BY",{"id":f"e_{qid}_{run_id}"}))
+        existing.update((qid,did))
         created += [qid,did]
     return created
