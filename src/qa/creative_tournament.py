@@ -51,6 +51,8 @@ class CreativeCandidate:
             raise CreativeTournamentError("candidate_id required")
         if len(self.media_sha256) != 64 or any(c not in "0123456789abcdef" for c in self.media_sha256.lower()):
             raise CreativeTournamentError("media_sha256 must be a 64-character hex digest")
+        if self.media_sha256 != self.temporal.media_sha256:
+            raise CreativeTournamentError("creative candidate media_sha256 must match temporal critique media_sha256")
         missing = REQUIRED_DIMENSIONS - set(self.dimensions)
         if missing:
             raise CreativeTournamentError(f"missing creative dimensions: {sorted(missing)}")
@@ -110,9 +112,6 @@ def run_tournament(candidates: Iterable[CreativeCandidate]) -> TournamentResult:
     ids = [candidate.candidate_id for candidate in items]
     if len(ids) != len(set(ids)):
         raise CreativeTournamentError("candidate_id values must be unique")
-    hashes_by_id = {candidate.candidate_id: candidate.media_sha256 for candidate in items}
-    if len(hashes_by_id) != len(items):
-        raise CreativeTournamentError("duplicate candidate identity")
 
     ranked = sorted(
         items,
