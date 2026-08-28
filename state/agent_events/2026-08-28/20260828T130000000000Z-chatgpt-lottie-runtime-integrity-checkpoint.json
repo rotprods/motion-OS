@@ -1,6 +1,6 @@
 {
   "event_id": "20260828T130000000000Z-chatgpt-lottie-runtime-integrity-checkpoint",
-  "event_type": "checkpoint",
+  "event_type": "work.checkpoint",
   "timestamp": "2026-08-28T11:00:00Z",
   "agent_id": "motion://agent/chatgpt/lottie-runtime-integrity",
   "project": "MOTION.OS",
