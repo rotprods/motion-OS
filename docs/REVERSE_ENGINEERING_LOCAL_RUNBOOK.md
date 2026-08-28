@@ -1,4 +1,4 @@
-# MOTION.OS Reverse Engineering — Local Runbook
+# MOTION.OS Reverse Engineering — Local Runbook v2
 
 ## Inputs
 
@@ -6,7 +6,7 @@
 - exact repo head and active agent claim;
 - `RECONSTRUCT_EXACT`, `STRUCTURAL_TEMPLATE`, or `STYLE_TRANSFER` mode.
 
-## Local evidence run
+## 1. Physical evidence run
 
 ```bash
 python scripts/reverse_engineer_video.py reference.mp4 \
@@ -16,37 +16,91 @@ python scripts/reverse_engineer_video.py reference.mp4 \
   --keep-frames
 ```
 
-## Atomic-action gauntlet
+Preserve source SHA, decoded frame count, FPS, frame timeline and provider authority.
 
-After human/vision-assisted annotation produces `action_inventory.json`:
+## 2. Annotate atomic actions
+
+Produce the full evidence-plane `action_inventory.json` from frame/scene/caption/depth/audio inspection.
+
+Rules:
+- every action has AE/Remotion/HyperFrames mappings;
+- `staggered` parents expose `subevents[]`;
+- `continuous` actions do not fabricate internal keyframes;
+- `source_native`/`mixed` motion is separated from editorial motion;
+- literal source UI/media stays source-locked when appropriate.
+
+## 3. Run the nine-loop gauntlet
 
 ```bash
 python scripts/reverse_engineering_gauntlet.py \
-  --inventory forensics/references/<video_id>/action_inventory.json \
-  --frame-metrics .artifacts/reverse/<video_id>/frame_metrics.json \
-  --out .artifacts/reverse/<video_id>/gauntlet_report.json
+  --inventory <action_inventory.json> \
+  --frame-metrics <frame_metrics.json> \
+  --out <gauntlet_report.json>
 ```
 
-Exit non-zero means observable-action closure has not been reached.
+The runner requires P90 coverage and performs deep P80/P75 residual adjudication. During template calibration, also inspect P70/P65/P60 until lower thresholds stop discovering meaningful editor operations.
 
-## Repository checks
+Every residual must resolve as:
+- `anchored`
+- `continuous`
+- `source_native`
+- `unexplained` → FAIL
+
+## 4. Persist canonical surfaces
+
+GitHub:
+- schemas/validators/scripts/tests;
+- canonical template/ontology/gauntlet docs;
+- lightweight specimen indexes and coverage state.
+
+Drive:
+- source video;
+- frame metrics/evidence;
+- full action/subevent inventory;
+- decision-operation projection;
+- gauntlet details;
+- physical reconstruction/diff artifacts;
+- generalization runs.
+
+Event Bus:
+- HELLO/CLAIM/checkpoints/authority lifecycle.
+
+## 5. Repository gates
 
 ```bash
 python scripts/local_verify.py quick
 python scripts/agent_event.py validate
 ```
 
-## Physical reconstruction
+Do not merge while a canonical regression/promotion barrier is active.
 
-Do not consult the source for new creative decisions after the reconstruction spec is frozen. Render golden scenes, compare to source, convert mismatch into defects, repair canonical actions, and repeat.
+## 6. Physical reconstruction gate
+
+Freeze the graph first. Then reconstruct the selected golden scenes without looking back at the reference to make new creative decisions.
+
+Compare reference vs render for:
+- timing/cut boundaries;
+- typography geometry and emphasis;
+- transforms/easing/settle;
+- z-order/occlusion/depth;
+- color/FX;
+- audio-event alignment.
+
+Convert every mismatch into a graph-native Defect/RepairCandidate. Repair canonical operations, then recompile all renderers.
+
+## 7. Generalization gate
+
+Run at least three substituted-content packs. The structural template fails if literal source content leaks or edit identity collapses.
 
 ## Authority language
 
-Allowed:
+Allowed with matching evidence:
 - `OBSERVABLE_ACTION_CLOSED`
 - `RENDER_VALIDATED`
 - `FIDELITY_VALIDATED`
+- `GENERALIZATION_VALIDATED`
 
 Forbidden without evidence:
 - “exact original AE project recovered”
 - “100% original editor operations recovered”
+- “canonical template” before physical fidelity + generalization.
