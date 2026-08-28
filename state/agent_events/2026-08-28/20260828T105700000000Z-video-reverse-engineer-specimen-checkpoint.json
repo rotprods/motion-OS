@@ -1,0 +1,42 @@
+{
+  "affected_paths": [
+    "forensics/references/screenrecording_20260826/README.md",
+    "forensics/references/screenrecording_20260826/analysis_manifest.json",
+    "forensics/references/screenrecording_20260826/editing_signature.json",
+    "forensics/references/screenrecording_20260826/structural_template.json",
+    "forensics/references/screenrecording_20260826/ae_reconstruction_spec.json"
+  ],
+  "agent_id": "motion://agent/video-reverse-engineer",
+  "authority": "EXECUTED",
+  "branch": "feat/video-reverse-engineering-templates-v1",
+  "checks": {},
+  "commit_sha": "5f00f19ad1ce05d1e4e95eff60fcf625ec68b88b",
+  "correlation_id": "motion://work/video-reverse-engineering-templates-v1",
+  "event_id": "20260828T105700000000Z-video-reverse-engineer-specimen-checkpoint",
+  "event_type": "work.checkpoint",
+  "metadata": {
+    "session_id": "motion://session/video-reverse-engineer/20260828T095100Z",
+    "source_sha256": "9b3076cb542e358386942a0fb6b160f1345564d4326738f9a340e2b5b38e199d",
+    "source_duration_s": 27.833,
+    "source_fps": 30,
+    "decoded_frames": 835,
+    "scene_count": 18,
+    "caption_groups": 12,
+    "strong_audio_onsets": 22,
+    "annotated_salient_stimulus_clusters": 64,
+    "status": "FIRST_REAL_SPECIMEN_EXECUTED_NOT_FIDELITY_PROMOTED",
+    "full_bundle_location": "external/local artifact plane; not committed to Git",
+    "known_unknowns": [
+      "original AE project/layers",
+      "exact fonts",
+      "hidden masks/mattes",
+      "exact effect plugin identities",
+      "audio stems",
+      "physical camera intrinsics"
+    ]
+  },
+  "pr_number": 64,
+  "project": "MOTION.OS",
+  "summary": "Executed the first real ultra-deep reverse-engineering specimen. Lightweight source-bound analysis, editing signature, structural template and AE reconstruction spec are persisted in PR #64. Full 835-frame evidence bundle exists outside Git. No fidelity/generalization promotion is claimed until physical reconstruction renders and substitution tests run.",
+  "timestamp": "2026-08-28T10:57:00Z"
+}
