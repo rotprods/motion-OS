@@ -110,6 +110,7 @@ class TemporalDefect:
 @dataclass(frozen=True)
 class TemporalCritique:
     provider: str
+    media_sha256: str
     score: float
     dimensions: dict[str, float]
     defects: tuple[TemporalDefect, ...]
@@ -203,6 +204,7 @@ def critique_from_provider_payload(evidence: FullVideoEvidence, payload: dict[st
         recommendation = "BLOCK"
     return TemporalCritique(
         provider=provider,
+        media_sha256=evidence.media_sha256,
         score=score,
         dimensions=dimensions,
         defects=defects,
