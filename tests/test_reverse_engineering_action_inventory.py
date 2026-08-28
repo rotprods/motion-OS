@@ -76,7 +76,7 @@ def test_continuous_action_adjudicates_internal_peak_without_fake_keyframe():
     value["actions"][1]["impact_frame"] = 5
     value["actions"][1]["end_frame"] = 9
     value["actions"][1]["temporal_mode"] = "continuous"
-    row = adjudicate_peak(value, 8, tolerance_frames=1)
+    row = adjudicate_peak(value, 7, tolerance_frames=1)
     assert row.status == "continuous"
 
 
