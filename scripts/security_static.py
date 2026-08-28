@@ -65,9 +65,13 @@ def scan_python(path: Path, *, root: Path = ROOT) -> list[Finding]:
     rel = path.relative_to(root).as_posix()
     try:
         text = path.read_text(encoding="utf-8")
+    except (UnicodeDecodeError, OSError) as exc:
+        return [Finding("PY_SOURCE_UNREADABLE", rel, 0, f"Python source could not be read: {type(exc).__name__}")]
+    try:
         tree = ast.parse(text, filename=rel)
-    except (UnicodeDecodeError, SyntaxError):
-        return []
+    except SyntaxError as exc:
+        return [Finding("PY_PARSE_FAILURE", rel, int(exc.lineno or 0), "Python source failed AST parsing; security analysis cannot proceed")]
+
     findings: list[Finding] = []
     for node in ast.walk(tree):
         if not isinstance(node, ast.Call):
@@ -80,12 +84,15 @@ def scan_python(path: Path, *, root: Path = ROOT) -> list[Finding]:
             for keyword in node.keywords:
                 if keyword.arg != "shell":
                     continue
-                if isinstance(keyword.value, ast.Constant) and keyword.value.value is True:
+                # Only literal False is accepted. True or a dynamic expression is
+                # fail-closed because runtime shell activation cannot be proven absent.
+                literal_false = isinstance(keyword.value, ast.Constant) and keyword.value.value is False
+                if not literal_false:
                     findings.append(Finding(
-                        "PY_SUBPROCESS_SHELL_TRUE",
+                        "PY_SUBPROCESS_SHELL_UNSAFE",
                         rel,
                         int(getattr(node, "lineno", 0)),
-                        "subprocess shell=True is forbidden; pass an argv list without a shell",
+                        "subprocess shell must be omitted or literal False; pass an argv list without a shell",
                     ))
     return findings
 
