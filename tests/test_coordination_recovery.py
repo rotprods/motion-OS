@@ -13,6 +13,7 @@ from src.coordination.replay import ReplayVerifier
 
 
 MAIN = "a" * 40
+EVENT_TIME = "2026-08-28T11:00:00Z"
 
 
 def _event(*, event_id: str, revision: int, expected: int, payload: dict) -> CoordinationEvent:
@@ -31,6 +32,8 @@ def _event(*, event_id: str, revision: int, expected: int, payload: dict) -> Coo
         idempotency_key=f"idem-{revision}",
         payload=payload,
         provenance=(ProvenanceRef("git", "main", revision=MAIN),),
+        occurred_at=EVENT_TIME,
+        recorded_at=EVENT_TIME,
     )
 
 
@@ -71,8 +74,9 @@ def _github(main_sha: str = MAIN) -> GitHubLifecycleSnapshot:
 
 def test_cold_recovery_is_deterministic_and_binds_live_github():
     verifier = ColdRecoveryVerifier()
-    first = verifier.rebuild(events=_events(), github=_github())
-    second = verifier.rebuild(events=_events(), github=_github())
+    events = _events()
+    first = verifier.rebuild(events=events, github=_github())
+    second = verifier.rebuild(events=events, github=_github())
 
     assert verifier.equivalent(first, second)
     assert first.verify_hash()
@@ -102,8 +106,9 @@ def test_drive_outage_is_explicit_degraded_not_fabricated_authority():
 
 def test_live_main_change_changes_recovery_identity():
     verifier = ColdRecoveryVerifier()
-    before = verifier.rebuild(events=_events(), github=_github("a" * 40))
-    after = verifier.rebuild(events=_events(), github=_github("c" * 40))
+    events = _events()
+    before = verifier.rebuild(events=events, github=_github("a" * 40))
+    after = verifier.rebuild(events=events, github=_github("c" * 40))
 
     assert before.live_main_sha != after.live_main_sha
     assert before.lifecycle_revision != after.lifecycle_revision
