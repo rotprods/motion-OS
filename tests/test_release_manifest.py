@@ -85,12 +85,12 @@ def test_missing_release_candidate_fails_closed():
 
 
 def test_ranking_candidate_set_mismatch_fails_closed():
-    a = candidate("a")
-    b = candidate("b")
-    c = candidate("c")
+    a = candidate("a", creative_score=9.6)
+    b = candidate("b", creative_score=9.1)
+    c = candidate("c", creative_score=9.0)
     result = run_tournament([a, b])
     with pytest.raises(ReleaseManifestError, match="ranking and candidate set disagree"):
-        build_release_manifest(result, [a, c])
+        build_release_manifest(result, [a, b, c])
 
 
 def test_manifest_hash_changes_when_temporal_evidence_changes():
