@@ -1,0 +1,28 @@
+{
+  "event_id": "20260828T094400000000Z-chatgpt-graph-qa-integrity-work-started",
+  "event_type": "work.started",
+  "timestamp": "2026-08-28T09:44:00Z",
+  "agent_id": "motion://agent/chatgpt/graph-qa-integrity",
+  "project": "MOTION.OS",
+  "branch": "feat/p08-graph-qa-integrity",
+  "commit_sha": "a8d7dbddaeb4ad9779df9883d3cf4e4f6ea4f29d",
+  "pr_number": 59,
+  "summary": "Started isolated Phase08 graph QA integrity work to make QA history run-scoped and RepairCandidate mutation edges reflect actual mutation targets.",
+  "affected_paths": [
+    "src/qa/graph_critic.py",
+    "src/qa/graph_repair.py",
+    "tests/test_phase05_graph_qa_repair_studio.py"
+  ],
+  "checks": {
+    "live_main_reconciled": "PASS",
+    "scope_conflict_preflight": "PASS"
+  },
+  "authority": "PROPOSED",
+  "correlation_id": "issue48-p08-graph-qa-integrity",
+  "metadata": {
+    "project_id": "motion://project/motion-os",
+    "session_id": "motion://session/chatgpt/graph-qa-integrity/20260828T1144+0200",
+    "workstream_id": "motion://workstream/p08-graph-qa-integrity",
+    "base_sha": "a8d7dbddaeb4ad9779df9883d3cf4e4f6ea4f29d"
+  }
+}
