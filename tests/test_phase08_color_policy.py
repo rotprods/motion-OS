@@ -9,6 +9,7 @@ from src.renderers.color_policy import (
     ArtifactColorBinding,
     ColorProfile,
     build_color_normalization_plan,
+    color_profile_from_probe,
     ffmpeg_color_filter,
     ffmpeg_output_color_args,
     validate_color_plan,
@@ -27,6 +28,72 @@ def test_plan_binds_every_artifact_and_is_deterministic():
     assert a.authority == "IMPLEMENTED"
     assert [binding.artifact_id for binding in a.bindings] == ["base", "p3", "ui"]
     assert validate_color_plan(a, ["base", "ui", "p3"]) == []
+
+
+def test_probe_metadata_maps_to_observed_profile_without_guessing():
+    profile = color_profile_from_probe(
+        "plate",
+        {
+            "color_primaries": "bt709",
+            "color_transfer": "bt709",
+            "color_space": "bt709",
+            "color_range": "tv",
+        },
+        evidence_ref="ffprobe:sha256:abc",
+    )
+    assert profile.profile_id == "observed:plate"
+    assert profile.primaries == "bt709"
+    assert profile.transfer == "bt709"
+    assert profile.matrix == "bt709"
+    assert profile.range == "limited"
+    assert profile.evidence == ("ffprobe:sha256:abc",)
+
+
+def test_probe_metadata_maps_full_range_gbr_and_p3():
+    profile = color_profile_from_probe(
+        "ui",
+        {
+            "color_primaries": "smpte432",
+            "color_transfer": "iec61966-2-1",
+            "color_space": "gbr",
+            "color_range": "pc",
+        },
+        evidence_ref="ffprobe:ui",
+    )
+    assert profile.primaries == "smpte432"
+    assert profile.matrix == "gbr"
+    assert profile.range == "full"
+
+
+def test_probe_metadata_rejects_missing_unknown_and_hdr():
+    with pytest.raises(ValueError, match="unqualified_probe_primaries:x:missing"):
+        color_profile_from_probe(
+            "x",
+            {"color_transfer": "bt709", "color_space": "bt709", "color_range": "tv"},
+            evidence_ref="probe:x",
+        )
+    with pytest.raises(ValueError, match="unqualified_probe_matrix:x:unknown"):
+        color_profile_from_probe(
+            "x",
+            {
+                "color_primaries": "bt709",
+                "color_transfer": "bt709",
+                "color_space": "unknown",
+                "color_range": "tv",
+            },
+            evidence_ref="probe:x",
+        )
+    with pytest.raises(ValueError, match="hdr_source_detected_requires_tone_map:x:smpte2084"):
+        color_profile_from_probe(
+            "x",
+            {
+                "color_primaries": "bt709",
+                "color_transfer": "smpte2084",
+                "color_space": "bt709",
+                "color_range": "tv",
+            },
+            evidence_ref="probe:x",
+        )
 
 
 def test_missing_profile_fails_closed():
