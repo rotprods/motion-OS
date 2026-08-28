@@ -1,5 +1,10 @@
+import hashlib
+import json
+
 import pytest
 
+from scripts.build_lottie_runtime_fixture import build_fixture
+from scripts.verify_lottie_player import canonical_json_hash
 from src.compilers.lottie import (
     compile_vector_subgraph_to_lottie,
     player_roundtrip_contract,
@@ -97,3 +102,32 @@ def test_invalid_player_contract_fails_closed():
     doc = compile_vector_subgraph_to_lottie([_shape()])
     with pytest.raises(ValueError, match='Unsupported Lottie player contract'):
         player_roundtrip_contract(doc, player='unknown-player')
+
+
+def test_runtime_fixture_binds_compiler_document_and_contains_real_motion(tmp_path):
+    evidence = build_fixture(tmp_path)
+    animation_path = tmp_path / 'animation.json'
+    contract_path = tmp_path / 'player_contract.json'
+    html_path = tmp_path / 'index.html'
+
+    document = json.loads(animation_path.read_text(encoding='utf-8'))
+    contract = json.loads(contract_path.read_text(encoding='utf-8'))
+    html = html_path.read_text(encoding='utf-8')
+
+    assert canonical_json_hash(document) == contract['document_sha256'] == evidence['document_sha256']
+    assert hashlib.sha256(animation_path.read_bytes()).hexdigest() == evidence['animation_file_sha256']
+    assert evidence['expected_frame_count'] == 60
+    assert evidence['stable_layer_ids'] == ['runtime_ring']
+    assert evidence['authority'] == 'compiler_ready'
+
+    trim_path = document['layers'][0]['shapes'][0]['it'][2]
+    assert trim_path['ty'] == 'tm'
+    assert trim_path['e']['a'] == 1
+    assert trim_path['e']['k'][0]['s'] == [5]
+    assert trim_path['e']['k'][-1]['s'] == [100]
+
+    assert "renderer: 'svg'" in html
+    assert "autoplay: false" in html
+    assert "loop: false" in html
+    assert "DOMLoaded" in html
+    assert "goToAndStop(requestedFrame, true)" in html
