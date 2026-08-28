@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0.0",
+  "video_id": "screenrecording_2026-08-26_173251",
+  "source_sha256": "9b3076cb542e358386942a0fb6b160f1345564d4326738f9a340e2b5b38e199d",
+  "drive_root": {
+    "name": "MOTION.OS_CANONICAL/12_REVERSE_ENGINEERING",
+    "folder_id": "1GPUW-lWs-FvCwJmtif4bHBzrzFOu2abV"
+  },
+  "authority_split": {
+    "github": "executable contracts, schemas, validators, local runbooks and lightweight inspectable specimen indexes",
+    "drive": "durable heavy evidence, full atomic action inventories, decision/operation projections and gauntlet artifacts",
+    "event_bus": "cross-agent lifecycle/coordination authority",
+    "typed_editing_graph": "canonical semantic/editing graph; Drive decision_operation_graph is a derived evidence projection"
+  },
+  "canonical_drive_files": {
+    "readme_first": "1Ej2E_9Qtdqb0OPtqkbyGgHBBWB1mtrkB",
+    "canon": "1bfbeW8Dmxerr38h049OD8vlBipEpE_ta",
+    "action_ontology": "1SxW8he58Cz1xWh3jsgq5CSwxVRDxYei7",
+    "template": "1o-Vpflz60AOO-pSCMfqEk3zoOQ58-NvI",
+    "gauntlet_protocol": "12UvPb8Bq1Qq4WOEiZPYKFItiy7EzvHWk",
+    "local_runbook": "1GrD6hYx04Em7LJCQKWR-tjIsGxYoo_d_",
+    "full_action_inventory": "1v0sttGk3HpUgZ9Pw-OeFt0FKzMQdlxeZ",
+    "full_coverage_matrix": "1aFcsuHumjLHni7Qq1cAsSgGM6db3ZojH",
+    "full_decision_operation_graph": "1wguHRrt9BnkxDQAZ3x3HOXp9InFZlz-S",
+    "gauntlet_report": "1RK_9CcFN54tz_8NI3ArBG0gyV5IzVsAI",
+    "gauntlet_runtime_report": "1yzTH3dTwO5jcT18DEhQWsdvkGMavGtcC",
+    "template_instance": "1SZrV5-t5_V6mt5Mu2ydhaXWNpbAdj70N"
+  },
+  "gauntlet_loop_files": {
+    "G01_TEMPORAL_CENSUS": "1q6wE-GWwRipoGGQbfaKN4DDKsoqniNrW",
+    "G02_CAPTION_DEPTH": "1DtOzX-B5aHNz1EVu2YTH-i3Rt3keuTOi",
+    "G03_MOTION_TRANSITIONS": "1gHw9N2lYwA1qq1fZ7FKX912_Qc7__k4S",
+    "G04_AUDIO_RETENTION": "1RtDEcm3PguF0_3P4_VsTGdJo1F0EUm4t",
+    "G05_RENDERER_PARITY": "1bRfk1Um90j0xnBRZ8RQQnhpwZAVxGduw",
+    "G06_ADVERSARIAL_MISSING_ACTION": "1WL5MNjIXeJSTzrdbcwe9wXcuwo3rqlXU",
+    "G07_COVERAGE_CLOSURE": "1j4VjIcLXlIBJ07mpRmI-iq7ip1ahFUag"
+  },
+  "specimen_drive_folder_id": "1G9vveuR71XKu-0ysNz3pAoqBJ692K8qa",
+  "promotion_note": "Drive persistence is durable evidence/recovery, not authority to promote the template. Physical reconstruction + fidelity + generalization gates remain required."
+}
