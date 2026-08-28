@@ -108,7 +108,13 @@ class CanonicalEventFabricProjector:
         if runtime_watermark < 0:
             raise EventFabricProjectionError("runtime_watermark must be >= 0")
 
-        observed = list(surface_events)
+        external_events = tuple(surface_events)
+        if any(item.surface is Surface.RUNTIME_EVENTSTORE for item in external_events):
+            raise EventFabricProjectionError(
+                "runtime surface events require RuntimeObservation sequence evidence"
+            )
+
+        observed = list(external_events)
         observed.extend(item.event for item in runtime_observations)
         observed_tuple = tuple(observed)
         coverage = frozenset(item.surface for item in observed_tuple)
@@ -125,8 +131,6 @@ class CanonicalEventFabricProjector:
                     "runtime watermark is behind observed runtime event sequence"
                 )
 
-        # SurfaceEvent verifies its own payload hash. Deduplication then rejects a
-        # logical event that differs between transports.
         deduped = deduplicate_surface_events(observed_tuple)
 
         surfaces_by_id: dict[str, set[str]] = {}
@@ -187,6 +191,10 @@ def surface_event_from_mapping(
     *,
     logical_id_key: str = "event_id",
 ) -> SurfaceEvent:
+    if surface is Surface.RUNTIME_EVENTSTORE:
+        raise EventFabricProjectionError(
+            "runtime mappings must use runtime_observation_from_stored()"
+        )
     logical_id = event.get(logical_id_key)
     if not isinstance(logical_id, str) or not logical_id:
         raise EventFabricProjectionError(f"missing logical event identity: {logical_id_key}")
