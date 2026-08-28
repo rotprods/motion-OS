@@ -4,12 +4,21 @@ from src.qa.alignment import (
     release_readiness,
     validate_canonical_truth,
     validate_checkpoints,
+    validate_weight_parity,
     validate_weights,
 )
 
 
 def test_alignment_weights_sum_to_one():
     result = validate_weights('config/alignment_weights.json')
+    assert result['ok'], result
+
+
+def test_alignment_weight_sources_have_semantic_parity():
+    result = validate_weight_parity(
+        'config/alignment_weights.json',
+        'config/alignment_weights.yaml',
+    )
     assert result['ok'], result
 
 
