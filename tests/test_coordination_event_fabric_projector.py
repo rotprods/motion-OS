@@ -145,6 +145,25 @@ def test_runtime_watermark_cannot_be_behind_observed_runtime_sequence():
         )
 
 
+def test_runtime_surface_cannot_bypass_sequence_evidence_wrapper():
+    raw_runtime = SurfaceEvent.create(
+        Surface.RUNTIME_EVENTSTORE,
+        "evt-runtime-direct",
+        {"event_id": "evt-runtime-direct", "event_type": "CHECKPOINT"},
+    )
+    with pytest.raises(EventFabricProjectionError, match="require RuntimeObservation"):
+        CanonicalEventFabricProjector().project(
+            live_main_sha=MAIN,
+            runtime_watermark=999,
+            surface_events=[raw_runtime],
+        )
+    with pytest.raises(EventFabricProjectionError, match="runtime mappings"):
+        surface_event_from_mapping(
+            Surface.RUNTIME_EVENTSTORE,
+            {"event_id": "evt-runtime-direct", "event_type": "CHECKPOINT"},
+        )
+
+
 def test_live_github_lifecycle_is_separate_authoritative_overlay():
     snapshot = CanonicalEventFabricProjector().project(
         live_main_sha=MAIN,
