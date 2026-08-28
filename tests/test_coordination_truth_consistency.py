@@ -29,6 +29,24 @@ def test_historical_claims_are_preserved_without_becoming_current_conflicts():
     assert report.conflicts == ()
 
 
+def test_scalar_types_are_normalized_without_string_coercion_bugs():
+    report = compile_truth_consistency(
+        live_github={"ci:green": True, "pr:count": 2},
+        claims=[
+            TruthClaim("machine-view", "ci:green", True),
+            TruthClaim("machine-view", "pr:count", 2),
+        ],
+    )
+    assert report.ok
+
+
+def test_ambiguous_truth_value_and_current_marker_fail_closed():
+    with pytest.raises(ValueError, match="scalar"):
+        compile_truth_consistency(live_github={"pr:44": {"state": "MERGED"}}, claims=[])
+    with pytest.raises(ValueError, match="current must be boolean"):
+        TruthClaim("surface", "pr:44", "MERGED", current="false")  # type: ignore[arg-type]
+
+
 def test_unknown_live_authority_domain_fails_closed():
     with pytest.raises(ValueError, match="unsupported live truth key"):
         compile_truth_consistency(
