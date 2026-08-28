@@ -1,0 +1,36 @@
+{
+  "event_id": "20260828T095100000000Z-chatgpt-graph-qa-integrity-work-completed",
+  "event_type": "work.completed",
+  "timestamp": "2026-08-28T09:51:00Z",
+  "agent_id": "motion://agent/chatgpt/graph-qa-integrity",
+  "project": "MOTION.OS",
+  "branch": "feat/p08-graph-qa-integrity",
+  "commit_sha": "db806556e989c8a559757496170d5c53de774075",
+  "pr_number": 59,
+  "summary": "Implemented run-scoped graph QA history and truthful RepairCandidate mutation projection with fail-closed target validation and adversarial regression coverage. Promotion remains blocked by the active Issue #39/#48 regression barrier.",
+  "affected_paths": [
+    "src/qa/graph_critic.py",
+    "src/qa/graph_repair.py",
+    "tests/test_phase05_graph_qa_repair_studio.py"
+  ],
+  "checks": {
+    "merge_safe_code_head": "PASS",
+    "python_3_12_contract": "PASS",
+    "additional_attach_findings_consumers": "NONE_FOUND",
+    "manual_code_review": "PASS_NO_P0_P1",
+    "manual_security_review": "PASS_NO_P0_P1",
+    "physical_analysis": "NOT_APPLICABLE_SKIPPED",
+    "physical_remotion": "NOT_APPLICABLE_SKIPPED",
+    "dependency_security": "NOT_APPLICABLE_SKIPPED"
+  },
+  "authority": "IMPLEMENTED",
+  "correlation_id": "issue48-p08-graph-qa-integrity",
+  "metadata": {
+    "project_id": "motion://project/motion-os",
+    "session_id": "motion://session/chatgpt/graph-qa-integrity/20260828T1144+0200",
+    "workstream_id": "motion://workstream/p08-graph-qa-integrity",
+    "base_sha": "a8d7dbddaeb4ad9779df9883d3cf4e4f6ea4f29d",
+    "code_head_verified": "db806556e989c8a559757496170d5c53de774075",
+    "next_safe_action": "Verify the final branch head containing immutable lifecycle events, then keep PR #59 draft until the regression barrier is explicitly released or its promotion train authorizes merge."
+  }
+}
