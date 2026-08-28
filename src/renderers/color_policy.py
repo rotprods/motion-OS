@@ -4,12 +4,14 @@ from dataclasses import asdict, dataclass
 from typing import Any, Mapping
 import hashlib
 import json
+import re
 
 
 _ALLOWED_PRIMARIES = {"bt709", "smpte432"}
 _ALLOWED_TRANSFERS = {"bt709", "iec61966-2-1"}
 _ALLOWED_MATRICES = {"bt709", "gbr"}
 _ALLOWED_RANGES = {"limited", "full"}
+_SAFE_FILTER_LABEL = re.compile(r"^[A-Za-z0-9_.:-]+$")
 
 
 @dataclass(frozen=True)
@@ -119,6 +121,10 @@ def build_color_normalization_plan(
         raise ValueError("no_artifacts")
     if len(set(artifact_ids)) != len(artifact_ids):
         raise ValueError("duplicate_artifact_id")
+    artifact_set = set(artifact_ids)
+    unknown_alpha = set(alpha_artifacts) - artifact_set
+    if unknown_alpha:
+        raise ValueError("unbound_alpha_artifacts:" + ",".join(sorted(unknown_alpha)))
     if backend != "zscale":
         raise ValueError(f"unsupported_color_backend:{backend}")
     if tone_map_policy != "reject_hdr":
@@ -127,7 +133,7 @@ def build_color_normalization_plan(
     if target.hdr:
         raise ValueError("hdr_target_not_supported")
 
-    extra_profiles = set(source_profiles) - set(artifact_ids)
+    extra_profiles = set(source_profiles) - artifact_set
     if extra_profiles:
         raise ValueError("unbound_color_profiles:" + ",".join(sorted(extra_profiles)))
 
@@ -147,7 +153,7 @@ def build_color_normalization_plan(
         binding.validate()
         bindings.append(binding)
 
-    authority = "contract_verified"
+    authority = "IMPLEMENTED"
     payload = _canonical_payload(
         target=target,
         bindings=tuple(bindings),
@@ -168,14 +174,19 @@ def build_color_normalization_plan(
     )
 
 
+def _validate_filter_label(label: str) -> None:
+    if not label or not _SAFE_FILTER_LABEL.fullmatch(label):
+        raise ValueError("unsafe_ffmpeg_filter_label")
+
+
 def ffmpeg_color_filter(binding: ArtifactColorBinding, target: ColorProfile, *, input_label: str, output_label: str) -> str:
     binding.validate()
     target.validate()
     source = binding.source
     if source.hdr or target.hdr:
         raise ValueError("hdr_color_conversion_not_qualified")
-    if not input_label or not output_label:
-        raise ValueError("color filter requires labels")
+    _validate_filter_label(input_label)
+    _validate_filter_label(output_label)
 
     zscale = (
         "zscale="
@@ -214,6 +225,8 @@ def validate_color_plan(plan: ColorNormalizationPlan, artifact_ids: list[str] | 
             errors.append("missing_bindings:" + ",".join(missing))
         if extra:
             errors.append("extra_bindings:" + ",".join(extra))
+    if plan.authority != "IMPLEMENTED":
+        errors.append("invalid_authority_state")
     try:
         plan.target.validate()
         for binding in plan.bindings:
