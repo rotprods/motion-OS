@@ -61,7 +61,7 @@ High-value motion families:
 - foreground-object rise;
 - hard-cut payoff punch.
 
-Measured/evidence-bound anchors already captured in the bundle include:
+Measured/evidence-bound anchors include:
 - talking-head face width grows from roughly 0.51 to 0.64 frame-width in the 4.9–7.2 s segment, then releases toward ~0.41 before the phone transition; this proves reframing but not a physical camera dolly;
 - phone-scroll median adjacent scale delta ~1.70%, p95 ~3.56%;
 - carousel p95 translation ~11.93 px on the 256×554 analysis copy;
@@ -112,7 +112,7 @@ Representative keyframe contracts:
 After Effects, Remotion and HyperFrames are executors of one canonical editing model, not three creative interpretations.
 
 Shared authority:
-`FrameTimeline + EditingGraph + CaptionGraph + DepthGraph + TransitionMap + AudioEventMap`.
+`FrameTimeline + EditingGraph + CaptionGraph + DepthGraph + TransitionMap + AudioEventMap + AtomicActionInventory`.
 
 Frame index is authoritative. Renderer adapters may change implementation primitives but may not alter source-bound timing, z-order, semantic hero hierarchy or transition type.
 
@@ -129,13 +129,29 @@ Existing conservative annotation:
 
 The important rule is not “add an effect every 250 ms”. Ordinary facial/body movement is excluded and the system deliberately uses low-entropy resets. Retention comes from **controlled changes in representation and attention target**, not indiscriminate object density.
 
-## Promotion state
+## Seven-loop observable-action gauntlet
+
+Current specimen result:
+- G01 Temporal census: PASS
+- G02 Caption + depth: PASS
+- G03 Motion + transitions: PASS
+- G04 Audio + retention: PASS
+- G05 Renderer parity: PASS
+- G06 Adversarial missing-action search: PASS
+- G07 Observable coverage closure: PASS_WITH_EXTERNAL_GATES
+
+98 observable atomic actions are indexed. Current measured P90 frame-change coverage = 100%; current measured P90 optical-flow peak coverage = 100%; every action has AE/Remotion/HyperFrames mapping.
+
+This grants only `OBSERVABLE_ACTION_CLOSED`, not hidden-project recovery or physical fidelity.
+
+## Reconciled promotion state
 
 - DRAFT_EXTRACTED: PASS
-- EVIDENCE_VALIDATED: PARTIAL
-- LAYER_MODEL_VALIDATED: manual visual v2
-- MOTION_VALIDATED: PARTIAL
-- AUDIO_SYNC_VALIDATED: PARTIAL
+- EVIDENCE_VALIDATED_OBSERVABLE: PASS
+- LAYER_MODEL_VALIDATED_OBSERVABLE: PASS
+- MOTION_MAPPING_VALIDATED_OBSERVABLE: PASS
+- AUDIO_SYNC_MAPPING_VALIDATED_OBSERVABLE: PASS
+- OBSERVABLE_ACTION_CLOSED: PASS
 - AE_RECONSTRUCTION_VALIDATED: NOT YET
 - REMOTION_RENDER_VALIDATED: NOT YET
 - HYPERFRAMES_RENDER_VALIDATED: NOT YET
@@ -143,4 +159,4 @@ The important rule is not “add an effect every 250 ms”. Ordinary facial/body
 - GENERALIZATION_VALIDATED: NOT YET
 - CANONICAL_TEMPLATE: NO
 
-Next empirical gate: reconstruct representative high-value scenes (caption punch, progressive UI, carousel, Factor X) from the canonical model in at least one physical renderer, compare against source, then generalize the same template with substituted content.
+Next empirical gate: freeze the 98-action graph, reconstruct S04/S11/S14/S16 without consulting the source for new creative decisions, compare against source, convert mismatch to defects and repeat until declared fidelity thresholds pass; only then run three substituted-content generalization tests.
