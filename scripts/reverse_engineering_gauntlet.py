@@ -23,8 +23,9 @@ def main() -> int:
     metrics = json.loads(Path(args.frame_metrics).read_text(encoding="utf-8"))
     report = gauntlet_coverage_from_frame_metrics(inventory, metrics)
     report["claim_boundary"] = (
-        "PASS means every currently measured P90 frame-change/motion peak is covered by at least one evidence-bound atomic operation. "
-        "It does not recover hidden original project internals and does not grant render/fidelity/generalization authority."
+        "PASS means required P90 plus deep P80/P75 measured frame-change/motion residuals have no unexplained events after "
+        "action/subevent/continuous/source-native adjudication. It does not recover hidden original project internals and does not "
+        "grant render/fidelity/generalization authority."
     )
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
