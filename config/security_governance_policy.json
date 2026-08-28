@@ -1,0 +1,27 @@
+{
+  "schema": "motion-os.security-governance-policy/v1",
+  "project_id": "motion://project/motion-os",
+  "default_branch": "main",
+  "required_repository_governance": {
+    "protected": true,
+    "ruleset_required": true,
+    "pull_request_required": true,
+    "force_push_allowed": false,
+    "deletion_allowed": false,
+    "required_status_checks": [
+      "MERGE_SAFE",
+      "Coordination Contracts"
+    ]
+  },
+  "security_gate": {
+    "static_gauntlet_required": true,
+    "dependency_audit_required_for_security_or_merge_profile": true,
+    "github_actions_must_use_commit_sha": true,
+    "credential_patterns_fail_closed": true
+  },
+  "authority_notes": [
+    "This file is desired policy, not proof that GitHub admin settings are enabled.",
+    "Live GitHub rulesets/branch protection remain external authority and must be read immediately before promotion.",
+    "A green repo test cannot substitute for missing branch/ruleset enforcement."
+  ]
+}
