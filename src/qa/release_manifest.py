@@ -17,6 +17,7 @@ class CreativeReleaseManifest:
     candidate_id: str
     media_sha256: str
     temporal_evidence_hash: str
+    creative_evidence_hash: str
     temporal_score: float
     creative_mean_score: float
     ranked_candidate_ids: tuple[str, ...]
@@ -28,6 +29,7 @@ def _payload(candidate: CreativeCandidate, result: TournamentResult) -> dict:
         "candidate_id": candidate.candidate_id,
         "media_sha256": candidate.media_sha256,
         "temporal_evidence_hash": candidate.temporal.evidence_hash,
+        "creative_evidence_hash": candidate.creative.content_hash(),
         "temporal_score": round(float(candidate.temporal.score), 6),
         "creative_mean_score": round(float(candidate.mean_score), 6),
         "ranked_candidate_ids": list(result.ranked_candidate_ids),
@@ -58,6 +60,7 @@ def build_release_manifest(result: TournamentResult, candidates: Iterable[Creati
         candidate_id=candidate.candidate_id,
         media_sha256=candidate.media_sha256,
         temporal_evidence_hash=candidate.temporal.evidence_hash,
+        creative_evidence_hash=candidate.creative.content_hash(),
         temporal_score=round(float(candidate.temporal.score), 6),
         creative_mean_score=round(float(candidate.mean_score), 6),
         ranked_candidate_ids=canonical.ranked_candidate_ids,
