@@ -29,6 +29,12 @@ def test_decimal_preserves_decimal_value_not_digit_concatenation():
     assert any("DECIMAL" in error for error in errors)
 
 
+def test_prose_decimal_is_not_misclassified_as_version():
+    tokens = extract_protected_tokens("La ratio es 1.5.")
+    assert [(token.kind, token.original) for token in tokens] == [("DECIMAL", "1.5")]
+    assert [(token.kind, token.original) for token in extract_protected_tokens("Usa versión 2.1.")] == [("VERSION", "versión 2.1")]
+
+
 def test_decimal_cannot_be_satisfied_by_currency_with_same_value():
     errors = tts_integrity_errors("La ratio es 1.5.", "Cuesta 1.5 EUR.")
     assert any("DECIMAL" in error for error in errors)
@@ -42,6 +48,7 @@ def test_year_preserves_semantic_token_not_shared_digits_in_currency():
 
 def test_version_preserves_label_and_components_not_flat_digits():
     assert tts_integrity_errors("Usa Motion 2.1.", "Usa Motion 2.1.") == []
+    assert tts_integrity_errors("Usa versión 2.1.", "Usa versión 2.1.") == []
     errors = tts_integrity_errors("Usa Motion 2.1.", "Usa Motion 21.")
     assert any("VERSION" in error for error in errors)
     errors = tts_integrity_errors("Usa Motion 2.1.", "Usa Other 2.1.")
