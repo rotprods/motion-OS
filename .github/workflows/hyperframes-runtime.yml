@@ -37,11 +37,12 @@ jobs:
         run: python -m pytest -q tests/test_hyperframes_runtime_contract.py tests/test_phase05_render_stack.py
       - name: Build deterministic MOTION.OS HyperFrames fixture
         run: python scripts/build_hyperframes_runtime_fixture.py
-      - name: Record pinned runtime versions
+      - name: Record pinned runtime versions and disable telemetry
         run: |
           node --version
           ffmpeg -version | head -n 1
           npx --yes hyperframes@0.8.17 --version
+          npx --yes hyperframes@0.8.17 telemetry disable
       - name: HyperFrames lint
         working-directory: runtime/hyperframes
         run: npx --yes hyperframes@0.8.17 lint --json
