@@ -1,3 +1,5 @@
+import pytest
+
 from src.graph.editing_graph import TypedEditingGraph
 from src.graph.model import Edge
 from src.qa.graph_critic import inspect_graph_contract, attach_findings
@@ -35,6 +37,42 @@ def test_graph_critic_attaches_defect_and_repair_tournament():
     decision=choose_candidate(candidates,scores,regression_pass=regress)
     assert decision['decision']=='PROMOTE'
     assert ':2' in decision['winner']
+
+
+def test_qa_history_ids_are_scoped_by_run_and_preserve_multiple_passes():
+    g=fixture_graph()
+    findings=inspect_graph_contract(g)
+
+    first=attach_findings(g,findings,run_id='qa:run:001')
+    second=attach_findings(g,findings,run_id='qa:run:002')
+
+    assert set(first).isdisjoint(second)
+    assert all(':qa:run:001:' in node_id for node_id in first)
+    assert all(':qa:run:002:' in node_id for node_id in second)
+    assert len(g.query_nodes(kind='Run')) == 2
+    assert len(g.query_nodes(kind='QAResult')) == len(findings) * 2
+    assert len(g.query_nodes(kind='Defect')) == len(findings) * 2
+    assert g.validate_typed()['ok'] is True
+
+
+def test_same_qa_run_replay_fails_closed_before_partial_history_mutation():
+    g=fixture_graph()
+    findings=inspect_graph_contract(g)
+    attach_findings(g,findings,run_id='qa:run:stable')
+    before_nodes=len(g.nodes)
+    before_edges=len(g.edges)
+
+    with pytest.raises(ValueError,match='qa run history already exists or collides'):
+        attach_findings(g,findings,run_id='qa:run:stable')
+
+    assert len(g.nodes) == before_nodes
+    assert len(g.edges) == before_edges
+
+
+def test_qa_run_id_cannot_alias_non_run_graph_node():
+    g=fixture_graph()
+    with pytest.raises(ValueError,match='collides with non-Run node'):
+        attach_findings(g,inspect_graph_contract(g),run_id='scene')
 
 
 def test_studio_inspector_and_zero_context_recovery():
