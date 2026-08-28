@@ -87,15 +87,13 @@ def _numeric_value(text: str) -> Decimal | None:
     return None
 
 
-def _currency_numeric_signature(text: str) -> object | None:
-    """Return a conservative value signature for currency claims.
+def _claim_numeric_signature(text: str) -> object | None:
+    """Conservative numeric identity for claims where separators can be ambiguous.
 
-    A single separator followed by exactly three digits is locale-ambiguous
-    (for example, ``1,000`` can be a grouped integer or a decimal depending on
-    locale).  Treat that spelling as an explicit lexeme instead of collapsing
-    it to Decimal(1), which previously let ``$1,000`` be satisfied by ``$1``.
-    Ambiguous formatting therefore requires equivalent formatting until a
-    locale-aware normalization policy is explicitly qualified.
+    A single separator followed by exactly three digits can mean either grouping
+    or a decimal depending on locale. Multiple separators are also locale- and
+    grouping-sensitive. We preserve those lexemes instead of guessing. This
+    prevents claims such as ``$1,000`` or ``1,000%`` from collapsing to ``1``.
     """
     lexeme = _numeric_lexeme(text)
     if lexeme is None:
@@ -137,9 +135,9 @@ def _semantic_signature(token: ProtectedToken) -> object | None:
     if token.kind == "URL":
         return token.original
     if token.kind == "PERCENT":
-        return _numeric_value(token.original)
+        return _claim_numeric_signature(token.original)
     if token.kind == "CURRENCY":
-        return (_currency_numeric_signature(token.original), _currency_family(token.original))
+        return (_claim_numeric_signature(token.original), _currency_family(token.original))
     if token.kind == "DATE_OR_YEAR":
         match = re.search(r"\b(?:19|20)\d{2}\b", token.original)
         return int(match.group(0)) if match else None
