@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, asdict
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Any, Iterable
 import hashlib
 import re
@@ -35,6 +35,26 @@ class SourceRisk:
         return bool(self.secret_hits)
 
 
+def _validate_verification_attestation(
+    verified_at: str | None,
+    verification_evidence: tuple[str, ...],
+) -> None:
+    if verified_at is None:
+        if verification_evidence:
+            raise ValueError("verification_evidence requires verified_at")
+        return
+    if not verification_evidence:
+        raise ValueError("verified_at requires verification_evidence")
+    if any(not isinstance(item, str) or not item.strip() for item in verification_evidence):
+        raise ValueError("verification_evidence entries must be non-empty strings")
+    try:
+        parsed = datetime.fromisoformat(verified_at.replace("Z", "+00:00"))
+    except (AttributeError, ValueError) as exc:
+        raise ValueError("verified_at must be ISO-8601") from exc
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise ValueError("verified_at must include timezone")
+
+
 @dataclass(frozen=True)
 class NormalizedClaim:
     claim_id: str
@@ -44,6 +64,9 @@ class NormalizedClaim:
     freshness: str = "UNKNOWN"
     verified_at: str | None = None
     verification_evidence: tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        _validate_verification_attestation(self.verified_at, self.verification_evidence)
 
     @property
     def verification_state(self) -> str:
@@ -79,26 +102,6 @@ def redact_source(text: str) -> str:
         out = re.sub(pattern, "[REDACTED_SECRET]", out)
     out = EMAIL_RE.sub("[REDACTED_EMAIL]", out)
     return out
-
-
-def _validate_verification_attestation(
-    verified_at: str | None,
-    verification_evidence: tuple[str, ...],
-) -> None:
-    if verified_at is None:
-        if verification_evidence:
-            raise ValueError("verification_evidence requires verified_at")
-        return
-    if not verification_evidence:
-        raise ValueError("verified_at requires verification_evidence")
-    if any(not isinstance(item, str) or not item.strip() for item in verification_evidence):
-        raise ValueError("verification_evidence entries must be non-empty strings")
-    try:
-        parsed = datetime.fromisoformat(verified_at.replace("Z", "+00:00"))
-    except ValueError as exc:
-        raise ValueError("verified_at must be ISO-8601") from exc
-    if parsed.tzinfo is None or parsed.utcoffset() is None:
-        raise ValueError("verified_at must include timezone")
 
 
 def normalize_claim(*, proposition: str, source_ref: str, evidence_strength: str,
