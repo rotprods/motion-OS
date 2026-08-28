@@ -86,10 +86,12 @@ def main() -> int:
         ))
 
     if args.profile in {"security", "merge"}:
-        if shutil.which("pip-audit"):
-            results.append(run("pip-audit", ["pip-audit"]))
-        else:
-            results.append({"name": "pip-audit", "status": "WARN", "required": False, "reason": "pip-audit not installed locally"})
+        results.append(run(
+            "repo-security-gauntlet",
+            [py, "scripts/security_gauntlet.py", "--json-out", ".artifacts/security-gauntlet.json"],
+        ))
+        pip_audit = require_binary("pip-audit")
+        results.append(run("pip-audit", [pip_audit]))
 
     report = {
         "schema": "motion-os.local-verification/v1",
