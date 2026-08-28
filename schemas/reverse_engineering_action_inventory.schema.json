@@ -48,9 +48,31 @@
           "parameters": {"type": "object"},
           "audio_link": {"type": ["string", "null"]},
           "z_role": {"type": ["string", "null"]},
+          "temporal_mode": {"enum": ["discrete", "continuous", "staggered", "hold", "compound", "source_native"]},
+          "motion_origin": {"enum": ["editorial", "source_native", "mixed", "unknown"]},
           "authority": {"enum": ["measured", "measured_heuristic", "measured_visible", "evidence_bound_inference", "inferred_from_mixed_audio", "assumption", "unknown"]},
           "confidence": {"type": "number", "minimum": 0, "maximum": 1},
           "evidence_refs": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "subevents": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["subevent_id", "start_frame", "impact_frame", "end_frame", "verb", "target", "parameters", "authority", "confidence", "evidence_refs"],
+              "properties": {
+                "subevent_id": {"type": "string", "minLength": 1},
+                "start_frame": {"type": "integer", "minimum": 0},
+                "impact_frame": {"type": "integer", "minimum": 0},
+                "end_frame": {"type": "integer", "minimum": 0},
+                "verb": {"type": "string", "minLength": 1},
+                "target": {"type": "string", "minLength": 1},
+                "parameters": {"type": "object"},
+                "authority": {"enum": ["measured", "measured_heuristic", "measured_visible", "evidence_bound_inference", "inferred_from_mixed_audio", "assumption", "unknown"]},
+                "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+                "evidence_refs": {"type": "array", "minItems": 1, "items": {"type": "string"}}
+              }
+            }
+          },
           "renderer_mapping": {
             "type": "object",
             "additionalProperties": false,
