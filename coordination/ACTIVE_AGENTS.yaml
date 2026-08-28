@@ -1,76 +1,114 @@
-schema_version: 1
-project: motion://project/MOTION.OS
-updated_at: 2026-08-27T13:08:00Z
+schema_version: 2
+project: motion://project/motion-os
 authority: bootstrap_read_model
+projection_base_sha: a8d7dbddaeb4ad9779df9883d3cf4e4f6ea4f29d
+live_reconciliation_required: true
 
-active_agents:
-  - agent_id: motion://agent/coordination-architect
-    runtime: chatgpt-gpt5.6-sol
-    status: FINAL_QUALIFICATION
-    branch: feat/agentic-coordination-kernel
-    pr: 44
-    workstream: motion://workstream/phase07-agentic-coordination
-    mission: Finalize Phase07 coordination, unified content lineage, recovery/security/operator surfaces and promote through MERGE_SAFE.
+active_workstreams:
+  - agent_id: motion://agent/chatgpt/regression-architect
+    session_id: motion://session/chatgpt/regression-architect/20260827T1700+0200
+    status: IMPLEMENTED
+    branch: feat/session-native-event-fabric-v2
+    pr: 53
+    workstream: motion://workstream/historical-regression-event-fabric
     owned_scopes:
-      - phase:07/agentic-coordination
-      - contract:coordination-event
-      - contract:coordination-event-store
-      - contract:resource-lease
-      - contract:context-pack
-      - contract:cos-projection
-      - contract:content-lineage-projection
-    shared_contracts:
-      - contract:avatar-handoff
-      - contract:stable-beat-identity
-      - contract:provenance-root
-      - contract:replay-fingerprint
-      - contract:studio-entry
-      - contract:scene-spec-runtime-consumption
-    notes: Phase06 contracts are canonical on main and are consumed read-only; no Phase06 business/render authority is replaced.
+      - contract:canonical-event-semantics
+      - contract:session-fabric
+      - file:src/coordination/session_fabric.py
+      - file:tests/test_coordination_session_fabric.py
+    notes: Open draft. Must rebase/reconcile because main advanced after its 080dfd5 base.
+
+  - agent_id: motion://agent/chatgpt/regression-auditor
+    status: PROPOSED
+    branch: feat/cognitive-pause-event-bus-reconciliation
+    pr: 52
+    workstream: motion://workstream/phase08-audit-docs
+    owned_scopes:
+      - file:architecture/ADR_008_CANONICAL_COORDINATION_EVENT_SOURCE.md
+      - file:architecture/canonical_event_bus_projection.mmd
+      - file:coordination/COGNITIVE_PAUSE_REGRESSION_2026_08_27.md
+      - file:plans/PHASE_08_CANONICAL_EVENT_BUS_RECONCILIATION.md
+    notes: Audit/docs-only draft; live lifecycle wins over its historical base.
+
+  - agent_id: motion://agent/chatgpt/truth-regression
+    session_id: motion://session/chatgpt/truth-regression/20260828T1116+0200
+    status: IMPLEMENTED
+    branch: fix/p08-canonical-truth-consistency
+    pr: null
+    workstream: motion://workstream/canonical-truth-consistency
+    owned_scopes:
+      - contract:canonical-truth-consistency
+      - capability:release-authority-projection
+      - file:state/project_state.json
+      - file:state/checkpoints.json
+      - file:STATE.md
+      - file:TASKS.md
+      - file:HANDOFF.md
+      - file:coordination/ACTIVE_AGENTS.yaml
+      - file:scripts/repo_health.py
+      - file:src/qa/alignment.py
+      - file:scripts/change_impact.py
+      - file:tests/test_alignment_v08.py
+      - file:tests/test_change_impact.py
+    notes: Isolated REG-013 truth reconciliation; no Event Fabric files from PR #53 are mutated.
 
 integrated_capabilities:
   - capability:phase06-content-avatar
     source_pr: 37
-    source_branch: feat/avatar-script-engine
-    status: MERGED_VERIFIED
+    status: VERIFIED
     merge_sha: 6ef91a9fe092387b888d25da67006d68f455d229
-    notes: Content Intelligence + Avatar Factory + sealed Studio handoff + transactional single-host authority are canonical on main.
-  - capability:local-first-merge-train
-    source_pr: 46
-    status: MERGED_VERIFIED
-    merge_sha: 746c9243ba22452af993e78ca4db89faacc267ca
-    notes: MERGE_SAFE is repository merge authority; Phase07 Coordination Contracts is complementary contract evidence.
-  - capability:studio-engine
-    source_pr: 38
-    status: MERGED_VERIFIED_BY_REPO_HISTORY
-    notes: Replaces historical #35 as current-main Studio Engine foundation.
   - capability:renderer/remotion
     source_pr: 42
-    status: MERGED_RUNTIME_VERIFIED
-    notes: Replaces historical #34 as canonical Remotion runtime capability.
+    status: VERIFIED
+    notes: Physical runtime authority; frame_count/fps is visual duration authority.
+  - capability:local-first-merge-train
+    source_pr: 46
+    status: VERIFIED
+    merge_sha: 746c9243ba22452af993e78ca4db89faacc267ca
+  - capability:phase07-coordination
+    source_pr: 44
+    status: VERIFIED
+    merge_sha: 080dfd5c16bc06100edd716eadc770530dc47af2
+  - capability:graph-scheduler-filtered-dependencies
+    source_pr: 54
+    status: IMPLEMENTED
+    notes: Merged regression fix; clean-runner/post-merge authority must be evaluated from live CI evidence, not this projection alone.
+  - capability:multi-render-global-clock-z-order
+    source_pr: 55
+    status: IMPLEMENTED
+    merge_sha: a8d7dbddaeb4ad9779df9883d3cf4e4f6ea4f29d
+    notes: Merged regression fix; this bootstrap projection does not self-promote clean-runner verification.
 
 historical_workstreams:
   - pr: 34
-    status: CLOSED_UNMERGED_SUPERSEDED_BY_42
+    status: SUPERSEDED
   - pr: 35
-    status: CLOSED_UNMERGED_SUPERSEDED_BY_38
+    status: SUPERSEDED
   - pr: 37
-    status: MERGED
+    status: VERIFIED
   - pr: 40
-    status: CLOSED_UNMERGED_SUPERSEDED_BY_44
-  - pr: 43
-    status: CLOSED_DUPLICATE_BUS
-  - pr: 45
-    status: CLOSED_DUPLICATE_EPIC
+    status: SUPERSEDED
+  - pr: 44
+    status: VERIFIED
   - pr: 46
-    status: MERGED
+    status: VERIFIED
+  - pr: 47
+    status: VERIFIED
+  - pr: 49
+    status: SUPERSEDED
+  - pr: 50
+    status: SUPERSEDED
+  - pr: 54
+    status: IMPLEMENTED
+  - pr: 55
+    status: IMPLEMENTED
 
 bootstrap_rules:
   - This file is a bootstrap read model, never write authority.
-  - GitHub main plus MERGE_SAFE is executable promotion truth.
-  - PR closed, merged, CI-green, deployed and verified are separate lifecycle facts.
+  - Live GitHub lifecycle plus valid canonical event semantics supersede stale lifecycle projections.
+  - A projection_base_sha is provenance for this snapshot, not a claim that main is still at that SHA.
+  - PR closed, merged, CI-green, deployed and verified are distinct lifecycle/assurance facts.
   - GitHub lifecycle drift invalidates ContextPacks that depend on this topology.
-  - Agent/session identity must be canonical motion:// URIs before protected writes.
-  - Phase06 SQLite/WAL remains single-host authority; Phase07 local/reference semantics do not imply multi-host authority.
-  - COS is derived/rebuildable and cannot authorize writes.
-  - A superseded workstream stays visible as lineage, not as an active owner.
+  - Session identity and resource-scope preflight are mandatory before protected writes.
+  - Phase06 SQLite/WAL remains single-host authority; Phase07 reference/local coordination does not imply multi-host authority.
+  - COS/Unified Graph is derived and rebuildable and cannot authorize reverse writes.
