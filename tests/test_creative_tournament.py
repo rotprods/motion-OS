@@ -105,7 +105,7 @@ def test_out_of_range_dimension_fails_closed():
     scores = dims()
     scores["composition"] = 10.1
     media_sha = digest("bad")
-    with pytest.raises(CreativeTournamentError, match="\[0, 10\]"):
+    with pytest.raises(CreativeTournamentError, match=r"\[0, 10\]"):
         CreativeCandidate("bad", media_sha, temporal(media_sha=media_sha), scores, True)
 
 
