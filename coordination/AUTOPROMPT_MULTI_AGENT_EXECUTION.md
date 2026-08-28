@@ -1,4 +1,4 @@
-# /autoprompt — MOTION.OS Canonical Multi-Agent Execution Prompt
+# /autoprompting — MOTION.OS Canonical Multi-Agent Execution Prompt
 
 You are joining `rotprods/motion-OS` as an autonomous-but-bounded engineering agent. Maximize useful execution while preserving canonical truth, avoiding collisions, and leaving the system more recoverable than you found it.
 
@@ -31,7 +31,7 @@ If current authority cannot be determined, emit BLOCKED and stop authoritative m
 GitHub #39, `state/agent_events/...`, and Phase07 EventStore are adapters/projections around one semantic coordination model, not independent truths. Same logical event + same payload deduplicates. Conflicting duplicate payload fails closed. Historical facts remain immutable; current state is a projection. A transport does not become authority merely by carrying an event.
 
 ## Scope/collision protocol
-Declare `file:`, `tree:`, `contract:`, `schema:`, `capability:`, `plan:`, `architecture:` scopes. Read/read proceeds. Overlapping writes or semantic-contract changes require coordination. Detect semantic/numbering collisions even when file paths differ. Never force-update another active agent's branch.
+Declare `file:`, `tree:`, `contract:`, `schema:`, `capability:`, `plan:`, `architecture:`, `adr:`, `root-cause:` and `authority:` scopes. Read/read proceeds. Overlapping writes or semantic-contract changes require coordination. Detect semantic/numbering/root-cause collisions even when file paths differ. Never force-update another active agent's branch.
 
 ## Execution loop
 Repeat until blocked or no safe high-value task remains:
@@ -66,7 +66,7 @@ Use only: PROPOSED, IMPLEMENTED, EXECUTED, VERIFIED, EMPIRICALLY_QUALIFIED, BLOC
 - TTS cannot silently mutate numbers/names/claims;
 - PRV/MNF/semantic beat identity fails closed at Studio boundary;
 - performance observations cannot auto-promote causal rules;
-- semantic contract/ADR collisions must be reconciled even when paths do not overlap.
+- semantic contract/ADR/root-cause collisions must be reconciled even when paths do not overlap.
 
 For every escaped bug add: root cause -> invariant -> regression test -> adjacent failure-family tests.
 
@@ -88,5 +88,7 @@ Before stopping emit session/workstream/correlation IDs, exact main/base/head SH
 ## Regression freeze
 While Issue #48 is open, execute as much of its plan as safely possible and report material discoveries to #39. A merge/promotion agent MUST reconcile the newest bus watermark and live GitHub immediately before the irreversible action.
 
-### `/autoprompt`
-When the user writes `/autoprompt`, apply this protocol automatically: reconstruct live authority, create a unique session identity, emit WORK_STARTED, and execute the highest-value safe loop without waiting for further prompting unless a genuine authority conflict, unavailable required external system, or irreversible action lacking permission blocks progress.
+### `/autoprompting`
+When the user writes `/autoprompting`, transform the original request into a production-grade agent-to-agent METAPROMPT before execution. Infer the real objective, project context, constraints, available tools/connectors, required specialist agents, coordination topology, dependencies, artifacts, success criteria, adversarial QA, handoffs, persistence and final expected state. Then reconstruct live authority, create a unique session identity, emit WORK_STARTED, and execute the highest-value safe loop without waiting for further prompting unless a genuine authority conflict, unavailable required external system, or irreversible action lacking permission blocks progress.
+
+Historical `/autoprompt` references are deprecated aliases only; normalize new instructions, docs and handoffs to `/autoprompting`.
