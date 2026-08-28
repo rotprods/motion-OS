@@ -11,6 +11,12 @@ def test_percentage_accepts_equivalent_spoken_spanish_form():
     assert tts_integrity_errors("Mejora un 10%.", "Mejora un 10 por ciento.") == []
 
 
+def test_grouped_percentage_cannot_collapse_to_prefix_value():
+    assert tts_integrity_errors("Sube 1,000%.", "Sube 1,000%.") == []
+    errors = tts_integrity_errors("Sube 1,000%.", "Sube 1%.")
+    assert any("PERCENT" in error for error in errors)
+
+
 def test_currency_value_and_family_are_both_protected():
     assert tts_integrity_errors("Cuesta $10.", "Cuesta 10 dólares.") == []
     assert tts_integrity_errors("Cuesta €10.", "Cuesta diez euros.") == []
