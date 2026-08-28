@@ -1,6 +1,6 @@
 import pytest
 
-from src.content.source_security import normalize_claim, source_pack
+from src.content.source_security import NormalizedClaim, normalize_claim, source_pack
 
 
 def test_normalization_never_fabricates_verification_timestamp():
@@ -30,6 +30,17 @@ def test_verified_claim_requires_timestamp_and_evidence_as_one_attestation():
             source_ref="https://example.com",
             evidence_strength="DIRECT",
             verification_evidence=("artifact:sha256:abc",),
+        )
+
+
+def test_direct_dataclass_construction_cannot_bypass_verification_invariant():
+    with pytest.raises(ValueError, match="verified_at requires verification_evidence"):
+        NormalizedClaim(
+            claim_id="CLM_FAKE",
+            proposition="Dato",
+            source_ref="source",
+            evidence_strength="DIRECT",
+            verified_at="2026-08-28T12:00:00Z",
         )
 
 
