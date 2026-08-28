@@ -5,12 +5,20 @@ from decimal import Decimal, InvalidOperation
 from typing import Iterable
 import re
 
+VERSION_PATTERN = re.compile(
+    r"\b(?:"
+    r"[A-Za-z][A-Za-z0-9_-]*-?\d+(?:\.\d+)+"
+    r"|[A-Z][A-Za-z0-9_-]+\s+\d+(?:\.\d+)+"
+    r"|(?i:versi[oó]n)\s+\d+(?:\.\d+)+"
+    r")\b"
+)
+
 TOKEN_PATTERNS = {
     "PERCENT": re.compile(r"\b\d+(?:[.,]\d+)?\s?%"),
     "CURRENCY": re.compile(r"(?:[$€£]\s?\d[\d.,]*|\b\d[\d.,]*\s?(?:USD|EUR|GBP|d[oó]lares?|euros?|libras?)\b)", re.I),
     "DATE_OR_YEAR": re.compile(r"\b(?:19|20)\d{2}\b"),
     "DECIMAL": re.compile(r"\b\d+[.,]\d+\b"),
-    "VERSION": re.compile(r"\b[A-Za-z][A-Za-z0-9_-]*[- ]?\d+(?:\.\d+)+\b"),
+    "VERSION": VERSION_PATTERN,
     "URL": re.compile(r"https?://[^\s]+", re.I),
 }
 
@@ -84,11 +92,16 @@ def _currency_family(text: str) -> str | None:
 
 
 def _version_signature(text: str) -> tuple[str, tuple[int, ...]] | None:
-    match = re.search(r"\b(?P<label>[A-Za-z][A-Za-z0-9_-]*?)[- ]?(?P<version>\d+(?:\.\d+)+)\b", text)
-    if not match:
+    if VERSION_PATTERN.fullmatch(text.strip()) is None:
         return None
-    components = tuple(int(part) for part in match.group("version").split("."))
-    return match.group("label").casefold(), components
+    version_match = re.search(r"\d+(?:\.\d+)+", text)
+    if not version_match:
+        return None
+    label = text[:version_match.start()].rstrip(" -").casefold()
+    if not label:
+        return None
+    components = tuple(int(part) for part in version_match.group(0).split("."))
+    return label, components
 
 
 def _semantic_signature(token: ProtectedToken) -> object | None:
