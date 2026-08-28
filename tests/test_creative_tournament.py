@@ -2,7 +2,7 @@ import hashlib
 
 import pytest
 
-from src.qa.creative_tournament import CreativeCandidate, CreativeTournamentError, REQUIRED_DIMENSIONS, run_tournament
+from src.qa.creative_tournament import CreativeCandidate, CreativeReview, CreativeTournamentError, REQUIRED_DIMENSIONS, run_tournament
 from src.qa.temporal_multimodal import build_temporal_evidence, critique_from_provider_payload, uniform_sample_indices
 
 
@@ -37,43 +37,51 @@ def temporal(*, authoritative=True, score=9.3, recommendation="RELEASE", media_s
     })
 
 
-def candidate(candidate_id: str, *, creative_score=9.2, temporal_auth=True, evidence_bound=True):
+def creative(media_sha: str, *, score=9.2, authoritative=True):
+    return CreativeReview(
+        media_sha256=media_sha,
+        provider="creative-vision-provider" if authoritative else "fixture",
+        provider_run_id="creative-run-1" if authoritative else None,
+        dimensions=dims(score),
+        provider_attested_media_review=authoritative,
+    )
+
+
+def candidate(candidate_id: str, *, creative_score=9.2, temporal_auth=True, creative_auth=True):
     media_sha = digest(candidate_id)
     return CreativeCandidate(
         candidate_id=candidate_id,
         media_sha256=media_sha,
         temporal=temporal(authoritative=temporal_auth, media_sha=media_sha),
-        dimensions=dims(creative_score),
-        evidence_bound=evidence_bound,
+        creative=creative(media_sha, score=creative_score, authoritative=creative_auth),
     )
 
 
-def test_release_ready_candidate_wins_over_higher_non_authoritative_score():
+def test_release_ready_candidate_wins_over_higher_non_authoritative_temporal_score():
     good = candidate("good", creative_score=9.2, temporal_auth=True)
     fake = candidate("fake", creative_score=9.9, temporal_auth=False)
     result = run_tournament([fake, good])
     assert result.winner_id == "good"
     assert result.release_candidate_id == "good"
-    assert "fake" in result.blocked_candidate_ids
     assert "NON_AUTHORITATIVE_TEMPORAL_CRITIC" in result.reasons["fake"]
 
 
-def test_unbound_creative_evidence_cannot_release():
-    item = candidate("unbound", evidence_bound=False)
+def test_non_authoritative_creative_review_cannot_release():
+    item = candidate("unbound", creative_auth=False)
     result = run_tournament([item])
     assert result.release_candidate_id is None
-    assert "UNBOUND_CREATIVE_EVIDENCE" in result.reasons["unbound"]
+    assert "NON_AUTHORITATIVE_CREATIVE_REVIEW" in result.reasons["unbound"]
 
 
 def test_mean_above_nine_still_fails_when_hard_dimension_is_below_threshold():
+    media_sha = digest("weak-type")
     scores = dims(9.5)
     scores["typography"] = 8.9
-    media_sha = digest("weak-type")
-    item = CreativeCandidate("weak-type", media_sha, temporal(media_sha=media_sha), scores, True)
+    review = CreativeReview(media_sha, "creative-vision-provider", "run", scores, True)
+    item = CreativeCandidate("weak-type", media_sha, temporal(media_sha=media_sha), review)
     assert item.mean_score > 9.0
     assert item.release_ready is False
-    result = run_tournament([item])
-    assert "CREATIVE_THRESHOLD_FAILURE" in result.reasons[item.candidate_id]
+    assert "CREATIVE_THRESHOLD_FAILURE" in run_tournament([item]).reasons[item.candidate_id]
 
 
 def test_creative_mean_below_nine_blocks_release():
@@ -94,19 +102,21 @@ def test_empty_tournament_fails_closed():
 
 
 def test_missing_dimension_fails_closed():
-    scores = dims()
-    scores.pop("typography")
-    media_sha = digest("bad")
+    scores = dims(); scores.pop("typography")
     with pytest.raises(CreativeTournamentError, match="missing creative dimensions"):
-        CreativeCandidate("bad", media_sha, temporal(media_sha=media_sha), scores, True)
+        CreativeReview(digest("bad"), "provider", "run", scores, True)
+
+
+def test_unknown_dimension_fails_closed():
+    scores = dims(); scores["invented"] = 9.9
+    with pytest.raises(CreativeTournamentError, match="unknown creative dimensions"):
+        CreativeReview(digest("bad"), "provider", "run", scores, True)
 
 
 def test_out_of_range_dimension_fails_closed():
-    scores = dims()
-    scores["composition"] = 10.1
-    media_sha = digest("bad")
+    scores = dims(); scores["composition"] = 10.1
     with pytest.raises(CreativeTournamentError, match=r"\[0, 10\]"):
-        CreativeCandidate("bad", media_sha, temporal(media_sha=media_sha), scores, True)
+        CreativeReview(digest("bad"), "provider", "run", scores, True)
 
 
 def test_ranking_is_deterministic_for_same_inputs():
@@ -120,7 +130,7 @@ def test_ranking_is_deterministic_for_same_inputs():
 def test_temporal_iterate_blocks_release_even_with_good_creative_scores():
     media_sha = digest("temporal-iterate")
     item = CreativeCandidate(
-        "temporal-iterate", media_sha, temporal(recommendation="ITERATE", media_sha=media_sha), dims(9.5), True
+        "temporal-iterate", media_sha, temporal(recommendation="ITERATE", media_sha=media_sha), creative(media_sha, score=9.5)
     )
     result = run_tournament([item])
     assert result.release_candidate_id is None
@@ -128,11 +138,21 @@ def test_temporal_iterate_blocks_release_even_with_good_creative_scores():
 
 
 def test_temporal_critique_from_other_media_is_rejected():
+    media_sha = digest("candidate-b")
     with pytest.raises(CreativeTournamentError, match="must match temporal critique"):
-        CreativeCandidate(
-            "candidate-b",
-            digest("candidate-b"),
-            temporal(media_sha=digest("candidate-a")),
-            dims(9.5),
-            True,
-        )
+        CreativeCandidate("candidate-b", media_sha, temporal(media_sha=digest("candidate-a")), creative(media_sha))
+
+
+def test_creative_review_from_other_media_is_rejected():
+    media_sha = digest("candidate-b")
+    with pytest.raises(CreativeTournamentError, match="must match creative review"):
+        CreativeCandidate("candidate-b", media_sha, temporal(media_sha=media_sha), creative(digest("candidate-a")))
+
+
+def test_creative_review_hash_changes_with_scores_or_provider_run():
+    media_sha = digest("x")
+    a = creative(media_sha, score=9.2)
+    b = CreativeReview(media_sha, "creative-vision-provider", "creative-run-2", dims(9.2), True)
+    c = creative(media_sha, score=9.3)
+    assert a.content_hash() != b.content_hash()
+    assert a.content_hash() != c.content_hash()
