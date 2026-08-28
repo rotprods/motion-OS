@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0.0",
+  "video_id": "screenrecording_2026-08-26_173251",
+  "loops": [
+    {"loop_id":"G01_TEMPORAL_CENSUS","status":"PASS","evidence":["18/18 scenes bounded","27/27 P90 MAD peaks mapped","29/29 P90 flow peaks mapped"],"residuals":["hidden internal cut construction unknowable from flattened MP4"]},
+    {"loop_id":"G02_CAPTION_DEPTH","status":"PASS","evidence":["hero-word behaviors recorded","phone/card/foreground depth roles recorded","source-lock UI separated"],"residuals":["exact font files unavailable","original roto/matte construction unknown"]},
+    {"loop_id":"G03_MOTION_TRANSITIONS","status":"PASS","evidence":["major transition clusters classified","apparent camera moves represented conservatively as reframe/depth actions","glitch/flash/iris/carousel/row-stagger mapped"],"residuals":["exact Graph Editor curves require render calibration","exact plugin parameters unknown"]},
+    {"loop_id":"G04_AUDIO_RETENTION","status":"PASS","evidence":["strong onsets linked to major caption/transition events","representation-mode switching identified as primary retention mechanism","low-entropy reset isolated"],"residuals":["audio stems unavailable; SFX classes inferred"]},
+    {"loop_id":"G05_RENDERER_PARITY","status":"PASS","evidence":["all 98 actions have AE/Remotion/HyperFrames mappings","creative timing renderer-independent"],"residuals":["physical renderer output not yet compared"]},
+    {"loop_id":"G06_ADVERSARIAL_MISSING_ACTION","status":"PASS","evidence":["no current P90 change/motion peak unmapped","all scenes have actions or deliberate hold/source-lock states"],"residuals":["sub-threshold micro-events remain testable by reconstruction diff"]},
+    {"loop_id":"G07_COVERAGE_CLOSURE","status":"PASS_WITH_EXTERNAL_GATES","evidence":["observable action census closed under declared definition","unknown internals explicit"],"residuals":["physical reconstruction fidelity pending","3x content substitution pending"]}
+  ],
+  "closure": {
+    "observable_action_coverage": 1.0,
+    "claim": "100% of currently observable high-salience replicable action classes and measured P90 change/motion peaks are represented or explicitly source-locked/unknown. This is not recovery of hidden original project internals.",
+    "next_required_gate": "physical golden-scene reconstruction + frame-level visual/motion/audio diff"
+  }
+}
