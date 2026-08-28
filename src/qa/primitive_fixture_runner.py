@@ -44,6 +44,19 @@ class FixtureSpec:
 
 
 @dataclass(frozen=True)
+class IdentityVerification:
+    passed: bool
+    assertions: tuple[str, ...] = ()
+    findings: tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        if self.passed and not self.assertions:
+            raise PrimitiveQualificationError('passing identity verification requires explicit assertions')
+        if not self.passed and not self.findings:
+            raise PrimitiveQualificationError('failing identity verification requires explicit findings')
+
+
+@dataclass(frozen=True)
 class FixtureExecutionResult:
     fixture: FixtureSpec
     evidence: PrimitiveEvidence
@@ -52,6 +65,7 @@ class FixtureExecutionResult:
 
 
 RendererExecutor = Callable[[FixtureSpec, Path], str | Path | None]
+ArtifactIdentityVerifier = Callable[[FixtureSpec, Path], IdentityVerification]
 
 
 DEFAULT_ASSERTIONS = (
@@ -59,7 +73,6 @@ DEFAULT_ASSERTIONS = (
     'resolution_matches_fixture',
     'frame_count_matches_global_clock',
     'visual_duration_matches_frame_count_over_fps',
-    'primitive_identity_matches_fixture',
 )
 
 
@@ -143,6 +156,7 @@ def execute_physical_fixture(
     test_run_id: str,
     output_dir: str | Path,
     executor: RendererExecutor,
+    identity_verifier: ArtifactIdentityVerifier | None = None,
 ) -> FixtureExecutionResult:
     root = Path(output_dir) / spec.renderer / spec.primitive_id
     root.mkdir(parents=True, exist_ok=True)
@@ -196,8 +210,22 @@ def execute_physical_fixture(
     if media['frames'] != expected_frames:
         findings.append('frame_count_mismatch')
 
+    identity_assertions: tuple[str, ...] = ()
+    if identity_verifier is None:
+        findings.append('primitive_identity_unverified')
+    else:
+        try:
+            identity = identity_verifier(spec, artifact_path)
+            if identity.passed:
+                identity_assertions = identity.assertions
+            else:
+                findings.extend(identity.findings)
+        except Exception as exc:
+            findings.append(f'identity_verifier_exception:{type(exc).__name__}:{exc}')
+
     passed = not findings
     visual_duration_ms = round(media['frames'] / spec.fps * 1000) if media['frames'] > 0 else None
+    success_assertions = tuple(spec.assertions) + tuple(identity_assertions)
     evidence = PrimitiveEvidence(
         evidence_id=f'physical:{test_run_id}:{spec.primitive_id}:{spec.renderer}',
         primitive_id=spec.primitive_id,
@@ -211,7 +239,7 @@ def execute_physical_fixture(
         frame_count=media['frames'] if media['frames'] > 0 else None,
         fps=float(spec.fps) if media['frames'] > 0 else None,
         visual_duration_ms=visual_duration_ms,
-        assertions=spec.assertions if passed else tuple(findings),
+        assertions=success_assertions if passed else tuple(findings),
     )
     return FixtureExecutionResult(spec, evidence, str(artifact_path), tuple(findings))
 
@@ -225,7 +253,7 @@ def qualification_plan() -> dict:
         'renderer_cases': len(specs),
         'renderers': renderers,
         'cases_by_renderer': {renderer: sum(spec.renderer == renderer for spec in specs) for renderer in renderers},
-        'authority_rule': 'primitive PHYSICALLY_VERIFIED only when every declared renderer has passing physical evidence',
+        'authority_rule': 'primitive PHYSICALLY_VERIFIED only when every declared renderer has passing physical evidence plus fixture-specific identity verification',
     }
 
 
