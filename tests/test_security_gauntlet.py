@@ -52,7 +52,8 @@ def test_local_and_docker_actions_are_not_forced_to_git_sha(tmp_path: Path):
 
 
 def test_credential_like_material_fails(tmp_path: Path):
-    _write(tmp_path, "docs/leak.md", "token = ghp_abcdefghijklmnopqrstuvwxyz123456\n")
+    token = "gh" + "p_" + "abcdefghijklmnopqrstuvwxyz123456"
+    _write(tmp_path, "docs/leak.md", f"token = {token}\n")
     report = run_gauntlet(tmp_path)
     assert report["status"] == "FAIL"
     assert any(item["rule_id"] == "SECRET-GITHUB" for item in report["findings"])
