@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import hashlib
+import json
 from typing import Iterable
 
 from src.qa.temporal_multimodal import TemporalCritique, release_eligible
@@ -39,12 +41,46 @@ THRESHOLDS = {
 
 
 @dataclass(frozen=True)
+class CreativeReview:
+    media_sha256: str
+    provider: str
+    provider_run_id: str | None
+    dimensions: dict[str, float]
+    provider_attested_media_review: bool
+
+    def __post_init__(self) -> None:
+        if len(self.media_sha256) != 64 or any(c not in "0123456789abcdef" for c in self.media_sha256.lower()):
+            raise CreativeTournamentError("creative review media_sha256 must be a 64-character hex digest")
+        missing = REQUIRED_DIMENSIONS - set(self.dimensions)
+        if missing:
+            raise CreativeTournamentError(f"missing creative dimensions: {sorted(missing)}")
+        unknown = set(self.dimensions) - REQUIRED_DIMENSIONS
+        if unknown:
+            raise CreativeTournamentError(f"unknown creative dimensions: {sorted(unknown)}")
+        if any(not 0.0 <= float(score) <= 10.0 for score in self.dimensions.values()):
+            raise CreativeTournamentError("creative dimensions must be in [0, 10]")
+
+    @property
+    def authoritative_evidence(self) -> bool:
+        return bool(self.provider_attested_media_review and self.provider_run_id and self.provider not in {"", "unbound", "fixture"})
+
+    def content_hash(self) -> str:
+        payload = {
+            "media_sha256": self.media_sha256,
+            "provider": self.provider,
+            "provider_run_id": self.provider_run_id,
+            "provider_attested_media_review": self.provider_attested_media_review,
+            "dimensions": {key: round(float(self.dimensions[key]), 6) for key in sorted(self.dimensions)},
+        }
+        return hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
+@dataclass(frozen=True)
 class CreativeCandidate:
     candidate_id: str
     media_sha256: str
     temporal: TemporalCritique
-    dimensions: dict[str, float]
-    evidence_bound: bool
+    creative: CreativeReview
 
     def __post_init__(self) -> None:
         if not self.candidate_id:
@@ -53,11 +89,12 @@ class CreativeCandidate:
             raise CreativeTournamentError("media_sha256 must be a 64-character hex digest")
         if self.media_sha256 != self.temporal.media_sha256:
             raise CreativeTournamentError("creative candidate media_sha256 must match temporal critique media_sha256")
-        missing = REQUIRED_DIMENSIONS - set(self.dimensions)
-        if missing:
-            raise CreativeTournamentError(f"missing creative dimensions: {sorted(missing)}")
-        if any(not 0.0 <= float(score) <= 10.0 for score in self.dimensions.values()):
-            raise CreativeTournamentError("creative dimensions must be in [0, 10]")
+        if self.media_sha256 != self.creative.media_sha256:
+            raise CreativeTournamentError("creative candidate media_sha256 must match creative review media_sha256")
+
+    @property
+    def dimensions(self) -> dict[str, float]:
+        return self.creative.dimensions
 
     @property
     def mean_score(self) -> float:
@@ -74,7 +111,7 @@ class CreativeCandidate:
     @property
     def release_ready(self) -> bool:
         return bool(
-            self.evidence_bound
+            self.creative.authoritative_evidence
             and release_eligible(self.temporal)
             and self.mean_score >= 9.0
             and not self.threshold_failures
@@ -92,8 +129,8 @@ class TournamentResult:
 
 def _reasons(candidate: CreativeCandidate) -> tuple[str, ...]:
     reasons: list[str] = []
-    if not candidate.evidence_bound:
-        reasons.append("UNBOUND_CREATIVE_EVIDENCE")
+    if not candidate.creative.authoritative_evidence:
+        reasons.append("NON_AUTHORITATIVE_CREATIVE_REVIEW")
     if not candidate.temporal.authoritative:
         reasons.append("NON_AUTHORITATIVE_TEMPORAL_CRITIC")
     if not release_eligible(candidate.temporal):
@@ -118,6 +155,7 @@ def run_tournament(candidates: Iterable[CreativeCandidate]) -> TournamentResult:
         key=lambda candidate: (
             candidate.release_ready,
             candidate.temporal.authoritative,
+            candidate.creative.authoritative_evidence,
             round(candidate.mean_score, 6),
             round(candidate.temporal.score, 6),
             candidate.candidate_id,
