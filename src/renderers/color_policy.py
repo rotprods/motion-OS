@@ -11,6 +11,8 @@ _ALLOWED_PRIMARIES = {"bt709", "smpte432"}
 _ALLOWED_TRANSFERS = {"bt709", "iec61966-2-1"}
 _ALLOWED_MATRICES = {"bt709", "gbr"}
 _ALLOWED_RANGES = {"limited", "full"}
+_HDR_TRANSFER_TOKENS = {"smpte2084", "arib-std-b67"}
+_RANGE_ALIASES = {"tv": "limited", "mpeg": "limited", "limited": "limited", "pc": "full", "jpeg": "full", "full": "full"}
 _SAFE_FILTER_LABEL = re.compile(r"^[A-Za-z0-9_.:-]+$")
 
 
@@ -67,6 +69,46 @@ DISPLAY_P3_SRGB_FULL = ColorProfile(
     range="full",
     evidence=("declared_display_p3_space",),
 )
+
+
+def color_profile_from_probe(artifact_id: str, probe: Mapping[str, Any], *, evidence_ref: str) -> ColorProfile:
+    """Derive an SDR color profile from observed media metadata.
+
+    This function intentionally refuses to infer missing/unknown colorimetry and
+    rejects detected HDR transfers until a separate tone-map policy is qualified.
+    """
+    if not artifact_id.strip():
+        raise ValueError("probe profile requires artifact_id")
+    if not evidence_ref.strip():
+        raise ValueError("probe profile requires evidence_ref")
+
+    primaries = str(probe.get("color_primaries") or "").strip().lower()
+    transfer = str(probe.get("color_transfer") or "").strip().lower()
+    matrix = str(probe.get("color_space") or "").strip().lower()
+    range_raw = str(probe.get("color_range") or "").strip().lower()
+
+    if transfer in _HDR_TRANSFER_TOKENS:
+        raise ValueError(f"hdr_source_detected_requires_tone_map:{artifact_id}:{transfer}")
+    if primaries not in _ALLOWED_PRIMARIES:
+        raise ValueError(f"unqualified_probe_primaries:{artifact_id}:{primaries or 'missing'}")
+    if transfer not in _ALLOWED_TRANSFERS:
+        raise ValueError(f"unqualified_probe_transfer:{artifact_id}:{transfer or 'missing'}")
+    if matrix not in _ALLOWED_MATRICES:
+        raise ValueError(f"unqualified_probe_matrix:{artifact_id}:{matrix or 'missing'}")
+    normalized_range = _RANGE_ALIASES.get(range_raw)
+    if normalized_range is None:
+        raise ValueError(f"unqualified_probe_range:{artifact_id}:{range_raw or 'missing'}")
+
+    profile = ColorProfile(
+        profile_id=f"observed:{artifact_id}",
+        primaries=primaries,
+        transfer=transfer,
+        matrix=matrix,
+        range=normalized_range,
+        evidence=(evidence_ref,),
+    )
+    profile.validate()
+    return profile
 
 
 @dataclass(frozen=True)
