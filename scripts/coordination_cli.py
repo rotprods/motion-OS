@@ -9,9 +9,6 @@ from pathlib import Path
 import sys
 from typing import Any
 
-# Direct execution (`python scripts/coordination_cli.py`) puts `scripts/` rather
-# than the repository root on sys.path. Add the root deterministically before
-# importing MOTION.OS modules. This is bootstrap CLI plumbing, not package state.
 REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
@@ -112,9 +109,7 @@ def cmd_irreversible_preflight(args: argparse.Namespace) -> int:
     )
     payload = {"fresh": gate.fresh, "reasons": list(gate.reasons)}
     dump_json(payload, args.output)
-    if not gate.fresh:
-        return 3
-    return 0
+    return 0 if gate.fresh else 3
 
 
 def cmd_truth_check(args: argparse.Namespace) -> int:
@@ -123,24 +118,32 @@ def cmd_truth_check(args: argparse.Namespace) -> int:
     claims_raw = raw.get("claims")
     if not isinstance(live, dict) or not isinstance(claims_raw, list):
         raise ValueError("truth-check input requires live_github object and claims array")
-    claims = tuple(
-        TruthClaim(
-            surface=str(item["surface"]),
-            key=str(item["key"]),
-            value=str(item["value"]),
-            current=bool(item.get("current", True)),
+
+    claims: list[TruthClaim] = []
+    for item in claims_raw:
+        if not isinstance(item, dict):
+            raise ValueError("truth-check claims must be JSON objects")
+        if "surface" not in item or "key" not in item or "value" not in item:
+            raise ValueError("truth-check claim requires surface/key/value")
+        current = item.get("current", True)
+        if not isinstance(current, bool):
+            raise ValueError("truth-check claim current must be boolean")
+        claims.append(
+            TruthClaim(
+                surface=str(item["surface"]),
+                key=str(item["key"]),
+                value=item["value"],
+                current=current,
+            )
         )
-        for item in claims_raw
-    )
+
     report = compile_truth_consistency(live_github=live, claims=claims)
     dump_json({
         "ok": report.ok,
         "stale_surfaces": list(report.stale_surfaces),
         "conflicts": [asdict(item) for item in report.conflicts],
     }, args.output)
-    if not report.ok:
-        return 4
-    return 0
+    return 0 if report.ok else 4
 
 
 def _now_iso() -> str:
@@ -253,7 +256,7 @@ def main() -> int:
     args = parser.parse_args()
     try:
         return int(args.func(args))
-    except Exception as exc:  # CLI boundary: fail visibly, never convert to success.
+    except Exception as exc:
         print(f"coordination_cli error: {exc}", file=sys.stderr)
         return 2
 
