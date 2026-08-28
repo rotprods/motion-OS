@@ -16,12 +16,35 @@ def test_detects_subprocess_shell_true(tmp_path):
         "bad.py",
         "import subprocess\nsubprocess.run('echo hi', shell=True)\n",
     )
-    assert [item.rule for item in findings] == ["PY_SUBPROCESS_SHELL_TRUE"]
+    assert [item.rule for item in findings] == ["PY_SUBPROCESS_SHELL_UNSAFE"]
+
+
+def test_detects_dynamic_shell_expression_fail_closed(tmp_path):
+    findings = _scan(
+        tmp_path,
+        "bad.py",
+        "import subprocess\nsubprocess.run('echo hi', shell=enable_shell)\n",
+    )
+    assert [item.rule for item in findings] == ["PY_SUBPROCESS_SHELL_UNSAFE"]
+
+
+def test_literal_shell_false_is_allowed(tmp_path):
+    findings = _scan(
+        tmp_path,
+        "safe.py",
+        "import subprocess\nsubprocess.run(['echo', 'hi'], shell=False)\n",
+    )
+    assert findings == ()
 
 
 def test_detects_dynamic_eval(tmp_path):
     findings = _scan(tmp_path, "bad.py", "value = eval(user_input)\n")
     assert [item.rule for item in findings] == ["PY_DYNAMIC_EVAL"]
+
+
+def test_python_parse_failure_is_not_silently_skipped(tmp_path):
+    findings = _scan(tmp_path, "broken.py", "def broken(:\n    pass\n")
+    assert [item.rule for item in findings] == ["PY_PARSE_FAILURE"]
 
 
 def test_detects_high_confidence_secret(tmp_path):
