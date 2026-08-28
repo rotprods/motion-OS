@@ -1,14 +1,9 @@
-import hashlib
 import pytest
 
 from src.coordination.session_fabric import (
     EventSurfaceConflict, IrreversibleActionPreflight, SessionGraphCompiler, SessionIdentity,
     Surface, SurfaceEvent, deduplicate_surface_events, reconcile_github_lifecycle,
 )
-
-def _hash_mapping(value: dict) -> str:
-    import json
-    return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 def ident() -> SessionIdentity:
     return SessionIdentity(
@@ -59,6 +54,12 @@ def test_irreversible_action_requires_same_main_and_event_watermark():
     assert stale.reasons == ("main_sha_advanced", "event_watermark_advanced")
     with pytest.raises(RuntimeError, match="stale irreversible-action context"):
         stale.require_fresh()
+
+def test_irreversible_action_rejects_malformed_authority_inputs():
+    with pytest.raises(ValueError, match="main SHA"):
+        IrreversibleActionPreflight("bad", 1, "abc1234", 1)
+    with pytest.raises(ValueError, match="watermarks"):
+        IrreversibleActionPreflight("abc1234", -1, "abc1234", 1)
 
 def test_session_graph_is_deterministic():
     compiler = SessionGraphCompiler()
