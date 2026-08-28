@@ -25,6 +25,13 @@ SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 CANONICAL_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._/:+@-]{0,255}$")
 TASK_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._/-]{0,127}$")
 SAFE_BRANCH_COMPONENT_RE = re.compile(r"^[a-z0-9][a-z0-9._-]{0,79}$")
+MAX_CANDIDATES = 128
+MAX_CLAIMS = 256
+MAX_SCOPES_PER_CANDIDATE = 32
+MAX_METRICS_PER_CANDIDATE = 32
+MAX_ADVERSARIAL_TESTS = 32
+MAX_TITLE_CHARS = 512
+MAX_TEST_NAME_CHARS = 256
 
 
 @dataclass(frozen=True)
@@ -100,6 +107,15 @@ def _require_task_id(raw: Any) -> str:
     return value
 
 
+def _safe_text(raw: Any, field: str, max_chars: int) -> str:
+    value = str(raw).strip()
+    if not value or len(value) > max_chars:
+        raise NextWaveError(f"{field} is empty or exceeds {max_chars} characters")
+    if any(ord(ch) < 32 or ord(ch) == 127 for ch in value):
+        raise NextWaveError(f"{field} contains control characters")
+    return value
+
+
 def _scope_parts(scope: str) -> tuple[str, str]:
     if ":" not in scope:
         raise NextWaveError(f"invalid resource scope: {scope}")
@@ -148,6 +164,18 @@ def _claim_from_dict(raw: dict[str, Any]) -> Claim:
     return Claim(scope=scope, mode=mode, owner_session=owner_session)
 
 
+def _validate_claim_set(claims: tuple[Claim, ...]) -> None:
+    seen: dict[tuple[str, str], str] = {}
+    for claim in claims:
+        key = (claim.scope, claim.owner_session)
+        previous = seen.get(key)
+        if previous is not None:
+            if previous != claim.mode:
+                raise NextWaveError("duplicate claim identity has conflicting modes")
+            raise NextWaveError("duplicate claim identity")
+        seen[key] = claim.mode
+
+
 def conflicting_claims(candidate: Candidate, claims: tuple[Claim, ...], session_id: str) -> tuple[Claim, ...]:
     conflicts: list[Claim] = []
     for claim in claims:
@@ -172,27 +200,44 @@ def _candidate_from_dict(raw: dict[str, Any], policy: dict[str, Any]) -> Candida
     scopes = tuple(str(v) for v in raw.get("scopes", ()))
     if not scopes:
         raise NextWaveError("candidate must declare at least one resource scope")
+    if len(scopes) > MAX_SCOPES_PER_CANDIDATE:
+        raise NextWaveError("candidate declares too many resource scopes")
+    if len(set(scopes)) != len(scopes):
+        raise NextWaveError("candidate contains duplicate resource scopes")
     for scope in scopes:
         _scope_parts(scope)
 
     metrics_raw = raw.get("metrics", {})
     if not isinstance(metrics_raw, dict):
         raise NextWaveError("metrics must be an object")
+    if len(metrics_raw) > MAX_METRICS_PER_CANDIDATE:
+        raise NextWaveError("candidate declares too many metrics")
+    allowed_metric_keys = set(policy.get("score_weights", ())) - {"scope_contention"}
+    unknown_metrics = set(map(str, metrics_raw)) - allowed_metric_keys
+    if unknown_metrics:
+        raise NextWaveError(f"candidate contains unknown metrics: {sorted(unknown_metrics)}")
     metrics = {str(k): _finite_number(v, f"metrics.{k}") for k, v in metrics_raw.items()}
 
     allowed_profiles = set(policy.get("local_first_profiles", ()))
     local_profiles = tuple(str(v) for v in raw.get("local_profiles", ("quick",)))
     if not local_profiles or any(profile not in allowed_profiles for profile in local_profiles):
         raise NextWaveError("candidate contains unsupported local verification profile")
+    if len(set(local_profiles)) != len(local_profiles):
+        raise NextWaveError("candidate contains duplicate local verification profiles")
 
-    adversarial_tests = tuple(str(v).strip() for v in raw.get("adversarial_tests", ()))
-    if any(not value for value in adversarial_tests):
-        raise NextWaveError("adversarial test names must be non-empty")
+    tests_raw = raw.get("adversarial_tests", ())
+    if not isinstance(tests_raw, (list, tuple)):
+        raise NextWaveError("adversarial_tests must be an array")
+    if len(tests_raw) > MAX_ADVERSARIAL_TESTS:
+        raise NextWaveError("candidate declares too many adversarial tests")
+    adversarial_tests = tuple(_safe_text(v, "adversarial_test", MAX_TEST_NAME_CHARS) for v in tests_raw)
+    if len(set(adversarial_tests)) != len(adversarial_tests):
+        raise NextWaveError("candidate contains duplicate adversarial tests")
 
     return Candidate(
         task_id=task_id,
         priority=priority,
-        title=str(raw.get("title", task_id)).strip() or task_id,
+        title=_safe_text(raw.get("title", task_id), "title", MAX_TITLE_CHARS),
         scopes=scopes,
         status=status,
         dependencies_satisfied=_strict_bool(raw.get("dependencies_satisfied", False), "dependencies_satisfied"),
@@ -301,16 +346,25 @@ def compile_next_wave(state: dict[str, Any], policy: dict[str, Any]) -> dict[str
     claims_raw = state.get("active_claims", ())
     if not isinstance(claims_raw, (list, tuple)):
         raise NextWaveError("active_claims must be an array")
+    if len(claims_raw) > MAX_CLAIMS:
+        raise NextWaveError("too many active claims")
     claims = tuple(_claim_from_dict(c) for c in claims_raw)
+    _validate_claim_set(claims)
 
     candidates_raw = state["candidates"]
     if not isinstance(candidates_raw, list):
         raise NextWaveError("candidates must be an array")
+    if len(candidates_raw) > MAX_CANDIDATES:
+        raise NextWaveError("too many candidates")
+    task_ids: set[str] = set()
     evaluated: list[dict[str, Any]] = []
     for raw in candidates_raw:
         if not isinstance(raw, dict):
             raise NextWaveError("candidate entries must be objects")
         candidate = _candidate_from_dict(raw, policy)
+        if candidate.task_id in task_ids:
+            raise NextWaveError("duplicate candidate task_id")
+        task_ids.add(candidate.task_id)
         reasons: list[str] = []
         if not candidate.dependencies_satisfied:
             reasons.append("DEPENDENCIES_UNSATISFIED")
