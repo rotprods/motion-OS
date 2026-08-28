@@ -43,9 +43,16 @@ class NormalizedClaim:
     evidence_strength: str
     freshness: str = "UNKNOWN"
     verified_at: str | None = None
+    verification_evidence: tuple[str, ...] = ()
+
+    @property
+    def verification_state(self) -> str:
+        return "VERIFIED" if self.verified_at is not None and self.verification_evidence else "UNVERIFIED"
 
     def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
+        payload = asdict(self)
+        payload["verification_state"] = self.verification_state
+        return payload
 
 
 def content_fingerprint(text: str) -> str:
@@ -74,18 +81,47 @@ def redact_source(text: str) -> str:
     return out
 
 
+def _validate_verification_attestation(
+    verified_at: str | None,
+    verification_evidence: tuple[str, ...],
+) -> None:
+    if verified_at is None:
+        if verification_evidence:
+            raise ValueError("verification_evidence requires verified_at")
+        return
+    if not verification_evidence:
+        raise ValueError("verified_at requires verification_evidence")
+    if any(not isinstance(item, str) or not item.strip() for item in verification_evidence):
+        raise ValueError("verification_evidence entries must be non-empty strings")
+    try:
+        parsed = datetime.fromisoformat(verified_at.replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise ValueError("verified_at must be ISO-8601") from exc
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise ValueError("verified_at must include timezone")
+
+
 def normalize_claim(*, proposition: str, source_ref: str, evidence_strength: str,
-                    freshness: str = "UNKNOWN", verified_at: str | None = None) -> NormalizedClaim:
+                    freshness: str = "UNKNOWN", verified_at: str | None = None,
+                    verification_evidence: Iterable[str] = ()) -> NormalizedClaim:
     allowed = {"DIRECT", "HIGH_CONFIDENCE", "INFERRED", "OPINION", "TIME_SENSITIVE", "UNSUPPORTED"}
     if evidence_strength not in allowed:
         raise ValueError(f"invalid evidence strength: {evidence_strength}")
     if not proposition.strip() or not source_ref.strip():
         raise ValueError("claim proposition and source_ref required")
+    evidence = tuple(verification_evidence)
+    _validate_verification_attestation(verified_at, evidence)
     seed = f"{source_ref}\n{proposition}".encode("utf-8")
     claim_id = "CLM_" + hashlib.sha256(seed).hexdigest()[:16].upper()
-    if verified_at is None and evidence_strength in {"DIRECT", "HIGH_CONFIDENCE", "TIME_SENSITIVE"}:
-        verified_at = datetime.now(timezone.utc).isoformat()
-    return NormalizedClaim(claim_id, proposition.strip(), source_ref.strip(), evidence_strength, freshness, verified_at)
+    return NormalizedClaim(
+        claim_id,
+        proposition.strip(),
+        source_ref.strip(),
+        evidence_strength,
+        freshness,
+        verified_at,
+        evidence,
+    )
 
 
 def validate_claim_lineage(manifest: dict[str, Any]) -> list[str]:
