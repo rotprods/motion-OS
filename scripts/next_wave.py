@@ -22,7 +22,8 @@ SEMANTIC_SCOPE_KINDS = {
 }
 SHA1_RE = re.compile(r"^[0-9a-f]{40}$")
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
-SAFE_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._/-]{0,127}$")
+CANONICAL_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._/:+@-]{0,255}$")
+TASK_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._/-]{0,127}$")
 SAFE_BRANCH_COMPONENT_RE = re.compile(r"^[a-z0-9][a-z0-9._-]{0,79}$")
 
 
@@ -77,10 +78,25 @@ def _require_sha256(raw: Any, field: str) -> str:
     return value
 
 
-def _require_nonempty_id(raw: Any, field: str) -> str:
+def _require_canonical_id(raw: Any, field: str) -> str:
     value = str(raw).strip()
-    if not value or not SAFE_ID_RE.fullmatch(value):
+    if not value or not CANONICAL_ID_RE.fullmatch(value):
         raise NextWaveError(f"{field} is missing or unsafe")
+    return value
+
+
+def _require_task_id(raw: Any) -> str:
+    value = str(raw).strip()
+    if (
+        not value
+        or not TASK_ID_RE.fullmatch(value)
+        or value.startswith((".", "/"))
+        or value.endswith((".", "/"))
+        or value == ".."
+        or value.startswith("../")
+        or "/../" in value
+    ):
+        raise NextWaveError("task_id is missing or unsafe")
     return value
 
 
@@ -121,12 +137,14 @@ def scopes_overlap(a: str, b: str) -> bool:
 
 
 def _claim_from_dict(raw: dict[str, Any]) -> Claim:
+    if not isinstance(raw, dict):
+        raise NextWaveError("claim must be an object")
     scope = str(raw.get("scope", ""))
     _scope_parts(scope)
     mode = str(raw.get("mode", ""))
     if mode not in ALLOWED_CLAIM_MODES:
         raise NextWaveError(f"unsupported claim mode: {mode}")
-    owner_session = _require_nonempty_id(raw.get("owner_session"), "owner_session")
+    owner_session = _require_canonical_id(raw.get("owner_session"), "owner_session")
     return Claim(scope=scope, mode=mode, owner_session=owner_session)
 
 
@@ -143,7 +161,7 @@ def conflicting_claims(candidate: Candidate, claims: tuple[Claim, ...], session_
 
 
 def _candidate_from_dict(raw: dict[str, Any], policy: dict[str, Any]) -> Candidate:
-    task_id = _require_nonempty_id(raw.get("task_id"), "task_id")
+    task_id = _require_task_id(raw.get("task_id"))
     priority = str(raw.get("priority", ""))
     if priority not in PRIORITY_WEIGHT:
         raise NextWaveError(f"unsupported priority: {priority}")
@@ -208,12 +226,12 @@ def _score(candidate: Candidate, policy: dict[str, Any], contention_count: int) 
     return round(score, 4)
 
 
-def _safe_branch_slug(task_id: str) -> str:
-    slug = task_id.lower().replace("/", "-").replace("_", "-")
+def _safe_branch_slug(value: str) -> str:
+    slug = value.lower().replace("/", "-").replace("_", "-")
     slug = re.sub(r"[^a-z0-9._-]+", "-", slug).strip(".-")
     slug = re.sub(r"-{2,}", "-", slug)[:80].rstrip(".-")
     if not slug or not SAFE_BRANCH_COMPONENT_RE.fullmatch(slug):
-        raise NextWaveError("task_id cannot be converted to a safe branch component")
+        raise NextWaveError("identifier cannot be converted to a safe branch component")
     return slug
 
 
@@ -238,8 +256,8 @@ def compile_next_wave(state: dict[str, Any], policy: dict[str, Any]) -> dict[str
     context_sha = _require_sha1(state["context_main_sha"], "context_main_sha")
     context_projection_hash = _require_sha256(state["context_projection_hash"], "context_projection_hash")
     event_fabric_snapshot_hash = _require_sha256(state["event_fabric_snapshot_hash"], "event_fabric_snapshot_hash")
-    session_id = _require_nonempty_id(state["session_id"], "session_id")
-    workstream_seed = _require_nonempty_id(state["workstream_seed"], "workstream_seed")
+    session_id = _require_canonical_id(state["session_id"], "session_id")
+    workstream_seed = _require_canonical_id(state["workstream_seed"], "workstream_seed")
 
     live_watermark = state["live_event_watermark"]
     context_watermark = state["context_event_watermark"]
