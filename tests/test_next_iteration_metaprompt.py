@@ -124,25 +124,26 @@ def test_execute_wave_requires_event_fabric_v3_binding():
         compile_continuation_packet(state(), wave)
 
 
-def test_execute_prompt_contains_packet_verification_and_exact_next_task():
+def test_execute_prompt_contains_packet_verification_and_exact_next_task_as_untrusted_json():
     packet = compile_continuation_packet(state(), execute_wave())
     prompt = render_metaprompt(packet)
     assert "/autoprompt" in prompt
     assert "Verify PACKET_SHA256" in prompt
     assert "INVALIDATE THIS PACKET" in prompt
-    assert "NEXT_TASK_ID: P0_NEXT" in prompt
-    assert "TARGET_BRANCH: autoloop/p08/p0-next" in prompt
+    assert "UNTRUSTED_DATA" in prompt
+    assert 'NEXT_TASK_ID_JSON: "P0_NEXT"' in prompt
+    assert 'TARGET_BRANCH_JSON: "autoloop/p08/p0-next"' in prompt
     assert "/gauntlet-loop" in prompt
     assert "Maximum 3 materially distinct repair attempts" in prompt
 
 
-def test_blocked_prompt_carries_block_reason_without_execution_claim():
+def test_blocked_prompt_carries_block_reason_as_untrusted_json_without_execution_claim():
     packet = compile_continuation_packet(state(), blocked_wave())
     prompt = render_metaprompt(packet)
     assert "COMPILED_DECISION: BLOCKED" in prompt
-    assert "BLOCK_REASON: EXTERNAL_BLOCKER" in prompt
-    assert "wait for artifact" in prompt
-    assert "NEXT_TASK_ID" not in prompt
+    assert 'BLOCK_REASON_JSON: "EXTERNAL_BLOCKER"' in prompt
+    assert 'NEXT_ACTION_JSON: "wait for artifact"' in prompt
+    assert "NEXT_TASK_ID_JSON" not in prompt
 
 
 def test_freshness_contract_is_always_fail_closed():
