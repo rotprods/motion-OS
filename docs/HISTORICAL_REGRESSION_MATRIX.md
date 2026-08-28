@@ -21,6 +21,7 @@ Authority: regression evidence index; not runtime write authority.
 | REG-014 | historical release test can masquerade as current evidence | fixture not bound to current candidate/media hash | release evidence must bind candidate ID + media hash + evidence revision | audit current release tests | stale semantic reviews, benchmark fixtures, old scorecards |
 | REG-015 | duplicate alignment weights JSON/YAML | duplicated machine authority | one canonical machine source or enforced semantic parity | parity/canonicalization test REQUIRED | schemas/config duplicated across JSON/YAML/MD |
 | REG-016 | product score and regression-risk score can be conflated | one scalar used for different decision domains | maintain Product North Star and Promotion Risk as separate scorecards; hard blockers override both | scorecard contract REQUIRED | build/assurance/authority conflation |
+| REG-017 | two agents independently created different `ADR-008` decisions and #59/#60 independently attacked the same QA-history defect | collision detection focused on paths/branches, not semantic identity/decision namespace | shared semantic resources (ADR number, contract concept, root-cause issue) require collision preflight even when paths differ; overlapping fixes converge into one canonical PR rather than merge independently | ADR-008→ADR-008/ADR-009 resolution + #59/#60 Event Bus conflict decision | duplicate migrations, schemas with different filenames, two fixes for same root cause, duplicate capability ownership |
 
 ## Canonical truth consistency target
 The next gate must compare at least:
@@ -35,9 +36,16 @@ The next gate must compare at least:
 
 Contradictory current lifecycle/capability/candidate claims fail visible. Historical documents may remain historical only when explicitly labelled non-current.
 
-## Current known truth drift on main@080dfd5
-- `state/project_state.json` still identifies v0.9.1-rc06-working / RC07 candidate and old P0 wording.
-- `coordination/ACTIVE_AGENTS.yaml` still lists PR #44 as FINAL_QUALIFICATION although #44 is merged.
-- Issue #48 reports STATE/TASKS/checkpoints disagreement and duplicate alignment-weight policy sources.
+## Semantic collision target
+Coordination preflight must inspect more than changed paths. At minimum treat these as shared semantic resources:
+- `adr:<number>`;
+- `contract:<canonical-name>`;
+- `schema:<canonical-name>`;
+- `capability:<name>`;
+- `root-cause:<issue-or-defect-id>`;
+- `authority:<domain>`.
 
-These are regression inputs, not permission to overwrite another agent's active scope without preflight.
+Two independent branches may be file-disjoint yet semantically conflicting. Resolution is explicit supersession/stacking/ownership transfer, never blind dual merge.
+
+## Current known truth drift
+Canonical state reconciliation is owned by its dedicated regression workstream/PR and must not be duplicated here. Historical observations in this matrix are inputs to that authority work, not permission to overwrite its files.
