@@ -4,10 +4,15 @@ from dataclasses import dataclass
 from typing import Any
 import hashlib
 import json
+import math
+import re
 
 
 class GauntletError(ValueError):
     pass
+
+
+SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 
 
 @dataclass(frozen=True)
@@ -21,13 +26,33 @@ class Attempt:
 
     @classmethod
     def from_dict(cls, raw: dict[str, Any]) -> "Attempt":
+        if not isinstance(raw, dict):
+            raise GauntletError("attempt must be an object")
+        iteration = raw.get("iteration")
+        if isinstance(iteration, bool) or not isinstance(iteration, int) or iteration < 1:
+            raise GauntletError("attempt iteration must be a positive integer")
+        strategy = str(raw.get("strategy", "")).strip()
+        if not strategy:
+            raise GauntletError("attempt strategy is required")
+        result_hash = str(raw.get("result_hash", ""))
+        if not SHA256_RE.fullmatch(result_hash):
+            raise GauntletError("attempt result_hash must be lowercase sha256")
+        verifier_complete = raw.get("verifier_complete", False)
+        if type(verifier_complete) is not bool:
+            raise GauntletError("verifier_complete must be a JSON boolean")
+        progress_raw = raw.get("measurable_progress", 0.0)
+        if isinstance(progress_raw, bool) or not isinstance(progress_raw, (int, float)):
+            raise GauntletError("measurable_progress must be numeric")
+        measurable_progress = float(progress_raw)
+        if not math.isfinite(measurable_progress):
+            raise GauntletError("measurable_progress must be finite")
         return cls(
-            iteration=int(raw["iteration"]),
-            strategy=str(raw["strategy"]),
-            result_hash=str(raw["result_hash"]),
-            verifier_complete=bool(raw.get("verifier_complete", False)),
-            verifier_reason=str(raw.get("verifier_reason", "")),
-            measurable_progress=float(raw.get("measurable_progress", 0.0)),
+            iteration=iteration,
+            strategy=strategy,
+            result_hash=result_hash,
+            verifier_complete=verifier_complete,
+            verifier_reason=str(raw.get("verifier_reason", "")).strip(),
+            measurable_progress=measurable_progress,
         )
 
 
@@ -43,10 +68,20 @@ def evaluate_gauntlet(
     min_progress_delta: float = 0.01,
     kill_switch: bool = False,
 ) -> dict[str, Any]:
-    if max_attempts < 1:
-        raise GauntletError("max_attempts must be >= 1")
+    if isinstance(max_attempts, bool) or not isinstance(max_attempts, int) or max_attempts < 1:
+        raise GauntletError("max_attempts must be a positive integer")
+    if isinstance(min_progress_delta, bool) or not isinstance(min_progress_delta, (int, float)):
+        raise GauntletError("min_progress_delta must be numeric")
+    min_progress_delta = float(min_progress_delta)
+    if not math.isfinite(min_progress_delta) or min_progress_delta < 0:
+        raise GauntletError("min_progress_delta must be finite and non-negative")
+    if type(kill_switch) is not bool:
+        raise GauntletError("kill_switch must be a JSON boolean")
     if kill_switch:
         return {"state": "BLOCKED", "reason": "KILL_SWITCH_ACTIVE", "next_action": "stop immediately"}
+    if not isinstance(attempts, list):
+        raise GauntletError("attempts must be an array")
+
     parsed = [Attempt.from_dict(item) for item in attempts]
     if not parsed:
         return {"state": "ITERATE", "reason": "NO_ATTEMPTS", "remaining_attempts": max_attempts}
@@ -75,7 +110,7 @@ def evaluate_gauntlet(
 
     if len(parsed) >= 2:
         prev = parsed[-2]
-        same_strategy = latest.strategy.strip().lower() == prev.strategy.strip().lower()
+        same_strategy = latest.strategy.casefold() == prev.strategy.casefold()
         same_result = latest.result_hash == prev.result_hash
         progress_delta = latest.measurable_progress - prev.measurable_progress
         if same_strategy and (same_result or progress_delta < min_progress_delta):
