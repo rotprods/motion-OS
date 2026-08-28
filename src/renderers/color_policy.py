@@ -8,7 +8,7 @@ import json
 
 _ALLOWED_PRIMARIES = {"bt709", "smpte432"}
 _ALLOWED_TRANSFERS = {"bt709", "iec61966-2-1"}
-_ALLOWED_MATRICES = {"bt709", "rgb"}
+_ALLOWED_MATRICES = {"bt709", "gbr"}
 _ALLOWED_RANGES = {"limited", "full"}
 
 
@@ -35,6 +35,8 @@ class ColorProfile:
             raise ValueError(f"unsupported_range:{self.range}")
         if not self.evidence:
             raise ValueError(f"missing_color_evidence:{self.profile_id}")
+        if any(not isinstance(item, str) or not item.strip() for item in self.evidence):
+            raise ValueError(f"invalid_color_evidence:{self.profile_id}")
 
 
 BT709_SDR_LIMITED = ColorProfile(
@@ -50,7 +52,7 @@ SRGB_FULL = ColorProfile(
     profile_id="srgb_full",
     primaries="bt709",
     transfer="iec61966-2-1",
-    matrix="rgb",
+    matrix="gbr",
     range="full",
     evidence=("declared_browser_ui_space",),
 )
@@ -59,7 +61,7 @@ DISPLAY_P3_SRGB_FULL = ColorProfile(
     profile_id="display_p3_srgb_full",
     primaries="smpte432",
     transfer="iec61966-2-1",
-    matrix="rgb",
+    matrix="gbr",
     range="full",
     evidence=("declared_display_p3_space",),
 )
@@ -190,6 +192,8 @@ def ffmpeg_output_color_args(target: ColorProfile = BT709_SDR_LIMITED) -> list[s
     target.validate()
     if target.hdr:
         raise ValueError("hdr_output_not_qualified")
+    if target.matrix == "gbr":
+        raise ValueError("rgb_matrix_output_metadata_not_qualified")
     range_token = "tv" if target.range == "limited" else "pc"
     return [
         "-color_primaries", target.primaries,
