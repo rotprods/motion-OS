@@ -34,7 +34,7 @@ active_workstreams:
     session_id: motion://session/chatgpt/truth-regression/20260828T1116+0200
     status: IMPLEMENTED
     branch: fix/p08-canonical-truth-consistency
-    pr: null
+    pr: 56
     workstream: motion://workstream/canonical-truth-consistency
     owned_scopes:
       - contract:canonical-truth-consistency
@@ -50,7 +50,7 @@ active_workstreams:
       - file:scripts/change_impact.py
       - file:tests/test_alignment_v08.py
       - file:tests/test_change_impact.py
-    notes: Isolated REG-013 truth reconciliation; no Event Fabric files from PR #53 are mutated.
+    notes: Draft PR #56; isolated REG-013 truth reconciliation; no Event Fabric files from PR #53 are mutated.
 
 integrated_capabilities:
   - capability:phase06-content-avatar
