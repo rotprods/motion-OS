@@ -100,6 +100,34 @@ class SessionGraphSnapshot:
         return _sha256(self.canonical_payload()) == self.projection_hash
 
 
+@dataclass(frozen=True, slots=True)
+class IrreversibleActionPreflight:
+    context_main_sha: str
+    context_event_watermark: int
+    live_main_sha: str
+    live_event_watermark: int
+
+    @property
+    def fresh(self) -> bool:
+        return (
+            self.context_main_sha == self.live_main_sha
+            and self.context_event_watermark == self.live_event_watermark
+        )
+
+    @property
+    def reasons(self) -> tuple[str, ...]:
+        out: list[str] = []
+        if self.context_main_sha != self.live_main_sha:
+            out.append("main_sha_advanced")
+        if self.context_event_watermark != self.live_event_watermark:
+            out.append("event_watermark_advanced")
+        return tuple(out)
+
+    def require_fresh(self) -> None:
+        if not self.fresh:
+            raise RuntimeError("stale irreversible-action context: " + ",".join(self.reasons))
+
+
 class EventSurfaceConflict(ValueError):
     pass
 
