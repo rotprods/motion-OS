@@ -6,7 +6,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from src.qa.alignment import validate_canonical_truth
+from src.qa.alignment import validate_canonical_truth, validate_weight_parity
 
 errors = []
 warnings = []
@@ -14,7 +14,7 @@ required = [
     'AGENTS.md', 'GOAL.md', 'STATE.md', 'HANDOFF.md', 'TASKS.md', 'DECISIONS.md',
     'state/project_state.json', 'state/checkpoints.json', 'state/github_sync.json',
     'state/drive_sync.json', 'registry/artifact_registry.json', 'src/graph/model.py',
-    'tests/test_graph.py'
+    'config/alignment_weights.json', 'config/alignment_weights.yaml', 'tests/test_graph.py'
 ]
 for rel in required:
     if not (ROOT / rel).exists():
@@ -44,6 +44,12 @@ if not errors:
         ROOT / 'HANDOFF.md',
     )
     errors.extend(f'canonical_truth:{item}' for item in truth['errors'])
+
+    weights = validate_weight_parity(
+        ROOT / 'config/alignment_weights.json',
+        ROOT / 'config/alignment_weights.yaml',
+    )
+    errors.extend(f'alignment_weight_parity:{item}' for item in weights['errors'])
 
 print(json.dumps({'ok': not errors, 'errors': errors, 'warnings': warnings}, indent=2))
 sys.exit(1 if errors else 0)
