@@ -123,8 +123,8 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#090909}
 """
 
 
-def main() -> int:
-    OUT.mkdir(parents=True, exist_ok=True)
+def build_fixture(out: Path) -> dict:
+    out.mkdir(parents=True, exist_ok=True)
     doc = compile_vector_subgraph_to_lottie(
         [
             {
@@ -146,20 +146,24 @@ def main() -> int:
     )
     contract = player_roundtrip_contract(doc, player="lottie-web")
     animation_json = json.dumps(doc, sort_keys=True, separators=(",", ":"), ensure_ascii=False) + "\n"
-    (OUT / "animation.json").write_text(animation_json, encoding="utf-8")
-    (OUT / "player_contract.json").write_text(json.dumps(contract, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    (OUT / "index.html").write_text(_html(), encoding="utf-8")
+    animation_bytes = animation_json.encode("utf-8")
+    (out / "animation.json").write_bytes(animation_bytes)
+    (out / "player_contract.json").write_text(json.dumps(contract, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    (out / "index.html").write_text(_html(), encoding="utf-8")
     evidence = {
         "schema": "motion-os.lottie-compiler-fixture/v1",
-        "document_sha256": hashlib.sha256(animation_json.strip().encode("utf-8")).hexdigest(),
-        "contract_document_sha256": contract["document_sha256"],
+        "document_sha256": contract["document_sha256"],
+        "animation_file_sha256": hashlib.sha256(animation_bytes).hexdigest(),
         "expected_frame_count": contract["expected_frame_count"],
         "stable_layer_ids": contract["stable_layer_ids"],
         "authority": "compiler_ready",
     }
-    # Hash algorithms canonicalize JSON differently by design; the contract hash is
-    # the release binding. File SHA is retained independently for byte provenance.
-    (OUT / "compiler_evidence.json").write_text(json.dumps(evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    (out / "compiler_evidence.json").write_text(json.dumps(evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return evidence
+
+
+def main() -> int:
+    evidence = build_fixture(OUT)
     print(json.dumps(evidence, indent=2, sort_keys=True))
     return 0
 
