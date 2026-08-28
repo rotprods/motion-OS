@@ -18,7 +18,9 @@ if str(REPO_ROOT) not in sys.path:
 
 from src.coordination.github_lifecycle import GitHubLifecycleSnapshot  # noqa: E402
 from src.coordination.live_context import LiveContextCompiler  # noqa: E402
+from src.coordination.session_fabric import IrreversibleActionPreflight  # noqa: E402
 from src.coordination.snapshot import CoordinationSnapshot  # noqa: E402
+from src.coordination.truth_consistency import TruthClaim, compile_truth_consistency  # noqa: E402
 
 
 KINDS = {"HELLO", "CLAIM", "HEARTBEAT", "BLOCKED", "DECISION", "RELEASE", "CHECKPOINT", "CONFLICT"}
@@ -101,6 +103,46 @@ def cmd_live_context_compile(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_irreversible_preflight(args: argparse.Namespace) -> int:
+    gate = IrreversibleActionPreflight(
+        context_main_sha=args.context_main_sha,
+        context_event_watermark=args.context_event_watermark,
+        live_main_sha=args.live_main_sha,
+        live_event_watermark=args.live_event_watermark,
+    )
+    payload = {"fresh": gate.fresh, "reasons": list(gate.reasons)}
+    dump_json(payload, args.output)
+    if not gate.fresh:
+        return 3
+    return 0
+
+
+def cmd_truth_check(args: argparse.Namespace) -> int:
+    raw = load_json(args.input)
+    live = raw.get("live_github")
+    claims_raw = raw.get("claims")
+    if not isinstance(live, dict) or not isinstance(claims_raw, list):
+        raise ValueError("truth-check input requires live_github object and claims array")
+    claims = tuple(
+        TruthClaim(
+            surface=str(item["surface"]),
+            key=str(item["key"]),
+            value=str(item["value"]),
+            current=bool(item.get("current", True)),
+        )
+        for item in claims_raw
+    )
+    report = compile_truth_consistency(live_github=live, claims=claims)
+    dump_json({
+        "ok": report.ok,
+        "stale_surfaces": list(report.stale_surfaces),
+        "conflicts": [asdict(item) for item in report.conflicts],
+    }, args.output)
+    if not report.ok:
+        return 4
+    return 0
+
+
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
@@ -165,6 +207,25 @@ def build_parser() -> argparse.ArgumentParser:
     live.add_argument("--ttl", type=int, default=900)
     live.add_argument("--output")
     live.set_defaults(func=cmd_live_context_compile)
+
+    preflight = sub.add_parser(
+        "irreversible-preflight",
+        help="fail if the ContextPack main SHA or event watermark is stale before merge/publish/spend/deploy/delete",
+    )
+    preflight.add_argument("--context-main-sha", required=True)
+    preflight.add_argument("--context-event-watermark", required=True, type=int)
+    preflight.add_argument("--live-main-sha", required=True)
+    preflight.add_argument("--live-event-watermark", required=True, type=int)
+    preflight.add_argument("--output")
+    preflight.set_defaults(func=cmd_irreversible_preflight)
+
+    truth = sub.add_parser(
+        "truth-check",
+        help="compare current surface claims with live GitHub lifecycle authority",
+    )
+    truth.add_argument("input", help="JSON object with live_github and claims")
+    truth.add_argument("--output")
+    truth.set_defaults(func=cmd_truth_check)
 
     message = sub.add_parser("message", help="generate a structured Coordination Bus message")
     message.add_argument("--kind", required=True)
