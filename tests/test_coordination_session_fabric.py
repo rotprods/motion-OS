@@ -2,8 +2,8 @@ import hashlib
 import pytest
 
 from src.coordination.session_fabric import (
-    EventSurfaceConflict, SessionGraphCompiler, SessionIdentity, Surface, SurfaceEvent,
-    deduplicate_surface_events, reconcile_github_lifecycle,
+    EventSurfaceConflict, IrreversibleActionPreflight, SessionGraphCompiler, SessionIdentity,
+    Surface, SurfaceEvent, deduplicate_surface_events, reconcile_github_lifecycle,
 )
 
 def _hash_mapping(value: dict) -> str:
@@ -49,6 +49,16 @@ def test_live_github_supersedes_stale_projection():
 def test_non_lifecycle_live_key_cannot_promote_authority():
     with pytest.raises(ValueError):
         reconcile_github_lifecycle({}, {"authority:write": "GRANTED"})
+
+def test_irreversible_action_requires_same_main_and_event_watermark():
+    fresh = IrreversibleActionPreflight("abc1234", 12, "abc1234", 12)
+    assert fresh.fresh and fresh.reasons == ()
+    fresh.require_fresh()
+
+    stale = IrreversibleActionPreflight("abc1234", 12, "def5678", 13)
+    assert stale.reasons == ("main_sha_advanced", "event_watermark_advanced")
+    with pytest.raises(RuntimeError, match="stale irreversible-action context"):
+        stale.require_fresh()
 
 def test_session_graph_is_deterministic():
     compiler = SessionGraphCompiler()
