@@ -1,12 +1,10 @@
-from dataclasses import replace
-
 import pytest
 
 from src.coordination.event_fabric_projector import (
     CanonicalEventFabricProjector,
     EventFabricProjectionError,
+    runtime_observation_from_stored,
     surface_event_from_mapping,
-    surface_event_from_runtime,
 )
 from src.coordination.event_store import InMemoryReferenceEventStore
 from src.coordination.events import CoordinationEvent, ProvenanceRef
@@ -55,21 +53,22 @@ def test_three_surfaces_project_to_one_deterministic_snapshot():
     repo = surface_event_from_mapping(Surface.REPO_EVENT, shared)
 
     store = InMemoryReferenceEventStore()
-    stored = store.append(_runtime_event())
-    runtime = surface_event_from_runtime(stored)
+    runtime = runtime_observation_from_stored(store.append(_runtime_event()))
 
     projector = CanonicalEventFabricProjector()
     first = projector.project(
         live_main_sha=MAIN,
         runtime_watermark=store.watermark(),
-        surface_events=[repo, runtime, github],
+        surface_events=[repo, github],
+        runtime_observations=[runtime],
         live_lifecycle={"main:sha": MAIN, "pr:58": "OPEN_DRAFT"},
         require_all_surfaces=True,
     )
     second = projector.project(
         live_main_sha=MAIN,
         runtime_watermark=store.watermark(),
-        surface_events=[github, repo, runtime],
+        surface_events=[github, repo],
+        runtime_observations=[runtime],
         live_lifecycle={"pr:58": "OPEN_DRAFT", "main:sha": MAIN},
         require_all_surfaces=True,
     )
@@ -81,11 +80,28 @@ def test_three_surfaces_project_to_one_deterministic_snapshot():
         "REPO_EVENT",
         "RUNTIME_EVENTSTORE",
     )
-    # The identical GitHub/repo logical event is represented once, with both
-    # observations retained as evidence; runtime is a distinct logical event.
     assert len(first.events) == 2
     shared_projection = next(event for event in first.events if event.logical_id == "evt-shared")
     assert shared_projection.observed_surfaces == ("GITHUB_BOOTSTRAP", "REPO_EVENT")
+
+
+def test_runtime_and_repo_copy_of_same_canonical_event_deduplicate():
+    store = InMemoryReferenceEventStore()
+    stored = store.append(_runtime_event())
+    runtime = runtime_observation_from_stored(stored)
+    repo_copy = surface_event_from_mapping(
+        Surface.REPO_EVENT,
+        stored.event.to_dict(),
+    )
+
+    snapshot = CanonicalEventFabricProjector().project(
+        live_main_sha=MAIN,
+        runtime_watermark=store.watermark(),
+        surface_events=[repo_copy],
+        runtime_observations=[runtime],
+    )
+    assert len(snapshot.events) == 1
+    assert snapshot.events[0].observed_surfaces == ("REPO_EVENT", "RUNTIME_EVENTSTORE")
 
 
 def test_conflicting_cross_surface_duplicate_fails_closed():
@@ -119,12 +135,13 @@ def test_all_surface_qualification_rejects_missing_adapter():
 
 def test_runtime_watermark_cannot_be_behind_observed_runtime_sequence():
     store = InMemoryReferenceEventStore()
-    runtime = surface_event_from_runtime(store.append(_runtime_event()))
+    runtime = runtime_observation_from_stored(store.append(_runtime_event()))
     with pytest.raises(EventFabricProjectionError, match="watermark is behind"):
         CanonicalEventFabricProjector().project(
             live_main_sha=MAIN,
             runtime_watermark=0,
-            surface_events=[runtime],
+            surface_events=[],
+            runtime_observations=[runtime],
         )
 
 
