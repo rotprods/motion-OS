@@ -1,28 +1,33 @@
-schema_version: 2
+schema_version: 1
 project: motion://project/motion-os
 authority: bootstrap_read_model
 projection_base_sha: a8d7dbddaeb4ad9779df9883d3cf4e4f6ea4f29d
 live_reconciliation_required: true
 
-active_workstreams:
+# Backward-compatible field consumed by existing bootstrap/snapshot tooling.
+active_agents:
   - agent_id: motion://agent/chatgpt/regression-architect
     session_id: motion://session/chatgpt/regression-architect/20260827T1700+0200
+    runtime: chatgpt-gpt5.6-sol
     status: IMPLEMENTED
     branch: feat/session-native-event-fabric-v2
     pr: 53
     workstream: motion://workstream/historical-regression-event-fabric
+    mission: Converge canonical session-native Event Fabric semantics without creating an independent authority plane.
     owned_scopes:
       - contract:canonical-event-semantics
       - contract:session-fabric
       - file:src/coordination/session_fabric.py
       - file:tests/test_coordination_session_fabric.py
-    notes: Open draft. Must rebase/reconcile because main advanced after its 080dfd5 base.
+    notes: Open draft. Must reconcile because main advanced after its 080dfd5 base.
 
   - agent_id: motion://agent/chatgpt/regression-auditor
+    runtime: chatgpt-gpt5.6-sol
     status: PROPOSED
     branch: feat/cognitive-pause-event-bus-reconciliation
     pr: 52
     workstream: motion://workstream/phase08-audit-docs
+    mission: Maintain Phase08 audit/ADR/plan evidence without becoming executable lifecycle authority.
     owned_scopes:
       - file:architecture/ADR_008_CANONICAL_COORDINATION_EVENT_SOURCE.md
       - file:architecture/canonical_event_bus_projection.mmd
@@ -32,10 +37,12 @@ active_workstreams:
 
   - agent_id: motion://agent/chatgpt/truth-regression
     session_id: motion://session/chatgpt/truth-regression/20260828T1116+0200
+    runtime: chatgpt-gpt5.6-sol
     status: IMPLEMENTED
     branch: fix/p08-canonical-truth-consistency
     pr: 56
     workstream: motion://workstream/canonical-truth-consistency
+    mission: Close REG-013 canonical truth drift and release-evidence binding gaps.
     owned_scopes:
       - contract:canonical-truth-consistency
       - capability:release-authority-projection
@@ -50,58 +57,59 @@ active_workstreams:
       - file:scripts/change_impact.py
       - file:tests/test_alignment_v08.py
       - file:tests/test_change_impact.py
-    notes: Draft PR #56; isolated REG-013 truth reconciliation; no Event Fabric files from PR #53 are mutated.
+    notes: Draft PR #56; no Event Fabric implementation files from PR #53 are mutated.
 
 integrated_capabilities:
   - capability:phase06-content-avatar
     source_pr: 37
-    status: VERIFIED
+    source_branch: feat/avatar-script-engine
+    status: MERGED_VERIFIED
     merge_sha: 6ef91a9fe092387b888d25da67006d68f455d229
   - capability:renderer/remotion
     source_pr: 42
-    status: VERIFIED
-    notes: Physical runtime authority; frame_count/fps is visual duration authority.
+    status: MERGED_RUNTIME_VERIFIED
+    notes: Physical runtime authority; frame_count/fps remains visual duration authority.
   - capability:local-first-merge-train
     source_pr: 46
-    status: VERIFIED
+    status: MERGED_VERIFIED
     merge_sha: 746c9243ba22452af993e78ca4db89faacc267ca
   - capability:phase07-coordination
     source_pr: 44
-    status: VERIFIED
+    status: MERGED_VERIFIED
     merge_sha: 080dfd5c16bc06100edd716eadc770530dc47af2
   - capability:graph-scheduler-filtered-dependencies
     source_pr: 54
-    status: IMPLEMENTED
-    notes: Merged regression fix; clean-runner/post-merge authority must be evaluated from live CI evidence, not this projection alone.
+    status: MERGED_IMPLEMENTED
+    notes: Post-merge assurance must be read from live CI/evidence rather than inferred here.
   - capability:multi-render-global-clock-z-order
     source_pr: 55
-    status: IMPLEMENTED
+    status: MERGED_IMPLEMENTED
     merge_sha: a8d7dbddaeb4ad9779df9883d3cf4e4f6ea4f29d
-    notes: Merged regression fix; this bootstrap projection does not self-promote clean-runner verification.
+    notes: Post-merge assurance must be read from live CI/evidence rather than inferred here.
 
 historical_workstreams:
   - pr: 34
-    status: SUPERSEDED
+    status: CLOSED_UNMERGED_SUPERSEDED_BY_42
   - pr: 35
-    status: SUPERSEDED
+    status: CLOSED_UNMERGED_SUPERSEDED_BY_38
   - pr: 37
-    status: VERIFIED
+    status: MERGED
   - pr: 40
-    status: SUPERSEDED
+    status: CLOSED_UNMERGED_SUPERSEDED_BY_44
   - pr: 44
-    status: VERIFIED
+    status: MERGED
   - pr: 46
-    status: VERIFIED
+    status: MERGED
   - pr: 47
-    status: VERIFIED
+    status: MERGED
   - pr: 49
-    status: SUPERSEDED
+    status: CLOSED_UNMERGED_SUPERSEDED
   - pr: 50
-    status: SUPERSEDED
+    status: CLOSED_UNMERGED_SUPERSEDED
   - pr: 54
-    status: IMPLEMENTED
+    status: MERGED
   - pr: 55
-    status: IMPLEMENTED
+    status: MERGED
 
 bootstrap_rules:
   - This file is a bootstrap read model, never write authority.
