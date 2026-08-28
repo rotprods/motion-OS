@@ -2,8 +2,10 @@
 
 from .action_inventory import (
     ActionInventoryError,
+    PeakAdjudication,
     PeakCoverage,
     actions_covering_frame,
+    adjudicate_peak,
     detect_local_peaks,
     gauntlet_coverage_from_frame_metrics,
     load_action_inventory,
@@ -23,8 +25,10 @@ __all__ = [
     "ActionInventoryError",
     "EditingTemplateError",
     "FrameTimelineError",
+    "PeakAdjudication",
     "PeakCoverage",
     "actions_covering_frame",
+    "adjudicate_peak",
     "build_editing_signature",
     "compile_editing_template",
     "compile_frame_timeline",
