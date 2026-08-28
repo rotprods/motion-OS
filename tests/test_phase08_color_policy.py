@@ -24,6 +24,7 @@ def test_plan_binds_every_artifact_and_is_deterministic():
     a = build_color_normalization_plan(["base", "ui", "p3"], profiles, alpha_artifacts={"ui"})
     b = build_color_normalization_plan(["p3", "base", "ui"], profiles, alpha_artifacts={"ui"})
     assert a.plan_hash == b.plan_hash
+    assert a.authority == "IMPLEMENTED"
     assert [binding.artifact_id for binding in a.bindings] == ["base", "p3", "ui"]
     assert validate_color_plan(a, ["base", "ui", "p3"]) == []
 
@@ -33,11 +34,17 @@ def test_missing_profile_fails_closed():
         build_color_normalization_plan(["base", "overlay"], {"base": BT709_SDR_LIMITED})
 
 
-def test_extra_profile_fails_closed_instead_of_silent_ignore():
+def test_extra_profile_and_alpha_binding_fail_closed_instead_of_silent_ignore():
     with pytest.raises(ValueError, match="unbound_color_profiles:ghost"):
         build_color_normalization_plan(
             ["base"],
             {"base": BT709_SDR_LIMITED, "ghost": SRGB_FULL},
+        )
+    with pytest.raises(ValueError, match="unbound_alpha_artifacts:ghost"):
+        build_color_normalization_plan(
+            ["base"],
+            {"base": BT709_SDR_LIMITED},
+            alpha_artifacts={"ghost"},
         )
 
 
@@ -100,6 +107,22 @@ def test_display_p3_uses_ffmpeg_smpte432_primary_token():
     assert "matrixin=gbr" in result
 
 
+def test_ffmpeg_filter_labels_reject_filtergraph_injection():
+    binding = ArtifactColorBinding("ui", SRGB_FULL)
+    for bad_input, bad_output in [
+        ("1:v];movie=/etc/passwd[x", "norm"),
+        ("1:v", "norm;[x]null[y]"),
+        ("", "norm"),
+    ]:
+        with pytest.raises(ValueError, match="unsafe_ffmpeg_filter_label"):
+            ffmpeg_color_filter(
+                binding,
+                BT709_SDR_LIMITED,
+                input_label=bad_input,
+                output_label=bad_output,
+            )
+
+
 def test_opaque_filter_uses_non_alpha_working_format():
     binding = ArtifactColorBinding("base", BT709_SDR_LIMITED, preserve_alpha=False)
     result = ffmpeg_color_filter(binding, BT709_SDR_LIMITED, input_label="0:v", output_label="norm0")
@@ -122,10 +145,14 @@ def test_rgb_matrix_output_metadata_is_not_overclaimed():
         ffmpeg_output_color_args(SRGB_FULL)
 
 
-def test_tampered_plan_hash_is_detected():
+def test_tampered_plan_hash_or_authority_is_detected():
     plan = build_color_normalization_plan(["base"], {"base": BT709_SDR_LIMITED})
-    tampered = replace(plan, plan_hash="0" * 64)
-    assert "plan_hash_mismatch" in validate_color_plan(tampered, ["base"])
+    tampered_hash = replace(plan, plan_hash="0" * 64)
+    assert "plan_hash_mismatch" in validate_color_plan(tampered_hash, ["base"])
+    tampered_authority = replace(plan, authority="VERIFIED")
+    errors = validate_color_plan(tampered_authority, ["base"])
+    assert "invalid_authority_state" in errors
+    assert "plan_hash_mismatch" in errors
 
 
 def test_unqualified_backend_and_tonemap_are_rejected():
