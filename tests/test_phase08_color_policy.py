@@ -68,10 +68,13 @@ def test_unknown_colorimetry_is_not_guessed():
         build_color_normalization_plan(["x"], {"x": unknown})
 
 
-def test_missing_color_evidence_fails_closed():
+def test_missing_or_blank_color_evidence_fails_closed():
     guessed = replace(SRGB_FULL, profile_id="guessed", evidence=())
     with pytest.raises(ValueError, match="missing_color_evidence:guessed"):
         build_color_normalization_plan(["ui"], {"ui": guessed})
+    blank = replace(SRGB_FULL, profile_id="blank", evidence=("",))
+    with pytest.raises(ValueError, match="invalid_color_evidence:blank"):
+        build_color_normalization_plan(["ui"], {"ui": blank})
 
 
 def test_ffmpeg_filter_converts_browser_ui_to_bt709_and_preserves_alpha():
@@ -80,13 +83,21 @@ def test_ffmpeg_filter_converts_browser_ui_to_bt709_and_preserves_alpha():
     assert result.startswith("[1:v]zscale=")
     assert "primariesin=bt709" in result
     assert "transferin=iec61966-2-1" in result
-    assert "matrixin=rgb" in result
+    assert "matrixin=gbr" in result
     assert "rangein=full" in result
     assert "transfer=bt709" in result
     assert "matrix=bt709" in result
     assert "range=limited" in result
     assert "format=yuva444p10le" in result
     assert result.endswith("[norm1]")
+
+
+def test_display_p3_uses_ffmpeg_smpte432_primary_token():
+    binding = ArtifactColorBinding("p3", DISPLAY_P3_SRGB_FULL)
+    result = ffmpeg_color_filter(binding, BT709_SDR_LIMITED, input_label="2:v", output_label="norm2")
+    assert "primariesin=smpte432" in result
+    assert "transferin=iec61966-2-1" in result
+    assert "matrixin=gbr" in result
 
 
 def test_opaque_filter_uses_non_alpha_working_format():
@@ -104,6 +115,11 @@ def test_output_metadata_is_explicit_and_tokenized():
         "-colorspace", "bt709",
         "-color_range", "tv",
     ]
+
+
+def test_rgb_matrix_output_metadata_is_not_overclaimed():
+    with pytest.raises(ValueError, match="rgb_matrix_output_metadata_not_qualified"):
+        ffmpeg_output_color_args(SRGB_FULL)
 
 
 def test_tampered_plan_hash_is_detected():
