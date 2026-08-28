@@ -48,12 +48,12 @@ def compile_editing_graph_to_hyperframes(graph, *, width=1080, height=1920, fps=
     return HyperFramesSpec(width,height,fps,max_end,tuple(scenes),tuple(timeline),tuple(sorted(provenance)))
 
 def emit_hyperframes_project(spec: HyperFramesSpec) -> dict[str,str]:
-    """Emit a standalone HyperFrames composition that is executable by the CLI.
+    """Emit a standalone HyperFrames composition executable by the CLI.
 
-    The root composition owns deterministic duration/dimensions and the GSAP timeline
-    is synchronously registered in ``window.__timelines``. ``motion-spec.json`` remains
-    the compiler evidence projection; runtime code embeds the same exact spec so no
-    asynchronous JSON fetch can race timeline discovery.
+    HyperFrames lints the standalone HTML surface, so the synchronous timeline
+    registration is emitted inline rather than hidden behind an external script.
+    ``motion.js`` remains an exact runtime-source evidence copy and
+    ``motion-spec.json`` remains the deterministic compiler projection.
     """
     if spec.width <= 0 or spec.height <= 0 or spec.fps <= 0 or spec.duration_ms <= 0:
         raise ValueError("HyperFrames spec requires positive width/height/fps/duration")
@@ -61,25 +61,6 @@ def emit_hyperframes_project(spec: HyperFramesSpec) -> dict[str,str]:
     data=json.dumps(spec.to_dict(),indent=2,ensure_ascii=False)
     compact=json.dumps(spec.to_dict(),sort_keys=True,separators=(",",":"),ensure_ascii=False)
     duration_s=spec.duration_ms/1000
-    html=f"""<!doctype html>
-<html>
-<head>
-<meta charset=\"utf-8\">
-<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">
-<style>
-html,body{{margin:0;width:100%;height:100%;overflow:hidden;background:#090909}}
-[data-composition-id=\"motion-os-master\"]{{position:relative;width:{spec.width}px;height:{spec.height}px;overflow:hidden;background:#090909;color:#f5f5f0;font-family:Arial,sans-serif}}
-.layer{{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;box-sizing:border-box}}
-.layer-label{{font-size:max(20px,5vw);font-weight:700;letter-spacing:.04em;text-transform:uppercase}}
-</style>
-<script src=\"https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js\"></script>
-</head>
-<body>
-<div id=\"motion-os-root\" data-composition-id=\"motion-os-master\" data-start=\"0\" data-duration=\"{duration_s:.6f}\" data-track-index=\"0\" data-width=\"{spec.width}\" data-height=\"{spec.height}\"></div>
-<script src=\"./motion.js\"></script>
-</body>
-</html>
-"""
     js=f"""'use strict';
 const spec={compact};
 const root=document.querySelector('#motion-os-root');
@@ -108,6 +89,25 @@ for(const event of spec.timeline){{
 }}
 window.__timelines['motion-os-master']=tl;
 window.__MOTION_OS__={{spec,timeline:tl,seekMs:(ms)=>tl.time(ms/1000,false)}};
+"""
+    html=f"""<!doctype html>
+<html>
+<head>
+<meta charset=\"utf-8\">
+<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">
+<style>
+html,body{{margin:0;width:100%;height:100%;overflow:hidden;background:#090909}}
+[data-composition-id=\"motion-os-master\"]{{position:relative;width:{spec.width}px;height:{spec.height}px;overflow:hidden;background:#090909;color:#f5f5f0;font-family:Arial,sans-serif}}
+.layer{{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;box-sizing:border-box}}
+.layer-label{{font-size:max(20px,5vw);font-weight:700;letter-spacing:.04em;text-transform:uppercase}}
+</style>
+<script src=\"https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js\"></script>
+</head>
+<body>
+<div id=\"motion-os-root\" data-composition-id=\"motion-os-master\" data-start=\"0\" data-duration=\"{duration_s:.6f}\" data-track-index=\"0\" data-width=\"{spec.width}\" data-height=\"{spec.height}\"></div>
+<script>{js}</script>
+</body>
+</html>
 """
     return {"index.html":html,"motion.js":js,"motion-spec.json":data+"\n"}
 
