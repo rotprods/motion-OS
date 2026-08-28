@@ -15,8 +15,11 @@
   "rollback_master": "data/rc06/MOTION_OS_RC06.mp4",
   "last_iteration": "RC09E_PROMOTED_WORKING_MASTER",
   "measured": {
+    "tests_passed": 32,
     "tests_passed_historical_baseline": 32,
+    "benchmark_briefs": 25,
     "benchmark_briefs_target": 25,
+    "benchmark_styles": 5,
     "benchmark_styles_target": 5,
     "primitive_count": 45,
     "primitive_verified": 15,
@@ -24,11 +27,22 @@
     "rc_duration": 10.0,
     "rc_frames": 300,
     "rc_fps": 30,
+    "semantic_frame_mean_baseline": 8.653,
     "semantic_frame_mean_historical_baseline": 8.653,
+    "audio_integrated_lufs": -24.6,
     "audio_integrated_lufs_historical": -24.6,
+    "audio_true_peak_dbfs": -8.6,
     "audio_true_peak_dbfs_historical": -8.6,
     "rc07_protected_region_ssim": 0.998589,
     "rc07_protected_region_psnr_db": 51.138534
+  },
+  "measured_semantics": {
+    "tests_passed": "historical baseline count; not current full-suite proof",
+    "benchmark_briefs": "target definition; not claim that 25 briefs are rendered/labeled",
+    "benchmark_styles": "target definition",
+    "semantic_frame_mean_baseline": "historical sampled baseline; not RC09E release evidence",
+    "audio_integrated_lufs": "historical measurement",
+    "audio_true_peak_dbfs": "historical measurement"
   },
   "capabilities": {
     "remotion_production_runtime": {
