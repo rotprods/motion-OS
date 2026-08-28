@@ -1,0 +1,25 @@
+{
+  "event_id": "evt_chatgpt_temporal_critic_20260828T1252+0200",
+  "event_type": "work.started",
+  "timestamp": "2026-08-28T10:52:00Z",
+  "agent_id": "motion://agent/chatgpt/temporal-critic",
+  "project": "MOTION.OS",
+  "branch": "feat/p08-temporal-multimodal-critic-v1",
+  "commit_sha": "a8d7dbddaeb4ad9779df9883d3cf4e4f6ea4f29d",
+  "pr_number": 65,
+  "summary": "Started isolated P0 temporal multimodal critic authority work from live main, coordinated on Issue #39 and bounded away from active event-fabric, render, graph-QA, SkillRuntime and canonical-truth workstreams.",
+  "affected_paths": [
+    "src/qa/temporal_multimodal.py",
+    "tests/test_temporal_multimodal_critic.py"
+  ],
+  "checks": {},
+  "authority": "PROPOSED",
+  "correlation_id": "issue48-f08-temporal-critic",
+  "metadata": {
+    "workstream_id": "motion://workstream/p08-authoritative-temporal-multimodal-critic",
+    "session_id": "motion://session/chatgpt/temporal-critic/20260828T1252+0200",
+    "base_sha": "a8d7dbddaeb4ad9779df9883d3cf4e4f6ea4f29d",
+    "bootstrap_bus": "issue#39",
+    "regression_control": "issue#48"
+  }
+}
