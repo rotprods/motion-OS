@@ -96,13 +96,13 @@ def authorize_render(*, content_id: str, profile_id: str, script: str, explicit_
     concurrent = _nonnegative_int(concurrent_renders, name="concurrent_renders")
     if concurrent >= policy.max_concurrent_renders:
         raise RuntimeError("concurrent render limit reached")
-    credits: float | None = None
-    if estimated_credits is not None:
-        credits = _finite_nonnegative_number(estimated_credits, name="estimated_credits")
-        if credits > policy.max_credits_per_render:
-            raise RuntimeError("per-render credit budget exceeded")
-        if spent + credits > policy.max_credits_per_day:
-            raise RuntimeError("daily credit budget exceeded")
+    if estimated_credits is None:
+        raise ValueError("estimated_credits is required for paid render authorization")
+    credits = _finite_nonnegative_number(estimated_credits, name="estimated_credits")
+    if credits > policy.max_credits_per_render:
+        raise RuntimeError("per-render credit budget exceeded")
+    if spent + credits > policy.max_credits_per_day:
+        raise RuntimeError("daily credit budget exceeded")
     script_hash = hash_script(script)
     return RenderIntent(
         intent_id=make_render_intent_id(content_id=content_id, profile_id=profile_id, script=script),
