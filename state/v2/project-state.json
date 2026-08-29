@@ -1,0 +1,58 @@
+{
+  "schema": "motion-os.v2-project-state/v1",
+  "authority": "PROPOSED_V2_CANDIDATE",
+  "project_id": "motion://project/motion-os",
+  "north_star_id": "motion://northstar/professional-motion-master",
+  "source_main_sha": "a8d7dbddaeb4ad9779df9883d3cf4e4f6ea4f29d",
+  "session_id": "motion://session/chatgpt/graph-refactor-v2/20260829T2344+0200",
+  "workstream_id": "motion://workstream/graph-refactor-v2",
+  "objective_id": "motion://objective/v2-architecture-recompile",
+  "release_state": "BLOCKED",
+  "architecture_state": "V2_IMPLEMENTED_NOT_PROMOTED",
+  "active_barriers": ["issue:39/cognitive-pause", "issue:48/regression-control"],
+  "authority_hierarchy": [
+    "github_live_lifecycle_and_admin",
+    "canonical_domain_state",
+    "immutable_event_and_evidence_history",
+    "hash_bound_artifacts",
+    "derived_projections",
+    "conversation_memory"
+  ],
+  "known_live_open_prs": [52,56,57,58,59,61,62,63,64,65,66,67,68,69,70,71,73,74,75,76,77],
+  "critical_blockers": [
+    "canonical_truth_drift",
+    "github_main_admin_protection_unapplied",
+    "temporal_full_video_authority_unqualified",
+    "exact_frame_authority_gap",
+    "renderer_provenance_and_reproducibility_partial",
+    "creative_style_generalization_unqualified",
+    "release_artifact_evidence_chain_incomplete"
+  ],
+  "verified_or_branch_qualified_capabilities": {
+    "remotion_physical_runtime_main": "VERIFIED",
+    "event_fabric_pr58": "VERIFIED_BRANCH_HEAD_NOT_PROMOTED",
+    "autonomous_selector_pr68": "VERIFIED_PREPRODUCTION_BLOCKED_BY_BARRIER",
+    "security_gauntlet_pr70": "VERIFIED_BRANCH_HEAD_NOT_PROMOTED",
+    "master_audio_pr61": "PHYSICAL_BRANCH_EVIDENCE",
+    "alpha_pr63": "PHYSICAL_ALPHA_PLANE_BRANCH_EVIDENCE",
+    "hyperframes_pr62": "PHYSICAL_BRANCH_EVIDENCE_PROVENANCE_PARTIAL",
+    "benchmark_pr75": "VERIFIED_MECHANICAL_SMOKE_CREATIVE_BLOCKED"
+  },
+  "deferred_infrastructure": {
+    "postgres_or_supabase": "DEFER_UNTIL_MULTI_HOST_CONTENTION",
+    "redis": "DEFER",
+    "kafka_or_queues": "DEFER",
+    "kubernetes": "DEFER",
+    "vector_db": "DEFER_UNLESS_RETRIEVAL_BOTTLENECK_MEASURED",
+    "cdn": "DEFER_UNLESS_ASSET_DISTRIBUTION_BOTTLENECK_MEASURED"
+  },
+  "next_safe_frontier": [
+    "qualify_graph_refactor_v2_package",
+    "converge_pr59_qa_history",
+    "close_pr64_exact_frame_authority",
+    "close_pr65_temporal_causality",
+    "finish_renderer_provenance_alpha_color_lockfile",
+    "prepare_external_github_ruleset",
+    "recover_or_regenerate_real_master_for_full_video_critic"
+  ]
+}
