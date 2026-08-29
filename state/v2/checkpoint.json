@@ -6,7 +6,7 @@
   "checkpoint_states": {
     "CP0": {"name":"Live Truth Reconstructed","state":"EXECUTED","authority":"SESSION_EVIDENCE","notes":"Live main/open PRs/AGENTS/GOAL/STATE/project_state/ACTIVE_AGENTS/Bus inspected; current truth drift remains a discovered blocker."},
     "CP1": {"name":"Graph Complete","state":"IMPLEMENTED_PENDING_VALIDATION","authority":"BRANCH_ONLY"},
-    "CP2": {"name":"Historical Regression Complete","state":"PARTIAL","authority":"ISSUE48_PLUS_V2","notes":"Known escaped-bug corpus captured; repository-wide archaeology remains iterative."},
+    "CP2": {"name":"Historical Regression Complete","state":"PARTIAL","authority":"BRANCH_ONLY","notes":"Known escaped-bug corpus captured; repository-wide archaeology remains iterative."},
     "CP3": {"name":"Architecture Gaps Classified","state":"IMPLEMENTED_PENDING_VALIDATION","authority":"BRANCH_ONLY"},
     "CP4": {"name":"V2 Architecture Frozen","state":"PENDING_REVIEW","authority":"NONE"},
     "CP5": {"name":"Core Contracts Frozen","state":"PENDING","authority":"NONE"},
@@ -21,5 +21,5 @@
     "CP14": {"name":"Production Authority","state":"BLOCKED","authority":"NONE"}
   },
   "next_checkpoint_target": "CP1",
-  "next_safe_action": "validate V2 package, open isolated draft PR, run clean-runner gates, then hand off exact graph/implementation frontier without mutating active code scopes"
+  "next_safe_action": "validate V2 package, keep isolated draft PR, run clean-runner gates, then hand off exact graph/implementation frontier without mutating active code scopes"
 }
