@@ -32,6 +32,14 @@ def test_provider_asset_urls_reject_non_https_credentials_local_networks_and_mal
     assert any("video_url" in error for error in errors)
 
 
+def test_completed_provider_result_without_asset_fails_closed_for_reconciliation():
+    payload = {"status": "completed", "id": "job_123", "duration": 12.5}
+    errors = validate_provider_result(payload)
+    assert any("missing video_url" in error for error in errors)
+    with pytest.raises(ValueError, match="reconcile"):
+        ingest_render_telemetry({}, payload)
+
+
 def test_public_https_provider_urls_remain_valid():
     errors = validate_provider_result({
         "status": "completed",
