@@ -28,9 +28,8 @@ It does **not** silently replace current main authority until CP4 architecture f
 - `plans/v2/IMPLEMENTATION_PROGRAM.md` — implementation compiler.
 - `plans/v2/NEXT_ITERATION_METAPROMPT.md` — successor packet; live truth must be reverified first.
 - `plans/v2/EXECUTION_PROGRESS.md` — execution ledger.
-- `state/v2/v2_state.json` — canonical V2 candidate machine state.
-- `state/v2/tasks.json` — derived executable task DAG projection.
-- `state/v2/checkpoint.json` — derived checkpoint projection.
+- `state/v2/v2_state.json` — V2 candidate machine state/checkpoint summary.
+- `state/v2/task_dag.json` — machine executable task DAG transferred from donor #90 and normalized to candidate #91.
 
 ## Validators
 
@@ -43,10 +42,10 @@ pytest -q tests/test_v2_hypergraph_contract.py tests/test_v2_package_contract.py
 ## Authority rules
 
 1. Live GitHub lifecycle/admin + canonical domain state override this package if they advance after its source revision.
-2. Graph/docs/task/checkpoint files cannot self-promote production authority.
+2. Graph/docs/task/checkpoint state cannot self-promote production authority.
 3. `graph/v2/motion_os_v2_hypergraph.json` is the canonical V2 graph candidate; other graph diagrams are derived projections.
 4. Current active implementation PR owners remain authoritative for their code scopes.
 5. Historical architecture remains durable and is marked `SUPERSEDED`, never silently rewritten.
 6. Any irreversible action requires fresh main, fresh Event Fabric watermark, semantic/path conflict preflight and exact evidence.
-7. Missing required V2 outputs or dangling/duplicate graph/task/checkpoint identities fail closed.
+7. Missing required V2 outputs or dangling/duplicate graph/task identities fail closed.
 8. #90 is donor-only after convergence; no competing V2 architecture may be promoted.
