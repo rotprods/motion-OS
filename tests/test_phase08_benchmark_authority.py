@@ -4,8 +4,10 @@ import pytest
 
 from src.benchmarks.authority import (
     BenchmarkBriefEvidence,
+    BenchmarkCaseSpec,
     BenchmarkEvidenceError,
     BenchmarkLedger,
+    BenchmarkSuiteManifest,
     BriefStatus,
     LegacyBenchmarkClaim,
 )
@@ -15,17 +17,28 @@ def sha(value: str) -> str:
     return hashlib.sha256(value.encode()).hexdigest()
 
 
-def passed(brief_id: str, style: str, *, score: float = 9.2, evidence_id: str | None = None) -> BenchmarkBriefEvidence:
+def passed(brief_id: str, style: str, *, score: float = 9.2, evidence_id: str | None = None, brief_hash: str | None = None) -> BenchmarkBriefEvidence:
     return BenchmarkBriefEvidence(
         evidence_id=evidence_id or f"ev-{brief_id}",
         brief_id=brief_id,
         style_family=style,
-        brief_sha256=sha(f"brief:{brief_id}"),
+        brief_sha256=brief_hash or sha(f"brief:{brief_id}"),
         artifact_sha256=sha(f"artifact:{brief_id}"),
         test_run_id=f"run-{brief_id}",
         status=BriefStatus.PASS,
         quality_score=score,
         assertions=("artifact_bound", "creative_gate_passed"),
+    )
+
+
+def suite25() -> BenchmarkSuiteManifest:
+    return BenchmarkSuiteManifest(
+        suite_id="suite-25x5-v1",
+        cases=tuple(
+            BenchmarkCaseSpec(f"b{i:02d}", f"style-{i % 5}", sha(f"brief:b{i:02d}"))
+            for i in range(25)
+        ),
+        release_quality=9.0,
     )
 
 
@@ -81,12 +94,25 @@ def test_identical_evidence_replay_is_idempotent():
     assert ledger.metrics().passed_briefs == 1
 
 
-def test_25_balanced_passes_across_five_styles_can_be_authoritative():
+def test_25_balanced_passes_without_suite_are_observational_only():
     ledger = BenchmarkLedger()
-    styles = [f"style-{i}" for i in range(5)]
     for i in range(25):
-        ledger.append(passed(f"b{i:02d}", styles[i % 5]))
+        ledger.append(passed(f"b{i:02d}", f"style-{i % 5}"))
     metrics = ledger.metrics()
+    assert metrics.apsr == 1.0
+    assert metrics.gsr == 1.0
+    assert metrics.authoritative is False
+    assert "benchmark_suite_unbound" in metrics.blockers
+
+
+def test_exact_suite_bound_25x5_can_be_authoritative():
+    ledger = BenchmarkLedger()
+    suite = suite25()
+    for case in suite.cases:
+        ledger.append(passed(case.brief_id, case.style_family, brief_hash=case.brief_sha256))
+    metrics = ledger.metrics(suite=suite)
+    assert metrics.suite_id == suite.suite_id
+    assert metrics.suite_hash == suite.content_hash()
     assert metrics.passed_briefs == 25
     assert metrics.apsr == 1.0
     assert metrics.gsr == 1.0
@@ -97,7 +123,40 @@ def test_25_balanced_passes_across_five_styles_can_be_authoritative():
     assert metrics.blockers == ()
 
 
-def test_25_passes_in_one_style_fails_generalization():
+def test_arbitrary_25_ids_cannot_satisfy_exact_suite():
+    ledger = BenchmarkLedger()
+    suite = suite25()
+    for i in range(25):
+        ledger.append(passed(f"fake-{i:02d}", f"style-{i % 5}"))
+    metrics = ledger.metrics(suite=suite)
+    assert metrics.authoritative is False
+    assert any(item.startswith("missing_briefs:") for item in metrics.blockers)
+    assert any(item.startswith("unexpected_briefs:") for item in metrics.blockers)
+
+
+def test_style_label_or_brief_hash_mismatch_fails_suite_binding():
+    ledger = BenchmarkLedger()
+    suite = BenchmarkSuiteManifest(
+        suite_id="one",
+        cases=(BenchmarkCaseSpec("b1", "required-style", sha("brief:b1")),),
+    )
+    ledger.append(passed("b1", "spoofed-style", brief_hash=sha("other")))
+    metrics = ledger.metrics(suite=suite)
+    assert metrics.authoritative is False
+    assert "suite_binding_mismatch:b1" in metrics.blockers
+
+
+def test_missing_suite_case_blocks_authority():
+    ledger = BenchmarkLedger()
+    suite = suite25()
+    for case in suite.cases[:-1]:
+        ledger.append(passed(case.brief_id, case.style_family, brief_hash=case.brief_sha256))
+    metrics = ledger.metrics(suite=suite)
+    assert metrics.authoritative is False
+    assert any(item.startswith("missing_briefs:") for item in metrics.blockers)
+
+
+def test_25_passes_in_one_style_fails_generalization_observationally():
     ledger = BenchmarkLedger()
     for i in range(25):
         ledger.append(passed(f"b{i:02d}", "one-style"))
@@ -123,43 +182,48 @@ def test_five_styles_with_unbalanced_distribution_fails_gsr():
 
 def test_single_low_quality_pass_cannot_hide_behind_high_mean():
     ledger = BenchmarkLedger()
-    for i in range(25):
+    suite = suite25()
+    for i, case in enumerate(suite.cases):
         score = 8.8 if i == 0 else 9.8
-        ledger.append(passed(f"b{i:02d}", f"style-{i % 5}", score=score))
-    metrics = ledger.metrics()
+        ledger.append(passed(case.brief_id, case.style_family, score=score, brief_hash=case.brief_sha256))
+    metrics = ledger.metrics(suite=suite)
     assert metrics.mean_quality > 9.0
     assert metrics.minimum_quality == 8.8
     assert metrics.authoritative is False
     assert any(item.startswith("minimum_quality:") for item in metrics.blockers)
 
 
-def test_high_pass_count_with_low_quality_is_not_authoritative():
-    ledger = BenchmarkLedger()
-    for i in range(25):
-        ledger.append(passed(f"b{i:02d}", f"style-{i % 5}", score=8.99))
-    metrics = ledger.metrics()
-    assert metrics.authoritative is False
-    assert any(item.startswith("mean_quality:") for item in metrics.blockers)
-
-
 def test_failed_or_blocked_brief_prevents_authority():
     ledger = BenchmarkLedger()
-    for i in range(24):
-        ledger.append(passed(f"b{i:02d}", f"style-{i % 5}"))
-    ledger.append(BenchmarkBriefEvidence("ev-f", "bf", "style-4", sha("bf"), None, "run-f", BriefStatus.FAIL, findings=("render_failed",)))
-    metrics = ledger.metrics()
+    suite = suite25()
+    for case in suite.cases[:-1]:
+        ledger.append(passed(case.brief_id, case.style_family, brief_hash=case.brief_sha256))
+    final = suite.cases[-1]
+    ledger.append(BenchmarkBriefEvidence("ev-f", final.brief_id, final.style_family, final.brief_sha256, None, "run-f", BriefStatus.FAIL, findings=("render_failed",)))
+    metrics = ledger.metrics(suite=suite)
     assert metrics.authoritative is False
     assert metrics.failed_briefs == 1
 
 
 def test_two_distinct_revisions_for_same_brief_are_ambiguous_without_supersession():
     ledger = BenchmarkLedger()
+    suite = BenchmarkSuiteManifest("one", (BenchmarkCaseSpec("b1", "style-a", sha("brief:b1")),))
     ledger.append(passed("b1", "style-a", evidence_id="rev1"))
-    ledger.append(BenchmarkBriefEvidence("rev2", "b1", "style-a", sha("brief:b1:changed"), sha("artifact:b1:changed"), "run2", BriefStatus.PASS, 9.5, assertions=("artifact_bound",)))
-    metrics = ledger.metrics(required_briefs=1, required_styles=1)
+    ledger.append(BenchmarkBriefEvidence("rev2", "b1", "style-a", sha("brief:b1"), sha("artifact:b1:changed"), "run2", BriefStatus.PASS, 9.5, assertions=("artifact_bound",)))
+    metrics = ledger.metrics(suite=suite)
     assert metrics.authoritative is False
     assert metrics.passed_briefs == 0
     assert "ambiguous_brief_revisions:b1" in metrics.blockers
+
+
+def test_suite_hash_is_deterministic_across_case_order():
+    cases = (
+        BenchmarkCaseSpec("b1", "s1", sha("b1")),
+        BenchmarkCaseSpec("b2", "s2", sha("b2")),
+    )
+    a = BenchmarkSuiteManifest("suite", cases)
+    b = BenchmarkSuiteManifest("suite", tuple(reversed(cases)))
+    assert a.content_hash() == b.content_hash()
 
 
 def test_metrics_hash_is_deterministic_independent_of_append_order():
