@@ -15,6 +15,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from src.benchmarks.fixtures import fixture_by_id, fixture_manifest
+from src.benchmarks.physical_evidence import MECHANICAL_EVIDENCE_CLASS, MechanicalBenchmarkEvidence
 
 RUNTIME_SPEC = ROOT / "runtime" / "remotion" / "src" / "runtimeSpec.json"
 RUNTIME_DIR = ROOT / "runtime" / "remotion"
@@ -84,9 +85,15 @@ def render_one(brief_id: str) -> dict:
         "mechanical_pass": mechanical_pass,
         "test_run_id": os.environ.get("GITHUB_RUN_ID", "local-unqualified"),
         "source_commit": os.environ.get("GITHUB_SHA", "local-unqualified"),
+        "evidence_class": MECHANICAL_EVIDENCE_CLASS,
         "creative_authority": "BLOCKED",
+        "style_fidelity_authority": "BLOCKED",
         "creative_blocker": "authoritative creative review not executed",
+        "style_fidelity_blocker": "runtime smoke fixture does not prove requested style fidelity",
     }
+    # Parse through the authority adapter before persisting. This prevents a future
+    # refactor from accidentally outputting a mechanically-valid self-promoting record.
+    MechanicalBenchmarkEvidence.from_payload(evidence)
     evidence_path.write_text(json.dumps(evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     if not mechanical_pass:
         raise RuntimeError(f"mechanical benchmark verification failed for {brief_id}")
