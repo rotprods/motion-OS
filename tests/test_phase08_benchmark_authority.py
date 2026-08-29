@@ -49,6 +49,18 @@ def test_pass_requires_artifact_score_and_assertions():
         BenchmarkBriefEvidence("e", "b", "s", sha("b"), sha("a"), "run", BriefStatus.PASS, 9.5)
 
 
+def test_string_status_cannot_bypass_pass_requirements():
+    with pytest.raises(BenchmarkEvidenceError, match="BriefStatus"):
+        BenchmarkBriefEvidence("e", "b", "s", sha("b"), None, "run", "PASS")  # type: ignore[arg-type]
+
+
+def test_assertions_and_findings_must_be_tuples_not_truthy_strings():
+    with pytest.raises(BenchmarkEvidenceError, match="assertions"):
+        BenchmarkBriefEvidence("e", "b", "s", sha("b"), sha("a"), "run", BriefStatus.PASS, 9.5, (), "looks-good")  # type: ignore[arg-type]
+    with pytest.raises(BenchmarkEvidenceError, match="findings"):
+        BenchmarkBriefEvidence("e2", "b2", "s", sha("b2"), None, "run2", BriefStatus.FAIL, findings="failed")  # type: ignore[arg-type]
+
+
 def test_failure_requires_findings():
     with pytest.raises(BenchmarkEvidenceError, match="findings"):
         BenchmarkBriefEvidence("e", "b", "s", sha("b"), None, "run", BriefStatus.FAIL)
@@ -69,7 +81,7 @@ def test_identical_evidence_replay_is_idempotent():
     assert ledger.metrics().passed_briefs == 1
 
 
-def test_25_passes_across_five_styles_can_be_authoritative():
+def test_25_balanced_passes_across_five_styles_can_be_authoritative():
     ledger = BenchmarkLedger()
     styles = [f"style-{i}" for i in range(5)]
     for i in range(25):
@@ -79,6 +91,8 @@ def test_25_passes_across_five_styles_can_be_authoritative():
     assert metrics.apsr == 1.0
     assert metrics.gsr == 1.0
     assert metrics.mean_quality == pytest.approx(9.2)
+    assert metrics.minimum_quality == pytest.approx(9.2)
+    assert all(count == 5 for _, count in metrics.style_pass_counts)
     assert metrics.authoritative is True
     assert metrics.blockers == ()
 
@@ -89,9 +103,34 @@ def test_25_passes_in_one_style_fails_generalization():
         ledger.append(passed(f"b{i:02d}", "one-style"))
     metrics = ledger.metrics()
     assert metrics.apsr == 1.0
-    assert metrics.gsr == pytest.approx(0.2)
+    assert metrics.gsr == 0.0
     assert metrics.authoritative is False
     assert any(item.startswith("style_families:") for item in metrics.blockers)
+    assert any(item.startswith("style_balance:") for item in metrics.blockers)
+
+
+def test_five_styles_with_unbalanced_distribution_fails_gsr():
+    ledger = BenchmarkLedger()
+    styles = ["a"] * 21 + ["b", "c", "d", "e"]
+    for i, style in enumerate(styles):
+        ledger.append(passed(f"b{i:02d}", style))
+    metrics = ledger.metrics()
+    assert metrics.apsr == 1.0
+    assert metrics.gsr == pytest.approx(0.2)
+    assert metrics.authoritative is False
+    assert "style_balance:1/5@5" in metrics.blockers
+
+
+def test_single_low_quality_pass_cannot_hide_behind_high_mean():
+    ledger = BenchmarkLedger()
+    for i in range(25):
+        score = 8.8 if i == 0 else 9.8
+        ledger.append(passed(f"b{i:02d}", f"style-{i % 5}", score=score))
+    metrics = ledger.metrics()
+    assert metrics.mean_quality > 9.0
+    assert metrics.minimum_quality == 8.8
+    assert metrics.authoritative is False
+    assert any(item.startswith("minimum_quality:") for item in metrics.blockers)
 
 
 def test_high_pass_count_with_low_quality_is_not_authoritative():
