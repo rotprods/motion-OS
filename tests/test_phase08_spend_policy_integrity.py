@@ -143,20 +143,67 @@ def test_provider_job_still_blocks_retry_before_counter_validation():
         next_retry(intent, _policy())
 
 
-def test_retry_submission_requires_exact_bounded_transition_and_policy():
+def test_retry_submission_requires_exact_bounded_transition_policy_and_live_budget():
     original = _authorize()
     failed = RenderIntent(**{**original.__dict__, "state": RenderState.FAILED_RETRYABLE})
     retried = next_retry(failed, _policy())
 
     assert can_submit(retried, {original.intent_id: failed}) is False
-    assert can_submit(retried, {original.intent_id: failed}, policy=_policy()) is True
+    assert can_submit(retried, {original.intent_id: failed}, policy=_policy()) is False
+    assert can_submit(
+        retried,
+        {original.intent_id: failed},
+        policy=_policy(),
+        spent_today=10.0,
+        concurrent_renders=0,
+    ) is True
 
     fresh_reauthorization = _authorize()
     assert fresh_reauthorization.retry_count == 0
-    assert can_submit(fresh_reauthorization, {original.intent_id: failed}, policy=_policy()) is False
+    assert can_submit(
+        fresh_reauthorization,
+        {original.intent_id: failed},
+        policy=_policy(),
+        spent_today=10.0,
+        concurrent_renders=0,
+    ) is False
 
     forged_wrong_generation = RenderIntent(**{**retried.__dict__, "retry_count": 7})
-    assert can_submit(forged_wrong_generation, {original.intent_id: failed}, policy=_policy()) is False
+    assert can_submit(
+        forged_wrong_generation,
+        {original.intent_id: failed},
+        policy=_policy(),
+        spent_today=10.0,
+        concurrent_renders=0,
+    ) is False
+
+
+def test_retry_submission_rechecks_daily_budget_and_concurrency_after_original_authorization():
+    original = _authorize(estimated_credits=8.0)
+    failed = RenderIntent(**{**original.__dict__, "state": RenderState.FAILED_RETRYABLE})
+    retried = next_retry(failed, _policy())
+
+    assert can_submit(
+        retried,
+        {original.intent_id: failed},
+        policy=_policy(),
+        spent_today=95.0,
+        concurrent_renders=0,
+    ) is False
+    assert can_submit(
+        retried,
+        {original.intent_id: failed},
+        policy=_policy(),
+        spent_today=20.0,
+        concurrent_renders=2,
+    ) is False
+    assert can_submit(
+        retried,
+        {original.intent_id: failed},
+        policy=_policy(),
+        spent_today=float("nan"),
+        concurrent_renders=0,
+    ) is False
 
 
 def test_retry_submission_respects_max_retries_and_non_authorized_states():
@@ -164,7 +211,13 @@ def test_retry_submission_respects_max_retries_and_non_authorized_states():
     original = _authorize()
     failed = RenderIntent(**{**original.__dict__, "state": RenderState.FAILED_RETRYABLE})
     forged = RenderIntent(**{**failed.__dict__, "state": RenderState.AUTHORIZED, "retry_count": 1})
-    assert can_submit(forged, {original.intent_id: failed}, policy=no_retry) is False
+    assert can_submit(
+        forged,
+        {original.intent_id: failed},
+        policy=no_retry,
+        spent_today=0.0,
+        concurrent_renders=0,
+    ) is False
 
     completed = RenderIntent(**{**original.__dict__, "state": RenderState.COMPLETED})
     assert can_submit(completed, {}) is False
