@@ -4,11 +4,13 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+import re
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 
 REQUIRED_DOCS = (
+    "architecture/v2/README.md",
     "architecture/v2/EXECUTIVE_V2.md",
     "architecture/v2/GAP_RISK_MATRIX.md",
     "architecture/v2/DECISION_LEDGER.md",
@@ -16,6 +18,8 @@ REQUIRED_DOCS = (
     "architecture/v2/IMPLEMENTATION_PROGRAM.md",
     "architecture/v2/CHECKPOINTS.md",
     "architecture/v2/ASSURANCE_MODEL.md",
+    "architecture/v2/MIGRATION_PLAN.md",
+    "architecture/v2/NEXT_ITERATION_METAPROMPT.md",
     "architecture/v2/system_graph.mmd",
     "architecture/v2/hypergraph.snapshot.json",
     "state/v2/project-state.json",
@@ -30,6 +34,7 @@ ALLOWED_AUTHORITY = {
     "NOT_PROMOTED",
     "NONE",
 }
+SHA40_RE = re.compile(r"^[0-9a-f]{40}$")
 
 
 def _load_json(rel: str, root: Path = ROOT) -> dict[str, Any]:
@@ -44,13 +49,26 @@ def _load_json(rel: str, root: Path = ROOT) -> dict[str, Any]:
 
 
 def _assert_unique(values: list[str], label: str) -> None:
-    if len(values) != len(set(values)):
-        duplicates = sorted({v for v in values if values.count(v) > 1})
-        raise ValueError(f"duplicate {label}: {duplicates}")
+    seen: set[str] = set()
+    duplicates: set[str] = set()
+    for value in values:
+        if value in seen:
+            duplicates.add(value)
+        seen.add(value)
+    if duplicates:
+        raise ValueError(f"duplicate {label}: {sorted(duplicates)}")
+
+
+def _require_sha40(value: Any, label: str) -> None:
+    if not isinstance(value, str) or SHA40_RE.fullmatch(value) is None:
+        raise ValueError(f"{label} must be an exact 40-character lowercase git SHA")
 
 
 def validate_hypergraph(root: Path = ROOT) -> None:
     graph = _load_json("architecture/v2/hypergraph.snapshot.json", root)
+    _require_sha40(graph.get("source_revision"), "hypergraph source_revision")
+    if graph.get("authority") != "PROPOSED_V2_CANDIDATE":
+        raise ValueError("hypergraph must remain PROPOSED_V2_CANDIDATE before migration")
     nodes = graph.get("nodes")
     edges = graph.get("edges")
     hyperedges = graph.get("hyperedges")
@@ -61,6 +79,8 @@ def validate_hypergraph(root: Path = ROOT) -> None:
     for node in nodes:
         if not isinstance(node, dict) or not isinstance(node.get("id"), str) or not node["id"].strip():
             raise ValueError("every hypergraph node requires a non-empty string id")
+        if not isinstance(node.get("type"), str) or not node["type"].strip():
+            raise ValueError(f"hypergraph node {node['id']} requires a non-empty type")
         node_ids.append(node["id"])
     _assert_unique(node_ids, "node ids")
     node_set = set(node_ids)
@@ -86,6 +106,9 @@ def validate_hypergraph(root: Path = ROOT) -> None:
         members = hyperedge.get("members", [])
         if not isinstance(members, list) or not members:
             raise ValueError(f"hyperedge {hid} requires members")
+        if not all(isinstance(member, str) for member in members):
+            raise ValueError(f"hyperedge {hid} members must be strings")
+        _assert_unique(members, f"members in hyperedge {hid}")
         missing = [member for member in members if member not in node_set]
         if missing:
             raise ValueError(f"hyperedge {hid} references missing nodes: {missing}")
@@ -97,6 +120,9 @@ def validate_hypergraph(root: Path = ROOT) -> None:
 
 def validate_tasks(root: Path = ROOT) -> None:
     payload = _load_json("state/v2/tasks.json", root)
+    _require_sha40(payload.get("source_revision"), "tasks source_revision")
+    if payload.get("authority") != "PROPOSED_V2_CANDIDATE":
+        raise ValueError("tasks graph must remain PROPOSED_V2_CANDIDATE before migration")
     tasks = payload.get("tasks")
     if not isinstance(tasks, list) or not tasks:
         raise ValueError("tasks.json requires a non-empty tasks array")
@@ -112,11 +138,15 @@ def validate_tasks(root: Path = ROOT) -> None:
         deps = task.get("depends_on", [])
         if not isinstance(deps, list) or not all(isinstance(dep, str) for dep in deps):
             raise ValueError(f"task {task_id} has invalid depends_on")
+        _assert_unique(deps, f"dependencies for task {task_id}")
         if task_id in deps:
             raise ValueError(f"task {task_id} depends on itself")
         graph[task_id] = tuple(deps)
-        if not task.get("dod") or not task.get("evidence"):
-            raise ValueError(f"task {task_id} requires dod and evidence")
+        tests = task.get("tests")
+        if not isinstance(tests, list) or not tests or not all(isinstance(test, str) and test.strip() for test in tests):
+            raise ValueError(f"task {task_id} requires one or more named tests")
+        if not task.get("dod") or not task.get("evidence") or not task.get("owner"):
+            raise ValueError(f"task {task_id} requires owner, dod and evidence")
     _assert_unique(task_ids, "task ids")
     ids = set(task_ids)
     for task_id, deps in graph.items():
@@ -144,6 +174,9 @@ def validate_tasks(root: Path = ROOT) -> None:
 
 def validate_checkpoint(root: Path = ROOT) -> None:
     payload = _load_json("state/v2/checkpoint.json", root)
+    _require_sha40(payload.get("source_main_sha"), "checkpoint source_main_sha")
+    if payload.get("authority") != "PROPOSED_V2_CANDIDATE":
+        raise ValueError("checkpoint state must remain PROPOSED_V2_CANDIDATE before migration")
     states = payload.get("checkpoint_states")
     if not isinstance(states, dict):
         raise ValueError("checkpoint_states must be an object")
@@ -169,10 +202,17 @@ def validate_package(root: Path = ROOT) -> dict[str, Any]:
     validate_tasks(root)
     validate_checkpoint(root)
     project_state = _load_json("state/v2/project-state.json", root)
+    _require_sha40(project_state.get("source_main_sha"), "project-state source_main_sha")
     if project_state.get("authority") != "PROPOSED_V2_CANDIDATE":
         raise ValueError("V2 project-state must not self-promote before migration")
     if project_state.get("release_state") != "BLOCKED":
         raise ValueError("V2 project-state must remain BLOCKED while production checkpoints are incomplete")
+    if project_state.get("source_main_sha") != _load_json("architecture/v2/hypergraph.snapshot.json", root).get("source_revision"):
+        raise ValueError("V2 project-state and hypergraph must share the same source main revision")
+    if project_state.get("source_main_sha") != _load_json("state/v2/tasks.json", root).get("source_revision"):
+        raise ValueError("V2 project-state and task graph must share the same source main revision")
+    if project_state.get("source_main_sha") != _load_json("state/v2/checkpoint.json", root).get("source_main_sha"):
+        raise ValueError("V2 project-state and checkpoint state must share the same source main revision")
     return {
         "schema": "motion-os.v2-package-validation/v1",
         "status": "PASS",
