@@ -18,7 +18,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+      - uses: actions/setup-python@a26af69be951213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: '3.12'
           cache: pip
@@ -48,21 +48,27 @@ jobs:
             browser-launch-05; do
             python scripts/benchmark_smoke_batch.py render-one "$brief"
           done
-      - name: Assert creative authority remains blocked
+      - name: Assert mechanical-only evidence cannot self-promote
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
+          from src.benchmarks.physical_evidence import MechanicalBenchmarkEvidence
           files = sorted(Path('.artifacts/benchmark-smoke').glob('browser-launch-*.evidence.json'))
           assert len(files) == 5, files
           for path in files:
               data = json.loads(path.read_text())
+              evidence = MechanicalBenchmarkEvidence.from_payload(data)
+              blocked = evidence.to_blocked_ledger_entry()
               assert data['mechanical_pass'] is True
+              assert data['evidence_class'] == 'MECHANICAL_RENDER_ONLY'
               assert data['creative_authority'] == 'BLOCKED'
+              assert data['style_fidelity_authority'] == 'BLOCKED'
+              assert blocked.status.value == 'BLOCKED'
               assert data['frame_count'] == 90
               assert data['fps'] == 30.0
               assert data['visual_duration_seconds'] == 3.0
-          print('benchmark physical smoke: 5/5 mechanically verified; creative authority intentionally BLOCKED')
+          print('benchmark physical smoke: 5/5 mechanically verified; creative/style authority intentionally BLOCKED')
           PY
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
