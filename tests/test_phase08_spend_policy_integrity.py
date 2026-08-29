@@ -42,6 +42,11 @@ def test_estimated_credits_fail_closed_for_nonfinite_negative_or_bool(bad):
         _authorize(estimated_credits=bad)
 
 
+def test_paid_authorization_requires_credit_estimate():
+    with pytest.raises(ValueError, match="estimated_credits is required"):
+        _authorize(estimated_credits=None)
+
+
 @pytest.mark.parametrize("bad", [float("nan"), float("inf"), float("-inf"), -1.0, True])
 def test_spent_today_fail_closed_for_nonfinite_negative_or_bool(bad):
     with pytest.raises(ValueError, match="spent_today"):
