@@ -1,0 +1,29 @@
+{
+  "event_id": "evt_graph_refactor_v2_pr90_opened",
+  "event_type": "pr.opened",
+  "timestamp": "2026-08-29T23:53:24+02:00",
+  "agent_id": "motion://agent/chatgpt/graph-refactor-v2",
+  "project": "MOTION.OS",
+  "branch": "feat/graph-refactor-v2",
+  "commit_sha": "d123b6ef5493f9290858076b4f6fbf6bc8f100c2",
+  "pr_number": 90,
+  "summary": "Opened draft PR #90 for the isolated MOTION.OS V2 temporal-hypergraph architecture package, implementation compiler, machine-readable candidate state and deterministic package validator. PR remains non-authoritative and blocked from promotion by the active cognitive/regression barrier.",
+  "affected_paths": [
+    "architecture/v2",
+    "state/v2",
+    "scripts/validate_v2_architecture.py",
+    "tests/test_v2_architecture_package.py"
+  ],
+  "checks": {
+    "initial_merge_safe": "FAIL: validator detected noncanonical CP2 authority vocabulary; repaired before final qualification"
+  },
+  "authority": "IMPLEMENTED",
+  "correlation_id": "graph-refactor-v2-20260829",
+  "metadata": {
+    "session_id": "motion://session/chatgpt/graph-refactor-v2/20260829T2344+0200",
+    "workstream_id": "motion://workstream/graph-refactor-v2",
+    "objective_id": "motion://objective/v2-architecture-recompile",
+    "pr_url": "https://github.com/rotprods/motion-OS/pull/90",
+    "authority_ceiling": "IMPLEMENTED_NOT_PROMOTED"
+  }
+}
