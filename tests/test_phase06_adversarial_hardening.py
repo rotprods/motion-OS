@@ -107,8 +107,15 @@ def test_preflight_blocks_factual_beat_without_lineage():
 
 
 def test_learning_never_promotes_rule_automatically():
-    h = LearningHypothesis("H1", "LOSS hooks work better", EvidenceStage.OBSERVED_CORRELATION, ("a",))
-    h = promote_hypothesis(h, independent_examples=10, controlled_test_passed=True)
+    evidence_ids = tuple(f"content-{index}" for index in range(10))
+    h = LearningHypothesis(
+        "H1",
+        "LOSS hooks work better",
+        EvidenceStage.OBSERVED_CORRELATION,
+        evidence_ids,
+        controlled_test_id="test-1",
+    )
+    h = promote_hypothesis(h, independent_examples=len(evidence_ids), controlled_test_passed=True)
     assert h.stage == EvidenceStage.CONTROLLED_TEST
     with pytest.raises(PermissionError):
         approve_promoted_rule(h, explicit_approval=False)
