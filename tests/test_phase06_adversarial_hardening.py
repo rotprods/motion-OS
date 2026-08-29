@@ -119,5 +119,5 @@ def test_learning_never_promotes_rule_automatically():
     assert h.stage == EvidenceStage.CONTROLLED_TEST
     with pytest.raises(PermissionError):
         approve_promoted_rule(h, explicit_approval=False)
-    approved = approve_promoted_rule(h, explicit_approval=True)
+    approved = approve_promoted_rule(h, explicit_approval=True, approval_evidence=("approval:review-1",))
     assert approved.stage == EvidenceStage.PROMOTED_RULE
