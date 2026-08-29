@@ -3,8 +3,8 @@ import pytest
 from src.avatar.heygen_adapter import ingest_render_telemetry, validate_provider_result
 
 
-def test_nan_and_nonfinite_duration_fail_closed():
-    for value in (float("nan"), float("inf"), float("-inf"), "nan", "inf"):
+def test_nan_nonfinite_and_boolean_duration_fail_closed():
+    for value in (float("nan"), float("inf"), float("-inf"), "nan", "inf", True, False):
         errors = validate_provider_result({"status": "completed", "duration": value})
         assert any("duration" in error for error in errors)
 
@@ -23,9 +23,11 @@ def test_nan_and_nonfinite_duration_fail_closed():
         "https://[::1]/video.mp4",
         "https://host.local/video.mp4",
         "https://user:secret@example.com/video.mp4",
+        "https://[::1/video.mp4",
+        "https://example.com:99999/video.mp4",
     ],
 )
-def test_provider_asset_urls_reject_non_https_credentials_and_local_networks(url):
+def test_provider_asset_urls_reject_non_https_credentials_local_networks_and_malformed_urls(url):
     errors = validate_provider_result({"status": "completed", "video_url": url})
     assert any("video_url" in error for error in errors)
 
