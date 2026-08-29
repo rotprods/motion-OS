@@ -44,6 +44,13 @@ def _nonempty_id(value: object, *, name: str) -> str:
     return value.strip()
 
 
+def _validated_unique_ids(values: Iterable[str], *, name: str) -> tuple[str, ...]:
+    items = tuple(_nonempty_id(item, name=name) for item in values)
+    if len(items) != len(set(items)):
+        raise ValueError(f"{name}s must be unique")
+    return items
+
+
 @dataclass(frozen=True)
 class PerformanceRecord:
     content_id: str
@@ -86,17 +93,24 @@ class LearningHypothesis:
     supporting_content_ids: tuple[str, ...]
     confounders: tuple[str, ...] = ()
     controlled_test_id: str | None = None
+    promotion_approval_evidence: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         _nonempty_id(self.hypothesis_id, name="hypothesis_id")
         _nonempty_id(self.statement, name="statement")
         if not isinstance(self.stage, EvidenceStage):
             raise ValueError("stage must be an EvidenceStage")
-        ids = tuple(_nonempty_id(item, name="supporting_content_id") for item in self.supporting_content_ids)
-        if len(ids) != len(set(ids)):
-            raise ValueError("supporting_content_ids must be unique")
+        ids = _validated_unique_ids(self.supporting_content_ids, name="supporting_content_id")
         if self.stage in {EvidenceStage.CONTROLLED_TEST, EvidenceStage.PROMOTED_RULE}:
+            if len(ids) < 4:
+                raise ValueError("controlled-test authority requires at least 4 unique supporting content IDs")
             _nonempty_id(self.controlled_test_id, name="controlled_test_id")
+        approval = _validated_unique_ids(self.promotion_approval_evidence, name="promotion_approval_evidence")
+        if self.stage == EvidenceStage.PROMOTED_RULE:
+            if not approval:
+                raise ValueError("PROMOTED_RULE requires promotion_approval_evidence")
+        elif approval:
+            raise ValueError("promotion_approval_evidence is valid only for PROMOTED_RULE")
 
     def to_dict(self) -> dict[str, Any]:
         data = asdict(self)
@@ -155,7 +169,7 @@ def promote_hypothesis(hypothesis: LearningHypothesis, *, independent_examples: 
             raise ValueError("controlled test cannot bypass repeated-pattern evidence stage")
         _nonempty_id(hypothesis.controlled_test_id, name="controlled_test_id")
         stage = EvidenceStage.CONTROLLED_TEST
-    # Promotion to rule is deliberately not automatic. Human/explicit policy approval is required.
+    # Promotion to rule is deliberately not automatic. Explicit approval evidence is required.
     return LearningHypothesis(
         hypothesis_id=hypothesis.hypothesis_id,
         statement=hypothesis.statement,
@@ -163,15 +177,24 @@ def promote_hypothesis(hypothesis: LearningHypothesis, *, independent_examples: 
         supporting_content_ids=hypothesis.supporting_content_ids,
         confounders=hypothesis.confounders,
         controlled_test_id=hypothesis.controlled_test_id,
+        promotion_approval_evidence=(),
     )
 
 
-def approve_promoted_rule(hypothesis: LearningHypothesis, *, explicit_approval: bool) -> LearningHypothesis:
+def approve_promoted_rule(
+    hypothesis: LearningHypothesis,
+    *,
+    explicit_approval: bool,
+    approval_evidence: Iterable[str] = (),
+) -> LearningHypothesis:
     if explicit_approval is not True:
         raise PermissionError("explicit approval required to promote a performance rule")
     if hypothesis.stage != EvidenceStage.CONTROLLED_TEST:
         raise ValueError("only controlled-test hypotheses can become canonical rules")
     _nonempty_id(hypothesis.controlled_test_id, name="controlled_test_id")
+    evidence = _validated_unique_ids(approval_evidence, name="promotion_approval_evidence")
+    if not evidence:
+        raise ValueError("promotion approval requires explicit approval_evidence")
     return LearningHypothesis(
         hypothesis_id=hypothesis.hypothesis_id,
         statement=hypothesis.statement,
@@ -179,6 +202,7 @@ def approve_promoted_rule(hypothesis: LearningHypothesis, *, explicit_approval: 
         supporting_content_ids=hypothesis.supporting_content_ids,
         confounders=hypothesis.confounders,
         controlled_test_id=hypothesis.controlled_test_id,
+        promotion_approval_evidence=evidence,
     )
 
 
