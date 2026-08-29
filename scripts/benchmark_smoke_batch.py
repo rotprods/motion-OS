@@ -7,11 +7,15 @@ import json
 import os
 import shutil
 import subprocess
+import sys
 from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from src.benchmarks.fixtures import fixture_by_id, fixture_manifest
 
-ROOT = Path(__file__).resolve().parents[1]
 RUNTIME_SPEC = ROOT / "runtime" / "remotion" / "src" / "runtimeSpec.json"
 RUNTIME_DIR = ROOT / "runtime" / "remotion"
 OUT_ROOT = ROOT / ".artifacts" / "benchmark-smoke"
@@ -44,7 +48,6 @@ def render_one(brief_id: str) -> dict:
     runtime_out = out_dir / "runtime.mp4"
     artifact = OUT_ROOT / f"{brief_id}.mp4"
     evidence_path = OUT_ROOT / f"{brief_id}.evidence.json"
-    # Never allow a previous successful artifact/evidence file to satisfy a failed render.
     for stale in (runtime_out, artifact, evidence_path):
         stale.unlink(missing_ok=True)
     subprocess.run(["npm", "run", "render"], cwd=RUNTIME_DIR, check=True)
