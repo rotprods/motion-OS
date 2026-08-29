@@ -59,11 +59,18 @@ def _safe_https_url(value: Any) -> str | None:
         raise ValueError("provider URL must be a string")
     if len(value) > 4096 or _CONTROL_RE.search(value):
         raise ValueError("provider URL malformed or too long")
-    parsed = urlparse(value)
+    try:
+        parsed = urlparse(value)
+        hostname = parsed.hostname
+        port = parsed.port
+    except ValueError as exc:
+        raise ValueError("provider URL malformed") from exc
     if parsed.scheme != "https" or not parsed.netloc or parsed.username or parsed.password:
         raise ValueError("provider URL must be an absolute HTTPS URL without embedded credentials")
-    if parsed.hostname is None or not _host_is_public(parsed.hostname):
+    if hostname is None or not _host_is_public(hostname):
         raise ValueError("provider URL host must be public, not local/private/reserved")
+    if port is not None and not 1 <= port <= 65535:
+        raise ValueError("provider URL port invalid")
     return value
 
 
@@ -97,12 +104,15 @@ def validate_provider_result(provider_result: dict[str, Any]) -> list[str]:
         errors.append(f"unknown provider status: {status}")
     duration = provider_result.get("duration")
     if duration is not None:
-        try:
-            value = float(duration)
-            if not math.isfinite(value) or value <= 0 or value > 3600:
-                errors.append(f"implausible provider duration: {value}")
-        except (TypeError, ValueError, OverflowError):
+        if isinstance(duration, bool):
             errors.append("provider duration must be finite numeric")
+        else:
+            try:
+                value = float(duration)
+                if not math.isfinite(value) or value <= 0 or value > 3600:
+                    errors.append(f"implausible provider duration: {value}")
+            except (TypeError, ValueError, OverflowError):
+                errors.append("provider duration must be finite numeric")
     for field in ("video_url", "thumbnail_url"):
         try:
             _safe_https_url(provider_result.get(field))
