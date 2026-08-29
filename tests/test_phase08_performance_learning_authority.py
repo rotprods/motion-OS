@@ -81,16 +81,34 @@ def test_evidence_bound_path_can_reach_controlled_test_but_not_rule_automaticall
         approve_promoted_rule(tested, explicit_approval=False)
     with pytest.raises(PermissionError):
         approve_promoted_rule(tested, explicit_approval="true")
-    promoted = approve_promoted_rule(tested, explicit_approval=True)
+    with pytest.raises(ValueError, match="approval_evidence"):
+        approve_promoted_rule(tested, explicit_approval=True)
+    promoted = approve_promoted_rule(
+        tested,
+        explicit_approval=True,
+        approval_evidence=("approval:human-review-42",),
+    )
     assert promoted.stage == EvidenceStage.PROMOTED_RULE
     assert promoted.controlled_test_id == "ct-1"
+    assert promoted.promotion_approval_evidence == ("approval:human-review-42",)
 
 
-def test_controlled_or_promoted_state_requires_controlled_test_identity_even_direct_constructor():
+def test_direct_constructor_cannot_bypass_controlled_or_promoted_authority_requirements():
+    with pytest.raises(ValueError, match="at least 4"):
+        LearningHypothesis("H1", "hypothesis", EvidenceStage.CONTROLLED_TEST, ("a",), controlled_test_id="ct-1")
     with pytest.raises(ValueError, match="controlled_test_id"):
         LearningHypothesis("H1", "hypothesis", EvidenceStage.CONTROLLED_TEST, _ids(4))
-    with pytest.raises(ValueError, match="controlled_test_id"):
-        LearningHypothesis("H1", "hypothesis", EvidenceStage.PROMOTED_RULE, _ids(4))
+    with pytest.raises(ValueError, match="PROMOTED_RULE"):
+        LearningHypothesis("H1", "hypothesis", EvidenceStage.PROMOTED_RULE, _ids(4), controlled_test_id="ct-1")
+    with pytest.raises(ValueError, match="valid only"):
+        LearningHypothesis(
+            "H1",
+            "hypothesis",
+            EvidenceStage.CONTROLLED_TEST,
+            _ids(4),
+            controlled_test_id="ct-1",
+            promotion_approval_evidence=("approval:spoof",),
+        )
 
 
 def test_duration_metrics_reject_poisoned_nonfinite_or_zero_denominator_values():
