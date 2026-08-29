@@ -4,11 +4,12 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import shutil
 import subprocess
 from pathlib import Path
 
-from src.benchmarks.fixtures import fixture_by_id, fixture_manifest, smoke_fixtures
+from src.benchmarks.fixtures import fixture_by_id, fixture_manifest
 
 ROOT = Path(__file__).resolve().parents[1]
 RUNTIME_SPEC = ROOT / "runtime" / "remotion" / "src" / "runtimeSpec.json"
@@ -41,10 +42,14 @@ def render_one(brief_id: str) -> dict:
     out_dir = RUNTIME_DIR / "out"
     out_dir.mkdir(parents=True, exist_ok=True)
     runtime_out = out_dir / "runtime.mp4"
+    artifact = OUT_ROOT / f"{brief_id}.mp4"
+    evidence_path = OUT_ROOT / f"{brief_id}.evidence.json"
+    # Never allow a previous successful artifact/evidence file to satisfy a failed render.
+    for stale in (runtime_out, artifact, evidence_path):
+        stale.unlink(missing_ok=True)
     subprocess.run(["npm", "run", "render"], cwd=RUNTIME_DIR, check=True)
     if not runtime_out.exists() or runtime_out.stat().st_size <= 0:
         raise RuntimeError("Remotion produced no benchmark artifact")
-    artifact = OUT_ROOT / f"{brief_id}.mp4"
     shutil.copy2(runtime_out, artifact)
     probe_raw = subprocess.check_output([
         "ffprobe", "-v", "error", "-select_streams", "v:0",
@@ -74,12 +79,12 @@ def render_one(brief_id: str) -> dict:
         "fps": fps,
         "visual_duration_seconds": visual_duration,
         "mechanical_pass": mechanical_pass,
+        "test_run_id": os.environ.get("GITHUB_RUN_ID", "local-unqualified"),
+        "source_commit": os.environ.get("GITHUB_SHA", "local-unqualified"),
         "creative_authority": "BLOCKED",
         "creative_blocker": "authoritative creative review not executed",
     }
-    (OUT_ROOT / f"{brief_id}.evidence.json").write_text(
-        json.dumps(evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-    )
+    evidence_path.write_text(json.dumps(evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     if not mechanical_pass:
         raise RuntimeError(f"mechanical benchmark verification failed for {brief_id}")
     return evidence
