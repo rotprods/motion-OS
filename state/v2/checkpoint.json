@@ -1,0 +1,25 @@
+{
+  "schema": "motion-os.v2-checkpoint/v1",
+  "authority": "PROPOSED_V2_CANDIDATE",
+  "source_main_sha": "a8d7dbddaeb4ad9779df9883d3cf4e4f6ea4f29d",
+  "session_id": "motion://session/chatgpt/graph-refactor-v2/20260829T2344+0200",
+  "checkpoint_states": {
+    "CP0": {"name":"Live Truth Reconstructed","state":"EXECUTED","authority":"SESSION_EVIDENCE","notes":"Live main/open PRs/AGENTS/GOAL/STATE/project_state/ACTIVE_AGENTS/Bus inspected; current truth drift remains a discovered blocker."},
+    "CP1": {"name":"Graph Complete","state":"IMPLEMENTED_PENDING_VALIDATION","authority":"BRANCH_ONLY"},
+    "CP2": {"name":"Historical Regression Complete","state":"PARTIAL","authority":"ISSUE48_PLUS_V2","notes":"Known escaped-bug corpus captured; repository-wide archaeology remains iterative."},
+    "CP3": {"name":"Architecture Gaps Classified","state":"IMPLEMENTED_PENDING_VALIDATION","authority":"BRANCH_ONLY"},
+    "CP4": {"name":"V2 Architecture Frozen","state":"PENDING_REVIEW","authority":"NONE"},
+    "CP5": {"name":"Core Contracts Frozen","state":"PENDING","authority":"NONE"},
+    "CP6": {"name":"Implementation Kernel Verified","state":"PENDING","authority":"NONE"},
+    "CP7": {"name":"Recovery Verified","state":"BRANCH_EVIDENCE_EXISTS_IN_PR58","authority":"NOT_PROMOTED"},
+    "CP8": {"name":"Agent Death Drill Passed","state":"BRANCH_EVIDENCE_EXISTS_IN_PR58","authority":"NOT_PROMOTED"},
+    "CP9": {"name":"Concurrency Verified","state":"PARTIAL","authority":"NOT_PROMOTED"},
+    "CP10": {"name":"Security Gauntlet Passed","state":"PARTIAL_PR70","authority":"NOT_PROMOTED"},
+    "CP11": {"name":"E2E Product Path Passed","state":"BLOCKED","authority":"NONE"},
+    "CP12": {"name":"Empirical Qualification Passed","state":"BLOCKED","authority":"NONE"},
+    "CP13": {"name":"Migration Complete","state":"BLOCKED","authority":"NONE"},
+    "CP14": {"name":"Production Authority","state":"BLOCKED","authority":"NONE"}
+  },
+  "next_checkpoint_target": "CP1",
+  "next_safe_action": "validate V2 package, open isolated draft PR, run clean-runner gates, then hand off exact graph/implementation frontier without mutating active code scopes"
+}
