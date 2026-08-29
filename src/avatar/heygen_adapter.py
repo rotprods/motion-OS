@@ -126,6 +126,8 @@ def validate_provider_result(provider_result: dict[str, Any]) -> list[str]:
         or _CONTROL_RE.search(job_id)
     ):
         errors.append("provider job id malformed")
+    if status == "completed" and not provider_result.get("video_url"):
+        errors.append("completed provider result missing video_url; reconcile before accepting completion")
     _validate_failure_fields(provider_result, errors)
     return errors
 
