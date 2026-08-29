@@ -114,12 +114,26 @@ def authorize_render(*, content_id: str, profile_id: str, script: str, explicit_
     )
 
 
-def can_submit(intent: RenderIntent, known_intents: dict[str, RenderIntent]) -> bool:
+def can_submit(intent: RenderIntent, known_intents: dict[str, RenderIntent], *, policy: SpendPolicy | None = None) -> bool:
+    if not isinstance(intent, RenderIntent) or intent.state != RenderState.AUTHORIZED:
+        return False
     existing = known_intents.get(intent.intent_id)
     if existing is None:
-        return intent.state == RenderState.AUTHORIZED
-    # Any ambiguous or already-spent state must reconcile, never blindly resubmit.
-    return existing.state in {RenderState.FAILED_RETRYABLE} and existing.provider_job_id is None
+        return intent.retry_count == 0 and intent.provider_job_id is None
+    # Retry submission must be the exact bounded transition derived from the
+    # persisted failed intent. A freshly re-authorized intent with retry_count=0
+    # cannot bypass max_retries or reconciliation semantics.
+    if not isinstance(existing, RenderIntent):
+        return False
+    if existing.state != RenderState.FAILED_RETRYABLE or existing.provider_job_id is not None:
+        return False
+    if policy is None:
+        return False
+    try:
+        expected = next_retry(existing, policy)
+    except (TypeError, ValueError, RuntimeError):
+        return False
+    return expected.state == RenderState.AUTHORIZED and intent == expected
 
 
 def next_retry(intent: RenderIntent, policy: SpendPolicy) -> RenderIntent:
