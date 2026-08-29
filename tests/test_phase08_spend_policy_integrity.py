@@ -7,6 +7,7 @@ from src.avatar.render_guard import (
     RenderState,
     SpendPolicy,
     authorize_render,
+    can_submit,
     next_retry,
 )
 
@@ -99,6 +100,7 @@ def test_valid_authorization_preserves_normalized_credit_value():
     assert intent.state == RenderState.AUTHORIZED
     assert intent.estimated_credits == 2.0
     assert math.isfinite(intent.estimated_credits)
+    assert can_submit(intent, {}) is True
 
 
 def test_budget_limits_still_enforced_after_validation():
@@ -139,3 +141,30 @@ def test_provider_job_still_blocks_retry_before_counter_validation():
     )
     with pytest.raises(RuntimeError, match="reconcile"):
         next_retry(intent, _policy())
+
+
+def test_retry_submission_requires_exact_bounded_transition_and_policy():
+    original = _authorize()
+    failed = RenderIntent(**{**original.__dict__, "state": RenderState.FAILED_RETRYABLE})
+    retried = next_retry(failed, _policy())
+
+    assert can_submit(retried, {original.intent_id: failed}) is False
+    assert can_submit(retried, {original.intent_id: failed}, policy=_policy()) is True
+
+    fresh_reauthorization = _authorize()
+    assert fresh_reauthorization.retry_count == 0
+    assert can_submit(fresh_reauthorization, {original.intent_id: failed}, policy=_policy()) is False
+
+    forged_wrong_generation = RenderIntent(**{**retried.__dict__, "retry_count": 7})
+    assert can_submit(forged_wrong_generation, {original.intent_id: failed}, policy=_policy()) is False
+
+
+def test_retry_submission_respects_max_retries_and_non_authorized_states():
+    no_retry = SpendPolicy(10.0, 100.0, 2, max_retries=0)
+    original = _authorize()
+    failed = RenderIntent(**{**original.__dict__, "state": RenderState.FAILED_RETRYABLE})
+    forged = RenderIntent(**{**failed.__dict__, "state": RenderState.AUTHORIZED, "retry_count": 1})
+    assert can_submit(forged, {original.intent_id: failed}, policy=no_retry) is False
+
+    completed = RenderIntent(**{**original.__dict__, "state": RenderState.COMPLETED})
+    assert can_submit(completed, {}) is False
