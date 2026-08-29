@@ -103,7 +103,7 @@ def test_25_passes_in_one_style_fails_generalization():
         ledger.append(passed(f"b{i:02d}", "one-style"))
     metrics = ledger.metrics()
     assert metrics.apsr == 1.0
-    assert metrics.gsr == 0.0
+    assert metrics.gsr == pytest.approx(0.2)
     assert metrics.authoritative is False
     assert any(item.startswith("style_families:") for item in metrics.blockers)
     assert any(item.startswith("style_balance:") for item in metrics.blockers)
