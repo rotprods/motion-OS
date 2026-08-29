@@ -1,0 +1,34 @@
+{
+  "event_id": "evt_graph_refactor_v2_checkpoint_903b3deb",
+  "event_type": "work.checkpoint",
+  "timestamp": "2026-08-29T23:59:00+02:00",
+  "agent_id": "motion://agent/chatgpt/graph-refactor-v2",
+  "project": "MOTION.OS",
+  "branch": "feat/graph-refactor-v2",
+  "commit_sha": "903b3debe3fe4b4d80d83105c1dd2d82a6286633",
+  "pr_number": 90,
+  "summary": "V2 package revision 903b3deb passed clean-runner Merge Safe after code-review hardening. The package validator now requires the full successor/migration/document set, exact 40-char source revisions, shared source revision across graph/tasks/checkpoints/project state, typed graph nodes, unique hyperedge members, task owners/tests/evidence/DoD, DAG acyclicity and non-self-promoting release state. Authority remains branch-only and not promoted.",
+  "affected_paths": [
+    "architecture/v2",
+    "state/v2",
+    "scripts/validate_v2_architecture.py",
+    "tests/test_v2_architecture_package.py"
+  ],
+  "checks": {
+    "Merge Safe / MERGE_SAFE": "PASS run 33277399193",
+    "Local contract / Python 3.12": "PASS",
+    "pytest": "PASS 312 passed, 1 skipped",
+    "repo-health": "PASS",
+    "immutable-agent-events": "PASS 8 events"
+  },
+  "authority": "VERIFIED",
+  "correlation_id": "graph-refactor-v2-20260829",
+  "metadata": {
+    "session_id": "motion://session/chatgpt/graph-refactor-v2/20260829T2344+0200",
+    "workstream_id": "motion://workstream/graph-refactor-v2",
+    "objective_id": "motion://objective/v2-architecture-recompile",
+    "authority_scope": "V2 package internal consistency at revision 903b3deb only",
+    "promotion_state": "VERIFIED_BRANCH_REVISION_NOT_PROMOTED",
+    "cognitive_barrier": "ACTIVE"
+  }
+}
