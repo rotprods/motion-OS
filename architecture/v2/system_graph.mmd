@@ -1,0 +1,62 @@
+flowchart LR
+  NS[North Star: professional motion master]
+
+  GH[GitHub live lifecycle\nmain/PR/check/admin]
+  DS[Canonical domain state]
+  EV[Immutable Event Fabric]
+  AR[Evidence + artifacts]
+
+  CK[Authority Kernel]
+  CI[Content Intelligence]
+  ST[Studio / Creative Runtime]
+  RF[Renderer Fabric\nRemotion | HyperFrames | Lottie]
+  TQ[Temporal QA + Repair]
+  EQ[Empirical Qualification\nBenchmarks | primitives | CAL2]
+  AG[Agent Runtime\nSession | ContextPack | claims]
+
+  COS[COS / Unified Hypergraph\nDERIVED]
+  DOC[Docs / operator views\nDERIVED]
+  TD[Todoist / task projection\nDERIVED]
+
+  GH -->|promotion truth| CK
+  DS -->|state| CK
+  EV -->|causal history| CK
+  AR -->|hash-bound evidence| CK
+
+  CK --> CI
+  CI --> ST
+  ST --> RF
+  RF --> TQ
+  TQ --> EQ
+  EQ --> NS
+
+  CK --> AG
+  AG -->|claims/checkpoints| EV
+  AG -->|safe execution| CI
+  AG -->|safe execution| ST
+  AG -->|safe execution| TQ
+
+  EV --> COS
+  DS --> COS
+  AR --> COS
+  COS --> DOC
+  COS --> TD
+
+  COS -. no reverse authority .-> CK
+  DOC -. no reverse authority .-> CK
+  TD -. no reverse authority .-> CK
+
+  subgraph Irreversible_Gate[Irreversible Action Hyperedge]
+    M[Current main SHA]
+    W[Current Event watermark]
+    C[Conflict-free semantic scopes]
+    E[Current evidence]
+    G{ALL valid?}
+    M --> G
+    W --> G
+    C --> G
+    E --> G
+  end
+
+  G -->|yes| CK
+  G -->|no| BL[BLOCK / invalidate ContextPack]
