@@ -1,0 +1,29 @@
+{
+  "event_id": "evt_graph_refactor_v2_20260829T2344p0200",
+  "event_type": "work.started",
+  "timestamp": "2026-08-29T23:44:00+02:00",
+  "agent_id": "motion://agent/chatgpt/graph-refactor-v2",
+  "project": "MOTION.OS",
+  "branch": "feat/graph-refactor-v2",
+  "commit_sha": null,
+  "pr_number": null,
+  "summary": "Started isolated /GRAPH-REFACTOR-V2 workstream after reconstructing live main, open PR topology, canonical docs, bootstrap bus and active-agent read model. Scope is V2 architecture/hypergraph/gap/decision/migration/state package plus validator; active implementation owners are not overwritten.",
+  "affected_paths": [
+    "architecture/v2",
+    "state/v2",
+    "scripts/validate_v2_architecture.py",
+    "tests/test_v2_architecture_package.py"
+  ],
+  "checks": {},
+  "authority": "PROPOSED",
+  "correlation_id": "graph-refactor-v2-20260829",
+  "metadata": {
+    "session_id": "motion://session/chatgpt/graph-refactor-v2/20260829T2344+0200",
+    "workstream_id": "motion://workstream/graph-refactor-v2",
+    "objective_id": "motion://objective/v2-architecture-recompile",
+    "base_main_sha": "a8d7dbddaeb4ad9779df9883d3cf4e4f6ea4f29d",
+    "bus_issue": 39,
+    "regression_issue": 48,
+    "authority_ceiling": "IMPLEMENTED_NOT_PROMOTED"
+  }
+}
