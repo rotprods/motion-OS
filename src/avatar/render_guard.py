@@ -114,24 +114,43 @@ def authorize_render(*, content_id: str, profile_id: str, script: str, explicit_
     )
 
 
-def can_submit(intent: RenderIntent, known_intents: dict[str, RenderIntent], *, policy: SpendPolicy | None = None) -> bool:
+def can_submit(
+    intent: RenderIntent,
+    known_intents: dict[str, RenderIntent],
+    *,
+    policy: SpendPolicy | None = None,
+    spent_today: float | None = None,
+    concurrent_renders: int | None = None,
+) -> bool:
     if not isinstance(intent, RenderIntent) or intent.state != RenderState.AUTHORIZED:
+        return False
+    try:
+        credits = _finite_nonnegative_number(intent.estimated_credits, name="estimated_credits")
+    except ValueError:
         return False
     existing = known_intents.get(intent.intent_id)
     if existing is None:
         return intent.retry_count == 0 and intent.provider_job_id is None
     # Retry submission must be the exact bounded transition derived from the
     # persisted failed intent. A freshly re-authorized intent with retry_count=0
-    # cannot bypass max_retries or reconciliation semantics.
+    # cannot bypass max_retries or reconciliation semantics. Retry submission
+    # also re-evaluates the live daily/concurrency budget because authorization
+    # evidence can become stale while another paid render consumes capacity.
     if not isinstance(existing, RenderIntent):
         return False
     if existing.state != RenderState.FAILED_RETRYABLE or existing.provider_job_id is not None:
         return False
-    if policy is None:
+    if policy is None or spent_today is None or concurrent_renders is None:
         return False
     try:
+        spent = _finite_nonnegative_number(spent_today, name="spent_today")
+        concurrent = _nonnegative_int(concurrent_renders, name="concurrent_renders")
         expected = next_retry(existing, policy)
     except (TypeError, ValueError, RuntimeError):
+        return False
+    if concurrent >= policy.max_concurrent_renders:
+        return False
+    if credits > policy.max_credits_per_render or spent + credits > policy.max_credits_per_day:
         return False
     return expected.state == RenderState.AUTHORIZED and intent == expected
 
@@ -142,6 +161,11 @@ def next_retry(intent: RenderIntent, policy: SpendPolicy) -> RenderIntent:
     if intent.provider_job_id:
         raise RuntimeError("provider job exists; reconcile instead of retrying")
     retry_count = _nonnegative_int(intent.retry_count, name="retry_count")
+    _finite_nonnegative_number(intent.estimated_credits, name="estimated_credits")
+    if intent.estimated_credits is None:
+        raise ValueError("estimated_credits is required before retry")
+    if float(intent.estimated_credits) > policy.max_credits_per_render:
+        raise RuntimeError("retry exceeds per-render credit budget")
     if retry_count >= policy.max_retries:
         return RenderIntent(**{**intent.__dict__, "state": RenderState.FAILED_FINAL})
     return RenderIntent(**{**intent.__dict__, "state": RenderState.AUTHORIZED, "retry_count": retry_count + 1})
