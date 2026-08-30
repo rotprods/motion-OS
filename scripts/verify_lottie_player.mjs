@@ -43,6 +43,11 @@ async function startServer(root) {
   const server = http.createServer(async (req, res) => {
     try {
       const url = new URL(req.url, 'http://127.0.0.1');
+      if (url.pathname === '/favicon.ico') {
+        res.writeHead(204, {'cache-control': 'no-store'});
+        res.end();
+        return;
+      }
       const relative = decodeURIComponent(url.pathname === '/' ? '/index.html' : url.pathname).replace(/^\/+/, '');
       const resolved = path.resolve(rootPath, relative);
       const prefix = `${rootPath}${path.sep}`;
