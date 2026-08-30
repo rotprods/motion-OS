@@ -56,6 +56,15 @@ class FullVideoEvidence:
         visual_duration_ms = self.frame_count / self.fps * 1000.0
         if abs(visual_duration_ms - self.duration_ms) > max(1000.0 / self.fps, 1.0):
             raise TemporalEvidenceError("duration must agree with frame_count/fps authority")
+        for sample in self.samples:
+            expected_ms = round(sample.frame_index / self.fps * 1000.0)
+            if abs(sample.timestamp_ms - expected_ms) > 1:
+                raise TemporalEvidenceError(
+                    f"sample timestamp must agree with decoded frame clock: frame={sample.frame_index} "
+                    f"expected_ms={expected_ms} actual_ms={sample.timestamp_ms}"
+                )
+        if self.provider_run_id is not None and not str(self.provider_run_id).strip():
+            raise TemporalEvidenceError("provider_run_id must be non-empty when supplied")
 
     @property
     def coverage_ratio(self) -> float:
@@ -110,6 +119,7 @@ class TemporalDefect:
 @dataclass(frozen=True)
 class TemporalCritique:
     provider: str
+    provider_run_id: str | None
     media_sha256: str
     score: float
     dimensions: dict[str, float]
@@ -175,9 +185,21 @@ def build_temporal_evidence(
 
 
 def critique_from_provider_payload(evidence: FullVideoEvidence, payload: dict[str, Any]) -> TemporalCritique:
+    if not isinstance(payload, dict):
+        raise TemporalEvidenceError("provider critique payload must be an object")
     provider = str(payload.get("provider", evidence.provider))
+    payload_run_id = payload.get("provider_run_id")
+    payload_run_id = None if payload_run_id is None else str(payload_run_id).strip()
+    if evidence.authoritative_provider_evidence:
+        if provider != evidence.provider:
+            raise TemporalEvidenceError("provider identity does not match bound full-video evidence")
+        if payload_run_id != evidence.provider_run_id:
+            raise TemporalEvidenceError("provider_run_id does not match bound full-video evidence")
+
     score = float(payload.get("score", 0.0))
     dimensions = {str(k): float(v) for k, v in dict(payload.get("dimensions", {})).items()}
+    if not math.isfinite(score) or any(not math.isfinite(v) for v in dimensions.values()):
+        raise TemporalEvidenceError("critic scores must be finite")
     if not 0.0 <= score <= 10.0 or any(not 0.0 <= value <= 10.0 for value in dimensions.values()):
         raise TemporalEvidenceError("critic scores must be in [0, 10]")
     defects = tuple(
@@ -191,19 +213,35 @@ def critique_from_provider_payload(evidence: FullVideoEvidence, payload: dict[st
         )
         for item in payload.get("defects", ())
     )
-    sampled = {sample.frame_index for sample in evidence.samples}
+    samples_by_index = {sample.frame_index: sample for sample in evidence.samples}
+    sampled = set(samples_by_index)
     for defect in defects:
         if not set(defect.evidence_frame_indices).issubset(sampled):
             raise TemporalEvidenceError("defect references frames outside bound evidence")
         if defect.end_ms > evidence.duration_ms:
             raise TemporalEvidenceError("defect interval exceeds video duration")
-    requested_authority = bool(payload.get("authoritative", False))
-    authoritative = bool(requested_authority and evidence.authoritative_provider_evidence and provider == evidence.provider)
+        outside_interval = [
+            frame_index for frame_index in defect.evidence_frame_indices
+            if not (defect.start_ms <= samples_by_index[frame_index].timestamp_ms <= defect.end_ms)
+        ]
+        if outside_interval:
+            raise TemporalEvidenceError(
+                f"defect evidence frames fall outside defect interval: {outside_interval}"
+            )
+
+    requested_authority = payload.get("authoritative", False) is True
+    authoritative = bool(
+        requested_authority
+        and evidence.authoritative_provider_evidence
+        and provider == evidence.provider
+        and payload_run_id == evidence.provider_run_id
+    )
     recommendation = str(payload.get("recommendation", "ITERATE"))
     if recommendation == "RELEASE" and (not authoritative or any(d.severity in {"P0", "P1"} for d in defects)):
         recommendation = "BLOCK"
     return TemporalCritique(
         provider=provider,
+        provider_run_id=payload_run_id,
         media_sha256=evidence.media_sha256,
         score=score,
         dimensions=dimensions,
