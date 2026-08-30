@@ -62,6 +62,14 @@ def _request_sha256(value: Mapping[str, Any]) -> str:
     return hashlib.sha256(_canonical_json(value).encode("utf-8")).hexdigest()
 
 
+def _safe_provider_job_id(value: object) -> str | None:
+    if not isinstance(value, str) or not value or value != value.strip() or len(value) > 256:
+        return None
+    if not value.isprintable() or any(ch in "\r\n\t" for ch in value):
+        return None
+    return value
+
+
 def _prepare_request(intent: RenderIntent, request_payload: Mapping[str, Any], provider_id: str) -> dict[str, Any]:
     if not isinstance(intent, RenderIntent):
         raise SubmissionBlocked("intent must be a RenderIntent")
@@ -259,9 +267,7 @@ def submit_paid_render(
     job_id: str | None = None
     status: str | None = None
     if isinstance(raw_result, Mapping):
-        candidate = raw_result.get("id") or raw_result.get("video_id")
-        if isinstance(candidate, str) and candidate.strip() and len(candidate) <= 256:
-            job_id = candidate
+        job_id = _safe_provider_job_id(raw_result.get("id") or raw_result.get("video_id"))
         candidate_status = raw_result.get("status")
         if isinstance(candidate_status, str) and len(candidate_status) <= 64:
             status = candidate_status
