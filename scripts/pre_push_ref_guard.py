@@ -20,16 +20,19 @@ class PushUpdate:
     remote_sha: str
 
 
-def _safe_ref(value: str, *, name: str, allow_delete_marker: bool = False) -> str:
-    if allow_delete_marker and value == _DELETE_REF:
-        return value
+def _safe_token(value: str, *, name: str) -> str:
     if not isinstance(value, str) or not value or len(value) > 512:
-        raise ValueError(f"{name} must be a non-empty bounded ref")
+        raise ValueError(f"{name} must be a non-empty bounded token")
     if any(ch in value for ch in "\x00\r\n") or any(ch.isspace() for ch in value):
         raise ValueError(f"{name} contains invalid whitespace/control characters")
-    if not value.startswith("refs/"):
-        raise ValueError(f"{name} must be a fully-qualified git ref")
     return value
+
+
+def _remote_ref(value: str) -> str:
+    ref = _safe_token(value, name="remote_ref")
+    if not ref.startswith("refs/"):
+        raise ValueError("remote_ref must be a fully-qualified git ref")
+    return ref
 
 
 def _sha(value: str, *, name: str) -> str:
@@ -50,9 +53,9 @@ def parse_push_updates(lines: Iterable[str]) -> tuple[PushUpdate, ...]:
         if len(parts) != 4:
             raise ValueError(f"pre-push line {index} must contain exactly four fields")
         local_ref_raw, local_sha_raw, remote_ref_raw, remote_sha_raw = parts
-        local_ref = _safe_ref(local_ref_raw, name="local_ref", allow_delete_marker=True)
+        local_ref = _safe_token(local_ref_raw, name="local_ref")
         local_sha = _sha(local_sha_raw, name="local_sha")
-        remote_ref = _safe_ref(remote_ref_raw, name="remote_ref")
+        remote_ref = _remote_ref(remote_ref_raw)
         remote_sha = _sha(remote_sha_raw, name="remote_sha")
         is_delete = local_ref == _DELETE_REF
         if is_delete != (local_sha == _ZERO_SHA):
