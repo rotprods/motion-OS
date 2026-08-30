@@ -42,7 +42,7 @@ def test_unknown_font_and_source_media_do_not_self_promote() -> None:
     contract = load_contract()
     assert contract["asset_policy"]["source_and_clean_plate"] == "DRIVE_ONLY"
     assert contract["asset_policy"]["git"] == "CODE_CONTRACTS_AND_TEXT_EVIDENCE_ONLY"
-    assert contract["authority"] == "IMPLEMENTED_UNVERIFIED_UNTIL_PHYSICAL_RENDER"
+    assert contract["authority"] == "STRUCTURAL_RENDER_EXECUTED_SOURCE_FIDELITY_BLOCKED"
     spec = SPEC.read_text(encoding="utf-8")
     assert "FONT_CLASS_ONLY_EXACT_FONT_UNKNOWN" in spec
     assert "sourceFidelity: 'BLOCKED_UNTIL_9D_DIFF'" in spec
@@ -84,8 +84,11 @@ def test_composition_and_physical_workflow_are_registered() -> None:
     assert "actions/upload-artifact@" in workflow
 
 
-def test_inventory_discrepancy_is_preserved_not_silently_rewritten() -> None:
-    discrepancies = load_contract()["measured_discrepancies"]
+def test_inventory_discrepancies_are_preserved_and_renderer_repaired() -> None:
+    contract = load_contract()
+    discrepancies = contract["measured_discrepancies"]
+    assert [item["id"] for item in discrepancies] == ["S04-DISC-001", "S04-DISC-002", "S04-DISC-003"]
     assert discrepancies[0]["inventory_value"] == 146
     assert discrepancies[0]["measured_reference_value"] == 145
-    assert discrepancies[0]["status"] == "OPEN_GRAPH_REPAIR"
+    assert all(item["status"] == "RENDERER_REPAIRED_GRAPH_BACKPORT_OPEN" for item in discrepancies)
+    assert contract["renderer_repairs"]["caption_layout"]["authority"] == "MEASURED_HEURISTIC"
