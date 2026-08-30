@@ -14,18 +14,20 @@ def digest(text: str) -> str:
 def candidate(candidate_id: str, *, creative_score=9.3, temporal_score=9.4, authoritative=True, creative_run=None):
     media_sha = digest(candidate_id)
     indices = uniform_sample_indices(90, target_samples=8)
+    temporal_run = f"run:{candidate_id}" if authoritative else None
     evidence = build_temporal_evidence(
         media_sha256=media_sha,
         frame_count=90,
         fps=30,
         frame_hashes={i: digest(f"{candidate_id}:frame:{i}") for i in indices},
         provider="vision-provider",
-        provider_run_id=f"run:{candidate_id}" if authoritative else None,
+        provider_run_id=temporal_run,
         provider_attested_full_video=authoritative,
         target_samples=8,
     )
     critique = critique_from_provider_payload(evidence, {
         "provider": "vision-provider",
+        "provider_run_id": temporal_run,
         "authoritative": authoritative,
         "score": temporal_score,
         "dimensions": {"temporal_coherence": temporal_score},
@@ -42,7 +44,7 @@ def candidate(candidate_id: str, *, creative_score=9.3, temporal_score=9.4, auth
     return CreativeCandidate(candidate_id, media_sha, critique, creative)
 
 
-def test_release_manifest_binds_both_temporal_and_creative_evidence():
+def test_release_manifest_binds_both_temporal_and_creative_evidence_and_runs():
     a = candidate("a")
     b = candidate("b", creative_score=9.1)
     result = run_tournament([b, a])
@@ -50,7 +52,11 @@ def test_release_manifest_binds_both_temporal_and_creative_evidence():
     winner = a if manifest.candidate_id == "a" else b
     assert manifest.media_sha256 == winner.media_sha256
     assert manifest.temporal_evidence_hash == winner.temporal.evidence_hash
+    assert manifest.temporal_provider == winner.temporal.provider
+    assert manifest.temporal_provider_run_id == winner.temporal.provider_run_id
     assert manifest.creative_evidence_hash == winner.creative.content_hash()
+    assert manifest.creative_provider == winner.creative.provider
+    assert manifest.creative_provider_run_id == winner.creative.provider_run_id
     assert len(manifest.manifest_sha256) == 64
 
 
@@ -101,7 +107,7 @@ def test_tampered_ranking_fails_closed():
         build_release_manifest(tampered, [a, b])
 
 
-def test_manifest_hash_changes_when_temporal_evidence_changes():
+def test_manifest_hash_changes_when_temporal_evidence_or_run_changes():
     a1 = candidate("a")
     m1 = build_release_manifest(run_tournament([a1]), [a1])
     media_sha = digest("a")
@@ -112,12 +118,13 @@ def test_manifest_hash_changes_when_temporal_evidence_changes():
         provider="vision-provider", provider_run_id="run:a:2", provider_attested_full_video=True, target_samples=8,
     )
     critique2 = critique_from_provider_payload(evidence2, {
-        "provider": "vision-provider", "authoritative": True, "score": 9.4,
-        "dimensions": {"temporal_coherence": 9.4}, "defects": [], "recommendation": "RELEASE",
+        "provider":"vision-provider", "provider_run_id":"run:a:2", "authoritative":True, "score":9.4,
+        "dimensions":{"temporal_coherence":9.4}, "defects":[], "recommendation":"RELEASE",
     })
     a2 = CreativeCandidate("a", media_sha, critique2, a1.creative)
     m2 = build_release_manifest(run_tournament([a2]), [a2])
     assert m1.temporal_evidence_hash != m2.temporal_evidence_hash
+    assert m1.temporal_provider_run_id != m2.temporal_provider_run_id
     assert m1.manifest_sha256 != m2.manifest_sha256
 
 
@@ -127,4 +134,5 @@ def test_manifest_hash_changes_when_creative_evidence_run_changes():
     m1 = build_release_manifest(run_tournament([a1]), [a1])
     m2 = build_release_manifest(run_tournament([a2]), [a2])
     assert m1.creative_evidence_hash != m2.creative_evidence_hash
+    assert m1.creative_provider_run_id != m2.creative_provider_run_id
     assert m1.manifest_sha256 != m2.manifest_sha256
