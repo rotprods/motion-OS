@@ -2,9 +2,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass, asdict
 from enum import Enum
+from numbers import Real
 from typing import Any
 import hashlib
 import json
+import math
 
 
 class RenderState(str, Enum):
@@ -19,12 +21,36 @@ class RenderState(str, Enum):
     RECONCILE_REQUIRED = "RECONCILE_REQUIRED"
 
 
+def _finite_nonnegative_number(value: object, *, name: str) -> float:
+    if isinstance(value, bool) or not isinstance(value, Real):
+        raise ValueError(f"{name} must be a finite non-negative number")
+    normalized = float(value)
+    if not math.isfinite(normalized) or normalized < 0:
+        raise ValueError(f"{name} must be a finite non-negative number")
+    return normalized
+
+
+def _nonnegative_int(value: object, *, name: str) -> int:
+    if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+        raise ValueError(f"{name} must be a non-negative integer")
+    return value
+
+
 @dataclass(frozen=True)
 class SpendPolicy:
     max_credits_per_render: float
     max_credits_per_day: float
     max_concurrent_renders: int
     max_retries: int = 1
+
+    def __post_init__(self) -> None:
+        per_render = _finite_nonnegative_number(self.max_credits_per_render, name="max_credits_per_render")
+        per_day = _finite_nonnegative_number(self.max_credits_per_day, name="max_credits_per_day")
+        if per_render > per_day:
+            raise ValueError("max_credits_per_render cannot exceed max_credits_per_day")
+        if _nonnegative_int(self.max_concurrent_renders, name="max_concurrent_renders") < 1:
+            raise ValueError("max_concurrent_renders must be at least 1")
+        _nonnegative_int(self.max_retries, name="max_retries")
 
 
 @dataclass(frozen=True)
@@ -61,34 +87,65 @@ def make_render_intent_id(*, content_id: str, profile_id: str, script: str, prov
 def authorize_render(*, content_id: str, profile_id: str, script: str, explicit_authorization: bool,
                      preflight_ok: bool, estimated_credits: float | None, spent_today: float,
                      concurrent_renders: int, policy: SpendPolicy) -> RenderIntent:
-    if not explicit_authorization:
+    if explicit_authorization is not True:
         raise PermissionError("explicit render authorization required")
-    if not preflight_ok:
+    if preflight_ok is not True:
         raise ValueError("preflight must pass before render authorization")
-    if concurrent_renders >= policy.max_concurrent_renders:
+    spent = _finite_nonnegative_number(spent_today, name="spent_today")
+    concurrent = _nonnegative_int(concurrent_renders, name="concurrent_renders")
+    if concurrent >= policy.max_concurrent_renders:
         raise RuntimeError("concurrent render limit reached")
-    if estimated_credits is not None:
-        if estimated_credits > policy.max_credits_per_render:
-            raise RuntimeError("per-render credit budget exceeded")
-        if spent_today + estimated_credits > policy.max_credits_per_day:
-            raise RuntimeError("daily credit budget exceeded")
-    script_hash = hash_script(script)
+    if estimated_credits is None:
+        raise ValueError("estimated_credits is required for paid render authorization")
+    credits = _finite_nonnegative_number(estimated_credits, name="estimated_credits")
+    if credits > policy.max_credits_per_render:
+        raise RuntimeError("per-render credit budget exceeded")
+    if spent + credits > policy.max_credits_per_day:
+        raise RuntimeError("daily credit budget exceeded")
     return RenderIntent(
         intent_id=make_render_intent_id(content_id=content_id, profile_id=profile_id, script=script),
         content_id=content_id,
         profile_id=profile_id,
-        script_hash=script_hash,
+        script_hash=hash_script(script),
         state=RenderState.AUTHORIZED,
-        estimated_credits=estimated_credits,
+        estimated_credits=credits,
     )
 
 
-def can_submit(intent: RenderIntent, known_intents: dict[str, RenderIntent]) -> bool:
+def can_submit(
+    intent: RenderIntent,
+    known_intents: dict[str, RenderIntent],
+    *,
+    policy: SpendPolicy | None = None,
+    spent_today: float | None = None,
+    concurrent_renders: int | None = None,
+) -> bool:
+    if not isinstance(intent, RenderIntent) or intent.state != RenderState.AUTHORIZED:
+        return False
+    try:
+        credits = _finite_nonnegative_number(intent.estimated_credits, name="estimated_credits")
+    except ValueError:
+        return False
     existing = known_intents.get(intent.intent_id)
     if existing is None:
-        return intent.state == RenderState.AUTHORIZED
-    # Any ambiguous or already-spent state must reconcile, never blindly resubmit.
-    return existing.state in {RenderState.FAILED_RETRYABLE} and existing.provider_job_id is None
+        return intent.retry_count == 0 and intent.provider_job_id is None
+    if not isinstance(existing, RenderIntent):
+        return False
+    if existing.state != RenderState.FAILED_RETRYABLE or existing.provider_job_id is not None:
+        return False
+    if policy is None or spent_today is None or concurrent_renders is None:
+        return False
+    try:
+        spent = _finite_nonnegative_number(spent_today, name="spent_today")
+        concurrent = _nonnegative_int(concurrent_renders, name="concurrent_renders")
+        expected = next_retry(existing, policy)
+    except (TypeError, ValueError, RuntimeError):
+        return False
+    if concurrent >= policy.max_concurrent_renders:
+        return False
+    if credits > policy.max_credits_per_render or spent + credits > policy.max_credits_per_day:
+        return False
+    return expected.state == RenderState.AUTHORIZED and intent == expected
 
 
 def next_retry(intent: RenderIntent, policy: SpendPolicy) -> RenderIntent:
@@ -96,9 +153,15 @@ def next_retry(intent: RenderIntent, policy: SpendPolicy) -> RenderIntent:
         raise ValueError("retry allowed only from FAILED_RETRYABLE")
     if intent.provider_job_id:
         raise RuntimeError("provider job exists; reconcile instead of retrying")
-    if intent.retry_count >= policy.max_retries:
+    retry_count = _nonnegative_int(intent.retry_count, name="retry_count")
+    if intent.estimated_credits is None:
+        raise ValueError("estimated_credits is required before retry")
+    credits = _finite_nonnegative_number(intent.estimated_credits, name="estimated_credits")
+    if credits > policy.max_credits_per_render:
+        raise RuntimeError("retry exceeds per-render credit budget")
+    if retry_count >= policy.max_retries:
         return RenderIntent(**{**intent.__dict__, "state": RenderState.FAILED_FINAL})
-    return RenderIntent(**{**intent.__dict__, "state": RenderState.AUTHORIZED, "retry_count": intent.retry_count + 1})
+    return RenderIntent(**{**intent.__dict__, "state": RenderState.AUTHORIZED, "retry_count": retry_count + 1})
 
 
 def reconcile_state(intent: RenderIntent, provider_status: str | None, provider_job_id: str | None) -> RenderIntent:
