@@ -37,35 +37,49 @@ def inspect_graph_contract(graph) -> list[GraphQAFinding]:
     return findings
 
 def attach_findings(graph, findings:list[GraphQAFinding], *, run_id:str="qa_run") -> list[str]:
-    """Attach one immutable QA execution to the graph.
+    """Attach one immutable QA execution atomically.
 
     QAResult and Defect identities are scoped by ``run_id`` so equivalent findings
-    from different executions remain distinct historical evidence. Reusing the same
-    run identity with colliding result IDs fails closed instead of silently folding
-    two executions into one history.
+    from different executions remain distinct historical evidence. All generated
+    identities are preflighted before any mutation. A pre-existing ``run_id`` must
+    be a Run node; otherwise authority is ambiguous and the operation fails closed.
     """
     run_id=str(run_id).strip()
     if not run_id:
         raise ValueError("run_id must be non-empty")
 
-    existing={n.id for n in graph.nodes}
-    if run_id not in existing:
-        graph.add_node(graph.typed_node(run_id,"Run",data={"kind":"graph_qa"},authority="authoritative",provenance_refs=["graph_critic"]))
-        existing.add(run_id)
+    existing_by_id={n.id:n for n in graph.nodes}
+    existing_run=existing_by_id.get(run_id)
+    if existing_run is not None and existing_run.kind != "Run":
+        raise ValueError(f"qa run_id collides with non-Run node: {run_id}")
 
-    created=[]
+    identities=[]
     for idx,f in enumerate(findings,1):
         qid=f"qa:{run_id}:{idx:03d}:{f.code.lower()}"
         did=f"defect:{run_id}:{idx:03d}:{f.code.lower()}"
-        collisions=[node_id for node_id in (qid,did) if node_id in existing]
-        if collisions:
-            raise ValueError(f"QA run identity collision: {collisions}")
+        identities.append((qid,did))
 
+    generated_ids={node_id for pair in identities for node_id in pair}
+    if len(generated_ids) != 2 * len(identities):
+        raise ValueError("qa run generated duplicate result/defect identities")
+    collisions=sorted(generated_ids & set(existing_by_id))
+    if collisions:
+        raise ValueError(f"QA run identity collision: {collisions}")
+
+    # Validate finding targets before writing the Run node so failure is atomic.
+    missing_targets=sorted({f.node_id for f in findings if f.node_id not in existing_by_id})
+    if missing_targets:
+        raise ValueError(f"QA finding target missing: {missing_targets}")
+
+    if existing_run is None:
+        graph.add_node(graph.typed_node(run_id,"Run",data={"kind":"graph_qa","run_id":run_id},authority="authoritative",provenance_refs=["graph_critic"]))
+
+    created=[]
+    for (qid,did),f in zip(identities,findings):
         graph.add_node(graph.typed_node(qid,"QAResult",data={"run_id":run_id,"code":f.code,"severity":f.severity,"message":f.message,"evidence":list(f.evidence),"target":f.node_id},authority="authoritative",provenance_refs=["graph_critic",run_id]))
-        graph.add_node(graph.typed_node(did,"Defect",data={"run_id":run_id,"code":f.code,"severity":f.severity,"message":f.message},authority="authoritative",provenance_refs=[qid]))
+        graph.add_node(graph.typed_node(did,"Defect",data={"run_id":run_id,"code":f.code,"severity":f.severity,"message":f.message},authority="authoritative",provenance_refs=[qid,run_id]))
         graph.add_edge(Edge(qid,f.node_id,"EVALUATES",{"id":f"e_{qid}_target"}))
         graph.add_edge(Edge(qid,did,"FLAGS",{"id":f"e_{qid}_{did}"}))
         graph.add_edge(Edge(qid,run_id,"PRODUCED_BY",{"id":f"e_{qid}_{run_id}"}))
-        existing.update((qid,did))
         created += [qid,did]
     return created
