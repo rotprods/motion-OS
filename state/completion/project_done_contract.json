@@ -1,0 +1,28 @@
+{
+  "schema": "motion-os.project-done-contract/v1",
+  "project_id": "motion://project/motion-os",
+  "authority": "IMPLEMENTED",
+  "promotion": "NOT_PROMOTED",
+  "source_revision": "a8d7dbddaeb4ad9779df9883d3cf4e4f6ea4f29d",
+  "control_issue": 93,
+  "terminal_invariants": [
+    {"id":"DONE-01","domain":"truth","criterion":"canonical current state has no unexplained lifecycle/authority contradiction","required":true},
+    {"id":"DONE-02","domain":"event_fabric","criterion":"one semantic Event Fabric is promoted and zero-context reconstructable","required":true},
+    {"id":"DONE-03","domain":"qa","criterion":"QA history, exact frame authority and temporal causality are integrated","required":true},
+    {"id":"DONE-04","domain":"renderer","criterion":"renderer fabric is reproducible and heterogeneous master assembly is physically qualified","required":true},
+    {"id":"DONE-05","domain":"artifact","criterion":"canonical real master is recoverable with exact SHA and lineage","required":true},
+    {"id":"DONE-06","domain":"multimodal","criterion":"real full-video provider evidence is bound to exact master/run/time","required":true},
+    {"id":"DONE-07","domain":"creative_quality","criterion":"creative tournament and repair loop meet persisted quality thresholds on seen and unseen cases","required":true},
+    {"id":"DONE-08","domain":"benchmark","criterion":"primitive/style benchmark authority is ID-bound and empirical","required":true},
+    {"id":"DONE-09","domain":"learning","criterion":"performance learning/CAL2 is evidence-bound and empirically qualified","required":true},
+    {"id":"DONE-10","domain":"security","criterion":"no unresolved P0/P1 security finding remains on production path","required":true},
+    {"id":"DONE-11","domain":"recovery","criterion":"cold recovery + agent-death/zero-context drill succeeds from durable authority","required":true},
+    {"id":"DONE-12","domain":"reproducibility","criterion":"clean environment reproduces required runtime/artifacts using locked dependencies","required":true},
+    {"id":"DONE-13","domain":"governance","criterion":"main promotion rules are administratively enforced and verified","required":true},
+    {"id":"DONE-14","domain":"whole_product","criterion":"clean-room whole-product E2E passes with P0=0 and P1=0","required":true},
+    {"id":"DONE-15","domain":"release","criterion":"immutable final release manifest, graph snapshot, STATE, HANDOFF and recovery locations exist","required":true},
+    {"id":"DONE-16","domain":"continuity","criterion":"successor resumes within five minutes without conversational memory","required":true}
+  ],
+  "project_done": false,
+  "hard_blockers_override_score": true
+}
