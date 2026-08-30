@@ -88,8 +88,6 @@ def test_qa_run_id_cannot_alias_non_run_node_and_does_not_mutate_graph():
 def test_qa_preflights_all_generated_ids_before_any_write():
     g=fixture_graph()
     findings=inspect_graph_contract(g)
-    # Pre-create only the second generated identity. A non-atomic implementation
-    # would write the first finding and then fail halfway through.
     if len(findings) < 2:
         findings=list(findings)+[GraphQAFinding('SECOND','P1','scene','second synthetic finding')]
     run_id='qa:run-atomic'
@@ -109,7 +107,7 @@ def test_qa_missing_finding_target_fails_before_run_node_write():
     findings=[GraphQAFinding('MISSING','P1','missing-node','bad target')]
     with pytest.raises(ValueError,match='QA finding target missing'):
         attach_findings(g,findings,run_id='qa:run-missing-target')
-    assert g.node('qa:run-missing-target') is None
+    assert 'qa:run-missing-target' not in {n.id for n in g.nodes}
 
 
 def test_repair_candidate_projects_all_actual_mutation_targets():
