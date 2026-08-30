@@ -1,0 +1,68 @@
+name: Node Reproducibility
+
+on:
+  pull_request:
+    paths:
+      - 'runtime/remotion/package.json'
+      - 'runtime/remotion/package-lock.json'
+      - '.github/workflows/node-reproducibility.yml'
+      - '.github/workflows/remotion-runtime.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  remotion-lock-proof:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: runtime/remotion/package.json
+
+      - name: Record toolchain
+        run: |
+          node --version
+          npm --version
+
+      - name: Generate lockfile from exact package manifest
+        working-directory: runtime/remotion
+        run: |
+          set -euo pipefail
+          rm -f package-lock.json
+          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+          test -s package-lock.json
+          sha256sum package.json package-lock.json | tee node-lock.sha256
+
+      - name: Prove clean npm ci installation
+        working-directory: runtime/remotion
+        run: |
+          set -euo pipefail
+          rm -rf node_modules
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm ls --all --json > npm-tree.json
+
+      - name: Prove lockfile is stable under npm ci
+        working-directory: runtime/remotion
+        run: |
+          set -euo pipefail
+          before="$(sha256sum package-lock.json | awk '{print $1}')"
+          npm ci --ignore-scripts --no-audit --no-fund
+          after="$(sha256sum package-lock.json | awk '{print $1}')"
+          test "$before" = "$after"
+          printf '%s\n' "$after" > package-lock.sha256
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: remotion-node-lock-proof
+          if-no-files-found: error
+          retention-days: 14
+          path: |
+            runtime/remotion/package-lock.json
+            runtime/remotion/package-lock.sha256
+            runtime/remotion/node-lock.sha256
+            runtime/remotion/npm-tree.json
