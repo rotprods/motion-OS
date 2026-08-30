@@ -24,53 +24,48 @@ def _pull(**overrides):
     return base
 
 
-def test_release_requires_current_main_and_exact_pr_lineage():
-    verdict = assess_release_authority(
+def _assess(**overrides):
+    args = dict(
         repository="rotprods/motion-OS",
         release_sha=SHA,
         live_main_sha=SHA,
+        live_main_sha_after=SHA,
         project_state=_state(),
         associated_pulls=[_pull()],
     )
+    args.update(overrides)
+    return assess_release_authority(**args)
+
+
+def test_release_requires_stable_current_main_and_exact_pr_lineage():
+    verdict = _assess()
     assert verdict.ok is True
     assert verdict.authority == "VERIFIED"
     assert verdict.matched_pr_numbers == (55,)
 
 
+def test_live_main_drift_during_check_blocks_release():
+    verdict = _assess(live_main_sha_after=OTHER)
+    assert verdict.ok is False
+    assert verdict.state == "LIVE_MAIN_DRIFTED_DURING_CHECK"
+    assert verdict.authority == "BLOCKED"
+
+
 def test_old_tag_or_noncurrent_release_target_is_blocked_even_if_state_says_released():
-    verdict = assess_release_authority(
-        repository="rotprods/motion-OS",
-        release_sha=OTHER,
-        live_main_sha=SHA,
-        project_state=_state(),
-        associated_pulls=[_pull()],
-    )
+    verdict = _assess(release_sha=OTHER)
     assert verdict.ok is False
     assert verdict.state == "RELEASE_TARGET_NOT_CURRENT_MAIN"
 
 
 def test_direct_write_main_is_blocked_even_if_state_says_released():
-    verdict = assess_release_authority(
-        repository="rotprods/motion-OS",
-        release_sha=SHA,
-        live_main_sha=SHA,
-        project_state=_state(),
-        associated_pulls=[],
-    )
+    verdict = _assess(associated_pulls=[])
     assert verdict.ok is False
     assert verdict.state == "MAIN_LINEAGE_UNVERIFIED"
 
 
 def test_open_or_wrong_sha_pr_does_not_authorize_release():
     for pull in [_pull(merged_at=None), _pull(merge_commit_sha=OTHER)]:
-        verdict = assess_release_authority(
-            repository="rotprods/motion-OS",
-            release_sha=SHA,
-            live_main_sha=SHA,
-            project_state=_state(),
-            associated_pulls=[pull],
-        )
-        assert verdict.ok is False
+        assert _assess(associated_pulls=[pull]).ok is False
 
 
 @pytest.mark.parametrize(
@@ -98,10 +93,4 @@ def test_release_state_extra_fields_do_not_change_authority_contract():
 
 def test_malformed_lineage_payload_still_fails_closed_via_shared_contract():
     with pytest.raises(ValueError):
-        assess_release_authority(
-            repository="rotprods/motion-OS",
-            release_sha=SHA,
-            live_main_sha=SHA,
-            project_state=_state(),
-            associated_pulls={"spoof": "not a list"},
-        )
+        _assess(associated_pulls={"spoof": "not a list"})
