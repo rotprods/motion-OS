@@ -50,7 +50,7 @@ export type S04CientificamenteProps = {
 export const S04_DEFAULT_PROPS: S04CientificamenteProps = {
   plateMode: 'procedural',
   plateFolder: 'golden_s04/clean_frames',
-  plateIncludesEditorialReframe: true,
+  plateIncludesEditorialReframe: false,
   enableProceduralImpact: true,
   showDebugOverlay: false,
 };
