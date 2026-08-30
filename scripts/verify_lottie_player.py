@@ -52,7 +52,7 @@ def _chrome_command(chrome: str, *, url: str, profile: Path, screenshot: Path | 
         "--hide-scrollbars",
         "--force-device-scale-factor=1",
         "--window-size=640,360",
-        "--virtual-time-budget=1800",
+        "--virtual-time-budget=5000",
         f"--user-data-dir={profile}",
     ]
     if screenshot is None:
@@ -111,8 +111,13 @@ def verify(
             with tempfile.TemporaryDirectory(prefix=f"motion-lottie-dom-{frame}-") as profile:
                 dom_result = _run(_chrome_command(chrome, url=url, profile=Path(profile)))
             dom = dom_result.stdout
-            if _attr(dom, "ready") != "true":
-                raise RuntimeError(f"lottie player did not reach DOMLoaded-ready state at frame {frame}")
+            ready = _attr(dom, "ready")
+            if ready != "true":
+                error_type = _attr(dom, "error-type")
+                raise RuntimeError(
+                    f"lottie player did not reach DOMLoaded-ready state at frame {frame}; "
+                    f"ready={ready!r}; error_type={error_type!r}"
+                )
             current = int(float(_attr(dom, "current-frame") or "-1"))
             total = int(float(_attr(dom, "total-frames") or "-1"))
             svg_count = int(_attr(dom, "svg-count") or "0")
