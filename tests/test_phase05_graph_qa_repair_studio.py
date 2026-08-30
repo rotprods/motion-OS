@@ -2,7 +2,7 @@ import pytest
 
 from src.graph.editing_graph import TypedEditingGraph
 from src.graph.model import Edge
-from src.qa.graph_critic import inspect_graph_contract, attach_findings
+from src.qa.graph_critic import GraphQAFinding, inspect_graph_contract, attach_findings
 from src.qa.graph_repair import (
     RepairCandidateSpec,
     RepairMutation,
@@ -42,14 +42,8 @@ def test_graph_critic_attaches_defect_and_repair_tournament():
 
     for candidate in candidates:
         mutation_targets={m.target_node_id for m in candidate.mutations}
-        actual_mutates={
-            e.target for e in g.edges
-            if e.source==candidate.candidate_id and e.kind=='MUTATES'
-        }
-        derived_defects={
-            e.target for e in g.edges
-            if e.source==candidate.candidate_id and e.kind=='DERIVED_FROM'
-        }
+        actual_mutates={e.target for e in g.edges if e.source==candidate.candidate_id and e.kind=='MUTATES'}
+        derived_defects={e.target for e in g.edges if e.source==candidate.candidate_id and e.kind=='DERIVED_FROM'}
         assert actual_mutates==mutation_targets
         assert candidate.defect_id not in actual_mutates
         assert derived_defects=={candidate.defect_id}
@@ -64,13 +58,9 @@ def test_graph_critic_attaches_defect_and_repair_tournament():
 def test_qa_history_ids_are_run_scoped_and_preserve_both_executions():
     g=fixture_graph()
     findings=inspect_graph_contract(g)
-
     first=set(attach_findings(g,findings,run_id='qa:run-001'))
     second=set(attach_findings(g,findings,run_id='qa:run-002'))
-
-    assert first
-    assert second
-    assert first.isdisjoint(second)
+    assert first and second and first.isdisjoint(second)
     assert all('qa:run-001' in node_id for node_id in first)
     assert all('qa:run-002' in node_id for node_id in second)
     assert all(g.node(node_id) is not None for node_id in first | second)
@@ -80,9 +70,46 @@ def test_reusing_same_qa_run_id_fails_closed_instead_of_folding_history():
     g=fixture_graph()
     findings=inspect_graph_contract(g)
     attach_findings(g,findings,run_id='qa:run-reused')
-
     with pytest.raises(ValueError,match='QA run identity collision'):
         attach_findings(g,findings,run_id='qa:run-reused')
+
+
+def test_qa_run_id_cannot_alias_non_run_node_and_does_not_mutate_graph():
+    g=fixture_graph()
+    before_nodes=[n.id for n in g.nodes]
+    before_edges=[(e.source,e.target,e.kind) for e in g.edges]
+    findings=inspect_graph_contract(g)
+    with pytest.raises(ValueError,match='collides with non-Run'):
+        attach_findings(g,findings,run_id='scene')
+    assert [n.id for n in g.nodes]==before_nodes
+    assert [(e.source,e.target,e.kind) for e in g.edges]==before_edges
+
+
+def test_qa_preflights_all_generated_ids_before_any_write():
+    g=fixture_graph()
+    findings=inspect_graph_contract(g)
+    # Pre-create only the second generated identity. A non-atomic implementation
+    # would write the first finding and then fail halfway through.
+    if len(findings) < 2:
+        findings=list(findings)+[GraphQAFinding('SECOND','P1','scene','second synthetic finding')]
+    run_id='qa:run-atomic'
+    colliding_id=f"qa:{run_id}:002:{findings[1].code.lower()}"
+    g.add_node(g.typed_node(colliding_id,'QAResult',data={'preexisting':True},authority='authoritative',provenance_refs=['fixture']))
+    before_nodes={n.id for n in g.nodes}
+    before_edges={(e.source,e.target,e.kind) for e in g.edges}
+    with pytest.raises(ValueError,match='QA run identity collision'):
+        attach_findings(g,findings,run_id=run_id)
+    assert {n.id for n in g.nodes}==before_nodes
+    assert {(e.source,e.target,e.kind) for e in g.edges}==before_edges
+    assert run_id not in before_nodes
+
+
+def test_qa_missing_finding_target_fails_before_run_node_write():
+    g=fixture_graph()
+    findings=[GraphQAFinding('MISSING','P1','missing-node','bad target')]
+    with pytest.raises(ValueError,match='QA finding target missing'):
+        attach_findings(g,findings,run_id='qa:run-missing-target')
+    assert g.node('qa:run-missing-target') is None
 
 
 def test_repair_candidate_projects_all_actual_mutation_targets():
@@ -91,18 +118,14 @@ def test_repair_candidate_projects_all_actual_mutation_targets():
     created=attach_findings(g,findings,run_id='qa:run-multi')
     defect_id=next(node_id for node_id in created if node_id.startswith('defect:'))
     candidate=RepairCandidateSpec(
-        candidate_id='repair:multi-target',
-        defect_id=defect_id,
-        strategy='structural',
+        candidate_id='repair:multi-target', defect_id=defect_id, strategy='structural',
         mutations=(
             RepairMutation('hero','set','opacity',0.9,'repair subject integration'),
             RepairMutation('type','set','text_integrity','strict','repair typography integrity'),
             RepairMutation('type','set','layout_strategy','reflow','second mutation on same target'),
         ),
-        affected_nodes=('hero','type'),
-        regression_protected=('scene',),
+        affected_nodes=('hero','type'), regression_protected=('scene',),
     )
-
     attach_repair_candidates(g,[candidate])
     mutates=[e.target for e in g.edges if e.source==candidate.candidate_id and e.kind=='MUTATES']
     assert mutates==['hero','type']
@@ -114,14 +137,10 @@ def test_repair_candidate_with_missing_mutation_target_fails_before_write():
     created=attach_findings(g,findings,run_id='qa:run-missing')
     defect_id=next(node_id for node_id in created if node_id.startswith('defect:'))
     candidate=RepairCandidateSpec(
-        candidate_id='repair:missing-target',
-        defect_id=defect_id,
-        strategy='minimal',
+        candidate_id='repair:missing-target', defect_id=defect_id, strategy='minimal',
         mutations=(RepairMutation('missing-node','set','x',1,'invalid target'),),
-        affected_nodes=('missing-node',),
-        regression_protected=(),
+        affected_nodes=('missing-node',), regression_protected=(),
     )
-
     with pytest.raises(ValueError,match='repair mutation target missing'):
         attach_repair_candidates(g,[candidate])
     assert 'repair:missing-target' not in {n.id for n in g.nodes}
