@@ -1,0 +1,74 @@
+{
+  "template_id": "red_black_editorial_retention_system_v1",
+  "replication_mode": "STRUCTURAL_TEMPLATE",
+  "source_sha256": "9b3076cb542e358386942a0fb6b160f1345564d4326738f9a340e2b5b38e199d",
+  "hard_invariants": [
+    "rapid alternation between talking-head footage and designed graphic/2.5D scenes",
+    "hero keyword typography receives scale/color hierarchy rather than equal caption treatment",
+    "red/black editorial brand field with off-white contrast",
+    "foreground inserts/device mockups/3D objects act as pattern interrupts",
+    "audio accents reinforce major keyword/transition events",
+    "brief low-entropy reset precedes the progressive UI build",
+    "representation-mode switching is the primary retention mechanism"
+  ],
+  "soft_invariants": [
+    "classical/editorial symbolism such as columns/question marks",
+    "thin technical grids",
+    "phone/card device framing",
+    "dark vignette around 3D scenes",
+    "mixed sans + editorial/serif display typography"
+  ],
+  "variable_slots": [
+    "PRIMARY_SUBJECT",
+    "PRIMARY_COPY",
+    "KEYWORD",
+    "BROLL",
+    "IMAGE_INSERT",
+    "PHONE_UI",
+    "GRAPHIC_ACCENT",
+    "3D_HERO",
+    "FOREGROUND_OBJECT",
+    "SFX_ACCENT",
+    "MUSIC_BED"
+  ],
+  "retention_grammar": {
+    "annotated_salient_stimulus_clusters": 64,
+    "annotated_visual_stimulus_rate_per_s": 2.3,
+    "median_interval_ms": 254,
+    "p90_interval_ms": 939,
+    "strong_audio_onset_rate_per_s": 0.791
+  },
+  "caption_grammar": [
+    "progressive sentence to hero keyword",
+    "small setup + oversized red keyword + small tail",
+    "spatial word fields around 3D subjects",
+    "boxed keyword emphasis",
+    "section heading replacement synchronized with carousel states",
+    "distributed top-line plus numeral hero",
+    "foreground final lockup"
+  ],
+  "motion_grammar": [
+    "mask_reveal",
+    "count_up",
+    "stagger",
+    "caption_punch",
+    "camera_or_crop_push",
+    "frame_within_frame",
+    "glitch_flash",
+    "phone_scale",
+    "panel_expand",
+    "row_stagger",
+    "carousel_snap",
+    "foreground_rise",
+    "hard_cut_punch"
+  ],
+  "depth_grammar": "captions/foreground objects > cards > devices > subject > background; deliberate occlusion is a recurring retention device",
+  "source_locks_forbidden_in_generalization": [
+    "Instagram UI",
+    "literal source captions",
+    "original screenshots/cards",
+    "speaker footage",
+    "original 3D artwork"
+  ],
+  "promotion_state": "NOT_CANONICAL_UNTIL_RENDER_AND_3X_SUBSTITUTION_VALIDATION"
+}

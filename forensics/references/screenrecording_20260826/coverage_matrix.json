@@ -1,0 +1,42 @@
+{
+  "schema_version": "2.0.0",
+  "video_id": "screenrecording_2026-08-26_173251",
+  "source_sha256": "9b3076cb542e358386942a0fb6b160f1345564d4326738f9a340e2b5b38e199d",
+  "definition": "100% means every observable high-salience scene/action and measured residual reviewed by the gauntlet is represented by a replicable operation/subevent or explicit continuous/source-native/source-lock/unknown semantics; it does NOT mean recovering hidden original AE project internals.",
+  "parent_action_count": 98,
+  "subevent_count": 32,
+  "leaf_operation_count": 121,
+  "scene_count": 18,
+  "scene_coverage": 1.0,
+  "required_measured_peak_coverage": {
+    "mad_p90": 1.0,
+    "flow_p90": 1.0,
+    "mad_p80": 1.0,
+    "mad_p75": 1.0,
+    "flow_p80": 1.0,
+    "flow_p75": 1.0
+  },
+  "calibration_extension": {
+    "mad_p70": 1.0,
+    "flow_p70": 1.0,
+    "unexplained_frames": []
+  },
+  "granularity_corrections": [
+    "continuous count-up modeled as a continuous operation rather than fabricated internal keyframes",
+    "progressive word sequences expose child word subevents",
+    "UI row and SFX staggers expose independently timed child subevents",
+    "example-card sequence exposes five child card events",
+    "Factor-X hold distinguishes source-native face/body motion from editorial motion"
+  ],
+  "closed_observable_domains": [
+    "source_timing","scene_segmentation","caption_structure","kinetic_typography","subject_object_layers","depth_occlusion","camera_reframe","transitions","fx_visible_behavior","audio_visual_sync","retention_stimuli","source_lock_boundary","subaction_granularity","low_threshold_residual_adjudication"
+  ],
+  "closed_spec_domains": ["after_effects_mapping","remotion_mapping","hyperframes_mapping"],
+  "unknown_source_internals": ["original_font_files","original_effect_plugin_identity","original_hidden_masks_mattes","original_audio_stems","physical_camera_intrinsics"],
+  "closure": {
+    "observable_action_coverage": 1.0,
+    "claim": "100% of currently observable high-salience replicable action classes and currently reviewed measured residuals through P70 are represented or explicitly adjudicated.",
+    "does_not_claim": "recovery of hidden original project internals or physical reconstruction fidelity",
+    "next_required_gate": "freeze graph → physical golden-scene reconstruction → frame-level diff → graph-native repair loop"
+  }
+}

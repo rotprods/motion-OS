@@ -1,0 +1,36 @@
+flowchart TD
+    V[Reference Video] --> F[Physical / Frame Evidence]
+    F --> FT[FrameTimeline]
+    FT --> EC[Event Clusters]
+    EC --> AI[Atomic Action Inventory]
+    AI --> DOP[Decision / Operation Projection]
+    DOP --> EG[Canonical MOTION.OS TypedEditingGraph]
+
+    AI --> CAP[Caption Grammar]
+    AI --> DEP[Depth / Occlusion Grammar]
+    AI --> MOT[Motion / Transition Grammar]
+    AI --> AUD[Audio / SFX Graph]
+    AI --> RET[Retention / Stimulus Grammar]
+
+    EG --> AE[After Effects Adapter]
+    EG --> RM[Remotion Adapter]
+    EG --> HF[HyperFrames / GSAP Adapter]
+
+    AE --> RAE[AE Reconstruction]
+    RM --> RRM[Remotion Render]
+    HF --> RHF[HyperFrames Render]
+
+    RAE --> QA[Frame-Level Fidelity QA]
+    RRM --> QA
+    RHF --> QA
+
+    QA -->|defect| REPAIR[Graph-Native Repair]
+    REPAIR --> EG
+    QA -->|pass| GEN[3x Generalization Tests]
+    GEN -->|pass| CANON[Canonical Template Library]
+
+    AI -. source-specific .-> SL[SOURCE_LOCK]
+    SL -. exact only .-> AE
+    SL -. stripped/slotted .-> GEN
+
+    U[UNKNOWN source internals] -. never fabricated .-> QA
