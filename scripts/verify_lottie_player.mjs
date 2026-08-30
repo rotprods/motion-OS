@@ -22,18 +22,6 @@ function parseArgs(argv) {
   return out;
 }
 
-function stable(value) {
-  if (Array.isArray(value)) return value.map(stable);
-  if (value && typeof value === 'object') {
-    return Object.fromEntries(Object.keys(value).sort().map((key) => [key, stable(value[key])]));
-  }
-  return value;
-}
-
-function canonicalJson(value) {
-  return JSON.stringify(stable(value));
-}
-
 function sha256(data) {
   return crypto.createHash('sha256').update(data).digest('hex');
 }
@@ -51,13 +39,14 @@ function mime(filePath) {
 }
 
 async function startServer(root) {
+  const rootPath = path.resolve(root);
   const server = http.createServer(async (req, res) => {
     try {
       const url = new URL(req.url, 'http://127.0.0.1');
       const relative = decodeURIComponent(url.pathname === '/' ? '/index.html' : url.pathname).replace(/^\/+/, '');
-      const resolved = path.resolve(root, relative);
-      const prefix = `${path.resolve(root)}${path.sep}`;
-      if (resolved !== path.resolve(root) && !resolved.startsWith(prefix)) {
+      const resolved = path.resolve(rootPath, relative);
+      const prefix = `${rootPath}${path.sep}`;
+      if (resolved !== rootPath && !resolved.startsWith(prefix)) {
         res.writeHead(403); res.end('forbidden'); return;
       }
       const payload = await fs.readFile(resolved);
@@ -76,15 +65,26 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
   const animationPath = path.join(args.root, 'animation.json');
   const contractPath = path.join(args.root, 'player_contract.json');
+  const compilerEvidencePath = path.join(args.root, 'compiler_evidence.json');
   const bundlePath = path.join(args.root, 'lottie.min.js');
   const integrityPath = path.join(args.root, 'npm_integrity.txt');
+  const puppeteerIntegrityPath = path.join(args.root, 'puppeteer_integrity.txt');
   const screenshots = path.join(args.root, 'screenshots');
   await fs.mkdir(screenshots, {recursive: true});
 
   const document = JSON.parse(await fs.readFile(animationPath, 'utf8'));
   const contract = JSON.parse(await fs.readFile(contractPath, 'utf8'));
-  const documentHash = sha256(Buffer.from(canonicalJson(document), 'utf8'));
-  if (documentHash !== contract.document_sha256) throw new Error('player contract document hash does not match animation.json');
+  const compilerEvidence = JSON.parse(await fs.readFile(compilerEvidencePath, 'utf8'));
+  const animationFileHash = await sha256File(animationPath);
+  if (animationFileHash !== compilerEvidence.animation_file_sha256) {
+    throw new Error('animation.json bytes do not match compiler evidence');
+  }
+  if (contract.document_sha256 !== compilerEvidence.document_sha256) {
+    throw new Error('player contract document hash does not match compiler evidence');
+  }
+  if (Number(contract.expected_frame_count) !== Number(compilerEvidence.expected_frame_count)) {
+    throw new Error('player contract frame count does not match compiler evidence');
+  }
   const expectedFrames = Number(contract.expected_frame_count);
   if (!Number.isInteger(expectedFrames) || expectedFrames <= 0) throw new Error('player contract frame count missing');
   const frames = [0, Math.floor(expectedFrames / 2), expectedFrames - 1];
@@ -163,8 +163,10 @@ async function main() {
     player_version: args.playerVersion,
     player_bundle_sha256: await sha256File(bundlePath),
     npm_dist_integrity: (await fs.readFile(integrityPath, 'utf8')).trim(),
-    document_sha256: documentHash,
-    animation_file_sha256: await sha256File(animationPath),
+    puppeteer_dist_integrity: (await fs.readFile(puppeteerIntegrityPath, 'utf8')).trim(),
+    compiler_evidence_sha256: await sha256File(compilerEvidencePath),
+    document_sha256: contract.document_sha256,
+    animation_file_sha256: animationFileHash,
     expected_frame_count: expectedFrames,
     visual_duration_authority: 'frame_count/fps',
     fps: document.fr,
