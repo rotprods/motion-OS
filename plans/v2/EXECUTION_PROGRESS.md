@@ -35,8 +35,6 @@ Delivered in #91:
 - migration/rollback/supersession plan;
 - machine V2 state and successor metaprompt.
 
-Exact-head #91 clean-runner qualification was achieved repeatedly after convergence mutations. Classifier-skipped jobs are never claimed as executed evidence.
-
 ## 2026-08-30 — CP6/CP11 critical-path convergence wave
 
 Session: `motion://session/chatgpt/graph-v2-execution-architect/20260830T0821+0200`
@@ -97,11 +95,11 @@ Authority: `VERIFIED_CONTRACT_PROVIDER_EMPIRICAL_BLOCKED`. A real trusted multim
 
 ## Current critical path after this wave
 
-The previous software correctness triangle is no longer the primary blocker at branch level:
+The previous software-correctness triangle is no longer the primary blocker at branch level:
 
-`#59 QA graph history` → VERIFIED_BRANCH
-`#64 decoded frame authority` → VERIFIED_BRANCH
-`#65 temporal causality contract` → VERIFIED_CONTRACT
+- `#59 QA graph history` → VERIFIED_BRANCH
+- `#64 decoded frame authority` → VERIFIED_BRANCH
+- `#65 temporal causality contract` → VERIFIED_CONTRACT
 
 The executable frontier moves downstream to evidence and product truth:
 
@@ -115,5 +113,9 @@ The executable frontier moves downstream to evidence and product truth:
 8. collect Phase06/CAL2 real productions before promoting performance learning;
 9. complete security/admin/recovery gates and GitHub branch ruleset;
 10. run CP14 whole-product gauntlet only after exact combined-head promotion candidates are reconciled.
+
+## Latest V2 package qualification
+
+After updating the machine task DAG and this execution ledger, PR #91 head `5faea27fd395fedbb28cb022c1aed61d745304d7` passed Merge Safe run `33297488691` successfully. This is branch-package assurance only. The package remains draft and NOT_PROMOTED while Issue #48 / cognitive promotion barrier is active.
 
 No merge/promotion is authorized by this progress document. Fresh live GitHub + Event Fabric watermark are mandatory immediately before any irreversible transition.
