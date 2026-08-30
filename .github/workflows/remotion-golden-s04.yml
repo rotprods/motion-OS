@@ -45,6 +45,12 @@ jobs:
         run: |
           mkdir -p out
           npx remotion render src/index.ts GoldenS04Cientificamente out/golden-s04.mp4 --codec=h264 --log=verbose
+      - name: Render transparent measured overlay sequence
+        working-directory: runtime/remotion
+        run: |
+          rm -rf out/golden-s04-overlay
+          npx remotion render src/index.ts GoldenS04Overlay out/golden-s04-overlay --sequence --image-format=png --log=verbose
+          test "$(find out/golden-s04-overlay -type f -name '*.png' | wc -l)" -eq 71
       - name: Verify exact frame/audio/structure contract
         run: |
           python scripts/verify_s04_golden.py \
@@ -59,6 +65,7 @@ jobs:
           if-no-files-found: error
           path: |
             runtime/remotion/out/golden-s04.mp4
+            runtime/remotion/out/golden-s04-overlay/**/*.png
             .artifacts/golden-s04/render_evidence.json
             .artifacts/golden-s04/frames/*.png
           retention-days: 14
