@@ -91,6 +91,8 @@ def authorize_render(*, content_id: str, profile_id: str, script: str, explicit_
         raise PermissionError("explicit render authorization required")
     if preflight_ok is not True:
         raise ValueError("preflight must pass before render authorization")
+    if not isinstance(policy, SpendPolicy):
+        raise ValueError("policy must be a SpendPolicy")
     spent = _finite_nonnegative_number(spent_today, name="spent_today")
     concurrent = _nonnegative_int(concurrent_renders, name="concurrent_renders")
     if concurrent >= policy.max_concurrent_renders:
@@ -122,18 +124,21 @@ def can_submit(
 ) -> bool:
     if not isinstance(intent, RenderIntent) or intent.state != RenderState.AUTHORIZED:
         return False
+    if not isinstance(known_intents, dict):
+        return False
     try:
         credits = _finite_nonnegative_number(intent.estimated_credits, name="estimated_credits")
+        retry_count = _nonnegative_int(intent.retry_count, name="retry_count")
     except ValueError:
         return False
     existing = known_intents.get(intent.intent_id)
     if existing is None:
-        return intent.retry_count == 0 and intent.provider_job_id is None
+        return retry_count == 0 and intent.provider_job_id is None
     if not isinstance(existing, RenderIntent):
         return False
     if existing.state != RenderState.FAILED_RETRYABLE or existing.provider_job_id is not None:
         return False
-    if policy is None or spent_today is None or concurrent_renders is None:
+    if not isinstance(policy, SpendPolicy) or spent_today is None or concurrent_renders is None:
         return False
     try:
         spent = _finite_nonnegative_number(spent_today, name="spent_today")
@@ -149,6 +154,10 @@ def can_submit(
 
 
 def next_retry(intent: RenderIntent, policy: SpendPolicy) -> RenderIntent:
+    if not isinstance(intent, RenderIntent):
+        raise ValueError("intent must be a RenderIntent")
+    if not isinstance(policy, SpendPolicy):
+        raise ValueError("policy must be a SpendPolicy")
     if intent.state != RenderState.FAILED_RETRYABLE:
         raise ValueError("retry allowed only from FAILED_RETRYABLE")
     if intent.provider_job_id:
