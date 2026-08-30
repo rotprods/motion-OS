@@ -59,13 +59,25 @@ def assess_release_authority(
     repository: str,
     release_sha: str,
     live_main_sha: str,
+    live_main_sha_after: str,
     project_state: object,
     associated_pulls: object,
 ) -> ReleaseAuthorityVerdict:
     repo = _validate_repo(repository)
     release = _validate_sha(release_sha)
     main_sha = _validate_sha(live_main_sha)
+    main_after = _validate_sha(live_main_sha_after)
     validate_release_state(project_state)
+    if main_sha != main_after:
+        return ReleaseAuthorityVerdict(
+            repository=repo,
+            release_sha=release,
+            live_main_sha=main_after,
+            state="LIVE_MAIN_DRIFTED_DURING_CHECK",
+            authority="BLOCKED",
+            matched_pr_numbers=(),
+            reason="live main changed while release authority was being evaluated",
+        )
     if release != main_sha:
         return ReleaseAuthorityVerdict(
             repository=repo,
@@ -95,7 +107,7 @@ def assess_release_authority(
         state="RELEASE_AUTHORIZED",
         authority="VERIFIED",
         matched_pr_numbers=lineage.matched_pr_numbers,
-        reason="release state is explicit, P0-free, targets current main and current main has exact merged-PR lineage",
+        reason="release state is explicit, P0-free, targets stable current main and current main has exact merged-PR lineage",
     )
 
 
@@ -151,10 +163,12 @@ def main(argv: list[str] | None = None) -> int:
         state = _read_state(args.state)
         live_main_sha = fetch_live_main_sha(repository=repo, token=args.token)
         pulls = fetch_associated_pulls(repository=repo, commit_sha=live_main_sha, token=args.token)
+        live_main_sha_after = fetch_live_main_sha(repository=repo, token=args.token)
         verdict = assess_release_authority(
             repository=repo,
             release_sha=release_sha,
             live_main_sha=live_main_sha,
+            live_main_sha_after=live_main_sha_after,
             project_state=state,
             associated_pulls=pulls,
         )
