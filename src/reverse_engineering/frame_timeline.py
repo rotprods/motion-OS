@@ -8,15 +8,28 @@ class FrameTimelineError(ValueError):
 
 
 def _total_frames(pack: Mapping[str, Any]) -> int:
+    """Return authoritative decoded frame count; never derive it from duration.
+
+    A timeline that claims every decoded frame must be anchored to an actual decode
+    count. Duration×fps is an estimate and cannot satisfy frame-accurate authority.
+    Approximate/template-only workflows must make approximation explicit upstream
+    instead of laundering an estimate through this authoritative timeline builder.
+    """
     meta = pack.get("video_meta", {})
-    raw = meta.get("decoded_frame_count", meta.get("frame_count"))
+    raw = meta.get("decoded_frame_count")
     if raw is None:
-        fps = float(meta.get("fps", 0.0))
-        duration_ms = int(meta.get("duration_ms", 0))
-        raw = round(duration_ms * fps / 1000.0)
-    total = int(raw)
+        raise FrameTimelineError("decoded_frame_count is required for frame-authoritative timeline")
+    if isinstance(raw, bool):
+        raise FrameTimelineError("decoded_frame_count must be an integer, not boolean")
+    try:
+        numeric = float(raw)
+    except (TypeError, ValueError) as exc:
+        raise FrameTimelineError("decoded_frame_count must be a positive integer") from exc
+    if not numeric.is_integer():
+        raise FrameTimelineError("decoded_frame_count must be a positive integer")
+    total = int(numeric)
     if total <= 0:
-        raise FrameTimelineError("decoded/derived frame count must be positive")
+        raise FrameTimelineError("decoded_frame_count must be positive")
     return total
 
 
@@ -172,6 +185,7 @@ def compile_frame_timeline(
                 "transition_events": transition_by_frame.get(frame, []),
                 "authority": {
                     "frame_index": "measured_decode",
+                    "frame_count": "decoded_frame_count",
                     "motion": "measured" if frame in motion_by_frame else "unavailable_at_frame",
                     "text": "measured" if frame in text_by_frame else "unavailable_at_frame",
                     "audio": "measured" if frame in audio_by_frame else "no_onset_observed_at_frame",
