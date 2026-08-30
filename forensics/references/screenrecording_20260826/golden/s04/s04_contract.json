@@ -1,0 +1,47 @@
+{
+  "schema_version": "motion-os.golden-scene/v1",
+  "scene_id": "S04_CIENTIFICAMENTE",
+  "composition_id": "GoldenS04Cientificamente",
+  "source": {
+    "video_id": "screenrecording_2026-08-26_173251",
+    "sha256": "9b3076cb542e358386942a0fb6b160f1345564d4326738f9a340e2b5b38e199d",
+    "fps": 30,
+    "width": 512,
+    "height": 1108,
+    "start_frame": 145,
+    "end_frame_exclusive": 216,
+    "frame_count": 71
+  },
+  "actions": [
+    {"id": "A022", "domain": "transition", "local": [0, 0, 5], "source": [145, 145, 150], "verb": "cut", "authority": "MEASURED_HEURISTIC"},
+    {"id": "A023", "domain": "caption", "local": [1, 5, 9], "source": [146, 150, 154], "verb": "text_build", "target": "CAP_SETUP", "authority": "EVIDENCE_BOUND_INFERENCE"},
+    {"id": "A024", "domain": "caption", "local": [11, 15, 20], "source": [156, 160, 165], "verb": "scale_punch", "target": "CAP_CIENTIFICAMENTE", "values": {"scale": [0.84, 1.12, 1.0]}, "authority": "EVIDENCE_BOUND_INFERENCE"},
+    {"id": "A025", "domain": "caption", "local": [38, 43, 50], "source": [183, 188, 195], "verb": "opacity_reveal", "target": "CAP_IMPOSIBLE", "authority": "EVIDENCE_BOUND_INFERENCE"},
+    {"id": "A026", "domain": "camera", "local": [0, 29, 65], "source": [145, 174, 210], "verb": "reframe", "target": "SUBJECT_PRECOMP", "physical_camera_claim": false, "authority": "EVIDENCE_BOUND_INFERENCE"},
+    {"id": "A027", "domain": "audio", "local": [11, 15, 25], "source": [156, 160, 170], "verb": "impact_sub_hit", "target": "SFX_EMPHASIS", "authority": "INFERRED_FROM_MIXED_AUDIO"},
+    {"id": "A028", "domain": "object", "local": [60, 67, 71], "source": [205, 212, 216], "verb": "object_insert", "target": "PHONE_HAND_PROP", "authority": "EVIDENCE_BOUND_INFERENCE"}
+  ],
+  "measured_discrepancies": [
+    {
+      "id": "S04-DISC-001",
+      "field": "CAP_SETUP.first_visible_frame",
+      "inventory_value": 146,
+      "measured_reference_value": 145,
+      "status": "OPEN_GRAPH_REPAIR",
+      "policy": "physical reconstruction follows measured frame while preserving the historical inference"
+    }
+  ],
+  "asset_policy": {
+    "source_and_clean_plate": "DRIVE_ONLY",
+    "git": "CODE_CONTRACTS_AND_TEXT_EVIDENCE_ONLY",
+    "ci_plate": "PROCEDURAL_NON_SOURCE_FIXTURE",
+    "exact_local_plate_mode": "IMAGE_SEQUENCE_FROM_EXTERNAL_ASSET"
+  },
+  "qa_gates": {
+    "mechanical": ["71 frames", "30 fps", "512x1108", "audio stream present", "sample frames decodable"],
+    "structural": ["setup visible at local 0", "hero absent before local 11", "hero impact near local 15", "tail visible by local 43", "phone bridge begins at local 60"],
+    "fidelity": ["temporal", "motion", "camera", "typography", "depth", "color", "fx", "audio", "retention"],
+    "promotion_veto": "P0_OR_P1_DEFECT"
+  },
+  "authority": "IMPLEMENTED_UNVERIFIED_UNTIL_PHYSICAL_RENDER"
+}
