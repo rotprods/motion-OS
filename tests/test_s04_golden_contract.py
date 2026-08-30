@@ -6,6 +6,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = ROOT / "forensics/references/screenrecording_20260826/golden/s04/s04_contract.json"
 COMPONENT = ROOT / "runtime/remotion/src/golden_s04/S04Cientificamente.tsx"
+MEASURED_CAPTIONS = ROOT / "runtime/remotion/src/golden_s04/MeasuredCaptionSystem.tsx"
+MEASURED_TRACK = ROOT / "runtime/remotion/src/golden_s04/measuredTrack.ts"
 SPEC = ROOT / "runtime/remotion/src/golden_s04/s04Spec.ts"
 ROOT_TSX = ROOT / "runtime/remotion/src/Root.tsx"
 PACKAGE = ROOT / "runtime/remotion/package.json"
@@ -57,19 +59,33 @@ def test_s04_renderer_is_frame_driven_and_audio_is_deterministic() -> None:
     assert "Math.imul(1664525" in impact
 
 
+def test_measured_overlay_uses_source_bound_bbox_track() -> None:
+    track = MEASURED_TRACK.read_text(encoding="utf-8")
+    captions = MEASURED_CAPTIONS.read_text(encoding="utf-8")
+    assert "REFERENCE_MINUS_INPAINTED_CLEAN_PLATE_COLOR_COMPONENT_BBOX" in track
+    assert "frame: 10, x: 96, y: 580, width: 110, height: 12" in track
+    assert "frame: 38, x: 58, y: 592, width: 422, height: 88" in track
+    assert "frame: 68, x: 86, y: 586, width: 364, height: 60" in track
+    assert 'lengthAdjust="spacingAndGlyphs"' in captions
+    assert "textLength={box.width}" in captions
+
+
 def test_composition_and_physical_workflow_are_registered() -> None:
     root = ROOT_TSX.read_text(encoding="utf-8")
     package = json.loads(PACKAGE.read_text(encoding="utf-8"))
     workflow = WORKFLOW.read_text(encoding="utf-8")
     assert 'id="GoldenS04Cientificamente"' in root
+    assert 'id="GoldenS04Overlay"' in root
     assert package["dependencies"]["@remotion/media"] == package["dependencies"]["remotion"]
     assert "verify_s04_golden.py" in workflow
     assert "GoldenS04Cientificamente" in workflow
+    assert "GoldenS04Overlay" in workflow
+    assert "--sequence --image-format=png" in workflow
     assert "actions/upload-artifact@" in workflow
 
 
 def test_inventory_discrepancy_is_preserved_not_silently_rewritten() -> None:
-    discrepancy = load_contract()["measured_discrepancies"][0]
-    assert discrepancy["inventory_value"] == 146
-    assert discrepancy["measured_reference_value"] == 145
-    assert discrepancy["status"] == "OPEN_GRAPH_REPAIR"
+    discrepancies = load_contract()["measured_discrepancies"]
+    assert discrepancies[0]["inventory_value"] == 146
+    assert discrepancies[0]["measured_reference_value"] == 145
+    assert discrepancies[0]["status"] == "OPEN_GRAPH_REPAIR"
