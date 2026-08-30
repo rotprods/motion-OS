@@ -1,0 +1,84 @@
+{
+  "schema_version": "2.0.0",
+  "project_id": "motion://project/motion-os",
+  "objective_id": "motion://objective/v2-architecture-recompile",
+  "session_id": "motion://session/chatgpt/graph-refactor-v2/20260829T234000+0200",
+  "workstream_id": "motion://workstream/graph-refactor-v2",
+  "correlation_id": "graph-refactor-v2-001",
+  "source": {
+    "main_sha": "a8d7dbddaeb4ad9779df9883d3cf4e4f6ea4f29d",
+    "bootstrap_bus": "Issue#39",
+    "bootstrap_watermark": "comment-5465052885",
+    "runtime_event_watermark": null,
+    "contextpack_revision": null,
+    "regression_issue": 48,
+    "v2_tracker": 78
+  },
+  "authority": "IMPLEMENTED",
+  "promotion": {
+    "blocked": true,
+    "reason": "Issue #48 remains open and no BARRIER RELEASE has been observed; V2 artifacts are additive branch-head synthesis only."
+  },
+  "checkpoints": {
+    "CP0_live_truth": "VERIFIED",
+    "CP1_hypergraph_contract": "IMPLEMENTED_PENDING_CLEAN_RUNNER",
+    "CP2_historical_regression": "IMPLEMENTED_PARTIAL",
+    "CP3_gap_classification": "IMPLEMENTED",
+    "CP4_v2_architecture_frozen": "IMPLEMENTED_PENDING_REVIEW",
+    "CP5_core_contracts": "BLOCKED_BY_ACTIVE_CONVERGENCE_WORKSTREAMS",
+    "CP6_implementation_kernel": "BLOCKED",
+    "CP7_recovery": "BLOCKED",
+    "CP8_agent_death": "BLOCKED",
+    "CP9_concurrency": "BLOCKED",
+    "CP10_security": "BLOCKED",
+    "CP11_e2e_product": "BLOCKED",
+    "CP12_empirical": "BLOCKED",
+    "CP13_migration": "BLOCKED",
+    "CP14_production": "BLOCKED"
+  },
+  "hard_blockers": [
+    "canonical current-state split brain",
+    "Event Fabric v3 not promoted",
+    "main administrative protection absent",
+    "RC09E physical artifact not recoverable from inspected GitHub surfaces",
+    "full-video critic not empirically qualified on exact current candidate",
+    "creative release thresholds not authoritatively met"
+  ],
+  "active_convergence_prs": [56,57,58,59,61,62,63,64,65,66,67,68,69,70,71,73,74],
+  "current_safe_scope": [
+    "architecture/v2/**",
+    "plans/v2/**",
+    "graph/v2/**",
+    "schemas/v2_hypergraph.schema.json",
+    "scripts/validate_v2_hypergraph.py",
+    "tests/test_v2_hypergraph_contract.py",
+    "state/v2/**"
+  ],
+  "next_safe_actions": [
+    "qualify V2 hypergraph schema/semantic validator on clean runner",
+    "repair any validator/CI defects without touching active shared contracts",
+    "publish exact-head checkpoint and handoff on Issue #39",
+    "after canonical truth/event convergence, recompile V2 snapshot against fresh main and runtime watermark",
+    "redirect product capacity to RC artifact recovery and temporal/creative qualification"
+  ],
+  "residual_unknowns": [
+    {
+      "id": "runtime_event_watermark",
+      "owner": "motion://workstream/event-fabric-v3",
+      "trigger": "PR #58 promotion/reconciliation",
+      "resolution": "compile a fresh ContextPack and V2 graph snapshot from promoted Event Fabric"
+    },
+    {
+      "id": "drive_rc09e_availability",
+      "owner": "motion://workstream/product-artifact-recovery",
+      "trigger": "authenticated Drive artifact discovery",
+      "resolution": "bind physical media SHA/manifests or declare artifact unrecoverable and version a new candidate"
+    },
+    {
+      "id": "main_admin_protection",
+      "owner": "motion://agent/operator-admin",
+      "trigger": "settings-write/admin path available",
+      "resolution": "apply ruleset and verify via live GitHub readback"
+    }
+  ]
+}
