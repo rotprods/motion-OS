@@ -254,3 +254,29 @@ def test_existing_record_must_be_typed_and_reconcilable():
         spent_today=0.0,
         concurrent_renders=0,
     ) is False
+
+
+def test_initial_submit_rejects_float_retry_generation_and_untyped_known_intents():
+    original = _authorize()
+    malformed_generation = RenderIntent(**{**original.__dict__, "retry_count": 0.0})
+    assert can_submit(malformed_generation, {}) is False
+    assert can_submit(original, []) is False
+
+
+def test_public_boundaries_reject_untyped_policy_instead_of_crashing():
+    with pytest.raises(ValueError, match="SpendPolicy"):
+        _authorize(policy={"max_credits_per_render": 10})
+
+    original = _authorize()
+    failed = RenderIntent(**{**original.__dict__, "state": RenderState.FAILED_RETRYABLE})
+    retried = next_retry(failed, _policy())
+    assert can_submit(
+        retried,
+        {original.intent_id: failed},
+        policy={"max_credits_per_render": 10},
+        spent_today=0.0,
+        concurrent_renders=0,
+    ) is False
+
+    with pytest.raises(ValueError, match="SpendPolicy"):
+        next_retry(failed, {"max_credits_per_render": 10})
