@@ -6,7 +6,9 @@ on:
       - 'runtime/remotion/src/Root.tsx'
       - 'runtime/remotion/package.json'
       - 'scripts/verify_s04_golden.py'
+      - 'scripts/qualify_s04_fidelity.py'
       - 'tests/test_s04_golden_contract.py'
+      - 'tests/test_s04_fidelity_contract.py'
       - 'forensics/references/screenrecording_20260826/golden/s04/**'
       - '.github/workflows/remotion-golden-s04.yml'
   workflow_dispatch:
@@ -34,9 +36,9 @@ jobs:
       - name: Install pinned Remotion runtime
         working-directory: runtime/remotion
         run: npm install --no-audit --no-fund
-      - name: Contract and type checks
+      - name: Contract and fidelity-unit checks
         run: |
-          python -m pytest -q tests/test_s04_golden_contract.py
+          python -m pytest -q tests/test_s04_golden_contract.py tests/test_s04_fidelity_contract.py
           cd runtime/remotion
           npx tsc --noEmit
           npx remotion compositions src/index.ts

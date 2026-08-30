@@ -16,7 +16,10 @@ export const S04_SPEC = {
     hero: {start: 11, overshoot: 15, settle: 20},
     tail: {start: 38, impact: 43, settle: 50},
     phoneBridge: {start: 60, impact: 67, end: 71},
-    sfxImpact: 15,
+    // Historical summary used local 15. Source-bound onset evidence places the
+    // emphasis near local 9; this sound's generated transient peaks ~1 frame
+    // after Sequence start, so local 8 is the measured renderer calibration.
+    sfxImpact: 8,
   },
   caption: {
     setup: 'que sea',
@@ -26,6 +29,17 @@ export const S04_SPEC = {
     heroColor: '#C90D18',
     tailColor: '#F3F1EC',
     fontAuthority: 'FONT_CLASS_ONLY_EXACT_FONT_UNKNOWN',
+    visibleBoundsAuthority: 'MEASURED_SOURCE_VISIBLE_BBOX_WITH_RENDERER_CALIBRATION',
+  },
+  structure: {
+    captionParentHypothesis: {
+      value: 'SHARED_SCREEN_SPACE_PARENT_AFTER_HERO_ENTRY',
+      authority: 'EVIDENCE_BOUND_INFERENCE',
+      setupHeroWidthScaleCorrelation: 0.9975202500257605,
+      setupTailWidthScaleCorrelation: 0.9939963827123907,
+      heroTailWidthScaleCorrelation: 0.9968121946478035,
+      caveat: 'does not prove original After Effects parenting or precomp topology',
+    },
   },
   authority: {
     sourceTiming: 'MEASURED_DECODE',
@@ -33,7 +47,9 @@ export const S04_SPEC = {
     fontIdentity: 'UNKNOWN',
     proceduralPlate: 'STRUCTURAL_FIXTURE_ONLY',
     exactImageSequence: 'EXTERNAL_DRIVE_ASSET_REQUIRED',
-    sourceFidelity: 'BLOCKED_UNTIL_9D_DIFF',
+    sourceFidelity: 'BLOCKED_UNTIL_9D_DIFF_REPAIR_PASS',
+    audioOnsetTiming: 'MEASURED_SOURCE_BOUND',
+    sfxIdentity: 'INFERRED_FROM_MIXED_AUDIO',
   },
 } as const;
 
