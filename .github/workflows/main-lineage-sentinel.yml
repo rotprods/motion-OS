@@ -29,22 +29,20 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p .artifacts
-          status=1
           for attempt in 1 2 3; do
             if python scripts/main_lineage_sentinel.py \
               --repository "${{ github.repository }}" \
               --sha "${{ github.sha }}" \
               --branch main \
               --json-out .artifacts/main-lineage.json; then
-              status=0
-              break
+              exit 0
             fi
-            status=$?
             if [[ "$attempt" -lt 3 ]]; then
               sleep 3
             fi
           done
-          exit "$status"
+          echo "Main lineage remained unverified after bounded retries" >&2
+          exit 1
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
