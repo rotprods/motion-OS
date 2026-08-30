@@ -17,18 +17,20 @@ def dims(score: float = 9.2):
 def temporal(*, authoritative=True, score=9.3, recommendation="RELEASE", media_sha=None):
     media_sha = media_sha or digest("video")
     indices = uniform_sample_indices(90, target_samples=8)
+    run_id = "run-1" if authoritative else None
     evidence = build_temporal_evidence(
         media_sha256=media_sha,
         frame_count=90,
         fps=30,
         frame_hashes={i: digest(f"{media_sha}:frame-{i}") for i in indices},
         provider="vision-provider",
-        provider_run_id="run-1" if authoritative else None,
+        provider_run_id=run_id,
         provider_attested_full_video=authoritative,
         target_samples=8,
     )
     return critique_from_provider_payload(evidence, {
         "provider": "vision-provider",
+        "provider_run_id": run_id,
         "authoritative": authoritative,
         "score": score,
         "dimensions": {"temporal_coherence": score},
