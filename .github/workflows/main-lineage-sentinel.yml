@@ -25,13 +25,26 @@ jobs:
       - name: Verify exact main commit is bound to a merged PR
         env:
           GITHUB_TOKEN: ${{ github.token }}
+        shell: bash
         run: |
+          set -euo pipefail
           mkdir -p .artifacts
-          python scripts/main_lineage_sentinel.py \
-            --repository "${{ github.repository }}" \
-            --sha "${{ github.sha }}" \
-            --branch main \
-            --json-out .artifacts/main-lineage.json
+          status=1
+          for attempt in 1 2 3; do
+            if python scripts/main_lineage_sentinel.py \
+              --repository "${{ github.repository }}" \
+              --sha "${{ github.sha }}" \
+              --branch main \
+              --json-out .artifacts/main-lineage.json; then
+              status=0
+              break
+            fi
+            status=$?
+            if [[ "$attempt" -lt 3 ]]; then
+              sleep 3
+            fi
+          done
+          exit "$status"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
