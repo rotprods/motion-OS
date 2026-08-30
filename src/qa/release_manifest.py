@@ -17,7 +17,11 @@ class CreativeReleaseManifest:
     candidate_id: str
     media_sha256: str
     temporal_evidence_hash: str
+    temporal_provider: str
+    temporal_provider_run_id: str
     creative_evidence_hash: str
+    creative_provider: str
+    creative_provider_run_id: str
     temporal_score: float
     creative_mean_score: float
     ranked_candidate_ids: tuple[str, ...]
@@ -25,11 +29,21 @@ class CreativeReleaseManifest:
 
 
 def _payload(candidate: CreativeCandidate, result: TournamentResult) -> dict:
+    temporal_run_id = candidate.temporal.provider_run_id
+    creative_run_id = candidate.creative.provider_run_id
+    if not temporal_run_id:
+        raise ReleaseManifestError("release candidate missing temporal provider run identity")
+    if not creative_run_id:
+        raise ReleaseManifestError("release candidate missing creative provider run identity")
     return {
         "candidate_id": candidate.candidate_id,
         "media_sha256": candidate.media_sha256,
         "temporal_evidence_hash": candidate.temporal.evidence_hash,
+        "temporal_provider": candidate.temporal.provider,
+        "temporal_provider_run_id": temporal_run_id,
         "creative_evidence_hash": candidate.creative.content_hash(),
+        "creative_provider": candidate.creative.provider,
+        "creative_provider_run_id": creative_run_id,
         "temporal_score": round(float(candidate.temporal.score), 6),
         "creative_mean_score": round(float(candidate.mean_score), 6),
         "ranked_candidate_ids": list(result.ranked_candidate_ids),
@@ -60,7 +74,11 @@ def build_release_manifest(result: TournamentResult, candidates: Iterable[Creati
         candidate_id=candidate.candidate_id,
         media_sha256=candidate.media_sha256,
         temporal_evidence_hash=candidate.temporal.evidence_hash,
+        temporal_provider=candidate.temporal.provider,
+        temporal_provider_run_id=str(candidate.temporal.provider_run_id),
         creative_evidence_hash=candidate.creative.content_hash(),
+        creative_provider=candidate.creative.provider,
+        creative_provider_run_id=str(candidate.creative.provider_run_id),
         temporal_score=round(float(candidate.temporal.score), 6),
         creative_mean_score=round(float(candidate.mean_score), 6),
         ranked_candidate_ids=canonical.ranked_candidate_ids,
