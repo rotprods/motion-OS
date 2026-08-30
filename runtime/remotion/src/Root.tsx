@@ -4,6 +4,7 @@ import spec from './runtimeSpec.json';
 import {MotionOSRuntime} from './MotionOSRuntime';
 import {
   S04Cientificamente,
+  S04Overlay,
   S04_DEFAULT_PROPS,
   S04_SPEC,
 } from './golden_s04';
@@ -27,6 +28,14 @@ export const RemotionRoot: React.FC = () => {
         width={S04_SPEC.source.width}
         height={S04_SPEC.source.height}
         defaultProps={S04_DEFAULT_PROPS}
+      />
+      <Composition
+        id="GoldenS04Overlay"
+        component={S04Overlay}
+        durationInFrames={S04_SPEC.local.frameCount}
+        fps={S04_SPEC.source.fps}
+        width={S04_SPEC.source.width}
+        height={S04_SPEC.source.height}
       />
     </>
   );
