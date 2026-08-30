@@ -67,6 +67,26 @@ def _run(command: list[str], *, timeout: int = 30) -> subprocess.CompletedProces
     return subprocess.run(command, capture_output=True, text=True, timeout=timeout, check=True)
 
 
+def _ready_dom(chrome: str, url: str, *, frame: int, attempts: int = 4) -> tuple[str, int]:
+    """Require a fully attested DOM, tolerating only transient headless startup races."""
+    last_ready: str | None = None
+    last_error: str | None = None
+    for attempt in range(1, attempts + 1):
+        with tempfile.TemporaryDirectory(prefix=f"motion-lottie-dom-{frame}-{attempt}-") as profile:
+            dom_result = _run(_chrome_command(chrome, url=url, profile=Path(profile)))
+        dom = dom_result.stdout
+        last_ready = _attr(dom, "ready")
+        last_error = _attr(dom, "error-type")
+        if last_ready == "true":
+            return dom, attempt
+        if last_ready == "error":
+            break
+    raise RuntimeError(
+        f"lottie player did not reach DOMLoaded-ready state at frame {frame}; "
+        f"ready={last_ready!r}; error_type={last_error!r}; attempts={attempts}"
+    )
+
+
 def verify(
     *,
     root: Path,
@@ -108,16 +128,7 @@ def verify(
         port = server.server_address[1]
         for frame in frames:
             url = f"http://127.0.0.1:{port}/index.html?frame={frame}"
-            with tempfile.TemporaryDirectory(prefix=f"motion-lottie-dom-{frame}-") as profile:
-                dom_result = _run(_chrome_command(chrome, url=url, profile=Path(profile)))
-            dom = dom_result.stdout
-            ready = _attr(dom, "ready")
-            if ready != "true":
-                error_type = _attr(dom, "error-type")
-                raise RuntimeError(
-                    f"lottie player did not reach DOMLoaded-ready state at frame {frame}; "
-                    f"ready={ready!r}; error_type={error_type!r}"
-                )
+            dom, readiness_attempts = _ready_dom(chrome, url, frame=frame)
             current = int(float(_attr(dom, "current-frame") or "-1"))
             total = int(float(_attr(dom, "total-frames") or "-1"))
             svg_count = int(_attr(dom, "svg-count") or "0")
@@ -140,6 +151,7 @@ def verify(
                 "current_frame": current,
                 "total_frames": total,
                 "svg_count": svg_count,
+                "readiness_attempts": readiness_attempts,
                 "png_sha256": sha256_file(screenshot),
                 "png_bytes": screenshot.stat().st_size,
             })
