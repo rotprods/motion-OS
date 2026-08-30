@@ -5,6 +5,7 @@ import argparse
 from dataclasses import asdict, dataclass
 import json
 import os
+from pathlib import Path
 import re
 import sys
 from typing import Any
@@ -55,6 +56,19 @@ def _validate_branch(branch: object) -> str:
     if any(ch in branch for ch in "\r\n\x00"):
         raise ValueError("target_branch contains control characters")
     return branch
+
+
+def _safe_output_path(value: object, *, root: Path | None = None) -> Path:
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError("json_out must be a non-empty relative path")
+    raw = Path(value)
+    if raw.is_absolute() or ".." in raw.parts:
+        raise ValueError("json_out must remain inside the working tree")
+    base = (root or Path.cwd()).resolve()
+    candidate = (base / raw).resolve()
+    if candidate == base or base not in candidate.parents:
+        raise ValueError("json_out must remain inside the working tree")
+    return candidate
 
 
 def assess_lineage(*, repository: str, commit_sha: str, target_branch: str, pulls: object) -> LineageVerdict:
@@ -117,7 +131,7 @@ def fetch_associated_pulls(*, repository: str, commit_sha: str, token: str, time
     if not isinstance(timeout_s, (int, float)) or isinstance(timeout_s, bool) or timeout_s <= 0 or timeout_s > 30:
         raise ValueError("timeout_s must be within (0, 30]")
 
-    url = f"{API_ROOT}/repos/{repo}/commits/{sha}/pulls"
+    url = f"{API_ROOT}/repos/{repo}/commits/{sha}/pulls?per_page=100"
     request = Request(
         url,
         headers={
@@ -137,6 +151,8 @@ def fetch_associated_pulls(*, repository: str, commit_sha: str, token: str, time
         raise RuntimeError(f"GitHub lineage lookup unavailable: {type(exc).__name__}") from exc
     if not isinstance(payload, list):
         raise RuntimeError("GitHub lineage lookup returned non-list payload")
+    if len(payload) > 100:
+        raise RuntimeError("GitHub lineage lookup exceeded bounded page size")
     return payload
 
 
@@ -149,10 +165,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--json-out")
     args = parser.parse_args(argv)
 
+    safe_out: Path | None = None
     try:
         repository = _validate_repo(args.repository)
         commit_sha = _validate_sha(args.sha)
         branch = _validate_branch(args.branch)
+        if args.json_out is not None:
+            safe_out = _safe_output_path(args.json_out)
         pulls = fetch_associated_pulls(repository=repository, commit_sha=commit_sha, token=args.token)
         verdict = assess_lineage(repository=repository, commit_sha=commit_sha, target_branch=branch, pulls=pulls)
         document = verdict.to_dict()
@@ -171,9 +190,9 @@ def main(argv: list[str] | None = None) -> int:
         exit_code = 3
 
     text = json.dumps(document, sort_keys=True, ensure_ascii=False)
-    if args.json_out:
-        with open(args.json_out, "w", encoding="utf-8") as handle:
-            handle.write(text + "\n")
+    if safe_out is not None:
+        safe_out.parent.mkdir(parents=True, exist_ok=True)
+        safe_out.write_text(text + "\n", encoding="utf-8")
     print(text)
     return exit_code
 
