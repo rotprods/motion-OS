@@ -1,0 +1,37 @@
+{
+  "event_id": "20260830T101500000000Z-reverse-engineering-graph-architect-work-started",
+  "event_type": "work.started",
+  "timestamp": "2026-08-30T10:15:00Z",
+  "agent_id": "motion://agent/reverse-engineering-graph-architect",
+  "project": "MOTION.OS",
+  "branch": "refactor/reverse-engineering-hypergraph-v2",
+  "commit_sha": "9002876e6025f11255bdb84cd64e4aa20714b70c",
+  "pr_number": null,
+  "summary": "Resumed the additive reverse-engineering hypergraph V2 workstream from the current PR #64 head after live-truth reconciliation. This session will implement the V2 graph kernel, audits, recovery contracts, implementation compiler, machine state, graph projections and durable documentation while preserving existing authority boundaries.",
+  "affected_paths": [
+    "architecture/reverse_engineering_v2",
+    "docs/reverse_engineering_v2",
+    "forensics/references/screenrecording_20260826/v2",
+    "plans/reverse_engineering_v2",
+    "schemas/reverse_engineering_v2",
+    "src/reverse_engineering/v2",
+    "tests/test_reverse_engineering_v2_contracts.py"
+  ],
+  "checks": {
+    "live_main": "a8d7dbddaeb4ad9779df9883d3cf4e4f6ea4f29d",
+    "base_pr_head": "9002876e6025f11255bdb84cd64e4aa20714b70c",
+    "issue_48": "CLOSED_COMPLETED",
+    "coordination_bus": "OPEN:issue-39",
+    "scope_collision_review": "PASS_ADDITIVE_ISOLATED"
+  },
+  "authority": "PROPOSED",
+  "correlation_id": "motion://work/reverse-engineering-hypergraph-v2",
+  "metadata": {
+    "session_id": "motion://session/graph-refactor-v2/20260830T101400Z",
+    "workstream_id": "motion://workstream/reverse-engineering-hypergraph-v2",
+    "objective_id": "motion://objective/recompile-reference-video-reverse-engineering-v2",
+    "expected_revision": "9002876e6025f11255bdb84cd64e4aa20714b70c",
+    "resumes_from": "motion://session/graph-refactor-v2/20260829T214038Z",
+    "authority_ceiling": "VERIFIED_BRANCH_HEAD until physical fidelity and three-content generalization gates pass"
+  }
+}
