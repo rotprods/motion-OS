@@ -2,6 +2,7 @@
   "schema_version": "motion-os.golden-scene/v1",
   "scene_id": "S04_CIENTIFICAMENTE",
   "composition_id": "GoldenS04Cientificamente",
+  "overlay_composition_id": "GoldenS04Overlay",
   "source": {
     "video_id": "screenrecording_2026-08-26_173251",
     "sha256": "9b3076cb542e358386942a0fb6b160f1345564d4326738f9a340e2b5b38e199d",
@@ -21,27 +22,56 @@
     {"id": "A027", "domain": "audio", "local": [11, 15, 25], "source": [156, 160, 170], "verb": "impact_sub_hit", "target": "SFX_EMPHASIS", "authority": "INFERRED_FROM_MIXED_AUDIO"},
     {"id": "A028", "domain": "object", "local": [60, 67, 71], "source": [205, 212, 216], "verb": "object_insert", "target": "PHONE_HAND_PROP", "authority": "EVIDENCE_BOUND_INFERENCE"}
   ],
+  "renderer_repairs": {
+    "caption_layout": {
+      "contract": "runtime/remotion/src/golden_s04/measuredTrack.ts",
+      "method": "REFERENCE_MINUS_INPAINTED_CLEAN_PLATE_COLOR_COMPONENT_BBOX",
+      "authority": "MEASURED_HEURISTIC",
+      "reason": "source-visible bounding boxes outrank the earlier semantic scale alias for physical layout"
+    },
+    "private_plate_composition": {
+      "contract": "GoldenS04Overlay PNG sequence composited locally over Drive-only clean frames",
+      "authority": "STRUCTURAL_RENDER_EXECUTED_PENDING_LOCAL_COMPOSITE"
+    }
+  },
   "measured_discrepancies": [
     {
       "id": "S04-DISC-001",
       "field": "CAP_SETUP.first_visible_frame",
       "inventory_value": 146,
       "measured_reference_value": 145,
-      "status": "OPEN_GRAPH_REPAIR",
+      "status": "RENDERER_REPAIRED_GRAPH_BACKPORT_OPEN",
       "policy": "physical reconstruction follows measured frame while preserving the historical inference"
+    },
+    {
+      "id": "S04-DISC-002",
+      "field": "CAP_CIENTIFICAMENTE.motion_shape",
+      "inventory_value": "scale 0.84 -> 1.12 -> 1.00 at local 11/15/20",
+      "measured_reference_value": "visible bbox expands from 110x12 at local 10 to 381x63 at local 15, 401x74 at local 20 and approximately 422x88 by local 38",
+      "status": "RENDERER_REPAIRED_GRAPH_BACKPORT_OPEN",
+      "policy": "retain A024 as historical evidence-bound inference; physical renderer consumes the measured bbox track instead of fabricating an overshoot"
+    },
+    {
+      "id": "S04-DISC-003",
+      "field": "caption_camera_coupling",
+      "inventory_value": "caption scale and subject reframe represented as independent summarized actions",
+      "measured_reference_value": "caption screen-space geometry continues changing with the source reframe through the scene and contracts before the phone cut",
+      "status": "RENDERER_REPAIRED_GRAPH_BACKPORT_OPEN",
+      "policy": "screen-space caption track is authoritative for S04 reconstruction; causal decomposition remains a hypothesis until clean source layers exist"
     }
   ],
   "asset_policy": {
     "source_and_clean_plate": "DRIVE_ONLY",
     "git": "CODE_CONTRACTS_AND_TEXT_EVIDENCE_ONLY",
     "ci_plate": "PROCEDURAL_NON_SOURCE_FIXTURE",
-    "exact_local_plate_mode": "IMAGE_SEQUENCE_FROM_EXTERNAL_ASSET"
+    "exact_local_plate_mode": "IMAGE_SEQUENCE_FROM_EXTERNAL_ASSET",
+    "overlay_sequence": "CI_RENDERED_TRANSPARENT_PNG"
   },
   "qa_gates": {
     "mechanical": ["71 frames", "30 fps", "512x1108", "audio stream present", "sample frames decodable"],
-    "structural": ["setup visible at local 0", "hero absent before local 11", "hero impact near local 15", "tail visible by local 43", "phone bridge begins at local 60"],
+    "structural": ["setup visible at local 0", "hero absent before local 10", "hero visible from local 10", "tail visible from local 38", "captions removed at phone cut local 69"],
     "fidelity": ["temporal", "motion", "camera", "typography", "depth", "color", "fx", "audio", "retention"],
     "promotion_veto": "P0_OR_P1_DEFECT"
   },
-  "authority": "IMPLEMENTED_UNVERIFIED_UNTIL_PHYSICAL_RENDER"
+  "authority": "STRUCTURAL_RENDER_EXECUTED_SOURCE_FIDELITY_BLOCKED"
 }
