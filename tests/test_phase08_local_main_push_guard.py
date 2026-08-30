@@ -16,8 +16,20 @@ def test_feature_branch_update_is_allowed():
     assert blocked_main_updates(updates) == ()
 
 
+def test_symbolic_or_detached_local_source_does_not_change_destination_policy():
+    head_source = parse_push_updates([_line("HEAD", A, "refs/heads/feat/x", B)])
+    sha_source = parse_push_updates([_line(A, A, "refs/heads/feat/x", B)])
+    assert blocked_main_updates(head_source) == ()
+    assert blocked_main_updates(sha_source) == ()
+
+
 def test_direct_main_update_is_blocked():
     updates = parse_push_updates([_line("refs/heads/main", A, "refs/heads/main", B)])
+    assert len(blocked_main_updates(updates)) == 1
+
+
+def test_any_local_source_targeting_remote_main_is_blocked():
+    updates = parse_push_updates([_line("HEAD", A, "refs/heads/main", B)])
     assert len(blocked_main_updates(updates)) == 1
 
 
@@ -54,7 +66,6 @@ def test_delete_marker_and_zero_sha_must_match():
         [],
         ["\n"],
         ["only three fields here\n"],
-        [_line("main", A, "refs/heads/main", B)],
         [_line("refs/heads/x", "badsha", "refs/heads/x", B)],
         [_line("refs/heads/x", A, "main", B)],
         [_line("refs/heads/x\nspoof", A, "refs/heads/x", B)],
