@@ -1,6 +1,8 @@
+from pathlib import Path
+
 import pytest
 
-from scripts.main_lineage_sentinel import assess_lineage
+from scripts.main_lineage_sentinel import _safe_output_path, assess_lineage
 
 
 SHA = "a" * 40
@@ -88,3 +90,13 @@ def test_malformed_untrusted_github_data_fails_closed(repository, sha, branch, p
 def test_response_size_is_bounded():
     with pytest.raises(ValueError, match="safety bound"):
         assess_lineage(repository="rotprods/motion-OS", commit_sha=SHA, target_branch="main", pulls=[_pr(number=i + 1) for i in range(101)])
+
+
+def test_json_evidence_path_must_stay_inside_working_tree(tmp_path: Path):
+    safe = _safe_output_path(".artifacts/main-lineage.json", root=tmp_path)
+    assert safe == (tmp_path / ".artifacts/main-lineage.json").resolve()
+
+    with pytest.raises(ValueError, match="working tree"):
+        _safe_output_path("../escape.json", root=tmp_path)
+    with pytest.raises(ValueError, match="working tree"):
+        _safe_output_path(str((tmp_path.parent / "escape.json").resolve()), root=tmp_path)
