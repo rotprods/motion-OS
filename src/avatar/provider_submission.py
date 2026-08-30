@@ -9,6 +9,7 @@ from .render_guard import (
     RenderIntent,
     RenderState,
     SpendPolicy,
+    authorize_render,
     can_submit,
     make_render_intent_id,
     reconcile_state,
@@ -68,6 +69,11 @@ def _prepare_request(intent: RenderIntent, request_payload: Mapping[str, Any], p
         raise SubmissionBlocked("provider submission requires AUTHORIZED intent")
     if not isinstance(provider_id, str) or not provider_id.strip() or len(provider_id) > 64:
         raise SubmissionBlocked("provider_id malformed")
+    # The current RenderIntent factory/authorization contract is explicitly HeyGen
+    # bound. A future multi-provider intent schema must add provider identity before
+    # this boundary is widened; do not infer cross-provider authority.
+    if provider_id != "heygen":
+        raise SubmissionBlocked("current render intent authority is bound to heygen")
     if not isinstance(request_payload, Mapping):
         raise SubmissionBlocked("provider request must be a mapping")
 
@@ -93,6 +99,17 @@ def _prepare_request(intent: RenderIntent, request_payload: Mapping[str, Any], p
     # malformed request can never consume the one-way submission gate.
     _canonical_json(payload)
     return payload
+
+
+def _validate_port_and_store(provider: object, store: object) -> tuple[str, Any]:
+    provider_id = getattr(provider, "provider_id", None)
+    submit = getattr(provider, "submit", None)
+    if not isinstance(provider_id, str) or not provider_id.strip() or not callable(submit):
+        raise SubmissionBlocked("provider port must declare provider_id and callable submit")
+    for method in ("acquire_lease", "release_lease", "get_intent", "put_intent"):
+        if not callable(getattr(store, method, None)):
+            raise SubmissionBlocked(f"render state store missing callable {method}")
+    return provider_id, submit
 
 
 def _put_with_fresh_lease(
@@ -160,17 +177,7 @@ def submit_paid_render(
     they can contain secrets/PII/untrusted provider data.
     """
 
-    if not isinstance(provider, PaidVideoProviderPort):
-        # Protocols with data attributes are not safely runtime-checkable; keep
-        # the error deterministic via explicit structural validation below.
-        pass
-    provider_id = getattr(provider, "provider_id", None)
-    if not isinstance(provider_id, str) or not provider_id.strip():
-        raise SubmissionBlocked("provider port must declare provider_id")
-    if not isinstance(store, RenderStateStore):
-        # Same runtime-protocol caveat as above; concrete methods are validated by
-        # use and any missing method fails before the provider call.
-        pass
+    provider_id, provider_submit = _validate_port_and_store(provider, store)
     if not isinstance(policy, SpendPolicy):
         raise SubmissionBlocked("policy must be a SpendPolicy")
     if not isinstance(owner_id, str) or not owner_id.strip() or len(owner_id) > 256:
@@ -189,8 +196,25 @@ def submit_paid_render(
             raise SubmissionBlocked("render intent must be durably authorized before provider submission")
 
         if persisted.state == RenderState.AUTHORIZED:
-            if persisted != intent or not can_submit(intent, {}):
-                raise SubmissionBlocked("authorized intent does not match durable submission authority")
+            # Re-run the pure authorization calculation against *current* spend and
+            # capacity immediately before the paid call. This is not new authority;
+            # it proves the persisted authorization is still valid at submit time.
+            try:
+                live_equivalent = authorize_render(
+                    content_id=intent.content_id,
+                    profile_id=intent.profile_id,
+                    script=payload["script"],
+                    explicit_authorization=True,
+                    preflight_ok=True,
+                    estimated_credits=intent.estimated_credits,
+                    spent_today=spent_today,
+                    concurrent_renders=concurrent_renders,
+                    policy=policy,
+                )
+            except (TypeError, ValueError, RuntimeError, PermissionError) as exc:
+                raise SubmissionBlocked("live spend/capacity recheck failed before provider submit") from exc
+            if persisted != intent or live_equivalent != intent or not can_submit(intent, {}):
+                raise SubmissionBlocked("authorized intent does not match durable live submission authority")
         elif persisted.state == RenderState.FAILED_RETRYABLE:
             if not can_submit(
                 intent,
@@ -211,7 +235,7 @@ def submit_paid_render(
     # Phase 2: external capability. SUBMITTED is already durable, so a process
     # death or ambiguous timeout cannot fall back to AUTHORIZED and spend twice.
     try:
-        raw_result = provider.submit(payload)
+        raw_result = provider_submit(payload)
     except Exception as exc:
         desired = RenderIntent(**{**submitted.__dict__, "state": RenderState.RECONCILE_REQUIRED})
         _persist_provider_outcome(
