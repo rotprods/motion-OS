@@ -1,25 +1,32 @@
 {
   "event_id": "evt_project_completion_engine_bootstrap_20260830_1306",
-  "schema_version": "1.0.0",
-  "event_type": "WORK_STARTED",
+  "event_type": "work.started",
   "timestamp": "2026-08-30T13:06:00+02:00",
-  "project_id": "motion://project/motion-os",
   "agent_id": "motion://agent/chatgpt/project-completion-architect",
-  "session_id": "motion://session/chatgpt/project-completion-architect/20260830T1306+0200",
-  "workstream_id": "motion://workstream/project-completion-engine",
-  "correlation_id": "motion://objective/project-done",
+  "project": "MOTION.OS",
   "branch": "feat/project-completion-engine-v1",
-  "base_sha": "a8d7dbddaeb4ad9779df9883d3cf4e4f6ea4f29d",
-  "related_issue": 93,
-  "related_pr": 94,
-  "resource_scope": [
-    "coordination:project-completion-engine",
-    "state:completion",
-    "plan:project-done",
-    "authority:project-completion-planning"
-  ],
-  "depends_on": ["issue:39", "issue:48", "pr:91"],
+  "commit_sha": null,
+  "pr_number": 94,
   "summary": "Persisted and activated /PROJECT-COMPLETION-ENGINE. Compiled PROJECT_DONE contract, phases/waves/milestones, executable task DAG, GitHub control issue #93 and Todoist execution projection. No production authority claimed; live GitHub + Event Fabric remain authoritative.",
-  "next_action": "Qualify PR #94 exact head, then continue P0 live-truth/barrier reconciliation and P3 Node reproducibility as highest-value non-overlapping executable frontier while preserving existing PR ownership.",
-  "authority": "IMPLEMENTED_NOT_PROMOTED"
+  "affected_paths": [
+    "coordination/PROJECT_COMPLETION_ENGINE.md",
+    "docs/PROJECT_COMPLETION_PLAN.md",
+    "state/completion/project_done_contract.json",
+    "state/completion/task_dag.json"
+  ],
+  "checks": {
+    "promotion_barrier": "ACTIVE",
+    "project_done": "false"
+  },
+  "authority": "IMPLEMENTED",
+  "correlation_id": "motion://objective/project-done",
+  "metadata": {
+    "session_id": "motion://session/chatgpt/project-completion-architect/20260830T1306+0200",
+    "workstream_id": "motion://workstream/project-completion-engine",
+    "base_sha": "a8d7dbddaeb4ad9779df9883d3cf4e4f6ea4f29d",
+    "control_issue": 93,
+    "depends_on": ["issue:39", "issue:48", "pr:91"],
+    "resource_scope": ["coordination:project-completion-engine", "state:completion", "plan:project-done", "authority:project-completion-planning"],
+    "next_action": "Qualify PR #94 exact head, then continue P0 live-truth/barrier reconciliation and P3 Node reproducibility as highest-value non-overlapping executable frontier while preserving existing PR ownership."
+  }
 }
