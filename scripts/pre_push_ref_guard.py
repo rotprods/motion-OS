@@ -9,6 +9,7 @@ from typing import Iterable
 _SHA_RE = re.compile(r"^[0-9a-fA-F]{40}$")
 _ZERO_SHA = "0" * 40
 _MAIN_REF = "refs/heads/main"
+_DELETE_REF = "(delete)"
 
 
 @dataclass(frozen=True)
@@ -19,7 +20,9 @@ class PushUpdate:
     remote_sha: str
 
 
-def _safe_ref(value: str, *, name: str) -> str:
+def _safe_ref(value: str, *, name: str, allow_delete_marker: bool = False) -> str:
+    if allow_delete_marker and value == _DELETE_REF:
+        return value
     if not isinstance(value, str) or not value or len(value) > 512:
         raise ValueError(f"{name} must be a non-empty bounded ref")
     if any(ch in value for ch in "\x00\r\n") or any(ch.isspace() for ch in value):
@@ -46,13 +49,20 @@ def parse_push_updates(lines: Iterable[str]) -> tuple[PushUpdate, ...]:
         parts = line.split()
         if len(parts) != 4:
             raise ValueError(f"pre-push line {index} must contain exactly four fields")
-        local_ref, local_sha, remote_ref, remote_sha = parts
+        local_ref_raw, local_sha_raw, remote_ref_raw, remote_sha_raw = parts
+        local_ref = _safe_ref(local_ref_raw, name="local_ref", allow_delete_marker=True)
+        local_sha = _sha(local_sha_raw, name="local_sha")
+        remote_ref = _safe_ref(remote_ref_raw, name="remote_ref")
+        remote_sha = _sha(remote_sha_raw, name="remote_sha")
+        is_delete = local_ref == _DELETE_REF
+        if is_delete != (local_sha == _ZERO_SHA):
+            raise ValueError("delete marker and zero local SHA must appear together")
         updates.append(
             PushUpdate(
-                local_ref=_safe_ref(local_ref, name="local_ref"),
-                local_sha=_sha(local_sha, name="local_sha"),
-                remote_ref=_safe_ref(remote_ref, name="remote_ref"),
-                remote_sha=_sha(remote_sha, name="remote_sha"),
+                local_ref=local_ref,
+                local_sha=local_sha,
+                remote_ref=remote_ref,
+                remote_sha=remote_sha,
             )
         )
     if not updates:
@@ -63,13 +73,7 @@ def parse_push_updates(lines: Iterable[str]) -> tuple[PushUpdate, ...]:
 
 
 def blocked_main_updates(updates: Iterable[PushUpdate]) -> tuple[PushUpdate, ...]:
-    blocked: list[PushUpdate] = []
-    for update in updates:
-        # Any attempted update/create of remote main is prohibited locally.
-        # Deletion is also prohibited because main deletion is destructive and must be admin-governed.
-        if update.remote_ref == _MAIN_REF:
-            blocked.append(update)
-    return tuple(blocked)
+    return tuple(update for update in updates if update.remote_ref == _MAIN_REF)
 
 
 def main() -> int:
