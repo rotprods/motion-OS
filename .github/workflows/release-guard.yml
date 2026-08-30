@@ -1,25 +1,36 @@
 name: Release Guard
+
 on:
   workflow_dispatch:
   push:
     tags: ['v*']
+
 permissions:
   contents: read
+  pull-requests: read
+
 jobs:
   guard:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: '3.12'
-      - name: Require explicit released state and zero P0 blockers
+      - name: Resolve release target commit
+        shell: bash
         run: |
-          python - <<'PY'
-          import json,sys
-          s=json.load(open('state/project_state.json'))
-          ok=s.get('release_status')=='RELEASED' and not s.get('p0_blockers')
-          print(json.dumps({'release_guard':ok,'status':s.get('release_status'),'p0':s.get('p0_blockers')},indent=2))
-          sys.exit(0 if ok else 1)
-          PY
+          set -euo pipefail
+          release_sha="$(git rev-parse 'HEAD^{commit}')"
+          printf 'RELEASE_SHA=%s\n' "$release_sha" >> "$GITHUB_ENV"
+      - name: Require released state + zero P0 + current-main PR lineage
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          python scripts/release_authority_guard.py \
+            --repository "${{ github.repository }}" \
+            --release-sha "$RELEASE_SHA" \
+            --state state/project_state.json
