@@ -3,6 +3,7 @@ import {Audio} from '@remotion/media';
 import {
   AbsoluteFill,
   Easing,
+  Sequence,
   Img,
   interpolate,
   staticFile,
@@ -287,12 +288,10 @@ const CaptionSystem: React.FC = () => {
               ? interpolate(frame, [11, 15], [0.84, 1.12], {
                   ...clamp,
                   easing: Easing.bezier(0.16, 1, 0.3, 1),
-                  output: 'perceptual-scale',
                 })
               : interpolate(frame, [15, 20], [1.12, 1], {
                   ...clamp,
                   easing: Easing.bezier(0.4, 0, 0.2, 1),
-                  output: 'perceptual-scale',
                 }),
           translate: `0px ${interpolate(frame, [11, 15, 20], [10, -2, 0], {
             ...clamp,
@@ -349,7 +348,9 @@ export const S04Cientificamente: React.FC<Partial<S04CientificamenteProps>> = (r
       />
       <CaptionSystem />
       {props.enableProceduralImpact ? (
-        <Audio src={impact} from={S04_SPEC.local.sfxImpact} volume={0.72} />
+        <Sequence from={S04_SPEC.local.sfxImpact} layout="none">
+          <Audio src={impact} volume={0.72} />
+        </Sequence>
       ) : null}
       {props.showDebugOverlay ? (
         <div
