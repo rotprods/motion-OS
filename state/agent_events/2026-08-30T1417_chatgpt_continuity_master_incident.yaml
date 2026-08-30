@@ -1,0 +1,19 @@
+project_id: motion://project/motion-os
+agent_id: motion://agent/chatgpt/continuity-architect
+session_id: motion://session/chatgpt/continuity-architect/20260830T1417+0200
+workstream_id: motion://workstream/project-continuity-master
+correlation_id: continuity-master-20260830
+event_type: INCIDENT_CHECKPOINT
+main_sha_before: a8d7dbddaeb4ad9779df9883d3cf4e4f6ea4f29d
+main_sha_after_placeholder: f62494e98b596f0fc34f574717c43e043be689db
+resource_scope:
+  - file:PROJECT_CONTINUITY_MASTER.md
+summary: >-
+  The first create operation for PROJECT_CONTINUITY_MASTER.md was mistakenly sent to main
+  with placeholder content instead of an isolated documentation branch. History will not be
+  rewritten. The file is being repaired forward-only immediately with the intended canonical
+  continuity content. No code, schema, runtime, renderer, event-fabric, content identity, PRV,
+  MNF, beat IDs, spend or authority contract was modified by the placeholder commit.
+root_cause: wrong target branch supplied to create_file
+invariant: documentation workstreams must never write directly to main; verify branch target before mutation
+next_action: replace placeholder with complete continuity master, publish checkpoint on Issue #39, and avoid further direct main mutations in this session
