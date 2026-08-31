@@ -1,0 +1,35 @@
+{
+  "schema_version":"motion-os.qualification-hypergraph/v1",
+  "scene_id":"S11_UI_LIST",
+  "nodes":[
+    {"id":"source:s11","type":"SourceVideoSegment","authority":"MEASURED","frames":[405,534]},
+    {"id":"track:s11-visible","type":"Evidence","authority":"MEASURED_SOURCE_VISIBLE_HEURISTIC"},
+    {"id":"renderer:s11-remotion","type":"RenderArtifact","authority":"EXECUTED","head":"7cfe7bbd272b2adb65b4bea4792a67e4c91a5f7a","artifact_id":9777929157},
+    {"id":"defect:s11-001","type":"Defect","status":"CLOSED_VISIBLE_OUTPUT"},
+    {"id":"defect:s11-002","type":"Defect","status":"CLOSED_VISIBLE_OUTPUT"},
+    {"id":"defect:s11-003","type":"Defect","status":"CLOSED_VISIBLE_OUTPUT"},
+    {"id":"defect:s11-004","type":"Defect","status":"CLOSED_VISIBLE_OUTPUT"},
+    {"id":"defect:s11-005","type":"Defect","status":"CLOSED_VISIBLE_OUTPUT"},
+    {"id":"defect:s11-006","type":"Defect","status":"REFINED_PARTIAL"},
+    {"id":"defect:s11-007","type":"Defect","status":"CLOSED_WITH_REGRESSION","family":"MEASUREMENT_ORACLE_CROSS_COMPONENT_CONTAMINATION"},
+    {"id":"invariant:target-measurement-isolation","type":"Invariant","authority":"TESTED"},
+    {"id":"qualification:s11-visible","type":"Qualification","state":"SOURCE_BOUND_VISIBLE_GEOMETRY_P0P1_CLOSED"},
+    {"id":"unknown:exact-fonts","type":"Unknown"},
+    {"id":"unknown:original-ae-graph","type":"Unknown"},
+    {"id":"unknown:original-sfx-stems","type":"Unknown"},
+    {"id":"risk:full-9d-unqualified","type":"Risk","severity":"P1"}
+  ],
+  "edges":[
+    {"from":"source:s11","type":"MEASURED_BY","to":"track:s11-visible"},
+    {"from":"track:s11-visible","type":"CONSTRAINS","to":"renderer:s11-remotion"},
+    {"from":"renderer:s11-remotion","type":"VERIFIED_BY","to":"qualification:s11-visible"},
+    {"from":"defect:s11-007","type":"MITIGATED_BY","to":"invariant:target-measurement-isolation"},
+    {"from":"qualification:s11-visible","type":"DOES_NOT_PROVE","to":"unknown:exact-fonts"},
+    {"from":"qualification:s11-visible","type":"DOES_NOT_PROVE","to":"unknown:original-ae-graph"},
+    {"from":"qualification:s11-visible","type":"DOES_NOT_PROVE","to":"unknown:original-sfx-stems"},
+    {"from":"risk:full-9d-unqualified","type":"BLOCKS","to":"qualification:s11-visible","semantics":"blocks promotion beyond visible-output partial authority; does not invalidate current qualification"}
+  ],
+  "hyperrelations":[
+    {"id":"hr:s11-visible-repair","type":"QUALIFICATION_RELATION","members":["source:s11","track:s11-visible","renderer:s11-remotion","defect:s11-001","defect:s11-002","defect:s11-003","defect:s11-004","defect:s11-005","defect:s11-007","invariant:target-measurement-isolation","qualification:s11-visible"],"meaning":"source evidence plus repaired canonical track and isolated fidelity oracle jointly support visible-output P0/P1 closure"}
+  ]
+}
