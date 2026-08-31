@@ -1,0 +1,117 @@
+{
+  "schema_version": "1.0",
+  "evidence_id": "p4-rc06-real-master-recovery-2026-08-31",
+  "project": "MOTION.OS",
+  "phase": "P4",
+  "branch": "feat/p4-real-master-authority-v1",
+  "source_head": "8bf4f0c45f4e35a8fa9b839fd92dafed64775678",
+  "status": "RECOVERED_EXACT",
+  "authority": "EXACT_IDENTITY_VERIFIED",
+  "historical_truth": {
+    "selected_master": "RC09E",
+    "selected_master_status": "UNRECOVERABLE_EXACT_IDENTITY_UNKNOWN",
+    "decision_source": "reports/rc09/RC09_DECISION.md",
+    "recovery_policy": "FAIL_CLOSED_TO_LAST_EXACTLY_RECOVERABLE_PROMOTED_MASTER"
+  },
+  "recovery_anchor": {
+    "master_id": "RC06",
+    "artifact_registry_id": "ART-44C38A3E73BB",
+    "registry_status": "working_master",
+    "registry_sha256": "fbfd4fda97b1e4d07b8477018324210324c8115c0f5b9a3515eb27ae255f0f1f",
+    "expected_bytes": 11253549,
+    "drive_file_id": "1r3y35J735DhfyW4e5rDBcTRTdEKPPnrf",
+    "drive_title": "RC06_CANDIDATE_PENDING_PROMOTION.mp4",
+    "drive_created_time": "2026-08-25T15:18:54.527Z",
+    "drive_modified_time": "2026-08-25T15:18:54.527Z",
+    "drive_locator": "drive:1r3y35J735DhfyW4e5rDBcTRTdEKPPnrf"
+  },
+  "materialization": {
+    "method": "google_drive_connector_raw_download_then_local_sha256_and_ffprobe",
+    "observed_sha256": "fbfd4fda97b1e4d07b8477018324210324c8115c0f5b9a3515eb27ae255f0f1f",
+    "observed_bytes": 11253549,
+    "sha256_matches_registry": true,
+    "size_matches_drive_metadata": true
+  },
+  "media_probe": {
+    "duration_seconds": 10.0,
+    "video": {
+      "codec": "h264",
+      "width": 1080,
+      "height": 1920,
+      "fps": "30/1",
+      "frames": 300,
+      "color_range": "pc",
+      "color_space": "bt470bg"
+    },
+    "audio": {
+      "codec": "aac",
+      "sample_rate_hz": 48000,
+      "channels": 2
+    },
+    "p5_quality_note": "Recovery identity is exact. Legacy RC06 color metadata is not the newer BT.709-limited delivery contract and must be treated as a downstream qualification/normalization concern, not rewritten into this recovery claim."
+  },
+  "recovery_contract": {
+    "identity": {
+      "identity_id": "RC06",
+      "expected_sha256": "fbfd4fda97b1e4d07b8477018324210324c8115c0f5b9a3515eb27ae255f0f1f",
+      "expected_bytes": 11253549,
+      "media_role": "recoverable_working_master"
+    },
+    "candidate": {
+      "candidate_id": "drive-rc06",
+      "source_kind": "google_drive",
+      "locator": "drive:1r3y35J735DhfyW4e5rDBcTRTdEKPPnrf",
+      "container_member": null,
+      "expected_container_sha256": "fbfd4fda97b1e4d07b8477018324210324c8115c0f5b9a3515eb27ae255f0f1f",
+      "source_revision": "modified:2026-08-25T15:18:54.527Z"
+    },
+    "contract_sha256": "0d6a18b1aed9a7474c86a411058a4b066240ecf7bb59f61d9724994b924fa1ec"
+  },
+  "recovery_result": {
+    "identity_id": "RC06",
+    "candidate_id": "drive-rc06",
+    "status": "RECOVERED_EXACT",
+    "authority": "EXACT_IDENTITY_VERIFIED",
+    "observed_sha256": "fbfd4fda97b1e4d07b8477018324210324c8115c0f5b9a3515eb27ae255f0f1f",
+    "observed_bytes": 11253549,
+    "observed_container_sha256": "fbfd4fda97b1e4d07b8477018324210324c8115c0f5b9a3515eb27ae255f0f1f",
+    "errors": [],
+    "exact": true,
+    "evidence": [
+      "source_kind:google_drive",
+      "locator:drive:1r3y35J735DhfyW4e5rDBcTRTdEKPPnrf",
+      "contract_sha256:0d6a18b1aed9a7474c86a411058a4b066240ecf7bb59f61d9724994b924fa1ec",
+      "materialized_container_sha256:fbfd4fda97b1e4d07b8477018324210324c8115c0f5b9a3515eb27ae255f0f1f",
+      "materialized_container_bytes:11253549",
+      "observed_master_sha256:fbfd4fda97b1e4d07b8477018324210324c8115c0f5b9a3515eb27ae255f0f1f",
+      "observed_master_bytes:11253549"
+    ]
+  },
+  "p3_durable_mirror": {
+    "drive_file_id": "1oFTvFeY66Or-Cm0aIhaoVcUEtx8bLiv-",
+    "file_name": "P3_HETEROGENEOUS_MASTER_2c11f296_PROOF.zip",
+    "zip_sha256": "51b460dbdc04a3de8363cf0c11581b86c788015d7d4567ef46a69e5be501f2ce",
+    "zip_bytes": 1583067,
+    "contained_master_path": ".artifacts/heterogeneous-master/heterogeneous-master.mp4",
+    "contained_master_sha256": "2c11f29609a3f093f10f1ac36c1291e4560bad6fe62e7fc2a1a8c468282735e0",
+    "contained_master_bytes": 55276,
+    "role": "technical_renderer_proof_only_not_creative_canonical_master"
+  },
+  "multimodal_authority": {
+    "required": true,
+    "status": "BLOCKED_NO_QUALIFIED_FULL_VIDEO_PROVIDER_AVAILABLE_IN_CURRENT_RUNTIME",
+    "authority": "NONE",
+    "provider_run_id": null,
+    "reason": "Current runtime exposes no qualified external full-video semantic provider connector. Internal sampled-frame inspection or contact-sheet review must not self-attest as a full-video provider run.",
+    "release_spoofing_forbidden": true
+  },
+  "gates": {
+    "recoverable_real_master_exact_sha": true,
+    "real_full_video_provider_run_bound_to_same_sha": false,
+    "creative_tournament_authoritative": false,
+    "p4_complete": false,
+    "release_authority": false
+  },
+  "authority_boundary": "VERIFIED_RECOVERY_ONLY_NOT_PROVIDER_QUALIFIED_NOT_PROMOTED",
+  "next_action": "Execute a real full-video multimodal provider against the exact RC06 SHA (or a newly created durable canonical successor), persist provider/run identity and full-video attestation, then feed the bound evidence into the creative tournament/repair loop."
+}
