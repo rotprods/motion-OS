@@ -1,0 +1,30 @@
+{
+  "event_id": "20260828T130000000000Z-chatgpt-lottie-runtime-integrity-checkpoint",
+  "event_type": "work.checkpoint",
+  "timestamp": "2026-08-28T11:00:00Z",
+  "agent_id": "motion://agent/chatgpt/lottie-runtime-integrity",
+  "project": "MOTION.OS",
+  "branch": "feat/p08-lottie-runtime-integrity",
+  "commit_sha": "f542cc580e149c813704c2c6421dcc6fa0ed1699",
+  "pr_number": null,
+  "summary": "Hardened MOTION.OS Lottie supported subset: canonical numeric layer types, stable IDs, timeline/canvas validation, expression rejection, asset-ref resolution, explicit text-document requirements, deterministic player-roundtrip contract, and fail-closed release boundary. Physical player execution remains unverified.",
+  "affected_paths": [
+    "src/compilers/lottie.py",
+    "tests/test_phase08_lottie_runtime.py"
+  ],
+  "checks": {
+    "manual_code_review": "PASS_NO_KNOWN_P0_P1",
+    "manual_security_review": "PASS_NO_KNOWN_P0_P1",
+    "local_checkout": "DEGRADED_EXTERNAL_DNS",
+    "physical_lottie_player": "NOT_EXECUTED"
+  },
+  "authority": "IMPLEMENTED",
+  "correlation_id": "issue48-p08-lottie-runtime-integrity",
+  "metadata": {
+    "project_id": "motion://project/motion-os",
+    "session_id": "motion://session/chatgpt/lottie-runtime-integrity/20260828T1253+0200",
+    "workstream_id": "motion://workstream/p08-lottie-runtime-integrity",
+    "base_sha": "a8d7dbddaeb4ad9779df9883d3cf4e4f6ea4f29d",
+    "next_safe_action": "Open draft PR and qualify exact head on clean runner. Do not claim E25 VERIFIED until a real Lottie player binds document hash to frame evidence."
+  }
+}
