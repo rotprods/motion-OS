@@ -200,6 +200,10 @@ def test_transition_must_match_exact_current_identity_and_retry_generation(tmp_p
     with pytest.raises(ValueError, match="initial submission retry generation"):
         _submit(store, current, submitted=bad_retry)
 
+    corrupt_expected = _intent(retry_count=False)
+    with pytest.raises(ValueError, match="expected_current retry_count"):
+        _submit(store, corrupt_expected, submitted=_intent(RenderState.SUBMITTED, retry_count=0))
+
 
 def test_stale_fencing_token_cannot_attach_request_evidence(tmp_path):
     store = SQLiteTransactionalRenderStore(tmp_path / "authority.sqlite")
@@ -252,6 +256,23 @@ def test_expected_current_mismatch_fails_without_overwriting_concurrent_state(tm
 
     assert store.get_intent(INTENT_ID) == concurrent
     assert store.submission_evidence_count(INTENT_ID) == 0
+
+
+def test_corrupted_submission_evidence_fails_closed_on_read(tmp_path):
+    db = tmp_path / "authority.sqlite"
+    store = SQLiteTransactionalRenderStore(db)
+    current = _intent()
+    _persist(store, current)
+    _submit(store, current)
+
+    with sqlite3.connect(db) as conn:
+        conn.execute(
+            "UPDATE submission_evidence SET request_sha256=? WHERE intent_id=? AND retry_count=0",
+            ("f" * 64, INTENT_ID),
+        )
+
+    with pytest.raises(ValueError, match="corrupt submission evidence"):
+        store.get_submission_evidence(INTENT_ID, 0)
 
 
 def test_existing_database_is_additively_migrated_without_losing_intent_history(tmp_path):
