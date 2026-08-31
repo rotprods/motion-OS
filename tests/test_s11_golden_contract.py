@@ -43,11 +43,18 @@ def test_shared_group_is_hypothesis_not_original_ae_claim():
     assert h['status']=='RECONSTRUCTION_HYPOTHESIS'
 
 
-def test_remotion_registration_and_spec_are_explicit():
+def test_remotion_registration_and_spec_are_semantically_bound():
     root=ROOT_TSX.read_text()
     spec=SPEC_TS.read_text()
-    assert 'GoldenS11UiList' in root
-    assert 'GoldenS11Overlay' in root
+    # The consumer must reference the canonical spec rather than duplicate IDs
+    # merely so a string-presence test can see them.
+    assert "from './golden_s11'" in root
+    assert 'id={S11_SPEC.compositionId}' in root
+    assert 'component={S11UiList}' in root
+    assert 'id={S11_SPEC.overlayCompositionId}' in root
+    assert 'component={S11Overlay}' in root
+    assert "compositionId: 'GoldenS11UiList'" in spec
+    assert "overlayCompositionId: 'GoldenS11Overlay'" in spec
     assert "sceneId: 'S11_UI_LIST'" in spec
     assert "sourceFidelity: 'BLOCKED_UNTIL_SOURCE_BOUND_DIFF'" in spec
 
