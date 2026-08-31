@@ -32,6 +32,31 @@ def test_provider_asset_urls_reject_non_https_credentials_local_networks_and_mal
     assert any("video_url" in error for error in errors)
 
 
+@pytest.mark.parametrize(
+    "url",
+    [
+        "https://2130706433/video.mp4",     # decimal dword -> 127.0.0.1 on common resolvers
+        "https://0x7f000001/video.mp4",    # hex dword -> 127.0.0.1
+        "https://0177.0.0.1/video.mp4",    # legacy octal/mixed numeric form
+        "https://127.1/video.mp4",          # abbreviated IPv4 -> 127.0.0.1
+        "https://0x7f.0.0.1/video.mp4",     # mixed hex/decimal labels
+    ],
+)
+def test_provider_asset_urls_reject_noncanonical_numeric_hosts(url):
+    errors = validate_provider_result({"status": "completed", "video_url": url})
+    assert any("video_url" in error for error in errors)
+
+
+def test_numeric_prefix_on_real_dns_name_is_not_misclassified_as_legacy_ipv4():
+    errors = validate_provider_result({
+        "status": "completed",
+        "duration": 12.5,
+        "id": "job_123",
+        "video_url": "https://123.cdn.example.com/video.mp4",
+    })
+    assert errors == []
+
+
 def test_completed_provider_result_without_asset_fails_closed_for_reconciliation():
     payload = {"status": "completed", "id": "job_123", "duration": 12.5}
     errors = validate_provider_result(payload)
