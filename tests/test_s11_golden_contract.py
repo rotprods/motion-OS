@@ -5,9 +5,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = ROOT / 'forensics/references/screenrecording_20260826/golden/s11/s11_contract.json'
+MEASURED = ROOT / 'forensics/references/screenrecording_20260826/golden/s11/fidelity/s11_measured_visible_track.json'
 ROOT_TSX = ROOT / 'runtime/remotion/src/Root.tsx'
 SPEC_TS = ROOT / 'runtime/remotion/src/golden_s11/s11Spec.ts'
 COMP_TSX = ROOT / 'runtime/remotion/src/golden_s11/S11UiList.tsx'
+TRACK_TS = ROOT / 'runtime/remotion/src/golden_s11/sourceMeasuredTrack.ts'
 
 
 def test_s11_source_timing_is_frame_authoritative():
@@ -46,8 +48,6 @@ def test_shared_group_is_hypothesis_not_original_ae_claim():
 def test_remotion_registration_and_spec_are_semantically_bound():
     root=ROOT_TSX.read_text()
     spec=SPEC_TS.read_text()
-    # The consumer must reference the canonical spec rather than duplicate IDs
-    # merely so a string-presence test can see them.
     assert "from './golden_s11'" in root
     assert 'id={S11_SPEC.compositionId}' in root
     assert 'component={S11UiList}' in root
@@ -66,3 +66,26 @@ def test_audio_domain_is_not_silently_dropped():
     assert 'Sequence from={93}' in source
     assert 'Sequence from={102}' in source
     assert 'makeUiHitDataUri' in source
+
+
+def test_source_bound_repair_uses_measured_visible_tracks_not_generic_stagger():
+    measured=json.loads(MEASURED.read_text())
+    assert measured['authority']=='MEASURED_SOURCE_VISIBLE_HEURISTIC'
+    assert measured['first_visible']=={'row_x':77,'row_diamond':82,'row_megaphone':88}
+    assert measured['tracks']['pill'][0]==[0,98,530,336,32]
+    assert measured['tracks']['pill'][-1]==[129,42,322,448,141]
+    assert measured['tracks']['boxed_absolutamente'][0]==[54,190,424,212,30]
+    assert measured['tracks']['boxed_absolutamente'][-1]==[129,182,280,235,34]
+    source=COMP_TSX.read_text()
+    track=TRACK_TS.read_text()
+    assert "from './sourceMeasuredTrack'" in source
+    assert 'measuredS11(frame)' in source
+    assert "rowFirstVisible:{x:77,diamond:82,megaphone:88}" in track
+
+
+def test_measured_track_keeps_original_project_unknowns_explicit():
+    measured=json.loads(MEASURED.read_text())
+    unknowns=set(measured['unknowns'])
+    assert 'exact fonts' in unknowns
+    assert 'original AE parenting' in unknowns
+    assert 'original isolated SFX' in unknowns
