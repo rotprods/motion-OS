@@ -1,0 +1,49 @@
+{
+  "schema_version":"motion-os.temporal-hypergraph-projection/v1",
+  "scene_id":"S04_CIENTIFICAMENTE",
+  "projection_authority":"DERIVED_REBUILDABLE",
+  "nodes":[
+    {"id":"source:S04","type":"SourceVideoSegment","authority":"MEASURED","props":{"sha256":"9b3076cb542e358386942a0fb6b160f1345564d4326738f9a340e2b5b38e199d","frames":[145,215],"frame_count":71,"fps":30,"size":[512,1108]}},
+    {"id":"artifact:S04:0790","type":"RenderArtifact","authority":"EXECUTED","props":{"renderer":"remotion","head_sha":"0790a005f391327b731464d269e42864c64ea4cb","workflow_run":33321379790,"artifact_id":9734987644,"artifact_digest":"sha256:e3943283f2f63add79b3a51016fc7d1349053223e6f809952443be46104e214d"}},
+    {"id":"defect:S04-DEF-GEOMETRY-SETUP","type":"Defect","authority":"MEASURED_SOURCE_BOUND","props":{"state":"CLOSED_BY_MEASURED_REPAIR"}},
+    {"id":"defect:S04-DEF-GEOMETRY-HERO","type":"Defect","authority":"MEASURED_SOURCE_BOUND","props":{"state":"CLOSED_BY_MEASURED_REPAIR"}},
+    {"id":"defect:S04-DEF-GEOMETRY-TAIL","type":"Defect","authority":"MEASURED_SOURCE_BOUND","props":{"state":"CLOSED_BY_MEASURED_REPAIR"}},
+    {"id":"defect:S04-DEF-AUDIO-ONSET","type":"Defect","authority":"MEASURED_SOURCE_BOUND","props":{"state":"CLOSED_BY_MEASURED_REPAIR"}},
+    {"id":"repair:S04-CAPTION-BOUNDS","type":"Repair","authority":"IMPLEMENTED_EXECUTED","props":{"target":"MeasuredCaptionSystem visible bounds calibration"}},
+    {"id":"repair:S04-AUDIO-ANCHOR","type":"Repair","authority":"IMPLEMENTED_EXECUTED","props":{"target":"SFX onset anchor local frame 8"}},
+    {"id":"unknown:S04-FONT-MORPHOLOGY","type":"Unknown","authority":"UNKNOWN","props":{"owner":"future font/glyph qualification wave","resolution_trigger":"font source or raster-glyph source available","state":"OPEN"}},
+    {"id":"risk:S04-SETUP-PER-FRAME","type":"Risk","authority":"MEASURED_SOURCE_BOUND","props":{"min_bbox_iou":0.6913195796029583,"mean_bbox_iou":0.91488539359267,"state":"OPEN_P2"}},
+    {"id":"qualification:temporal","type":"QualificationDimension","authority":"MEASURED_SOURCE_BOUND","props":{"state":"PASS"}},
+    {"id":"qualification:typography","type":"QualificationDimension","authority":"MEASURED_SOURCE_BOUND_OUTPUT_GEOMETRY","props":{"state":"STRUCTURAL_PASS_IDENTITY_BLOCKED","exact_font_identity":"UNKNOWN"}},
+    {"id":"qualification:motion","type":"QualificationDimension","authority":"MEASURED_SOURCE_BOUND_PARTIAL","props":{"state":"PASS_CAPTION_TRAJECTORIES_ONLY"}},
+    {"id":"qualification:camera","type":"QualificationDimension","authority":"UNKNOWN_CAUSAL_DECOMPOSITION","props":{"state":"BLOCKED_SOURCE_LAYER_LIMIT"}},
+    {"id":"qualification:depth","type":"QualificationDimension","authority":"EVIDENCE_BOUND","props":{"state":"SOURCE_NATIVE_PLATE_UNQUALIFIED"}},
+    {"id":"qualification:color","type":"QualificationDimension","authority":"VISIBLE_OUTPUT_PROXY_NOT_ORIGINAL_FILL_TOKEN","props":{"state":"P2_PROXY_MISMATCH_REMAINS"}},
+    {"id":"qualification:fx","type":"QualificationDimension","authority":"EVIDENCE_BOUND","props":{"state":"PARTIAL_BLOCKED"}},
+    {"id":"qualification:audio","type":"QualificationDimension","authority":"MEASURED_ONSET","props":{"state":"PASS_TIMING_IDENTITY_BLOCKED","onset_error_frames":0.44897959183673564}},
+    {"id":"qualification:retention","type":"QualificationDimension","authority":"EVIDENCE_BOUND","props":{"state":"PASS_MODELED_EDITORIAL_BEATS"}}
+  ],
+  "edges":[
+    {"from":"artifact:S04:0790","type":"DERIVED_FROM","to":"source:S04"},
+    {"from":"repair:S04-CAPTION-BOUNDS","type":"REPAIRS","to":"defect:S04-DEF-GEOMETRY-SETUP"},
+    {"from":"repair:S04-CAPTION-BOUNDS","type":"REPAIRS","to":"defect:S04-DEF-GEOMETRY-HERO"},
+    {"from":"repair:S04-CAPTION-BOUNDS","type":"REPAIRS","to":"defect:S04-DEF-GEOMETRY-TAIL"},
+    {"from":"repair:S04-AUDIO-ANCHOR","type":"REPAIRS","to":"defect:S04-DEF-AUDIO-ONSET"},
+    {"from":"qualification:typography","type":"BLOCKED_BY","to":"unknown:S04-FONT-MORPHOLOGY"},
+    {"from":"risk:S04-SETUP-PER-FRAME","type":"RISKS","to":"qualification:typography"},
+    {"from":"artifact:S04:0790","type":"QUALIFIED_BY","to":"qualification:temporal"},
+    {"from":"artifact:S04:0790","type":"QUALIFIED_BY","to":"qualification:typography"},
+    {"from":"artifact:S04:0790","type":"QUALIFIED_BY","to":"qualification:motion"},
+    {"from":"artifact:S04:0790","type":"QUALIFIED_BY","to":"qualification:camera"},
+    {"from":"artifact:S04:0790","type":"QUALIFIED_BY","to":"qualification:depth"},
+    {"from":"artifact:S04:0790","type":"QUALIFIED_BY","to":"qualification:color"},
+    {"from":"artifact:S04:0790","type":"QUALIFIED_BY","to":"qualification:fx"},
+    {"from":"artifact:S04:0790","type":"QUALIFIED_BY","to":"qualification:audio"},
+    {"from":"artifact:S04:0790","type":"QUALIFIED_BY","to":"qualification:retention"}
+  ],
+  "hyperrelations":[
+    {"id":"hr:S04-CAPTION-REPAIR-CLOSURE","type":"REPAIR_CLOSURE","members":["source:S04","artifact:S04:0790","repair:S04-CAPTION-BOUNDS","defect:S04-DEF-GEOMETRY-SETUP","defect:S04-DEF-GEOMETRY-HERO","defect:S04-DEF-GEOMETRY-TAIL","qualification:typography"],"relation":"MEASURED_BY / REPAIRS / VERIFIED_BY / REMAINS_BLOCKED_BY_FONT_IDENTITY"},
+    {"id":"hr:S04-AUDIO-REPAIR-CLOSURE","type":"REPAIR_CLOSURE","members":["source:S04","artifact:S04:0790","repair:S04-AUDIO-ANCHOR","defect:S04-DEF-AUDIO-ONSET","qualification:audio"],"relation":"MEASURED_BY / REPAIRS / VERIFIED_BY / SFX_IDENTITY_UNQUALIFIED"}
+  ],
+  "promotion":{"state":"SOURCE_BOUND_PARTIAL_QUALIFICATION_P0P1_CLOSED","full_9d_fidelity_validated":false,"canonical_template":false}
+}
