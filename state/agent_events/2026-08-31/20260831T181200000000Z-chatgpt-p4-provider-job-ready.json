@@ -1,0 +1,33 @@
+{
+  "event_id": "evt_chatgpt_p4_provider_job_ready_20260831T181200+0200",
+  "event_type": "work.checkpoint",
+  "timestamp": "2026-08-31T18:12:00+02:00",
+  "agent_id": "agent:openai:gpt-5.6-sol:p4",
+  "project": "MOTION.OS",
+  "branch": "feat/p4-real-master-authority-v1",
+  "commit_sha": null,
+  "pr_number": 119,
+  "summary": "Prepared an exact-SHA full-video provider job for recovered RC06, including the canonical 24-frame boundary-plus-uniform sampling set with decoded RGB24 hashes, temporal response contract, 15-dimension creative contract and fail-closed provider identity requirements. The job is ready but not executed; no provider authority is claimed.",
+  "affected_paths": [
+    "evidence/p4_rc06_provider_job_2026-08-31.json",
+    "state/p4_real_master_authority.json",
+    "tests/test_p4_provider_job.py"
+  ],
+  "checks": {
+    "rc06_exact_sha_bound": "PASS",
+    "24_sample_indices": "PASS",
+    "decoded_rgb24_hashes": "PASS",
+    "provider_payload_contract": "PREPARED",
+    "creative_dimensions_contract": "PREPARED",
+    "real_provider_execution": "BLOCKED_NOT_AVAILABLE"
+  },
+  "authority": "VERIFIED",
+  "correlation_id": "motion://completion/P4/provider-job",
+  "metadata": {
+    "job_id": "p4-rc06-full-video-provider-job-v1",
+    "media_sha256": "fbfd4fda97b1e4d07b8477018324210324c8115c0f5b9a3515eb27ae255f0f1f",
+    "sample_count": 24,
+    "provider_run_id": null,
+    "release_authority": false
+  }
+}

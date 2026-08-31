@@ -3,6 +3,7 @@
   "project": "MOTION.OS",
   "phase": "P4",
   "branch": "feat/p4-real-master-authority-v1",
+  "pr_number": 119,
   "recovery_authority": {
     "canonical_recovery_anchor": "RC06",
     "status": "RECOVERED_EXACT",
@@ -17,6 +18,13 @@
     "recovery_authority": false,
     "policy": "Do not infer RC09E identity from dimensions, narrative, filenames, screenshots, or a re-render."
   },
+  "provider_job": {
+    "job_id": "p4-rc06-full-video-provider-job-v1",
+    "status": "READY_FOR_EXTERNAL_PROVIDER",
+    "manifest": "evidence/p4_rc06_provider_job_2026-08-31.json",
+    "sample_count": 24,
+    "full_video_required": true
+  },
   "multimodal_provider": {
     "status": "BLOCKED",
     "reason": "NO_QUALIFIED_FULL_VIDEO_PROVIDER_AVAILABLE_IN_CURRENT_RUNTIME",
@@ -27,11 +35,12 @@
   },
   "gates": {
     "recoverable_real_master": true,
+    "provider_job_ready": true,
     "real_multimodal_run": false,
     "creative_tournament": false,
     "p4_complete": false,
     "project_done": false
   },
-  "authority": "VERIFIED_RECOVERY_ONLY_NOT_PROVIDER_QUALIFIED_NOT_PROMOTED",
-  "next": "Acquire one real full-video provider run bound to the recovery-anchor SHA or to a new durable canonical successor SHA; then run the authority-gated creative tournament."
+  "authority": "VERIFIED_RECOVERY_AND_PROVIDER_JOB_PREPARED_NOT_PROVIDER_QUALIFIED_NOT_PROMOTED",
+  "next": "Execute provider job p4-rc06-full-video-provider-job-v1 with one qualified full-video provider; bind provider identity/run id to RC06 SHA; then ingest temporal + creative payloads."
 }
