@@ -1,0 +1,11 @@
+{
+  "schema_version":"1.0.0",
+  "event_type":"CHECKPOINT",
+  "project":"MOTION.OS",
+  "actor":"motion://agent/chatgpt/cos-graph-engine-v2",
+  "workstream":"motion://workstream/p3-heterogeneous-master-v1",
+  "branch":"feat/p3-heterogeneous-master-v1",
+  "authority":"IMPLEMENTED",
+  "summary":"P3.3 integration branch now contains explicit source lineage, imported renderer contracts for assembly/HyperFrames/Lottie/color, a deterministic HyperFrames+Lottie physical-source builder, official lottie-web 90-frame transparent renderer, physical color/alpha/audio assembly verifier and dedicated clean-runner workflow. Local container verification is DEGRADED_EXTERNAL because github.com DNS is unavailable; no local PASS is claimed.",
+  "next_action":"Open draft PR, run exact-head MERGE_SAFE + Heterogeneous Master Runtime, attack any physical failures, persist final master SHA/artifact evidence, then update P3.3 authority only if all gates pass."
+}
