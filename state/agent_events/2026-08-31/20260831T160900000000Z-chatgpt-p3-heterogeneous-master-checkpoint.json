@@ -1,11 +1,38 @@
 {
-  "schema_version":"1.0.0",
-  "event_type":"CHECKPOINT",
-  "project":"MOTION.OS",
-  "actor":"motion://agent/chatgpt/cos-graph-engine-v2",
-  "workstream":"motion://workstream/p3-heterogeneous-master-v1",
-  "branch":"feat/p3-heterogeneous-master-v1",
-  "authority":"IMPLEMENTED",
-  "summary":"P3.3 integration branch now contains explicit source lineage, imported renderer contracts for assembly/HyperFrames/Lottie/color, a deterministic HyperFrames+Lottie physical-source builder, official lottie-web 90-frame transparent renderer, physical color/alpha/audio assembly verifier and dedicated clean-runner workflow. Local container verification is DEGRADED_EXTERNAL because github.com DNS is unavailable; no local PASS is claimed.",
-  "next_action":"Open draft PR, run exact-head MERGE_SAFE + Heterogeneous Master Runtime, attack any physical failures, persist final master SHA/artifact evidence, then update P3.3 authority only if all gates pass."
+  "event_id": "evt_p3_heterogeneous_master_checkpoint_20260831_1609",
+  "event_type": "work.checkpoint",
+  "timestamp": "2026-08-31T16:09:00+02:00",
+  "agent_id": "motion://agent/chatgpt/cos-graph-engine-v2",
+  "project": "MOTION.OS",
+  "branch": "feat/p3-heterogeneous-master-v1",
+  "commit_sha": "a60181253e38a64a254f7424457c0fbfd5a99741",
+  "pr_number": 118,
+  "summary": "P3.3 integration branch contains explicit source lineage, integrated renderer contracts for assembly/HyperFrames/Lottie/color, deterministic HyperFrames and Lottie physical-source generation, official lottie-web 90-frame transparent rendering, physical color/alpha/audio assembly verification and a dedicated clean-runner workflow. Local clone verification is DEGRADED_EXTERNAL because the execution container cannot resolve github.com; no local PASS is claimed.",
+  "affected_paths": [
+    "integration/heterogeneous_master",
+    "src/renderers/assembly.py",
+    "src/renderers/color_policy.py",
+    "src/compilers/hyperframes.py",
+    "src/compilers/lottie.py",
+    "scripts/build_heterogeneous_master_sources.py",
+    "scripts/render_lottie_sequence.mjs",
+    "scripts/assemble_heterogeneous_master.py",
+    ".github/workflows/heterogeneous-master-runtime.yml"
+  ],
+  "checks": {
+    "main_sha": "d4e628a1aef0cd382c3c2f1ea327a8ff70c41bd9",
+    "promotion_barrier": "ACTIVE",
+    "local_verify": "DEGRADED_EXTERNAL",
+    "clean_runner": "IN_PROGRESS"
+  },
+  "authority": "EXECUTED",
+  "correlation_id": "motion://objective/project-done/p3-heterogeneous-master",
+  "metadata": {
+    "session_id": "motion://session/chatgpt/cos-graph-engine-v2/20260831T1553+0200",
+    "workstream_id": "motion://workstream/p3-heterogeneous-master-v1",
+    "control_issue": 93,
+    "regression_barrier_issue": 48,
+    "source_prs": [61,62,63,66,69,95],
+    "next_action": "Run exact-head MERGE_SAFE and Heterogeneous Master Runtime; repair physical failures; persist the final master SHA and artifact evidence before granting branch verification authority."
+  }
 }
