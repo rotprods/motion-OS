@@ -1,0 +1,43 @@
+export const S11_SPEC = {
+  schemaVersion: 'motion-os.golden-scene/v1',
+  sceneId: 'S11_UI_LIST',
+  compositionId: 'GoldenS11UiList',
+  overlayCompositionId: 'GoldenS11Overlay',
+  source: {
+    sha256: '9b3076cb542e358386942a0fb6b160f1345564d4326738f9a340e2b5b38e199d',
+    startFrame: 405,
+    endFrameExclusive: 535,
+    frameCount: 130,
+    fps: 30,
+    width: 512,
+    height: 1108,
+  },
+  anchors: {
+    pill: {start: 0, impact: 8, settle: 16},
+    pillLines: {start: 5, impact: 16, end: 30},
+    curvedArrow: {start: 7, impact: 23, end: 39},
+    words: {
+      debe: {start: 36, impact: 39, end: 44},
+      dejar: {start: 43, impact: 46, end: 51},
+      absolutamente: {start: 50, impact: 54, end: 63},
+      claro: {start: 68, impact: 73, end: 80},
+    },
+    rows: {
+      x: {start: 82, impact: 85, end: 88},
+      diamond: {start: 90, impact: 93, end: 96},
+      megaphone: {start: 99, impact: 102, end: 105},
+    },
+    groupLift: {start: 60, impact: 85, end: 90},
+    sfxImpacts: [54, 85, 93, 102],
+  },
+  authority: {
+    timing: 'SOURCE_ACTION_INVENTORY_PLUS_VISIBLE_REVIEW',
+    sourceChromeIdentity: 'SOURCE_LOCK',
+    sourceChromeEvidence: 'MEASURED_VISIBLE',
+    sharedVerticalSystem: 'EVIDENCE_BOUND_INFERENCE',
+    exactFontIdentity: 'UNKNOWN',
+    exactOriginalEffectStack: 'UNKNOWN',
+    structuralRenderer: 'IMPLEMENTED_UNVERIFIED_UNTIL_PHYSICAL_RUN',
+    sourceFidelity: 'BLOCKED_UNTIL_SOURCE_BOUND_DIFF',
+  },
+} as const;
