@@ -1,0 +1,27 @@
+{
+  "schema_version": "motion-os.golden-scene/v1",
+  "scene_id": "S11_UI_LIST",
+  "composition_id": "GoldenS11UiList",
+  "overlay_composition_id": "GoldenS11Overlay",
+  "source": {"video_id":"screenrecording_2026-08-26_173251","sha256":"9b3076cb542e358386942a0fb6b160f1345564d4326738f9a340e2b5b38e199d","fps":30,"width":512,"height":1108,"start_frame":405,"end_frame_exclusive":535,"frame_count":130},
+  "actions": [
+    {"id":"A058","local":[0,8,16],"source":[405,413,421],"verb":"panel_expand","target":"HERO_PILL"},
+    {"id":"A059","local":[5,16,30],"source":[410,421,435],"verb":"line_draw","target":"PILL_LINES"},
+    {"id":"A060","local":[7,23,39],"source":[412,428,444],"verb":"line_draw","target":"CURVED_ARROW"},
+    {"id":"A061.1","local":[36,39,44],"source":[441,444,449],"verb":"word_reveal","target":"DEBE"},
+    {"id":"A061.2","local":[43,46,51],"source":[448,451,456],"verb":"word_reveal","target":"DEJAR"},
+    {"id":"A061.3","local":[50,54,63],"source":[455,459,468],"verb":"boxed_word_reveal","target":"ABSOLUTAMENTE"},
+    {"id":"A061.4","local":[68,73,80],"source":[473,478,485],"verb":"word_reveal","target":"CLARO"},
+    {"id":"A062.1","local":[82,85,88],"source":[487,490,493],"verb":"row_reveal","target":"ROW_X"},
+    {"id":"A062.2","local":[90,93,96],"source":[495,498,501],"verb":"row_reveal","target":"ROW_DIAMOND"},
+    {"id":"A062.3","local":[99,102,105],"source":[504,507,510],"verb":"row_reveal","target":"ROW_MEGAPHONE"},
+    {"id":"A064","local":[45,80,125],"source":[450,485,530],"verb":"ui_sfx_sequence","target":"UI_SFX_SEQUENCE"},
+    {"id":"S11-DISC-001","local":[0,0,130],"source":[405,405,535],"verb":"source_lock","target":"SCREEN_RECORDING_CHROME","authority":"MEASURED_VISIBLE","status":"NEW_OBSERVABLE_ACTION_NOT_IN_PARENT_INVENTORY"},
+    {"id":"S11-HYP-001","local":[60,85,90],"source":[465,490,495],"verb":"group_lift","target":"EDITORIAL_SYSTEM_GROUP","authority":"EVIDENCE_BOUND_INFERENCE","status":"RECONSTRUCTION_HYPOTHESIS"}
+  ],
+  "qa_gates": {
+    "mechanical":["130 frames","30 fps","512x1108","audio present","sample frames decodable"],
+    "structural":["pill exists by local 8","boxed absolutamente visible by local 54","ROW_X visible by 85","ROW_DIAMOND visible by 93","ROW_MEGAPHONE visible by 102","overlay sequence 130 transparent PNGs"]
+  },
+  "authority": {"structural":"IMPLEMENTED_UNVERIFIED","source_fidelity":"BLOCKED_UNTIL_SOURCE_BOUND_DIFF","exact_font":"UNKNOWN","source_chrome":"SOURCE_LOCK"}
+}
