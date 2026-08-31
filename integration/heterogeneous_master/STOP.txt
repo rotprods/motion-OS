@@ -1,0 +1,1 @@
+STOP STAGING LOOP. The branch requires PR creation through the pull-request action. This file is audit-only.
