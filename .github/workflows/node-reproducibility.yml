@@ -7,10 +7,11 @@ on:
       - 'runtime/remotion/package-lock.json'
       - '.github/workflows/node-reproducibility.yml'
       - '.github/workflows/remotion-runtime.yml'
+      - '.github/workflows/merge-gate.yml'
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   remotion-lock-proof:
@@ -18,30 +19,26 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
-          persist-credentials: true
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '22'
           cache: npm
-          cache-dependency-path: runtime/remotion/package.json
+          cache-dependency-path: runtime/remotion/package-lock.json
 
       - name: Record toolchain
         run: |
           node --version
           npm --version
 
-      - name: Preserve committed lock when present
+      - name: Require committed lockfile and record identity
         working-directory: runtime/remotion
         run: |
           set -euo pipefail
-          if test -s package-lock.json; then
-            cp package-lock.json /tmp/committed-package-lock.json
-            sha256sum package-lock.json | tee /tmp/committed-package-lock.sha256
-          fi
+          test -s package-lock.json
+          cp package-lock.json /tmp/committed-package-lock.json
+          sha256sum package.json package-lock.json | tee node-lock.sha256
 
-      - name: Regenerate exact lockfile from package manifest
+      - name: Prove committed lock equals clean regeneration
         working-directory: runtime/remotion
         run: |
           set -euo pipefail
@@ -49,13 +46,10 @@ jobs:
           rm -f package-lock.json
           npm install --package-lock-only --ignore-scripts --no-audit --no-fund
           test -s package-lock.json
-          sha256sum package.json package-lock.json | tee node-lock.sha256
-          if test -s /tmp/committed-package-lock.json; then
-            cmp --silent /tmp/committed-package-lock.json package-lock.json || {
-              echo 'Committed package-lock.json differs from a clean regeneration' >&2
-              exit 1
-            }
-          fi
+          cmp --silent /tmp/committed-package-lock.json package-lock.json || {
+            echo 'Committed package-lock.json differs from clean Node 22/npm regeneration' >&2
+            exit 1
+          }
 
       - name: Prove clean npm ci installation
         working-directory: runtime/remotion
@@ -75,26 +69,6 @@ jobs:
           after="$(sha256sum package-lock.json | awk '{print $1}')"
           test "$before" = "$after"
           printf '%s\n' "$after" > package-lock.sha256
-
-      - name: Persist generated lockfile once on the dedicated same-repo branch
-        if: >-
-          github.event_name == 'pull_request' &&
-          github.event.pull_request.head.repo.full_name == github.repository &&
-          github.event.pull_request.head.ref == 'fix/node-reproducibility-v1'
-        working-directory: runtime/remotion
-        env:
-          TARGET_BRANCH: ${{ github.event.pull_request.head.ref }}
-        run: |
-          set -euo pipefail
-          if git ls-files --error-unmatch package-lock.json >/dev/null 2>&1; then
-            echo 'package-lock.json is already tracked; no self-commit required.'
-            exit 0
-          fi
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add package-lock.json
-          git commit -m 'build(runtime): persist reproducible Remotion lockfile'
-          git push origin "HEAD:${TARGET_BRANCH}"
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
