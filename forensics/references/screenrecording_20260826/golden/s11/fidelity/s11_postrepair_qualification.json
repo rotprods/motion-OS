@@ -1,0 +1,30 @@
+{
+  "schema_version": "motion-os.s11-source-bound-qualification/v1",
+  "scene_id": "S11_UI_LIST",
+  "source_sha256": "9b3076cb542e358386942a0fb6b160f1345564d4326738f9a340e2b5b38e199d",
+  "renderer_evidence": {
+    "branch": "feat/reverse-engineering-s11-remotion-golden-v1",
+    "renderer_head": "7cfe7bbd272b2adb65b4bea4792a67e4c91a5f7a",
+    "workflow_run": 33445538530,
+    "artifact_id": 9777929157,
+    "artifact_digest": "sha256:bb01aff438e045be41c0b3943c53118c55cf533680d2228de3feb69cf375d148"
+  },
+  "measurement_oracle": {
+    "version_state": "TARGET_ISOLATION_REPAIRED",
+    "escaped_defect": "S11-DEF-007",
+    "invariant": "adjacent visual components may not expand the measurement domain of the target entity because of shared color/connectivity"
+  },
+  "metrics": {
+    "pill": {"mean_bbox_iou": 0.9945616730987008, "mean_centroid_error_px": 0.2459299583807839, "mean_area_error_pct": 0.32985233352677057, "min_bbox_iou": 0.9757896591129801},
+    "boxed_absolutamente": {"first_visible_error_frames": 0, "mean_bbox_iou": 0.985000097831857, "mean_centroid_error_px": 0.234377352092313, "mean_area_error_pct": 0.5841729289335373},
+    "row_x": {"first_visible_error_frames": 0, "mean_bbox_iou": 0.9909730846471585, "mean_centroid_error_px": 0.26265985477655146, "mean_area_error_pct": 0.3468897262659325},
+    "row_diamond": {"first_visible_error_frames": 0, "mean_bbox_iou": 0.9906977494296204, "mean_centroid_error_px": 0.2278558827322608, "mean_area_error_pct": 0.4077874601760602},
+    "row_megaphone": {"first_visible_error_frames": 0, "mean_bbox_iou": 0.9901499411781852, "mean_centroid_error_px": 0.23978884951009052, "mean_area_error_pct": 0.49859047627262304}
+  },
+  "gates": {"pill": true, "boxed_absolutamente": true, "row_timing": true, "row_geometry": true},
+  "p0_p1_visible_output_gates_pass": true,
+  "authority_state": "SOURCE_BOUND_VISIBLE_GEOMETRY_P0P1_CLOSED",
+  "full_9d_fidelity_validated": false,
+  "canonical_template": false,
+  "blocked_dimensions": ["exact fonts", "original AE graph", "original Graph Editor curves", "original isolated SFX stems", "full FX/color/depth/camera decomposition", "cross-renderer parity", "generalization on replacement content"]
+}
