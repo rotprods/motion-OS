@@ -105,7 +105,9 @@ def authoritative_frame_count(stream: dict) -> int:
         raise ValueError("counted visual frame evidence missing")
     if len(set(parsed.values())) != 1:
         raise ValueError("ffprobe frame-count evidence disagrees")
-    return parsed.get("nb_read_frames", parsed["nb_frames"])
+    if "nb_read_frames" in parsed:
+        return parsed["nb_read_frames"]
+    return parsed["nb_frames"]
 
 
 def probe_video(path: Path) -> dict:
@@ -317,8 +319,6 @@ def main() -> int:
         else:
             if authoritative_frames != 90:
                 errors.append(f"frames:{authoritative_frames}")
-            # This is the canonical visual-duration check. Container/mux duration
-            # below is only a secondary tail/integrity check and cannot replace it.
             if authoritative_frames / 30 != 3.0:
                 errors.append(f"visual_duration:{authoritative_frames / 30}")
         expected = {
