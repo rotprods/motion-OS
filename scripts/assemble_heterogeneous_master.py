@@ -58,6 +58,7 @@ def probe(path: Path) -> dict:
             "ffprobe",
             "-v",
             "error",
+            "-count_frames",
             "-show_streams",
             "-show_format",
             "-of",
@@ -70,6 +71,41 @@ def probe(path: Path) -> dict:
         timeout=30,
     )
     return json.loads(completed.stdout)
+
+
+def authoritative_frame_count(stream: dict) -> int:
+    """Return fail-closed visual frame authority from ffprobe evidence.
+
+    ``nb_read_frames`` is produced by ``ffprobe -count_frames`` and is preferred.
+    ``nb_frames`` may be used as a corroborating/fallback container count when it is
+    explicitly present. If both exist they must agree. Missing, N/A, malformed or
+    non-positive counts can never be replaced by mux/container duration.
+    """
+    if not isinstance(stream, dict):
+        raise ValueError("video stream evidence must be an object")
+
+    parsed: dict[str, int] = {}
+    for field in ("nb_read_frames", "nb_frames"):
+        raw = stream.get(field)
+        if raw in (None, "", "N/A"):
+            continue
+        if isinstance(raw, bool):
+            raise ValueError(f"{field} must be a positive integer")
+        try:
+            value = int(raw)
+        except (TypeError, ValueError, OverflowError) as exc:
+            raise ValueError(f"{field} must be a positive integer") from exc
+        if str(value) != str(raw).strip() and not isinstance(raw, int):
+            raise ValueError(f"{field} must be an exact integer token")
+        if value <= 0:
+            raise ValueError(f"{field} must be positive")
+        parsed[field] = value
+
+    if not parsed:
+        raise ValueError("counted visual frame evidence missing")
+    if len(set(parsed.values())) != 1:
+        raise ValueError("ffprobe frame-count evidence disagrees")
+    return parsed.get("nb_read_frames", parsed["nb_frames"])
 
 
 def probe_video(path: Path) -> dict:
@@ -263,6 +299,7 @@ def main() -> int:
     video = [stream for stream in streams if stream.get("codec_type") == "video"]
     audio = [stream for stream in streams if stream.get("codec_type") == "audio"]
     errors: list[str] = []
+    authoritative_frames: int | None = None
     if len(video) != 1:
         errors.append(f"video_stream_count:{len(video)}")
     if len(audio) != 1:
@@ -273,9 +310,17 @@ def main() -> int:
             errors.append("dimensions")
         if stream.get("avg_frame_rate") not in {"30/1", "30"}:
             errors.append(f"fps:{stream.get('avg_frame_rate')}")
-        frames = stream.get("nb_frames")
-        if frames is not None and int(frames) != 90:
-            errors.append(f"frames:{frames}")
+        try:
+            authoritative_frames = authoritative_frame_count(stream)
+        except ValueError as exc:
+            errors.append(f"frame_count:{exc}")
+        else:
+            if authoritative_frames != 90:
+                errors.append(f"frames:{authoritative_frames}")
+            # This is the canonical visual-duration check. Container/mux duration
+            # below is only a secondary tail/integrity check and cannot replace it.
+            if authoritative_frames / 30 != 3.0:
+                errors.append(f"visual_duration:{authoritative_frames / 30}")
         expected = {
             "color_primaries": "bt709",
             "color_transfer": "bt709",
@@ -288,7 +333,7 @@ def main() -> int:
 
     duration = float(meta.get("format", {}).get("duration") or 0)
     if abs(duration - 3.0) > 0.08:
-        errors.append(f"duration:{duration}")
+        errors.append(f"mux_duration:{duration}")
 
     base_png = OUT / "base-final-frame.png"
     master_png = OUT / "master-final-frame.png"
@@ -341,6 +386,13 @@ def main() -> int:
             for path in (HF, LOT, AUDIO, BASE, OVER, MASTER)
         },
         "probe": meta,
+        "visual_frame_authority": {
+            "frame_count": authoritative_frames,
+            "fps": 30,
+            "duration_seconds": (authoritative_frames / 30) if authoritative_frames is not None else None,
+            "source": "ffprobe -count_frames / nb_read_frames with explicit nb_frames corroboration",
+        },
+        "mux_duration_seconds": duration,
         "overlay_visual_difference_mae": mean,
         "errors": errors,
         "ok": not errors,
