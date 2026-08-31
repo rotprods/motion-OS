@@ -1,1 +1,0 @@
-Connector-routing anomaly observed: intended PR/tree actions were repeatedly routed to create-file. Treat all staging markers as non-authoritative. Do not infer P3.3 completion.

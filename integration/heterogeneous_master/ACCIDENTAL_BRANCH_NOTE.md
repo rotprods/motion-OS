@@ -1,1 +1,0 @@
-`tmp-placeholder` was created accidentally during connector routing. It carries no project authority, workstream, requirement or implementation. Do not use it as a source branch. The canonical P3.3 branch remains `feat/p3-heterogeneous-master-v1`.

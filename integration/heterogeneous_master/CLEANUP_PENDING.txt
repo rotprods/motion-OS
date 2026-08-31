@@ -1,1 +1,0 @@
-Cleanup transaction pending; no authority.

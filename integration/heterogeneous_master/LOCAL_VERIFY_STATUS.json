@@ -1,1 +1,0 @@
-{"status":"DEGRADED_EXTERNAL","reason":"execution container cannot resolve github.com, so a fresh local clone/test could not run","authority":"NOT_A_PASS"}
