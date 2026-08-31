@@ -54,7 +54,13 @@ def components(img,box,kind,pad=18):
     return sorted(out,reverse=True)
 
 def observe(img,expected,kind,wide=False):
-    cs=components(img,expected,kind)
+    # Dark pill measurement must stay inside the expected target box. A padded
+    # crop can connect the adjacent grey/dark arrow to the pill and inflate the
+    # observed component, creating a false renderer defect. White components
+    # retain bounded padding because glyph/circle antialiasing can sit slightly
+    # outside the heuristic source-visible box.
+    pad=0 if kind=='dark' else 18
+    cs=components(img,expected,kind,pad=pad)
     if wide:cs=[c for c in cs if c[3]>max(20,expected[2]*.45)] or cs
     if not cs:return None
     c=max(cs,key=lambda z:z[0]); return tuple(map(float,c[1:5]))
