@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0",
+  "project": "MOTION.OS",
+  "phase": "P4",
+  "branch": "feat/p4-real-master-authority-v1",
+  "recovery_authority": {
+    "canonical_recovery_anchor": "RC06",
+    "status": "RECOVERED_EXACT",
+    "sha256": "fbfd4fda97b1e4d07b8477018324210324c8115c0f5b9a3515eb27ae255f0f1f",
+    "bytes": 11253549,
+    "drive_file_id": "1r3y35J735DhfyW4e5rDBcTRTdEKPPnrf",
+    "evidence_path": "evidence/p4_rc06_real_master_recovery_2026-08-31.json"
+  },
+  "creative_master_selection": {
+    "historical_selected_master": "RC09E",
+    "status": "SELECTED_BUT_EXACT_ARTIFACT_UNAVAILABLE",
+    "recovery_authority": false,
+    "policy": "Do not infer RC09E identity from dimensions, narrative, filenames, screenshots, or a re-render."
+  },
+  "multimodal_provider": {
+    "status": "BLOCKED",
+    "reason": "NO_QUALIFIED_FULL_VIDEO_PROVIDER_AVAILABLE_IN_CURRENT_RUNTIME",
+    "provider": null,
+    "provider_run_id": null,
+    "bound_media_sha256": null,
+    "authoritative": false
+  },
+  "gates": {
+    "recoverable_real_master": true,
+    "real_multimodal_run": false,
+    "creative_tournament": false,
+    "p4_complete": false,
+    "project_done": false
+  },
+  "authority": "VERIFIED_RECOVERY_ONLY_NOT_PROVIDER_QUALIFIED_NOT_PROMOTED",
+  "next": "Acquire one real full-video provider run bound to the recovery-anchor SHA or to a new durable canonical successor SHA; then run the authority-gated creative tournament."
+}
