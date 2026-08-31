@@ -86,6 +86,7 @@ def main() -> int:
         ))
 
     if args.profile in {"security", "merge"}:
+        results.append(run("static-security", [py, "scripts/security_static.py"]))
         if shutil.which("pip-audit"):
             results.append(run("pip-audit", ["pip-audit"]))
         else:
