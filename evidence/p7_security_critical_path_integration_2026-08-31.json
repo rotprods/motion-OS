@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "evidence_id": "p7-security-critical-path-integration-2026-08-31",
   "project": "MOTION.OS",
   "completion_task": "P7-T01",
@@ -53,6 +53,37 @@
     "integrated_resolution": "submit_paid_render now requires put_submitted_with_evidence and atomically records SUBMITTED + request SHA/size before provider.submit",
     "provider_io_before_evidence_allowed": false
   },
+  "first_clean_runner_qualification": {
+    "qualified_branch_head": "a53a6d7258f7249c302bed36c4409c5fa70ad96a",
+    "synthetic_merge_sha": "87f364fa21bbdd3f69702e0272173a457bbdbb1f",
+    "pr": 120,
+    "merge_safe_run": 33414853935,
+    "merge_safe": "PASS",
+    "python_312_quick": {
+      "status": "PASS",
+      "pytest": "517 passed / 1 skipped",
+      "warnings": 5,
+      "repo_health": "PASS",
+      "immutable_agent_events": 12
+    },
+    "python_311_compatibility": "PASS",
+    "static_security": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "dependency_audit": {
+      "status": "PASS",
+      "known_vulnerabilities": 0,
+      "note": "local editable motion-os package is not published on PyPI and is reported by pip-audit as non-auditable by index identity"
+    },
+    "physical_analysis": "PASS",
+    "physical_remotion_runtime": "PASS",
+    "artifacts": [
+      {"id":9766586492,"name":"merge-safe-quick-evidence","sha256":"e869b598594e564a4cbf80c0bd1c8f6daeca63ef1213be36f11a4ba593ebb14e"},
+      {"id":9766608366,"name":"merge-safe-remotion-evidence","sha256":"e8276b8cbb3f171b72e5044488b60b6bd4e126e1e42491383389e59928f3eefc"}
+    ],
+    "authority": "VERIFIED_SYNTHETIC_MERGE_CANDIDATE_FOR_QUALIFIED_HEAD"
+  },
   "authority_boundaries": {
     "real_paid_provider_call_executed": false,
     "real_provider_spend_authority": false,
@@ -61,15 +92,17 @@
     "dns_rebinding_resistance_beyond_literal_host_validation": "NOT_CLAIMED",
     "release_authority": false
   },
-  "qualification": {
-    "exact_head_ci": "PENDING",
-    "static_security": "PENDING",
-    "dependency_audit": "PENDING",
-    "python_311": "PENDING_BY_CLASSIFIER",
-    "physical_analysis": "PENDING_BY_CLASSIFIER",
-    "physical_remotion": "PENDING_BY_CLASSIFIER",
-    "security_critical_path": "INTEGRATED_PENDING_CLEAN_RUNNER"
+  "final_persistence_rule": {
+    "this_evidence_update_changes_branch_head": true,
+    "required_next_gate": "rerun exact synthetic-merge CI on the new persistence-only head",
+    "final_head_authority_source": "derive from live PR #120 exact-head workflow status; GitHub live truth overrides this persisted projection"
   },
-  "authority": "INTEGRATED_PENDING_EXACT_HEAD_CI_NOT_PROMOTED",
+  "qualification": {
+    "security_critical_path_code_and_tests": "VERIFIED_ON_a53a6d7258f7249c302bed36c4409c5fa70ad96a",
+    "final_persistence_head_ci": "PENDING",
+    "native_main_protection": "BLOCKED_EXTERNAL",
+    "real_paid_provider_e2e": "NOT_EXECUTED"
+  },
+  "authority": "VERIFIED_SOURCE_HEAD_PENDING_FINAL_PERSISTENCE_RERUN_NOT_PROMOTED",
   "project_done": false
 }

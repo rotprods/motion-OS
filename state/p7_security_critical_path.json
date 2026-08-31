@@ -1,26 +1,39 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "project": "MOTION.OS",
   "completion_task": "P7-T01",
   "branch": "feat/p7-security-critical-path-v1",
+  "pr_number": 120,
   "stack_base_sha": "8aed8f220b0ef818ac4f0d603bd080e3d85fe6e0",
-  "status": "INTEGRATED_PENDING_EXACT_HEAD_CI",
+  "status": "VERIFIED_SOURCE_HEAD_PENDING_FINAL_PERSISTENCE_RERUN",
   "source_prs": [70,71,73,76,100,101,106,102,103],
   "superseded_prs": [74],
-  "critical_integration": "PR101 paid-provider boundary now consumes PR106 atomic SUBMITTED+request-evidence transaction before provider I/O.",
+  "critical_integration": "PR101 paid-provider boundary consumes PR106 atomic SUBMITTED+request-evidence transaction before provider I/O.",
+  "qualified_source_head": {
+    "sha": "a53a6d7258f7249c302bed36c4409c5fa70ad96a",
+    "synthetic_merge_sha": "87f364fa21bbdd3f69702e0272173a457bbdbb1f",
+    "merge_safe_run": 33414853935,
+    "tests": "517 passed / 1 skipped",
+    "static_security_findings": 0,
+    "dependency_vulnerabilities": 0,
+    "python_311": "PASS",
+    "physical_analysis": "PASS",
+    "physical_remotion": "PASS"
+  },
   "gates": {
     "security_train_integrated": true,
     "request_evidence_at_provider_boundary": true,
-    "exact_head_merge_safe": false,
+    "source_head_merge_safe": true,
+    "final_persistence_head_merge_safe": "DERIVE_FROM_LIVE_PR_120",
     "native_main_protection": false,
     "real_paid_provider_e2e": false,
-    "p7_t01_complete": false,
     "project_done": false
   },
   "external_blockers": [
     "GitHub main branch/ruleset administrative protection is not applied and the current connector exposes read-only administration for that surface.",
-    "No real paid provider call is executed by this security integration; fake/injected ports qualify causal boundary semantics only."
+    "No real paid provider call is executed by this security integration; injected ports qualify causal boundary semantics only."
   ],
-  "authority": "INTEGRATED_PENDING_EXACT_HEAD_CI_NOT_PROMOTED",
-  "next": "Run exact synthetic-merge CI for the stacked P7 candidate; repair any regression; then persist combined-head security authority while keeping #48 and native main protection blockers explicit."
+  "authority": "VERIFIED_SOURCE_HEAD_PENDING_FINAL_PERSISTENCE_RERUN_NOT_PROMOTED",
+  "live_truth_rule": "PR #120 exact current head and its GitHub workflow runs override this persisted projection for final-head authority.",
+  "next": "Rerun exact synthetic-merge CI on the evidence-persistence head; if green, record final live authority on PR #120, Bus #39 and Issue #93 without merging while #48 remains open."
 }
