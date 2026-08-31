@@ -36,3 +36,12 @@ Rules:
 24. COS Graph Engine is a deterministic derived projection/query/reasoning plane. It must be rebuildable from authoritative event/state history and must not become a hidden second source of truth.
 25. State mutation + event publication must converge on transactional-outbox semantics when a durable multi-host backend is promoted; consumers must be idempotent and recover from durable offsets. Websocket/realtime delivery is notification, not truth.
 26. Session end, blocker, contract change, PR-ready state and ownership transfer require a structured CHECKPOINT plus the canonical immutable agent-event lifecycle where applicable. A future agent must be able to resume without this conversation.
+
+## Minimum-sufficient execution
+27. Understand the requirement before touching code. Before execution, state the goal, non-goals, acceptance criteria, and what remains untouched.
+28. Planning may be deep; execution should default to the smallest safe change that satisfies the requirement. Do not add abstractions, frameworks, compatibility layers, duplicate implementations, or future-facing infrastructure without a demonstrated need.
+29. Read the relevant code directly before guessing from stale docs, search snippets, or chat memory.
+30. Prefer existing tests. Add a new test only when current behavior changes and existing tests cannot catch that regression; keep new test scope to the main path and at most one critical failure path.
+31. Do not let green tests justify expanding scope. If the implementation or test plan starts growing beyond the accepted requirement, stop and reduce the plan.
+32. Irreversible actions require explicit user confirmation. Reversible repo work, read-only inspection, local tests, diffs, and planning do not.
+33. Before completion verify: minimum file set changed, no unrelated refactors, no new dependency/test framework without necessity, no debug leftovers, and the handoff is sufficient for a zero-chat continuation.
