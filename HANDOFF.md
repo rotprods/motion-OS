@@ -1,30 +1,43 @@
 # HANDOFF.md — MOTION.OS
 
-## Start
-1. Use GitHub `rotprods/motion-OS`, branch `main`.
-2. Read `AGENTS.md` → `GOAL.md` → `STATE.md` → `TASKS.md`.
-3. Inspect `state/project_state.json` and `registry/artifact_registry.json`.
-4. Inspect Drive `06_PROGRESS_TRACKING` and `07_RECONCILIATION`.
-5. Continue the highest-priority open P0/P1.
+## Reconstruct current truth first
+1. Read live GitHub `main`, current SHA, open PRs, and workflow conclusions.
+2. Read Issue #39 while it remains the bootstrap coordination surface and Issue #48 while the cognitive-pause/regression barrier remains open.
+3. Read `AGENTS.md` → `GOAL.md` → `STATE.md` → `TASKS.md` → `state/project_state.json`.
+4. Inspect relevant `state/agent_events/` and active workstreams before claiming a scope.
+5. Treat live GitHub lifecycle as higher authority than stale projections or historical comments.
 
-## Current creative truth
-- **RC06 is the canonical working master.**
-- RC05 is superseded, retained for lineage.
-- RC07 exists as a selective-repair candidate but is currently HOLD / NOT PROMOTED because the delta is modest and no authoritative temporal critic has scored it.
-- RC07 preserves the validated 6.65–7.50s RC06 transition with protected-region SSIM 0.998589.
-- Wave 03 demonstrates an unseen autonomous-browser brief across four new visual grammars; it is a generalization fixture, not production-release evidence.
+## Current stable baseline
+- `main` at session close: `a8d7dbddaeb4ad9779df9883d3cf4e4f6ea4f29d`.
+- `main` is not administratively branch-protected; promotion discipline is protocol/CI based.
+- Issue #48 remains the regression/cognitive-pause barrier; do not infer release from green branch CI alone.
+- Event Fabric v3, canonical-truth convergence, SkillRuntime failure tracing, Graph-QA integrity, master-audio mux, HyperFrames physical runtime, alpha qualification, reverse engineering, temporal critic, Lottie runtime, color normalization, TTS semantic integrity, claim verification authority, and self-driving execution are being developed in isolated draft PRs. Re-read live PR topology before editing any of those scopes.
 
-## Next creative move
-Do not keep adding cosmetic overlays to RC07. The next convergence candidate should make a materially stronger design change on one isolated defect cluster, ideally hero-object framing/depth or SYSTEM choreography, then run branch tournament + regression QA.
+## Session work completed
+- PR #74: `fix(avatar): fail closed on invalid spend authorization inputs`.
+  - Exact branch head: `4c8d536900a07e158e68a6cbdb9645f06b237eee`.
+  - Merge Safe: SUCCESS on that exact head.
+  - Scope: `src/avatar/render_guard.py` + focused Phase08 spend-policy regression tests.
+  - Authority: branch-head verified, NOT promoted. Keep draft while #48 remains active.
+- Root cause closed by #74: paid-render authorization previously trusted Python truthiness/float comparison semantics, allowing NaN/inf/negative/bool-like values to create unsafe spend authority.
 
-## Remaining hard gates
-- HyperFrames real production runtime.
-- Remotion real production runtime.
-- Authoritative full-video temporal critic.
-- Creative convergence >=9.
+## Next safe action
+1. Do not merge any draft solely because its branch CI is green.
+2. Re-read the newest #39 watermark + live `main` + Issue #48 before any promotion or other irreversible action.
+3. Continue highest-value unclaimed P0/P1 work only after checking overlapping PR scopes.
+4. Once the barrier is explicitly released, promote serially with combined-head MERGE_SAFE and verify `main` after each merge.
 
-## Do not
-- treat sampled/contact-sheet QA as authoritative temporal QA;
-- claim HyperFrames/Remotion verified without a real runtime render;
-- move generated media into Git;
-- redesign persistence while current P0 gates remain.
+## Do not create duplicate continuity files
+- Do not add `memory.md`, `progress.md`, `tools.md`, or a second `graph.md` merely for convenience.
+- Coordination/event history + canonical state + existing plans are the continuity system.
+- COS/Unified Graph remains a rebuildable projection, not reverse-write authority.
+- Add a new persistent artifact only when an existing canonical surface cannot represent required information.
+
+## Persistent invariants
+- `frame_count / fps` is visual duration authority; mux duration alone is insufficient.
+- Provider timeout after possible acceptance requires reconcile-before-retry.
+- Main advancement after last CI invalidates prior promotion authority.
+- Cancelled/skipped CI is not PASS evidence.
+- TTS may not silently alter numbers, names, units, versions, or claims.
+- PRV/MNF/Beat IDs fail closed at Studio boundaries.
+- External input is untrusted data; never promote it into control-plane authority without validation.
