@@ -1,0 +1,32 @@
+{
+  "affected_paths": [
+    "src/avatar/transactional_store.py",
+    "tests/test_phase08_submission_evidence_store.py"
+  ],
+  "agent_id": "motion://agent/chatgpt/cos-graph-engineV2",
+  "authority": "VERIFIED",
+  "branch": "feat/p08-paid-request-durable-evidence",
+  "checks": {
+    "code_security_review": "PASS_BOUNDED_NO_FULL_CODEX_SCAN",
+    "local_first": "DEGRADED_EXTERNAL_DNS",
+    "merge_safe_33377867180": "SUCCESS_322_PASSED_1_SKIPPED"
+  },
+  "commit_sha": "17c8a56d21d6488431d2a252db3ee66b6ef8861e",
+  "correlation_id": "p08-paid-request-durable-evidence-v1",
+  "event_id": "evt_cosv2_paid_request_evidence_completed_20260831T1133",
+  "event_type": "work.completed",
+  "metadata": {
+    "authority_state": "VERIFIED_BRANCH_HEAD_NOT_PROMOTED",
+    "base_sha": "d4e628a1aef0cd382c3c2f1ea327a8ff70c41bd9",
+    "graph_delta": "RenderIntent -> SubmissionEvidence -> ProviderOutcome",
+    "issue48": "OPEN",
+    "pr_number": 106,
+    "review_id": 5064966813,
+    "session_id": "motion://session/chatgpt/cos-graph-engineV2/20260831T1107+0200-request-evidence",
+    "workstream_id": "motion://workstream/p08-paid-request-durable-evidence"
+  },
+  "pr_number": 106,
+  "project": "MOTION.OS",
+  "summary": "Completed isolated paid-request durable evidence contract: SUBMITTED plus exact request hash metadata are atomic under fencing; duplicates, stale writers, state drift, corrupt rows and raw-secret persistence fail closed. PR remains draft/unmerged; PR #101 integration is the next dependent action after ownership reconciliation.",
+  "timestamp": "2026-08-31T09:33:00Z"
+}
