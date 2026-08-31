@@ -1,0 +1,1 @@
+Exact source blobs are imported in the next integration commit; this marker keeps the integration scope explicit.
