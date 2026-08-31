@@ -1,0 +1,1 @@
+Repeated connector selection anomalies created staging commits instead of the intended low-level Git tree mutation. Treat these files as historical audit evidence only. The workstream remains unverified until exact source blobs are imported and a physical master is produced.
