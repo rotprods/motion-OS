@@ -21,6 +21,7 @@ _SECRET_LIKE_RE = re.compile(
 )
 _CONTROL_RE = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
 _FAILURE_CODE_RE = re.compile(r"^[A-Za-z0-9_.:-]+$")
+_NUMERIC_HOST_LABEL_RE = re.compile(r"^(?:[0-9]+|0x[0-9a-f]+)$", re.IGNORECASE)
 
 
 @dataclass(frozen=True)
@@ -41,6 +42,20 @@ class HeyGenRequest:
         return {k: v for k, v in payload.items() if v is not None}
 
 
+def _looks_like_ambiguous_numeric_host(host: str) -> bool:
+    """Reject legacy numeric IPv4 spellings before any downstream resolver sees them.
+
+    Python's ``ipaddress`` intentionally accepts canonical IP literals only, while
+    libc/system resolvers may still interpret forms such as ``2130706433``,
+    ``0x7f000001``, ``0177.0.0.1`` or ``127.1`` as 127.0.0.1. Treat any host made
+    solely from one-to-four decimal/hex numeric labels as ambiguous when it failed
+    canonical ``ipaddress`` parsing. Normal DNS names such as ``123.example.com``
+    remain allowed because they contain a nonnumeric label.
+    """
+    labels = host.split(".")
+    return 1 <= len(labels) <= 4 and all(_NUMERIC_HOST_LABEL_RE.fullmatch(label) is not None for label in labels)
+
+
 def _host_is_public(hostname: str) -> bool:
     host = hostname.rstrip(".").casefold()
     if host == "localhost" or host.endswith(".localhost") or host.endswith(".local"):
@@ -48,6 +63,10 @@ def _host_is_public(hostname: str) -> bool:
     try:
         address = ipaddress.ip_address(host)
     except ValueError:
+        # Fail closed on noncanonical numeric spellings. Some system resolvers
+        # reinterpret them as IPv4 even though ``ipaddress`` rejects the syntax.
+        if _looks_like_ambiguous_numeric_host(host):
+            return False
         return True
     return address.is_global
 
