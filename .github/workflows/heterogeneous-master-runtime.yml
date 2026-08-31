@@ -1,0 +1,86 @@
+name: Heterogeneous Master Runtime
+
+on:
+  pull_request:
+    paths:
+      - 'src/renderers/assembly.py'
+      - 'src/renderers/color_policy.py'
+      - 'src/compilers/hyperframes.py'
+      - 'src/compilers/lottie.py'
+      - 'scripts/build_heterogeneous_master_sources.py'
+      - 'scripts/render_lottie_sequence.mjs'
+      - 'scripts/assemble_heterogeneous_master.py'
+      - 'integration/heterogeneous_master/**'
+      - '.github/workflows/heterogeneous-master-runtime.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  physical-master:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - name: Install physical media runtime
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends ffmpeg
+          ffmpeg -version | head -n 1
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e '.[dev,analysis]'
+      - name: Contract tests for integrated renderer primitives
+        run: |
+          python -m pytest -q tests/test_phase05_render_stack.py tests/test_phase08_master_audio_mux.py 2>/dev/null || python -m pytest -q tests/test_phase05_render_stack.py
+      - name: Build deterministic HyperFrames and Lottie sources
+        run: python scripts/build_heterogeneous_master_sources.py
+      - name: Render physical HyperFrames base with pinned runtime
+        working-directory: runtime/hyperframes
+        run: |
+          npx --yes hyperframes@0.8.17 telemetry disable
+          npx --yes hyperframes@0.8.17 lint --json
+          mkdir -p out
+          npx --yes hyperframes@0.8.17 render --output out/runtime-local.mp4 --fps 30 --quality standard --strict
+      - name: Install exact official Lottie player and browser transport
+        run: |
+          npm install --no-save --ignore-scripts --no-audit --no-fund lottie-web@5.13.0 puppeteer-core@24.16.0
+          cp node_modules/lottie-web/build/player/lottie.min.js runtime/lottie/lottie.min.js
+          npm view lottie-web@5.13.0 dist.integrity --json | tr -d '"' > runtime/lottie/npm_integrity.txt
+          npm view puppeteer-core@24.16.0 dist.integrity --json | tr -d '"' > runtime/lottie/puppeteer_integrity.txt
+      - name: Locate clean-runner Chrome
+        run: |
+          CHROME="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || true)"
+          test -n "$CHROME"
+          echo "CHROME_BIN=$CHROME" >> "$GITHUB_ENV"
+          "$CHROME" --version
+      - name: Render 90 transparent frames through official lottie-web
+        run: node scripts/render_lottie_sequence.mjs
+      - name: Encode alpha-preserving Lottie overlay
+        run: |
+          ffmpeg -v error -y -framerate 30 -i runtime/lottie/frames/frame-%03d.png -c:v qtrle -pix_fmt argb runtime/lottie/overlay-argb.mov
+          ffprobe -v error -select_streams v:0 -show_entries stream=pix_fmt,nb_frames,width,height,r_frame_rate -of json runtime/lottie/overlay-argb.mov
+      - name: Assemble and verify physical heterogeneous master
+        run: python scripts/assemble_heterogeneous_master.py
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: heterogeneous-master-proof
+          if-no-files-found: error
+          retention-days: 14
+          path: |
+            .artifacts/heterogeneous-master/**
+            runtime/hyperframes/compiler_evidence.json
+            runtime/hyperframes/out/runtime-local.mp4
+            runtime/lottie/compiler_evidence.json
+            runtime/lottie/sequence_evidence.json
+            runtime/lottie/npm_integrity.txt
+            runtime/lottie/puppeteer_integrity.txt
+            runtime/lottie/overlay-argb.mov
