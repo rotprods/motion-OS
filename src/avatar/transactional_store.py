@@ -89,22 +89,6 @@ def _intent_from_row(row: sqlite3.Row | None) -> RenderIntent | None:
     )
 
 
-def _submission_evidence_from_row(row: sqlite3.Row | None) -> SubmissionEvidence | None:
-    if row is None:
-        return None
-    return SubmissionEvidence(
-        evidence_id=row["evidence_id"],
-        intent_id=row["intent_id"],
-        retry_count=int(row["retry_count"]),
-        provider_id=row["provider_id"],
-        callback_id=row["callback_id"],
-        request_sha256=row["request_sha256"],
-        request_bytes=int(row["request_bytes"]),
-        fencing_token=int(row["fencing_token"]),
-        created_at=row["created_at"],
-    )
-
-
 def _canonical_json(value: dict[str, Any]) -> str:
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False)
 
@@ -129,6 +113,34 @@ def _submission_evidence_id(
     return "SUBEV_" + hashlib.sha256(_canonical_json(body).encode("utf-8")).hexdigest()[:24].upper()
 
 
+def _validate_evidence_scalar_fields(
+    *,
+    intent_id: object,
+    retry_count: object,
+    provider_id: object,
+    callback_id: object,
+    request_sha256: object,
+    request_bytes: object,
+) -> tuple[str, int, str, str, str, int]:
+    if not isinstance(intent_id, str) or not intent_id or len(intent_id) > 256 or not intent_id.isprintable():
+        raise ValueError("intent_id malformed")
+    if isinstance(retry_count, bool) or not isinstance(retry_count, int) or retry_count < 0:
+        raise ValueError("retry_count must be a non-negative integer")
+    if not isinstance(request_sha256, str) or _SHA256_RE.fullmatch(request_sha256) is None:
+        raise ValueError("request_sha256 must be 64 lowercase hexadecimal characters")
+    if not isinstance(provider_id, str) or _PROVIDER_ID_RE.fullmatch(provider_id) is None:
+        raise ValueError("provider_id malformed")
+    if provider_id != "heygen":
+        raise ValueError("current render intent authority is bound to heygen")
+    if not isinstance(callback_id, str) or callback_id != intent_id:
+        raise ValueError("callback_id must exactly equal render intent ID")
+    if isinstance(request_bytes, bool) or not isinstance(request_bytes, int):
+        raise ValueError("request_bytes must be an integer")
+    if request_bytes <= 0 or request_bytes > MAX_REQUEST_BYTES:
+        raise ValueError("request_bytes outside allowed bounds")
+    return intent_id, retry_count, provider_id, callback_id, request_sha256, request_bytes
+
+
 def _validate_submission_evidence_input(
     *,
     submitted: RenderIntent,
@@ -144,6 +156,8 @@ def _validate_submission_evidence_input(
         raise ValueError("submission evidence requires SUBMITTED intent")
     if submitted.provider_job_id is not None:
         raise ValueError("SUBMITTED evidence must precede provider job acknowledgement")
+    if isinstance(expected_current.retry_count, bool) or not isinstance(expected_current.retry_count, int) or expected_current.retry_count < 0:
+        raise ValueError("expected_current retry_count must be a non-negative integer")
     if expected_current.intent_id != submitted.intent_id:
         raise ValueError("expected current intent identity mismatch")
     stable_fields = ("content_id", "profile_id", "script_hash", "estimated_credits")
@@ -159,25 +173,63 @@ def _validate_submission_evidence_input(
             raise ValueError("retry submission generation must advance exactly once")
     else:
         raise ValueError("submission requires AUTHORIZED or FAILED_RETRYABLE durable state")
-    if isinstance(submitted.retry_count, bool) or not isinstance(submitted.retry_count, int) or submitted.retry_count < 0:
-        raise ValueError("retry_count must be a non-negative integer")
 
-    if not isinstance(request_sha256, str) or _SHA256_RE.fullmatch(request_sha256) is None:
-        raise ValueError("request_sha256 must be 64 lowercase hexadecimal characters")
-    if not isinstance(provider_id, str) or _PROVIDER_ID_RE.fullmatch(provider_id) is None:
-        raise ValueError("provider_id malformed")
-    # Current RenderIntent identity generation is explicitly HeyGen-bound. Persisting
-    # cross-provider evidence would falsely imply authority the current identity schema
-    # cannot prove.
-    if provider_id != "heygen":
-        raise ValueError("current render intent authority is bound to heygen")
-    if not isinstance(callback_id, str) or callback_id != submitted.intent_id:
-        raise ValueError("callback_id must exactly equal render intent ID")
-    if isinstance(request_bytes, bool) or not isinstance(request_bytes, int):
-        raise ValueError("request_bytes must be an integer")
-    if request_bytes <= 0 or request_bytes > MAX_REQUEST_BYTES:
-        raise ValueError("request_bytes outside allowed bounds")
+    _, _, provider_id, callback_id, request_sha256, request_bytes = _validate_evidence_scalar_fields(
+        intent_id=submitted.intent_id,
+        retry_count=submitted.retry_count,
+        provider_id=provider_id,
+        callback_id=callback_id,
+        request_sha256=request_sha256,
+        request_bytes=request_bytes,
+    )
     return request_sha256, provider_id, callback_id, request_bytes
+
+
+def _submission_evidence_from_row(row: sqlite3.Row | None) -> SubmissionEvidence | None:
+    if row is None:
+        return None
+    try:
+        intent_id, retry_count, provider_id, callback_id, request_sha256, request_bytes = _validate_evidence_scalar_fields(
+            intent_id=row["intent_id"],
+            retry_count=row["retry_count"],
+            provider_id=row["provider_id"],
+            callback_id=row["callback_id"],
+            request_sha256=row["request_sha256"],
+            request_bytes=row["request_bytes"],
+        )
+        fencing_token = row["fencing_token"]
+        if isinstance(fencing_token, bool) or not isinstance(fencing_token, int) or fencing_token < 1:
+            raise ValueError("submission evidence fencing_token invalid")
+        created_at = row["created_at"]
+        if not isinstance(created_at, str):
+            raise ValueError("submission evidence created_at invalid")
+        parsed = datetime.fromisoformat(created_at)
+        if parsed.tzinfo is None or parsed.utcoffset() is None:
+            raise ValueError("submission evidence created_at must be timezone-aware")
+        expected_id = _submission_evidence_id(
+            intent_id=intent_id,
+            retry_count=retry_count,
+            provider_id=provider_id,
+            callback_id=callback_id,
+            request_sha256=request_sha256,
+            request_bytes=request_bytes,
+        )
+        evidence_id = row["evidence_id"]
+        if evidence_id != expected_id:
+            raise ValueError("submission evidence identity/hash mismatch")
+    except (KeyError, TypeError, ValueError, sqlite3.Error) as exc:
+        raise ValueError("corrupt submission evidence record") from exc
+    return SubmissionEvidence(
+        evidence_id=evidence_id,
+        intent_id=intent_id,
+        retry_count=retry_count,
+        provider_id=provider_id,
+        callback_id=callback_id,
+        request_sha256=request_sha256,
+        request_bytes=request_bytes,
+        fencing_token=fencing_token,
+        created_at=created_at,
+    )
 
 
 class SQLiteTransactionalRenderStore:
@@ -312,8 +364,6 @@ class SQLiteTransactionalRenderStore:
         with self._connect() as conn:
             conn.execute("BEGIN IMMEDIATE")
             self._assert_live_lease(conn, lease)
-            # Delete only the active ownership row. `lease_generations` remains durable so
-            # the next owner receives a strictly larger fencing token.
             conn.execute("DELETE FROM leases WHERE resource_id=?", (lease.resource_id,))
             conn.execute("COMMIT")
 
