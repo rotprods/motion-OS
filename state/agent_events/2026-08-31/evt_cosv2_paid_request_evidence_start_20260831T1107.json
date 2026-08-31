@@ -1,0 +1,25 @@
+{
+  "affected_paths": [
+    "src/avatar/transactional_store.py",
+    "tests/test_phase08_submission_evidence_store.py"
+  ],
+  "agent_id": "motion://agent/chatgpt/cos-graph-engineV2",
+  "authority": "IMPLEMENTED",
+  "branch": "feat/p08-paid-request-durable-evidence",
+  "checks": {},
+  "commit_sha": "d4e628a1aef0cd382c3c2f1ea327a8ff70c41bd9",
+  "correlation_id": "p08-paid-request-durable-evidence-v1",
+  "event_id": "evt_cosv2_paid_request_evidence_start_20260831T1107",
+  "event_type": "work.started",
+  "metadata": {
+    "base_sha": "d4e628a1aef0cd382c3c2f1ea327a8ff70c41bd9",
+    "graph_delta": "RenderIntent -> SubmissionEvidence -> ProviderOutcome",
+    "issue48": "OPEN",
+    "session_id": "motion://session/chatgpt/cos-graph-engineV2/20260831T1107+0200-request-evidence",
+    "workstream_id": "motion://workstream/p08-paid-request-durable-evidence"
+  },
+  "pr_number": null,
+  "project": "MOTION.OS",
+  "summary": "Started isolated COS V2 workstream to atomically bind exact paid-provider request evidence to the durable SUBMITTED transition without persisting raw request payloads.",
+  "timestamp": "2026-08-31T09:07:00Z"
+}
