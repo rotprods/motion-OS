@@ -1,5 +1,6 @@
 from __future__ import annotations
 import json
+import re
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 CONTRACT=ROOT/'forensics/references/screenrecording_20260826/golden/s14/s14_contract.json'
@@ -7,6 +8,7 @@ ROOT_TSX=ROOT/'runtime/remotion/src/Root.tsx'
 SPEC=ROOT/'runtime/remotion/src/golden_s14/s14Spec.ts'
 TRACK=ROOT/'runtime/remotion/src/golden_s14/sourceMeasuredTrack.ts'
 COMP=ROOT/'runtime/remotion/src/golden_s14/S14AudioVisualTexto.tsx'
+WORKFLOW=ROOT/'.github/workflows/remotion-golden-s14.yml'
 
 def test_s14_source_timebase_is_exact():
  d=json.loads(CONTRACT.read_text());s=d['source'];assert s['start_frame']==561;assert s['end_frame_exclusive']==655;assert s['frame_count']==94;assert s['fps']==30;assert (s['width'],s['height'])==(512,1108)
@@ -25,3 +27,12 @@ def test_audio_timing_is_present_but_timbre_authority_is_not_inflated():
 
 def test_nested_media_is_source_lock_not_template_truth():
  d=json.loads(CONTRACT.read_text());a={x['id']:x for x in d['refined_actions']};assert a['S14-PHY-004']['authority']=='SOURCE_LOCK';assert 'NESTED_MEDIA_SLOT'==a['S14-PHY-004']['target']
+
+def test_workflow_action_revisions_are_full_git_shas():
+ text=WORKFLOW.read_text()
+ uses=[line.split('uses:',1)[1].strip().split()[0] for line in text.splitlines() if 'uses:' in line]
+ assert uses
+ for value in uses:
+  assert '@' in value
+  revision=value.rsplit('@',1)[1]
+  assert re.fullmatch(r'[0-9a-f]{40}',revision), f'action pin must be a full 40-char SHA: {value}'
