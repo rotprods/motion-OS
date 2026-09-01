@@ -1,0 +1,24 @@
+{
+  "schema_version": "motion-os.s14-source-bound-qualification/v2-local",
+  "scene_id": "S14_AUDIO_VISUAL_TEXTO",
+  "renderer_head": "ebe8eedf210e4c2bd9c0465d38dfbb584d7a0471",
+  "artifact_id": 9781244633,
+  "artifact_digest": "sha256:6f512beeb382ea6f0cc188c88141ce56625070ca3fd6dc6d0a9d8031ec318101",
+  "measured_v2_sha256": "60aa87f43adb8b9fa204892563f2d48f76e3c1dd2a7e587c616fcda23ee1beb0",
+  "annotation_sha256": "5d7879d9849601ba5b548335cd8516791e28229a6b1cf2e64570bb216d78ca46",
+  "metrics": {
+    "card_audio": {"expected_first":0,"expected_last":18,"observed_first":0,"observed_last":18,"first_err":0,"last_err":0,"mean_iou":1.0,"min_iou":1.0,"mean_cent":0.0,"mean_area":0.0},
+    "card_visual": {"expected_first":11,"expected_last":54,"observed_first":11,"observed_last":54,"first_err":0,"last_err":0,"mean_iou":0.9978862571741014,"min_iou":0.9767869632501556,"mean_cent":0.30916625824973787,"mean_area":0.13498339116701125},
+    "card_texto": {"expected_first":47,"expected_last":93,"observed_first":47,"observed_last":93,"first_err":0,"last_err":0,"mean_iou":0.9961198585992685,"min_iou":0.9540540540540541,"mean_cent":0.5177892975676278,"mean_area":0.3334355721506665},
+    "heading_audio": {"expected_first":0,"expected_last":18,"observed_first":0,"observed_last":18,"first_err":0,"last_err":0,"mean_iou":0.9248957827190533,"min_iou":0.8210153042179917,"mean_cent":3.411064569020093,"mean_area":4.289628126826228},
+    "heading_visual": {"expected_first":11,"expected_last":51,"observed_first":11,"observed_last":51,"first_err":0,"last_err":0,"mean_iou":0.9410521687341404,"min_iou":0.8775510204081632,"mean_cent":1.6884004597996614,"mean_area":1.6389594757859238},
+    "heading_texto": {"expected_first":49,"expected_last":93,"observed_first":49,"observed_last":93,"first_err":0,"last_err":0,"mean_iou":0.9650048404982027,"min_iou":0.9278725640818307,"mean_cent":1.4487032585004556,"mean_area":2.5230502452231347},
+    "annotation_audio": {"expected_first":0,"expected_last":18,"observed_first":0,"observed_last":18,"first_err":0,"last_err":0,"mean_iou":0.42922174940468755,"min_iou":0.0,"mean_cent":23.81824340257822,"mean_area":56.700084370767854},
+    "annotation_visual": {"expected_first":11,"expected_last":54,"observed_first":11,"observed_last":54,"first_err":0,"last_err":0,"mean_iou":0.9188491346992834,"min_iou":0.6896020934349265,"mean_cent":4.638798795628568,"mean_area":5.200692775313849},
+    "annotation_texto": {"expected_first":47,"expected_last":93,"observed_first":47,"observed_last":93,"first_err":0,"last_err":0,"mean_iou":0.902326850206655,"min_iou":0.39097744360902253,"mean_cent":2.2029653762559467,"mean_area":7.531775369295942}
+  },
+  "gates": {"card_geometry":true,"card_timing":true,"heading_geometry":true,"heading_timing":true,"annotation_geometry":false,"annotation_timing":true},
+  "p0_p1_visible_state_gates_pass": false,
+  "full_9d_fidelity_validated": false,
+  "authority": "MEASURED_SOURCE_BOUND_LOCAL_RUN"
+}
