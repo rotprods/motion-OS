@@ -9,6 +9,13 @@ type State='audio'|'visual'|'texto';
 const tiles=Array.from({length:12},(_,i)=>i);
 const measurementCard:Record<State,string>={audio:'#00F36D',visual:'#00A8FF',texto:'#EA00FF'};
 const measurementHeading:Record<State,string>={audio:'#FFF200',visual:'#00FFF0',texto:'#FF7A00'};
+const headingVisibleBoundsCalibration:Record<State,{fontSizeMultiplier:number;baselineFactor:number;textLengthDelta:number;xOffset:number}>={
+  // Calibrates this clean-runner fallback font to source-visible bounds. It does
+  // not identify the unknown original font or claim original AE text metrics.
+  audio:{fontSizeMultiplier:1.36,baselineFactor:1.0,textLengthDelta:5,xOffset:-2},
+  visual:{fontSizeMultiplier:1.33,baselineFactor:1.0,textLengthDelta:7,xOffset:0},
+  texto:{fontSizeMultiplier:1.51,baselineFactor:1.0,textLengthDelta:5,xOffset:-2},
+};
 
 const NestedMedia:React.FC<{state:State}> =({state})=>{
  const isVisual=state==='visual',isTexto=state==='texto';
@@ -43,8 +50,9 @@ const Card:React.FC<{state:State;box:Box|null;measurement?:boolean}> =({state,bo
 
 const Heading:React.FC<{state:State;box:Box|null;measurement?:boolean}> =({state,box,measurement=false})=>{
  if(!box)return null;
+ const c=headingVisibleBoundsCalibration[state];
  return <svg data-heading={state} width={512} height={1108} viewBox="0 0 512 1108" style={{position:'absolute',inset:0,overflow:'visible'}}>
-   <text x={box.x} y={box.y+box.height*.88} fill={measurement?measurementHeading[state]:S14_SPEC.colors.heading} fontFamily="Arial Black,Arial,sans-serif" fontWeight={900} fontSize={box.height*1.12} textLength={Math.max(1,box.width)} lengthAdjust="spacingAndGlyphs" style={{filter:measurement?undefined:'drop-shadow(0 3px 2px rgba(0,0,0,.18))'}}>{state}</text>
+   <text x={box.x+c.xOffset} y={box.y+box.height*c.baselineFactor} fill={measurement?measurementHeading[state]:S14_SPEC.colors.heading} fontFamily="Arial Black,Arial,sans-serif" fontWeight={900} fontSize={box.height*c.fontSizeMultiplier} textLength={Math.max(1,box.width+c.textLengthDelta)} lengthAdjust="spacingAndGlyphs" style={{filter:measurement?undefined:'drop-shadow(0 3px 2px rgba(0,0,0,.18))'}}>{state}</text>
  </svg>;
 };
 
@@ -72,3 +80,5 @@ export const S14AudioVisualTexto:React.FC=()=>{
  const hits=useMemo(()=>S14_SPEC.transientLocalFrames.map((frame,i)=>({frame,src:makeS14Hit(0x1400+i,460+i*35)})),[]);
  return <AbsoluteFill style={{background:'#650000'}}><EditorialLayer/><SourceChrome/>{hits.map((h,i)=><Sequence key={i} from={h.frame} layout="none"><Audio src={h.src} volume={i===2||i===5?.48:.3}/></Sequence>)}</AbsoluteFill>;
 };
+
+export const S14_HEADING_VISIBLE_BOUNDS_CALIBRATION=headingVisibleBoundsCalibration;
