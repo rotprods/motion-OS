@@ -84,8 +84,8 @@ const SourceChrome:React.FC=()=> <>
 export const S14Overlay:React.FC=()=> <EditorialLayer transparent measurement/>;
 
 export const S14AudioVisualTexto:React.FC=()=>{
- const hits=useMemo(()=>S14_SPEC.transientLocalFrames.map((frame,i)=>({frame,src:makeS14Hit(0x1400+i,460+i*35)})),[]);
- return <AbsoluteFill style={{background:'#650000'}}><EditorialLayer/><SourceChrome/>{hits.map((h,i)=><Sequence key={i} from={h.frame} layout="none"><Audio src={h.src} volume={i===2||i===5?.48:.3}/></Sequence>)}</AbsoluteFill>;
+ const hits=useMemo(()=>S14_SPEC.transientLocalFrames.map((frame,i)=>({frame,playFrame:Math.max(0,frame-S14_SPEC.rendererCalibration.syntheticHitLeadFrames),src:makeS14Hit(0x1400+i,460+i*35)})),[]);
+ return <AbsoluteFill style={{background:'#650000'}}><EditorialLayer/><SourceChrome/>{hits.map((h,i)=><Sequence key={i} from={h.playFrame} layout="none"><Audio src={h.src} volume={i===2||i===5?.48:.3}/></Sequence>)}</AbsoluteFill>;
 };
 
 export const S14_HEADING_VISIBLE_BOUNDS_CALIBRATION=headingVisibleBoundsCalibration;
