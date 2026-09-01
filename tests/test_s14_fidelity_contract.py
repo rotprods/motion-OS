@@ -14,21 +14,25 @@ def test_dynamic_qualifier_module_is_registered_for_dataclass_resolution():
     assert sys.modules['s14q'] is mod
     assert mod.Box.__module__=='s14q'
 
-def test_card_oracle_does_not_absorb_adjacent_same_alpha_geometry():
+def test_card_oracle_is_target_isolated_from_adjacent_geometry():
     im=Image.new('RGBA',(220,220),(0,0,0,0));d=ImageDraw.Draw(im)
-    # canonical target
-    d.rounded_rectangle((50,60,150,180),radius=16,fill=(120,120,120,255))
-    # adjacent element in the padded neighborhood: must not become target authority
+    # canonical audio-card measurement identity
+    d.rounded_rectangle((50,60,150,180),radius=16,fill=(0,243,109,255))
+    # adjacent non-target geometry can touch the target and share alpha without
+    # gaining card authority because it has a different measurement identity.
     d.rectangle((151,100,190,135),fill=(120,120,120,255))
     expected=mod.Box(50,60,101,121)
-    observed=mod.observe_card(im,expected)
+    observed=mod.observe_card(im,expected,'audio')
     assert observed is not None
-    assert mod.iou(expected,observed)>0.97
-    assert mod.centroid(expected,observed)<2
+    assert mod.iou(expected,observed)>0.99
+    assert mod.centroid(expected,observed)<1
+
+def test_measurement_palette_is_unique_per_card_and_heading():
+    colors=list(mod.MEASUREMENT_COLORS.values())
+    assert len(colors)==6
+    assert len(set(colors))==6
 
 def test_full_9d_authority_is_impossible_from_visible_state_qualifier_alone():
-    # The contract intentionally has a separate hard-coded false authority bit;
-    # visible geometry is never sufficient to self-promote to full 9D.
     source=SCRIPT.read_text()
     assert "'full_9d_fidelity_validated':False" in source
     assert 'annotation vector-path fidelity' in source
