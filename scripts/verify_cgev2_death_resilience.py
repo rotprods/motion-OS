@@ -14,6 +14,7 @@ NEXT = ROOT / "coordination/cgev2/NEXT_ITERATION_METAPROMPT_2026-09-01.md"
 CONTINUITY = ROOT / "PROJECT_CONTINUITY_MASTER.md"
 SHA40 = re.compile(r"^[0-9a-f]{40}$")
 SHA64 = re.compile(r"^[0-9a-f]{64}$")
+PROJECT_DONE_TRUE = re.compile(r"(?im)^\s*(?:[-*]\s*)?(?:status\s*:\s*)?PROJECT_DONE\s*=\s*true\s*$")
 
 
 def _load(path: Path):
@@ -120,7 +121,9 @@ def validate_packet(root: Path = ROOT) -> list[str]:
     continuity = CONTINUITY.read_text(encoding="utf-8")
     if "VERIFY LIVE TRUTH BEFORE EXECUTION" not in continuity:
         errors.append("continuity_pointer_missing_live_truth_gate")
-    if "PROJECT_DONE=true" in continuity or "PROJECT_DONE = true" in continuity:
+    # Mentioning the forbidden state in explanatory prose is allowed; only an
+    # affirmative standalone PROJECT_DONE=true status line is a false authority claim.
+    if PROJECT_DONE_TRUE.search(continuity):
         errors.append("continuity_pointer_must_not_claim_done")
     if re.search(r"current main[^\n]*[0-9a-f]{40}", continuity, flags=re.I):
         errors.append("continuity_pointer_must_not_pin_volatile_main")
