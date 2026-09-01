@@ -74,21 +74,20 @@ MEASURED_COLUMN_RISE
 - durable measured-track SHA256: `2b12cf3e3f30a4ddff46b931cff15ba7080e4f94fd78cfe0957f3fa076fe283b`.
 - column gate: PASS; mean IoU `0.9982856`, centroid error `0.1889 px`.
 - question-mark gate: FAIL; mean IoU `0.9483894`, minimum IoU `0.7898089`, centroid error `2.6319 px`.
-- representative direct contradictions between authoritative Drive track and Git projection:
-  - local14 Drive question bbox `[106,626,74,175]`; Git projection keyframe `[106,621,74,163]`.
-  - local91 Drive question bbox `[96,582,78,191]`; Git projection `[106,582,74,186]`.
-- Factor X projection also changes temporal authority by sparse interpolation; e.g. authoritative local21 remains `y=925`, while the hand-compressed track omits local21 between local20 `y=925` and local22 `y=889`, causing premature upward interpolation.
+- representative contradictions:
+  - local14 Drive question bbox `[106,626,74,175]`; old Git projection `[106,621,74,163]`.
+  - local91 Drive question bbox `[96,582,78,191]`; old Git projection `[106,582,74,186]`.
+  - authoritative Factor X local21 remains `y=925`, while the old sparse projection omitted local21 and interpolated upward prematurely.
 - root-cause family: `HAND_AUTHORED_SPARSE_PROJECTION_NOT_MECHANICALLY_DERIVED_FROM_FULL_FRAME_AUTHORITY`.
-- rejected repair: loosen question threshold from `.98`; manually tune a few bad keyframes; reinterpret source measurements to match the renderer.
-- architecture repair: compile the full 92-frame authoritative Drive track directly into the executable projection for `column`, `question_mark`, `factor_x`, and factor relative-luma proxy. No interpolation is required for this bounded golden scene.
-- permanent compiler invariant: a reduced projection may only replace full-frame evidence if an automated equivalence test proves its error stays inside declared source-bound tolerances.
-- status: `OPEN_PENDING_FULL_FRAME_PROJECTION_V2`.
+- rejected repair: loosen thresholds; manually tune only failing frames; reinterpret source evidence.
+- architecture repair: compile the full 92-frame authoritative Drive track directly into executable `MEASURED_SOURCE_BOUND_FULL_FRAME_PROJECTION_V2`, with `FULL_FRAME_NO_INTERPOLATION` and the durable source-track SHA bound in code.
+- permanent compiler invariant: a reduced projection may only replace full-frame evidence if an automated equivalence test proves it stays inside declared tolerances.
+- original status: `OPEN_PENDING_FULL_FRAME_PROJECTION_V2`.
 
 ```text
 FULL_FRAME_SOURCE_TRACK
   -> WAS_REDUCED_TO -> HAND_AUTHORED_KEYFRAMES
   -> INTRODUCED -> TEMPORAL_AND_BBOX_DRIFT
-  -> FAILS -> QUESTION_GEOMETRY_GATE
   -> REPAIRED_BY -> MECHANICAL_FULL_FRAME_PROJECTION
   -> GENERALIZES_TO -> REDUCTION_REQUIRES_EQUIVALENCE_PROOF
 ```
@@ -98,42 +97,77 @@ FULL_FRAME_SOURCE_TRACK
 - domain: `QA / AUTHORITY TYPE / TYPOGRAPHY`
 - severity: `P1 qualification-integrity defect`
 - discovered by: independent source-bound qualifier on artifact `9800260540`.
-- observed factor result: mean IoU `0.7649196`, minimum IoU `0.3652519`, centroid error `11.2301 px`; timing first/last frames is exact.
+- observed factor result before repair: mean IoU `0.7649196`, minimum IoU `0.3652519`, centroid error `11.2301 px`; timing first/last frames exact.
 - root-cause family: `CROSS_AUTHORITY_GEOMETRY_COMPARISON_LAYOUT_PROXY_VS_GLYPH_OUTLINE`.
-- authoritative source measurement explicitly classifies Factor X as `MEASURED_RIGHT_X_ANCHOR_PLUS_STABLE_VISIBLE_LAYOUT_PROXY`; exact source font/glyph outline is UNKNOWN.
-- current measurement overlay renders fallback `Arial Black` text, so the qualifier observes its actual glyph pixels rather than the source-authorized layout proxy.
+- authoritative source measurement classifies Factor X as `MEASURED_RIGHT_X_ANCHOR_PLUS_STABLE_VISIBLE_LAYOUT_PROXY`; exact source font/glyph outline is UNKNOWN.
+- old measurement overlay rendered fallback `Arial Black` text, so the qualifier observed its glyph pixels instead of the source-authorized layout proxy.
 - representative symptom: local21 expected layout proxy `[136,925,315,62]`, observed fallback-glyph bbox `[260,915,191,51]`.
-- rejected repair: lower Factor X IoU threshold; claim fallback font glyphs are exact; alter source layout proxy to fit Arial Black.
-- architecture repair: target-isolated measurement mode must emit the `factor_x` layout box as a flat unique-color rectangle, exactly as column/question measurement channels do. Production structural render continues to use fallback text and keeps exact glyph morphology blocked.
-- authority boundary after repair: the gate validates Factor X layout/timing track only; it explicitly does **not** validate exact font/glyph outline.
-- status: `OPEN_PENDING_AUTHORITY_ALIGNED_MEASUREMENT_SURFACE`.
+- rejected repair: lower Factor X threshold; claim fallback glyphs exact; alter source layout proxy to fit fallback font.
+- architecture repair: layout measurement mode emits the factor layout box as a flat unique-color target. Production render keeps fallback text; exact font/glyph fidelity remains explicitly blocked.
+- original status: `OPEN_PENDING_AUTHORITY_ALIGNED_MEASUREMENT_SURFACE`.
 
 ```text
 SOURCE_FACTOR_AUTHORITY = LAYOUT_PROXY
   -> ORACLE_OBSERVED -> FALLBACK_GLYPH_PIXELS
   -> COMPARES_DIFFERENT_TYPES -> FALSE_FIDELITY_DEFECT
-  -> MUST_NOT_FIX_BY -> THRESHOLD_WEAKENING
   -> REPAIRED_BY -> LAYOUT_PROXY_MEASUREMENT_CHANNEL
   -> KEEPS_BLOCKED -> EXACT_FONT_AND_GLYPH_MORPHOLOGY
 ```
 
-## S16 audio checkpoint
+## Resolution ledger — exact-head `e34b3806...`
 
-- artifact `9800260540` vs canonical mixed-track transient proxies: PASS.
-- mean absolute peak error: `0.395763 frames`.
-- max absolute peak error: `0.902109 frames` against a `1.5 frame` gate.
-- SFX identity/timbre/stems remain UNKNOWN; this only qualifies synthetic timing proxy alignment.
+Authoritative rerun after `S16-DEF-MEAS-001` and `S16-DEF-QA-001` repairs:
 
-## Source-fidelity frontier
+- head: `e34b38061e2ad1d322238a011f5c6b9660b883ee`.
+- `Remotion Golden S16` run: `33508449494` -> SUCCESS.
+- `Merge Safe` run: `33508449528` -> SUCCESS.
+- artifact: `9800670307`.
+- artifact digest: `sha256:01a8a99943698a2669cf887b6a406652d07cd93e62f2e0c37b4f3d9c1794f325`.
+- Drive artifact: `17SuVnL2ByUJLiolbl-qNJeqZCBjcUKri`.
+- layout qualification Drive ID: `1DLr6lMwSgLrzp-TcW2JZpZuZAZ2kUR_U`.
+- audio qualification Drive ID: `11Ilq0GgccRmLvYsFGlarK3pwoDTk3XnL`.
 
-Current authority after artifact `9800260540`:
+Source-bound layout/timing results:
 
-`STRUCTURAL_RENDER_EXECUTED + COLUMN_GEOMETRY_QUALIFIED + AUDIO_TIMING_PROXY_QUALIFIED`.
+- column: mean/min IoU `1.0`, centroid error `0 px`, timing error `0f`.
+- question mark: mean/min IoU `1.0`, centroid error `0 px`, timing error `0f`.
+- Factor X layout proxy: mean/min IoU `1.0`, centroid error `0 px`, timing error `0f`.
+- all declared P0/P1 visible layout/timing gates: PASS.
 
-Question-mark and Factor-X layout gates remain open. Full 9D fidelity remains false.
+Audio timing proxy:
 
-Next authoritative step:
+- mean absolute transient error: `0.395763f`.
+- max absolute transient error: `0.902109f`.
+- gate: `1.5f`.
+- result: PASS.
 
-`full-frame executable projection v2 + authority-aligned Factor X measurement channel -> exact-head CI -> artifact -> source-bound visible diff -> DefectGraph adjudication`.
+Resolution state:
 
-Unknowns remain explicit: exact original column asset, exact question-mark asset, exact `Factor X` font/source glyph outline, original AE/precomp/Graph Editor/effect graph, exact opacity curves, isolated stems/SFX identities, unique original COLUMN-vs-QUESTION z-order, and causal origin of local87+ global reflow.
+- `S16-DEF-MEAS-001` -> `REPAIRED / EXACT_HEAD_SOURCE_BOUND_REQUALIFIED`.
+- `S16-DEF-QA-001` -> `REPAIRED / AUTHORITY_ALIGNED_ORACLE_REQUALIFIED`.
+- `S16-DEF-RENDER-001` remains `REPAIRED / EXACT_HEAD_EXECUTION_VERIFIED`.
+
+## S16-DEF-FID-001 — structural proxy morphology remains below exact-source fidelity
+
+- domain: `FIDELITY CEILING / STRUCTURAL PROXY APPEARANCE`
+- severity: `P2; does not reopen qualified layout/timing contract`
+- authority: `ADVISORY_SOURCE_VS_RENDER_VISUAL_REVIEW`.
+- evidence head/artifact: `e34b3806...` / `9800670307`.
+- Drive review: `1QDKeWse4PEhx4o9tZirBLZHFtwD1oMGg`.
+- Drive source/render contact sheet: `11MzRd6mYxLpFsAmYYfFLb5k0cAHvbtIh`.
+- fallback question-mark visible component under-fills the source red-component morphology: advisory mean bbox IoU `0.480919`, min `0.459273` across the color-observable production proxy frames.
+- Factor X fallback font also differs from source glyph metrics; at local54 the source X anchor is `[397,721,54,61]` while the rendered fallback rightmost component is approximately `[400,729,49,50]`.
+- interpretation: these are **not** failures of the now-qualified layout/timing tracks. They prove that layout qualification cannot be promoted to exact glyph/path/material or original-asset fidelity.
+- repair options for a future exact-reconstruction tier: bind original source assets/font if recovered, or add explicitly labeled fallback visible-bounds calibration without claiming original identity.
+- prohibited inference: do not claim exact question-mark path/material, exact Factor X font/glyph outline, or exact column asset/material from the structural proxy.
+- status: `OPEN_AS_EXPLICIT_FIDELITY_CEILING / NOT_P0_P1_LAYOUT_BLOCKER`.
+
+## Final source-fidelity frontier
+
+Current highest S16 authority:
+
+`STRUCTURAL_RENDER_EXECUTED + SOURCE_BOUND_LAYOUT_TIMING_QUALIFIED + AUDIO_TIMING_PROXY_QUALIFIED`.
+
+This does **not** equal full source reconstruction or `CANONICAL_TEMPLATE` promotion. `full_9d_fidelity_validated = false` remains mandatory.
+
+Remaining blocked dimensions include exact original column asset/material/lighting, exact question-mark glyph/path/material, exact `Factor X` font/glyph outline, original AE/precomp/Graph Editor/effect graph, exact opacity curves, isolated stems/SFX identities, unique original COLUMN-vs-QUESTION z-order, speaker pixel fidelity in structural mode, and causal origin of local87+ global reflow.
