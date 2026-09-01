@@ -28,6 +28,19 @@ Authority: append-only reconstruction/qualification ledger. A defect is not a so
 - permanent local invariant: every `uses:` revision in the S14 workflow must be exactly 40 lowercase hex characters.
 - provider-existence verification: delegated to GitHub Actions resolution on exact-head execution; a green setup phase is required before any renderer/test authority is claimed.
 - regression: `test_workflow_action_revisions_are_full_git_shas`.
+- status: `PROVIDER_RESOLUTION_VERIFIED / CLOSED`
+
+## S14-DEF-TEST-001 — dynamic-module test harness omitted `sys.modules` registration
+
+- domain: `QA / TEST HARNESS`
+- severity: `P1 execution blocker, no product authority`
+- observed run: `Remotion Golden S14 #33453466612`
+- failure stage: pytest collection, before TypeScript checks or render
+- symptom: Python 3.12 `@dataclass` resolution failed because the dynamically loaded qualifier module was executed without first being registered in `sys.modules`.
+- root-cause family: `DYNAMIC_MODULE_EXECUTION_WITHOUT_IMPORT_SYSTEM_REGISTRATION`
+- consequence: qualifier implementation and renderer remained `NOT_RUN` for this attempt; the error is not evidence that either is wrong.
+- repair: register `sys.modules[spec.name] = module` before `exec_module`.
+- regression: `test_dynamic_qualifier_module_is_registered_for_dataclass_resolution`.
 - status: `REPAIRED_PENDING_EXACT_HEAD_REVERIFY`
 
 ```text
@@ -41,6 +54,14 @@ TRUNCATED_PIN
   -> REPAIRED_BY -> KNOWN_PROVIDER_COMMIT
   -> TESTED_BY -> SHA_SHAPE_REGRESSION
   -> VERIFIED_BY -> GITHUB_ACTION_RESOLUTION_ON_EXACT_HEAD
+
+DYNAMIC_TEST_IMPORT
+  -> OMITS -> SYS_MODULES_REGISTRATION
+  -> BREAKS -> DATACLASS_TYPE_RESOLUTION
+  -> PREVENTS -> TEST_COLLECTION
+  -> DOES_NOT_PROVE -> QUALIFIER_OR_RENDERER_FAILURE
+  -> REPAIRED_BY -> IMPORT_SYSTEM_REGISTRATION
+  -> TESTED_BY -> TEST_HARNESS_REGRESSION
 ```
 
 ## Source-fidelity defect frontier
