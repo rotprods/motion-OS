@@ -21,7 +21,7 @@ Authority: append-only reconstruction/qualification ledger. A defect is not a so
 - severity: `P1 execution blocker`
 - observed run: `Remotion Golden S14 #33453202698`
 - failure stage: runner `Set up job`, before checkout/tests/render
-- invalid attempted repair: `actions/setup-node@49933ea5288ca8642d1e84afbd3f7d6820020eca`
+- invalid attempted repair: `actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020eca`
 - root-cause family: `MANUALLY_RECONSTRUCTED_ACTION_SHA_WITHOUT_PROVIDER_VALIDATION`
 - generalized lesson: a fixed-length hex token is not sufficient proof that an immutable action revision exists. Revision authority must come from a known provider commit, ideally copied from an already successful pinned workflow or verified against the provider repository.
 - final repair input: known setup-node v4 commit used by the established pin set: `49933ea5288caeca8642d1e84afbd3f7d6820020`.
@@ -43,6 +43,31 @@ Authority: append-only reconstruction/qualification ledger. A defect is not a so
 - regression: `test_dynamic_qualifier_module_is_registered_for_dataclass_resolution`.
 - status: `REPAIRED_PENDING_EXACT_HEAD_REVERIFY`
 
+## S14-DEF-QA-001 — connected-component target contamination
+
+- domain: `QA / FIDELITY ORACLE`
+- severity: `P1 qualification-integrity defect`
+- observed run: `Remotion Golden S14 #33453624321`
+- failure stage: adversarial fidelity-oracle unit test, before render
+- observed counterexample: expected card box `(50,60,101,121)` became `(50,60,111,121)` when adjacent same-alpha geometry touched the target; IoU fell to `0.90991`.
+- root-cause family: `MEASUREMENT_TARGET_IDENTITY_NOT_ISOLATED`
+- relationship to historical S11 failure: same higher-order family as `MEASUREMENT_ORACLE_CROSS_COMPONENT_CONTAMINATION`; S14 proves overlap/centroid scoring alone cannot recover target identity after connected components have already merged.
+- rejected repair: weaken the adversarial threshold or reduce padding until the fixture passes.
+- architecture repair: render a dedicated target-isolated QA projection from the same canonical measured tracks, assigning a unique flat RGB identity to every measured card/heading. The production structural render remains unchanged; only the measurement surface becomes semantically labeled.
+- measurement identities:
+  - card/audio `#00F36D`
+  - card/visual `#00A8FF`
+  - card/texto `#EA00FF`
+  - heading/audio `#FFF200`
+  - heading/visual `#00FFF0`
+  - heading/texto `#FF7A00`
+- qualifier repair: measure exact target color inside the expected neighborhood instead of any alpha-connected component.
+- regressions:
+  - `test_card_oracle_is_target_isolated_from_adjacent_geometry`
+  - `test_measurement_palette_is_unique_per_card_and_heading`
+- authority boundary: target-isolated geometry proves renderer execution against measured tracks; it does not prove source-media pixels, exact fonts, annotation morphology or original AE internals.
+- status: `REPAIRED_PENDING_EXACT_HEAD_REVERIFY`
+
 ```text
 TRUNCATED_PIN
   -> PREVENTS -> RUNNER_BOOTSTRAP
@@ -62,12 +87,21 @@ DYNAMIC_TEST_IMPORT
   -> DOES_NOT_PROVE -> QUALIFIER_OR_RENDERER_FAILURE
   -> REPAIRED_BY -> IMPORT_SYSTEM_REGISTRATION
   -> TESTED_BY -> TEST_HARNESS_REGRESSION
+
+CONNECTED_COMPONENT_ORACLE
+  -> MERGES -> TARGET + ADJACENT_GEOMETRY
+  -> DESTROYS -> TARGET_IDENTITY
+  -> CAUSES -> FALSE_FIDELITY_DEFECT
+  -> GENERALIZES_TO -> MEASUREMENT_TARGET_IDENTITY_NOT_ISOLATED
+  -> REPAIRED_BY -> UNIQUE_COLOR_TARGET_PROJECTION
+  -> PRESERVES -> SAME_CANONICAL_GEOMETRY_TRACK
+  -> TESTED_BY -> ADVERSARIAL_TOUCHING_GEOMETRY
 ```
 
 ## Source-fidelity defect frontier
 
 No source-fidelity defect is yet promoted here. The next authoritative step is:
 
-`exact-head structural render -> artifact -> source-bound carousel/heading/annotation/audio diff -> defect adjudication`.
+`exact-head structural render -> target-isolated measurement artifact -> source-bound carousel/heading/annotation/audio diff -> defect adjudication`.
 
 Unknowns remain explicit: exact fonts, original AE hierarchy/Graph Editor curves, exact annotation paths, isolated original SFX stems, hidden media mattes.
