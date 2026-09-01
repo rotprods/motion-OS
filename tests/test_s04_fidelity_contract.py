@@ -142,3 +142,28 @@ def test_transient_proxy_detects_impulse_location(tmp_path: Path) -> None:
         w.writeframes(b"".join(struct.pack("<h", x) for x in samples))
     peak = mod._transient_peak_wav(path)
     assert abs(peak["peak_seconds"] - 0.300) <= 0.010
+
+
+def test_current_s04_authority_closes_declared_p1_without_inflating_full_fidelity() -> None:
+    root = Path(__file__).resolve().parents[1]
+    current = json.loads((root / "forensics/references/screenrecording_20260826/golden/s04/fidelity/s04_fidelity_current.json").read_text())
+    contract = json.loads((root / "forensics/references/screenrecording_20260826/golden/s04/s04_contract.json").read_text())
+
+    assert current["schema_version"] == "motion-os.s04-fidelity-current/v2"
+    assert current["authority"] == "SOURCE_BOUND_PARTIAL_QUALIFICATION_P0P1_CLOSED"
+    assert current["promotion"]["p0_p1_measured_layout_audio_repair_closed"] is True
+    assert current["promotion"]["full_9d_fidelity_validated"] is False
+    assert current["promotion"]["canonical_template"] is False
+    assert current["post_repair"]["audio"]["absolute_error_frames"] <= current["thresholds"]["audio_onset_error_frames_max"]
+    for role in ("setup", "hero", "tail"):
+        metrics = current["post_repair"][role]
+        assert metrics["mean_bbox_iou"] >= current["thresholds"]["mean_bbox_iou_min"]
+        assert metrics["mean_centroid_error_px"] <= current["thresholds"]["mean_centroid_error_px_max"]
+        assert metrics["mean_area_error_pct"] <= current["thresholds"]["mean_area_error_pct_max"]
+
+    # P0/P1 action/layout closure must never masquerade as exact typography.
+    assert current["post_repair"]["setup"]["min_bbox_iou"] < current["thresholds"]["mean_bbox_iou_min"]
+    assert any("font" in item.lower() and "glyph" in item.lower() for item in current["blocked_dimensions"])
+    assert contract["schema_version"] == "motion-os.golden-scene/v2"
+    assert contract["authority"] == "SOURCE_BOUND_PARTIAL_QUALIFICATION_P0P1_CLOSED"
+    assert contract["qualification"]["full_9d_fidelity_validated"] is False
