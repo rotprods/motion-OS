@@ -7,6 +7,8 @@ import{makeS14Hit}from'./proceduralSfx';
 
 type State='audio'|'visual'|'texto';
 const tiles=Array.from({length:12},(_,i)=>i);
+const measurementCard:Record<State,string>={audio:'#00F36D',visual:'#00A8FF',texto:'#EA00FF'};
+const measurementHeading:Record<State,string>={audio:'#FFF200',visual:'#00FFF0',texto:'#FF7A00'};
 
 const NestedMedia:React.FC<{state:State}> =({state})=>{
  const isVisual=state==='visual',isTexto=state==='texto';
@@ -32,26 +34,26 @@ const Annotation:React.FC<{state:State}> =({state})=>{
  return <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{position:'absolute',left:'5%',top:'4%',width:'90%',height:'27%',overflow:'visible'}}><ellipse cx="50" cy="50" rx="48" ry="43" fill="none" stroke={S14_SPEC.colors.red} strokeWidth="2.5"/></svg>;
 };
 
-const Card:React.FC<{state:State;box:Box|null}> =({state,box})=>{
+const Card:React.FC<{state:State;box:Box|null;measurement?:boolean}> =({state,box,measurement=false})=>{
  if(!box)return null;
- return <div data-card={state} style={{position:'absolute',left:box.x,top:box.y,width:box.width,height:box.height,borderRadius:Math.max(18,box.width*.085),overflow:'hidden',boxShadow:'0 16px 26px rgba(0,0,0,.28)',background:'#777'}}>
-   <NestedMedia state={state}/><Annotation state={state}/>
+ return <div data-card={state} style={{position:'absolute',left:box.x,top:box.y,width:box.width,height:box.height,borderRadius:Math.max(18,box.width*.085),overflow:'hidden',boxShadow:measurement?'none':'0 16px 26px rgba(0,0,0,.28)',background:measurement?measurementCard[state]:'#777'}}>
+   {measurement?null:<><NestedMedia state={state}/><Annotation state={state}/></>}
  </div>;
 };
 
-const Heading:React.FC<{state:State;box:Box|null}> =({state,box})=>{
+const Heading:React.FC<{state:State;box:Box|null;measurement?:boolean}> =({state,box,measurement=false})=>{
  if(!box)return null;
  return <svg data-heading={state} width={512} height={1108} viewBox="0 0 512 1108" style={{position:'absolute',inset:0,overflow:'visible'}}>
-   <text x={box.x} y={box.y+box.height*.88} fill={S14_SPEC.colors.heading} fontFamily="Arial Black,Arial,sans-serif" fontWeight={900} fontSize={box.height*1.12} textLength={Math.max(1,box.width)} lengthAdjust="spacingAndGlyphs" style={{filter:'drop-shadow(0 3px 2px rgba(0,0,0,.18))'}}>{state}</text>
+   <text x={box.x} y={box.y+box.height*.88} fill={measurement?measurementHeading[state]:S14_SPEC.colors.heading} fontFamily="Arial Black,Arial,sans-serif" fontWeight={900} fontSize={box.height*1.12} textLength={Math.max(1,box.width)} lengthAdjust="spacingAndGlyphs" style={{filter:measurement?undefined:'drop-shadow(0 3px 2px rgba(0,0,0,.18))'}}>{state}</text>
  </svg>;
 };
 
-const EditorialLayer:React.FC<{transparent?:boolean}> =({transparent=false})=>{
+const EditorialLayer:React.FC<{transparent?:boolean;measurement?:boolean}> =({transparent=false,measurement=false})=>{
  const frame=useCurrentFrame();const m=measuredS14(frame);
- return <AbsoluteFill style={{background:transparent?'transparent':`radial-gradient(circle at 50% 42%,${S14_SPEC.colors.bg1},${S14_SPEC.colors.bg0} 68%,#4d0000)`,overflow:'hidden'}}>
-   {!transparent?<div style={{position:'absolute',inset:0,backgroundImage:`linear-gradient(${S14_SPEC.colors.grid} 1px,transparent 1px),linear-gradient(90deg,${S14_SPEC.colors.grid} 1px,transparent 1px)`,backgroundSize:'100% 286px, 136px 100%',backgroundPosition:'0 252px, 126px 0',opacity:.68}}/>:null}
-   <Card state="audio" box={m.cards.audio}/><Card state="visual" box={m.cards.visual}/><Card state="texto" box={m.cards.texto}/>
-   <Heading state="audio" box={m.headings.audio}/><Heading state="visual" box={m.headings.visual}/><Heading state="texto" box={m.headings.texto}/>
+ return <AbsoluteFill style={{background:transparent||measurement?'transparent':`radial-gradient(circle at 50% 42%,${S14_SPEC.colors.bg1},${S14_SPEC.colors.bg0} 68%,#4d0000)`,overflow:'hidden'}}>
+   {!transparent&&!measurement?<div style={{position:'absolute',inset:0,backgroundImage:`linear-gradient(${S14_SPEC.colors.grid} 1px,transparent 1px),linear-gradient(90deg,${S14_SPEC.colors.grid} 1px,transparent 1px)`,backgroundSize:'100% 286px, 136px 100%',backgroundPosition:'0 252px, 126px 0',opacity:.68}}/>:null}
+   <Card state="audio" box={m.cards.audio} measurement={measurement}/><Card state="visual" box={m.cards.visual} measurement={measurement}/><Card state="texto" box={m.cards.texto} measurement={measurement}/>
+   <Heading state="audio" box={m.headings.audio} measurement={measurement}/><Heading state="visual" box={m.headings.visual} measurement={measurement}/><Heading state="texto" box={m.headings.texto} measurement={measurement}/>
  </AbsoluteFill>;
 };
 
@@ -63,7 +65,8 @@ const SourceChrome:React.FC=()=> <>
  <div style={{position:'absolute',left:0,right:0,bottom:0,height:62,background:'#050505'}}/>
  </>;
 
-export const S14Overlay:React.FC=()=> <EditorialLayer transparent/>;
+/** Target-isolated QA render. Colors identify entities but geometry is driven by the same measured tracks as the production structural render. */
+export const S14Overlay:React.FC=()=> <EditorialLayer transparent measurement/>;
 
 export const S14AudioVisualTexto:React.FC=()=>{
  const hits=useMemo(()=>S14_SPEC.transientLocalFrames.map((frame,i)=>({frame,src:makeS14Hit(0x1400+i,460+i*35)})),[]);
