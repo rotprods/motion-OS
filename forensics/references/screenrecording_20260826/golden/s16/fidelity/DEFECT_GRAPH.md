@@ -57,7 +57,7 @@ Any claim of a physical render or qualification must identify a provider-resolva
 
 ### Status
 
-`OPEN_PENDING_EXACT_HEAD_PHYSICAL_REVALIDATION`
+`AUTHORITY_RECONCILED / STALE_CLAIM_INVALIDATED`
 
 ```text
 CHAT_CLAIM
@@ -69,12 +69,46 @@ CHAT_CLAIM
   -> GENERALIZES_TO -> NO_CHAT_ONLY_EXECUTION_AUTHORITY
 ```
 
+## S16-DEF-RENDER-001 — descending physical Y used as Remotion interpolation domain
+
+- domain: `RENDERER / MOTION MAPPING / RUNTIME`
+- severity: `P0 physical-render blocker`
+- exact-head run: `Remotion Golden S16` run `33506760636`
+- job: `99852522767`
+- head under test: `222856b3ecdb6a1c241442dbc6b4a261169b69c8`
+- pre-render gates: `13 passed`; TypeScript succeeded; composition enumeration succeeded.
+- failure stage: physical `GoldenS16FactorX` render, local frame `2`.
+- provider error: `inputRange must be strictly monotonically increasing but got [858,828,807,792]`.
+- failing source: `S16FactorX.tsx`, `ColumnGraphic` opacity mapping.
+- root-cause family: `DESCENDING_PHYSICAL_AXIS_USED_DIRECTLY_AS_MONOTONIC_INTERPOLATION_DOMAIN`.
+- source trajectory is not defective: the measured column physically rises, therefore Y decreases. The renderer incorrectly encoded that descending Y series as Remotion's interpolation input domain, which requires strictly increasing values.
+- rejected repairs:
+  - change measured column Y geometry;
+  - reorder source frames;
+  - weaken/skip physical render;
+  - replace source-bound opacity mapping with an unrelated frame animation.
+- authority-preserving repair: express the identical mapping on an ascending Y domain: `[792,807,828,858] -> [1,.86,.52,.20]`, or an algebraically equivalent monotonic transform. This keeps `y=858 -> .20` and `y=792 -> 1` while satisfying runtime invariants.
+- regression requirement: automatically assert that renderer interpolation domains are strictly increasing and that endpoint mapping preserves the intended source-bound calibration.
+- consequence: run `33506760636` grants **no** `STRUCTURAL_RENDER_EXECUTED` authority; overlay/verifier/artifact did not execute.
+- status: `OPEN_PENDING_REPAIR_AND_EXACT_HEAD_RERENDER`
+
+```text
+MEASURED_COLUMN_RISE
+  -> DECREASES -> SCREEN_SPACE_Y
+  -> WAS_USED_AS -> INTERPOLATE_INPUT_RANGE
+  -> VIOLATES -> STRICT_MONOTONIC_INCREASE
+  -> CAUSES -> FRAME_2_RENDER_FAILURE
+  -> DOES_NOT_INVALIDATE -> SOURCE_GEOMETRY
+  -> REPAIRED_BY -> ASCENDING_DOMAIN_SAME_MAPPING
+  -> TESTED_BY -> MONOTONIC_DOMAIN_AND_ENDPOINT_REGRESSION
+```
+
 ## Source-fidelity frontier
 
-The source contract remains authoritative for the measured claims already frozen in `s16_contract.json`. The renderer is not yet qualified against it.
+The source contract remains authoritative for the measured claims already frozen in `s16_contract.json`. The renderer is not yet physically executed or qualified against it.
 
 Next authoritative step:
 
-`fresh exact-head CI -> physical artifact -> source-bound geometry/depth/hold/audio diff -> defect adjudication`.
+`repair monotonic mapping -> exact-head CI -> physical artifact -> source-bound geometry/depth/hold/audio diff -> defect adjudication`.
 
 Unknowns remain explicit: exact original column asset, exact question-mark asset, exact `Factor X` font/source metrics, original AE/precomp/Graph Editor/effect graph, exact opacity curves, isolated stems/SFX identities, and unique original COLUMN-vs-QUESTION z-order.
