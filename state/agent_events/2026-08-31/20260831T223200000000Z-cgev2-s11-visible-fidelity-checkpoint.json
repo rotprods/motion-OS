@@ -1,0 +1,37 @@
+{
+  "event_id": "20260831T223200000000Z-cgev2-s11-visible-fidelity-checkpoint",
+  "event_type": "work.checkpoint",
+  "timestamp": "2026-08-31T22:32:00Z",
+  "agent_id": "motion://agent/chatgpt/cgev2-s11-fidelity-reconstructor",
+  "project": "MOTION.OS",
+  "branch": "feat/reverse-engineering-s11-remotion-golden-v1",
+  "commit_sha": "149c533e13bac3501a5e6d68fb83a459a59d5133",
+  "pr_number": 107,
+  "summary": "S11 source-bound visible geometry/timing P0/P1 closure. Exact renderer head physically rendered and Merge Safe passed. The gauntlet also discovered and permanently regressed a measurement-oracle cross-component contamination defect. Full 9D/original-project/template authority remains blocked.",
+  "affected_paths": [
+    "runtime/remotion/src/golden_s11",
+    "scripts/qualify_s11_fidelity.py",
+    "tests/test_s11_fidelity_contract.py",
+    "forensics/references/screenrecording_20260826/golden/s11/fidelity"
+  ],
+  "checks": {
+    "remotion_golden_s11": "SUCCESS:33446396067",
+    "merge_safe": "SUCCESS:33446396106",
+    "artifact_id": "9778210035",
+    "artifact_digest": "sha256:fb1c730fd900f704895c48feb10392f86b93e836d992f00fc284103ae23fd16a",
+    "visible_p0_p1_gates": "PASS",
+    "full_9d_fidelity": "NOT_CLAIMED",
+    "regression_barrier": "OPEN:issue-48"
+  },
+  "authority": "VERIFIED",
+  "correlation_id": "motion://work/s11-source-fidelity-gauntlet-v2",
+  "metadata": {
+    "session_id": "motion://session/chatgpt/cgev2-s11-fidelity/20260901T0008+0200",
+    "workstream_id": "motion://workstream/t07-s11-source-fidelity-gauntlet-v2",
+    "objective_id": "motion://objective/t07-s11-physical-fidelity",
+    "qualification_state": "SOURCE_BOUND_VISIBLE_GEOMETRY_P0P1_CLOSED",
+    "authority_ceiling": "partial source-bound visible-output qualification only",
+    "next_safe_action": "start isolated S14_AUDIO_VISUAL_TEXT golden-scene workstream",
+    "schema_repair": "Pre-merge serialization repair: domain qualification moved from authority enum into metadata; semantic evidence and historical Git blob remain preserved."
+  }
+}
