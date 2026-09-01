@@ -8,7 +8,7 @@ Authority: append-only reconstruction/qualification ledger. A defect is not a so
 - severity: `P1 execution blocker`
 - observed run: `Remotion Golden S14 #33453023535`
 - failure stage: runner `Set up job`, before checkout/tests/render
-- observed invalid pin: `actions/setup-node@49933ea5288ca8642d1e84afbd3f7d6820020`
+- observed invalid pin: `actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020`
 - root-cause family: `INVALID_OR_TRUNCATED_ACTION_PIN`
 - consequence: physical renderer authority was `NOT_RUN`; this run is not evidence against S14 implementation correctness.
 - first repair attempt: manually appended missing-looking characters to the end of the revision.
@@ -41,7 +41,7 @@ Authority: append-only reconstruction/qualification ledger. A defect is not a so
 - consequence: qualifier implementation and renderer remained `NOT_RUN` for this attempt; the error is not evidence that either is wrong.
 - repair: register `sys.modules[spec.name] = module` before `exec_module`.
 - regression: `test_dynamic_qualifier_module_is_registered_for_dataclass_resolution`.
-- status: `REPAIRED_PENDING_EXACT_HEAD_REVERIFY`
+- status: `REPAIRED / REVERIFIED_BY_LATER_COLLECTION`
 
 ## S14-DEF-QA-001 — connected-component target contamination
 
@@ -53,55 +53,74 @@ Authority: append-only reconstruction/qualification ledger. A defect is not a so
 - root-cause family: `MEASUREMENT_TARGET_IDENTITY_NOT_ISOLATED`
 - relationship to historical S11 failure: same higher-order family as `MEASUREMENT_ORACLE_CROSS_COMPONENT_CONTAMINATION`; S14 proves overlap/centroid scoring alone cannot recover target identity after connected components have already merged.
 - rejected repair: weaken the adversarial threshold or reduce padding until the fixture passes.
-- architecture repair: render a dedicated target-isolated QA projection from the same canonical measured tracks, assigning a unique flat RGB identity to every measured card/heading. The production structural render remains unchanged; only the measurement surface becomes semantically labeled.
-- measurement identities:
-  - card/audio `#00F36D`
-  - card/visual `#00A8FF`
-  - card/texto `#EA00FF`
-  - heading/audio `#FFF200`
-  - heading/visual `#00FFF0`
-  - heading/texto `#FF7A00`
+- architecture repair: render a dedicated target-isolated QA projection from the same canonical measured tracks, assigning a unique flat RGB identity to every measured card/heading/annotation. The production structural render remains unchanged; only the measurement surface becomes semantically labeled.
 - qualifier repair: measure exact target color inside the expected neighborhood instead of any alpha-connected component.
-- regressions:
-  - `test_card_oracle_is_target_isolated_from_adjacent_geometry`
-  - `test_measurement_palette_is_unique_per_card_and_heading`
-- authority boundary: target-isolated geometry proves renderer execution against measured tracks; it does not prove source-media pixels, exact fonts, annotation morphology or original AE internals.
+- authority boundary: target-isolated geometry proves renderer execution against measured tracks; it does not prove source-media pixels, exact fonts, annotation path topology or original AE internals.
+- status: `REPAIRED_PENDING_LATEST_EXACT_HEAD_REVERIFY`
+
+## S14-DEF-MEAS-001 — heading track identity swap during crossing
+
+- domain: `SOURCE MEASUREMENT / ENTITY CONTINUITY`
+- severity: `P1 evidence-integrity defect`
+- discovered during: source-bound comparison after target-isolated renderer proof
+- affected local frames: `52..56`
+- root-cause family: `TRACK_IDENTITY_SWAP_DURING_CROSSING`
+- symptom: v1 assigned incoming `texto` heading observations to the outgoing `visual` track after `visual` had already exited left.
+- evidence: temporal x-continuity of the incoming heading plus visible source wording; source `texto` progresses from x≈384 → 320 → 276 → 245 → 220 → 200 → 185 → 172 while the outgoing visual heading exits by local 51.
+- repair: preserve v1 raw evidence, create measured track v2, version contract to `motion-os.golden-s14-contract/v2`, and record `S14-MEAS-CORR-001`.
+- Drive v1: `19r2Xhl0IYZ6ErgcCFZUrsHbw-08g4FWj`.
+- Drive v2: `1VFgmwZaJdnDaRRJ8Lz-GiwUUPiKDcPum`.
+- status: `REPAIRED_PENDING_LATEST_EXACT_HEAD_REVERIFY`
+
+## S14-DEF-TEST-002 — documentation wording used as semantic authority
+
+- domain: `QA / TEST ORACLE`
+- severity: `P1 execution blocker, no renderer authority`
+- observed run: `Remotion Golden S14 #33454979259`
+- failure stage: pytest contract checks, before TypeScript/render
+- symptom: `test_fallback_heading_calibration_never_claims_exact_font_identity` required an exact prose substring from a source-code comment.
+- root-cause family: `TEST_ASSERTS_DOCUMENTATION_WORDING_INSTEAD_OF_SEMANTIC_AUTHORITY`
+- why invalid: comments may be rephrased without changing the authority contract; forcing production comments to match a test would invert the authority direction.
+- rejected repair: modify the renderer comment until the brittle string test passes.
+- repair: assert the actual semantic surfaces instead: calibration object exists; renderer uses only a fallback font; `s14Spec.ts` declares `headingFont:'FONT_CLASS_ONLY_EXACT_FONT_UNKNOWN'`; contract retains `exact heading font` in `unknowns`.
+- regression: renamed semantic test `test_fallback_heading_calibration_preserves_unknown_font_authority`.
 - status: `REPAIRED_PENDING_EXACT_HEAD_REVERIFY`
 
 ```text
 TRUNCATED_PIN
   -> PREVENTS -> RUNNER_BOOTSTRAP
-  -> CAUSES -> WORKFLOW_FAILURE
   -> DOES_NOT_PROVE -> RENDERER_FAILURE
-  -> BAD_REPAIR -> MANUALLY_GUESSED_SHA
-  -> CAUSES -> SECOND_SETUP_FAILURE
   -> GENERALIZES_TO -> ACTION_REVISION_PROVENANCE_REQUIRED
-  -> REPAIRED_BY -> KNOWN_PROVIDER_COMMIT
-  -> TESTED_BY -> SHA_SHAPE_REGRESSION
-  -> VERIFIED_BY -> GITHUB_ACTION_RESOLUTION_ON_EXACT_HEAD
 
 DYNAMIC_TEST_IMPORT
   -> OMITS -> SYS_MODULES_REGISTRATION
-  -> BREAKS -> DATACLASS_TYPE_RESOLUTION
   -> PREVENTS -> TEST_COLLECTION
   -> DOES_NOT_PROVE -> QUALIFIER_OR_RENDERER_FAILURE
-  -> REPAIRED_BY -> IMPORT_SYSTEM_REGISTRATION
-  -> TESTED_BY -> TEST_HARNESS_REGRESSION
 
 CONNECTED_COMPONENT_ORACLE
   -> MERGES -> TARGET + ADJACENT_GEOMETRY
   -> DESTROYS -> TARGET_IDENTITY
   -> CAUSES -> FALSE_FIDELITY_DEFECT
-  -> GENERALIZES_TO -> MEASUREMENT_TARGET_IDENTITY_NOT_ISOLATED
   -> REPAIRED_BY -> UNIQUE_COLOR_TARGET_PROJECTION
-  -> PRESERVES -> SAME_CANONICAL_GEOMETRY_TRACK
-  -> TESTED_BY -> ADVERSARIAL_TOUCHING_GEOMETRY
+
+TRACK_CROSSING
+  -> CONFUSES -> ENTITY_IDENTITY
+  -> CORRUPTS -> SOURCE_MEASUREMENT_AUTHORITY
+  -> REPAIRED_BY -> TEMPORAL_CONTINUITY_ADJUDICATION
+  -> PRESERVES -> V1_HISTORY
+  -> PRODUCES -> MEASURED_TRACK_V2
+
+BRITTLE_PROSE_TEST
+  -> COUPLES -> COMMENT_WORDING
+  -> PREVENTS -> EXECUTION_WITHOUT_SEMANTIC_DEFECT
+  -> DOES_NOT_PROVE -> RENDERER_FAILURE
+  -> REPAIRED_BY -> SEMANTIC_AUTHORITY_ASSERTION
 ```
 
 ## Source-fidelity defect frontier
 
-No source-fidelity defect is yet promoted here. The next authoritative step is:
+Next authoritative step:
 
-`exact-head structural render -> target-isolated measurement artifact -> source-bound carousel/heading/annotation/audio diff -> defect adjudication`.
+`latest exact-head CI -> physical artifact -> qualifier using measured-track-v2 + annotation-track-v1 -> audio-event diff -> defect adjudication`.
 
-Unknowns remain explicit: exact fonts, original AE hierarchy/Graph Editor curves, exact annotation paths, isolated original SFX stems, hidden media mattes.
+Unknowns remain explicit: exact fonts, original AE hierarchy/Graph Editor curves, exact annotation vector paths/strokes, isolated original SFX stems, hidden media mattes, full FX/color/depth/camera decomposition.
