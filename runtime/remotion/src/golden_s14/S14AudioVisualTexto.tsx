@@ -2,6 +2,7 @@ import React,{useMemo}from'react';
 import{Audio}from'@remotion/media';
 import{AbsoluteFill,Sequence,useCurrentFrame}from'remotion';
 import{measuredS14,type Box}from'./sourceMeasuredTrack';
+import{measuredS14Annotation}from'./annotationMeasuredTrack';
 import{S14_SPEC}from'./s14Spec';
 import{makeS14Hit}from'./proceduralSfx';
 
@@ -17,13 +18,6 @@ const headingVisibleBoundsCalibration:Record<State,{fontSizeMultiplier:number;ba
   visual:{fontSizeMultiplier:1.33,baselineFactor:1.0,textLengthDelta:7,xOffset:0},
   texto:{fontSizeMultiplier:1.51,baselineFactor:1.0,textLengthDelta:5,xOffset:-2},
 };
-const annotationVisibleBounds:Record<State,{left:number;top:number;width:number;height:number}>={
-  // Stable-state medians measured from source output. These are bbox constraints,
-  // not original vector paths or stroke-width authority.
-  audio:{left:4.6763,top:44.8077,width:87.7888,height:8.5714},
-  visual:{left:.3012,top:14.0071,width:98.8060,height:35.3571},
-  texto:{left:5.6022,top:1.5789,width:84.8315,height:19.4250},
-};
 
 const NestedMedia:React.FC<{state:State}> =({state})=>{
  const isVisual=state==='visual',isTexto=state==='texto';
@@ -38,20 +32,25 @@ const NestedMedia:React.FC<{state:State}> =({state})=>{
  </AbsoluteFill>;
 };
 
-const Annotation:React.FC<{state:State;measurement?:boolean}> =({state,measurement=false})=>{
- const b=annotationVisibleBounds[state];const color=measurement?measurementAnnotation[state]:S14_SPEC.colors.red;
- if(state==='audio')return <div data-annotation={state} style={{position:'absolute',left:`${b.left}%`,top:`${b.top}%`,width:`${b.width}%`,height:`${Math.max(b.height,16)}%`}}>
-   <div style={{position:'absolute',left:0,right:0,top:'50%',height:3,background:color}}/>
-   <div style={{position:'absolute',left:'17%',top:0,bottom:0,width:3,background:color}}/>
-   <div style={{position:'absolute',left:0,right:0,top:'42%',height:'16%',background:`repeating-linear-gradient(90deg,transparent 0 4px,${color} 4px 6px,transparent 6px 10px)`,opacity:.92}}/>
+const Annotation:React.FC<{state:State;box:Box|null;measurement?:boolean}> =({state,box,measurement=false})=>{
+ if(!box)return null;
+ const color=measurement?measurementAnnotation[state]:S14_SPEC.colors.red;
+ // The measurement surface intentionally fills the measured bbox with a unique
+ // identity color. It validates the source-bound screen-space trajectory only;
+ // original vector-path morphology remains a separate unqualified dimension.
+ if(measurement)return <div data-annotation={state} style={{position:'absolute',left:box.x,top:box.y,width:box.width,height:box.height,background:color}}/>;
+ if(state==='audio')return <div data-annotation={state} style={{position:'absolute',left:box.x,top:box.y,width:box.width,height:box.height}}>
+   <div style={{position:'absolute',left:0,right:0,top:'50%',height:Math.max(2,Math.min(4,box.height*.18)),background:color}}/>
+   <div style={{position:'absolute',left:'17%',top:0,bottom:0,width:Math.max(2,Math.min(4,box.width*.015)),background:color}}/>
+   <div style={{position:'absolute',left:0,right:0,top:'38%',height:'24%',background:`repeating-linear-gradient(90deg,transparent 0 4px,${color} 4px 6px,transparent 6px 10px)`,opacity:.92}}/>
  </div>;
- return <svg data-annotation={state} viewBox="0 0 100 100" preserveAspectRatio="none" style={{position:'absolute',left:`${b.left}%`,top:`${b.top}%`,width:`${b.width}%`,height:`${b.height}%`,overflow:'visible'}}><ellipse cx="50" cy="50" rx="49" ry="46" fill="none" stroke={color} strokeWidth={measurement?6:2.7}/></svg>;
+ return <svg data-annotation={state} viewBox="0 0 100 100" preserveAspectRatio="none" style={{position:'absolute',left:box.x,top:box.y,width:box.width,height:box.height,overflow:'visible'}}><ellipse cx="50" cy="50" rx="49" ry="46" fill="none" stroke={color} strokeWidth="2.8"/></svg>;
 };
 
 const Card:React.FC<{state:State;box:Box|null;measurement?:boolean}> =({state,box,measurement=false})=>{
  if(!box)return null;
  return <div data-card={state} style={{position:'absolute',left:box.x,top:box.y,width:box.width,height:box.height,borderRadius:Math.max(18,box.width*.085),overflow:'hidden',boxShadow:measurement?'none':'0 16px 26px rgba(0,0,0,.28)',background:measurement?measurementCard[state]:'#777'}}>
-   {measurement?<Annotation state={state} measurement/>:<><NestedMedia state={state}/><Annotation state={state}/></>}
+   {measurement?null:<NestedMedia state={state}/>} 
  </div>;
 };
 
@@ -64,10 +63,11 @@ const Heading:React.FC<{state:State;box:Box|null;measurement?:boolean}> =({state
 };
 
 const EditorialLayer:React.FC<{transparent?:boolean;measurement?:boolean}> =({transparent=false,measurement=false})=>{
- const frame=useCurrentFrame();const m=measuredS14(frame);
+ const frame=useCurrentFrame();const m=measuredS14(frame);const a=measuredS14Annotation(frame);
  return <AbsoluteFill style={{background:transparent||measurement?'transparent':`radial-gradient(circle at 50% 42%,${S14_SPEC.colors.bg1},${S14_SPEC.colors.bg0} 68%,#4d0000)`,overflow:'hidden'}}>
    {!transparent&&!measurement?<div style={{position:'absolute',inset:0,backgroundImage:`linear-gradient(${S14_SPEC.colors.grid} 1px,transparent 1px),linear-gradient(90deg,${S14_SPEC.colors.grid} 1px,transparent 1px)`,backgroundSize:'100% 286px, 136px 100%',backgroundPosition:'0 252px, 126px 0',opacity:.68}}/>:null}
    <Card state="audio" box={m.cards.audio} measurement={measurement}/><Card state="visual" box={m.cards.visual} measurement={measurement}/><Card state="texto" box={m.cards.texto} measurement={measurement}/>
+   <Annotation state="audio" box={a.audio} measurement={measurement}/><Annotation state="visual" box={a.visual} measurement={measurement}/><Annotation state="texto" box={a.texto} measurement={measurement}/>
    <Heading state="audio" box={m.headings.audio} measurement={measurement}/><Heading state="visual" box={m.headings.visual} measurement={measurement}/><Heading state="texto" box={m.headings.texto} measurement={measurement}/>
  </AbsoluteFill>;
 };
@@ -80,7 +80,7 @@ const SourceChrome:React.FC=()=> <>
  <div style={{position:'absolute',left:0,right:0,bottom:0,height:62,background:'#050505'}}/>
  </>;
 
-/** Target-isolated QA render. Colors identify entities but geometry is driven by the same measured tracks as the production structural render. */
+/** Target-isolated QA render. Unique colors validate entity geometry without adjacent-component contamination. */
 export const S14Overlay:React.FC=()=> <EditorialLayer transparent measurement/>;
 
 export const S14AudioVisualTexto:React.FC=()=>{
@@ -89,4 +89,3 @@ export const S14AudioVisualTexto:React.FC=()=>{
 };
 
 export const S14_HEADING_VISIBLE_BOUNDS_CALIBRATION=headingVisibleBoundsCalibration;
-export const S14_ANNOTATION_VISIBLE_BOUNDS=annotationVisibleBounds;
