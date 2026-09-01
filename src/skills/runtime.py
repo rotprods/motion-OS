@@ -38,6 +38,14 @@ class SkillExecutionTrace:
         return bool(self.records) and all(record.status == 'DONE' for record in self.records)
 
 
+class SkillExecutionError(RuntimeError):
+    """Strict-mode executor failure that preserves a persistable execution trace."""
+
+    def __init__(self, reason: str, trace: SkillExecutionTrace):
+        super().__init__(reason)
+        self.trace = trace
+
+
 class SkillRuntime:
     def __init__(self, registry: SkillRegistry, inventory: CapabilityInventory):
         self.registry = registry
@@ -160,7 +168,28 @@ class SkillRuntime:
                 'selected_skill_id': selected_id,
                 'dependencies': {dep: context['outputs'].get(dep) for dep in invocation.depends_on},
             }
-            result = executor(dict(invocation.payload), local_context)
+            try:
+                result = executor(dict(invocation.payload), local_context)
+            except Exception as exc:
+                error_type = type(exc).__name__
+                reason = f'executor_failed:{selected_id}:{error_type}'
+                record = SkillExecutionRecord(
+                    invocation_id=invocation.invocation_id,
+                    requested_skill_id=invocation.skill_id,
+                    selected_skill_id=selected_id,
+                    fallback_chain=resolution.fallback_chain,
+                    status='FAILED',
+                    reason=reason,
+                    dependency_ids=invocation.depends_on,
+                    result_summary={'error_type': error_type},
+                )
+                records.append(record)
+                status_by_invocation[invocation.invocation_id] = 'FAILED'
+                if strict:
+                    trace = SkillExecutionTrace(run_id=run_id, records=tuple(records))
+                    raise SkillExecutionError(reason, trace) from exc
+                continue
+
             context['outputs'][invocation.invocation_id] = result
             record = SkillExecutionRecord(
                 invocation_id=invocation.invocation_id,
@@ -183,7 +212,13 @@ def record_execution_trace(graph, trace: SkillExecutionTrace) -> None:
     run_node_id = f'run:{trace.run_id}'
     existing_ids = {node.id for node in graph.nodes}
     if run_node_id not in existing_ids:
-        graph.add_node(graph.typed_node(run_node_id, 'Run', data={'run_id': trace.run_id, 'status': 'DONE' if trace.ok else 'PARTIAL'}, authority='measured', provenance_refs=['skill_runtime']))
+        if trace.ok:
+            run_status = 'DONE'
+        elif any(record.status == 'FAILED' for record in trace.records):
+            run_status = 'FAILED'
+        else:
+            run_status = 'PARTIAL'
+        graph.add_node(graph.typed_node(run_node_id, 'Run', data={'run_id': trace.run_id, 'status': run_status}, authority='measured', provenance_refs=['skill_runtime']))
         existing_ids.add(run_node_id)
 
     for index, record in enumerate(trace.records):

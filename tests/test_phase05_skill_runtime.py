@@ -1,6 +1,8 @@
+import pytest
+
 from src.graph.editing_graph import TypedEditingGraph
 from src.skills.registry import CapabilityInventory, SkillRegistry, SkillSpec
-from src.skills.runtime import SkillInvocation, SkillRuntime, record_execution_trace
+from src.skills.runtime import SkillExecutionError, SkillInvocation, SkillRuntime, record_execution_trace
 
 
 def build_registry():
@@ -99,3 +101,53 @@ def test_runtime_blocks_downstream_when_dependency_cannot_run_in_non_strict_mode
     ), run_id='blocked_run', strict=False)
     assert [r.status for r in trace.records] == ['BLOCKED', 'BLOCKED']
     assert trace.ok is False
+
+
+def test_executor_exception_becomes_failed_trace_and_blocks_downstream_non_strict():
+    registry = build_registry()
+    runtime = SkillRuntime(registry, CapabilityInventory.from_iterables())
+
+    def explode(payload, ctx):
+        raise ValueError('secret-bearing provider response must not enter durable trace')
+
+    runtime.register_executor('normalize_style', explode)
+    trace, context = runtime.run((
+        SkillInvocation('first', 'normalize_style'),
+        SkillInvocation('second', 'normalize_style', depends_on=('first',)),
+    ), run_id='failure_non_strict', strict=False)
+
+    assert [record.status for record in trace.records] == ['FAILED', 'BLOCKED']
+    assert trace.records[0].reason == 'executor_failed:normalize_style:ValueError'
+    assert trace.records[0].result_summary == {'error_type': 'ValueError'}
+    assert 'secret-bearing' not in trace.records[0].reason
+    assert 'first' not in context['outputs']
+    assert trace.ok is False
+
+
+def test_strict_executor_exception_carries_persistable_failed_trace_without_secret_message():
+    registry = build_registry()
+    runtime = SkillRuntime(registry, CapabilityInventory.from_iterables())
+
+    def explode(payload, ctx):
+        raise RuntimeError('provider-token=do-not-persist')
+
+    runtime.register_executor('normalize_style', explode)
+
+    with pytest.raises(SkillExecutionError) as exc_info:
+        runtime.run((SkillInvocation('normalize', 'normalize_style'),), run_id='failure_strict')
+
+    failure = exc_info.value
+    assert str(failure) == 'executor_failed:normalize_style:RuntimeError'
+    assert 'provider-token' not in str(failure)
+    assert len(failure.trace.records) == 1
+    assert failure.trace.records[0].status == 'FAILED'
+    assert failure.trace.records[0].result_summary == {'error_type': 'RuntimeError'}
+
+    graph = TypedEditingGraph('failed_runtime_graph', 'project_demo')
+    record_execution_trace(graph, failure.trace)
+    run_node = graph.query_nodes(kind='Run')[0]
+    tool_call = graph.query_nodes(kind='ToolCall')[0]
+    assert run_node.attrs['data']['status'] == 'FAILED'
+    assert tool_call.attrs['data']['status'] == 'FAILED'
+    assert 'provider-token' not in tool_call.attrs['data']['reason']
+    assert graph.validate_typed()['ok'] is True
