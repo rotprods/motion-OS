@@ -7,8 +7,10 @@ on:
       - 'runtime/remotion/package.json'
       - 'scripts/verify_s14_golden.py'
       - 'scripts/qualify_s14_fidelity.py'
+      - 'scripts/qualify_s14_audio.py'
       - 'tests/test_s14_golden_contract.py'
       - 'tests/test_s14_fidelity_contract.py'
+      - 'tests/test_s14_audio_qualification.py'
       - 'forensics/references/screenrecording_20260826/golden/s14/**'
       - '.github/workflows/remotion-golden-s14.yml'
   workflow_dispatch:
@@ -38,8 +40,8 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Contract and type checks
         run: |
-          python -m pytest -q tests/test_s14_golden_contract.py tests/test_s14_fidelity_contract.py
-          python -m py_compile scripts/qualify_s14_fidelity.py
+          python -m pytest -q tests/test_s14_golden_contract.py tests/test_s14_fidelity_contract.py tests/test_s14_audio_qualification.py
+          python -m py_compile scripts/qualify_s14_fidelity.py scripts/qualify_s14_audio.py
           cd runtime/remotion
           npx tsc --noEmit
           npx remotion compositions src/index.ts
