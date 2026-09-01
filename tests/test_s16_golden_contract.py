@@ -36,6 +36,18 @@ def test_factor_font_and_foreground_assets_remain_unknown_source_identity():
 def test_audio_source_events_remain_distinct_from_renderer_calibration():
  spec=SPEC.read_text();assert 'sourceTransientProxyFrames:[0.37,4.64,9.73,14.44,20.95,23.20,36.37]' in spec;assert 'structuralHitFrames:[0,5,10,14,21,23,36]' in spec;assert 'syntheticHitLeadFrames:1' in spec;assert 'MUST_BE_PHYSICALLY_QUALIFIED_IN_S16' in spec
 
+def test_column_opacity_calibration_has_monotonic_runtime_domain_and_preserves_mapping():
+ spec=SPEC.read_text();comp=COMP.read_text()
+ match=re.search(r"columnOpacityByY:\{\s*input:\[([^\]]+)\],\s*output:\[([^\]]+)\]",spec,re.S)
+ assert match, 'column opacity calibration must be explicit in S16_SPEC'
+ inputs=[float(x.strip()) for x in match.group(1).split(',')]
+ outputs=[float(x.strip()) for x in match.group(2).split(',')]
+ assert len(inputs)==len(outputs)>=2
+ assert all(b>a for a,b in zip(inputs,inputs[1:])),inputs
+ assert dict(zip(inputs,outputs))=={792.0:1.0,807.0:.86,828.0:.52,858.0:.20}
+ assert 'columnOpacityFromY(box.y)' in comp
+ assert '[858,828,807,792]' not in comp
+
 def test_workflow_action_pins_are_full_shas():
  if not WORKFLOW.exists():return
  text=WORKFLOW.read_text();uses=[line.split('uses:',1)[1].strip().split()[0] for line in text.splitlines() if 'uses:' in line]
