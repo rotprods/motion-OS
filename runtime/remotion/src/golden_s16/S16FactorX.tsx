@@ -8,6 +8,11 @@ import{makeS16Hit}from'./proceduralSfx';
 const clamp={extrapolateLeft:'clamp' as const,extrapolateRight:'clamp' as const};
 const measurement={column:'#00F36D',question:'#00A8FF',factor:'#FFF200'};
 
+export const columnOpacityFromY=(y:number)=>{
+ const calibration=S16_SPEC.rendererCalibration.columnOpacityByY;
+ return interpolate(y,[...calibration.input],[...calibration.output],clamp);
+};
+
 const SubjectProxy:React.FC=()=>{
  const frame=useCurrentFrame();
  const uiShift=interpolate(frame,[87,91],[0,-18],clamp);
@@ -19,7 +24,7 @@ const SubjectProxy:React.FC=()=>{
 };
 
 const ColumnGraphic:React.FC<{box:S16Box}> =({box})=>{
- const opacity=interpolate(box.y,[858,828,807,792],[.20,.52,.86,1],clamp);
+ const opacity=columnOpacityFromY(box.y);
  return <div data-layer="column" style={{position:'absolute',left:box.x,top:box.y,width:230,height:224,opacity,filter:'drop-shadow(10px 9px 7px rgba(0,0,0,.32))'}}>
   <svg viewBox="0 0 230 224" width="230" height="224">
    <defs><linearGradient id="stone" x1="0" x2="1"><stop offset="0" stopColor="#AAA5A1"/><stop offset=".22" stopColor="#F1EDE8"/><stop offset=".55" stopColor="#C9C4BF"/><stop offset=".8" stopColor="#F1EDE8"/><stop offset="1" stopColor="#8C8885"/></linearGradient></defs>
