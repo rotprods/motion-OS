@@ -1,0 +1,104 @@
+{
+  "schema_version": "motion-os.s04-fidelity-current/v2",
+  "scene_id": "S04_CIENTIFICAMENTE",
+  "authority": "SOURCE_BOUND_PARTIAL_QUALIFICATION_P0P1_CLOSED",
+  "supersedes": {
+    "commit": "0790a005f391327b731464d269e42864c64ea4cb",
+    "blob_sha": "b12f0e363ff8d488ce735c0cd534d6cce5048dab",
+    "state": "DEFECTS_FOUND_REPAIR_REQUIRED",
+    "reason": "This file was a pre-repair snapshot while later qualification for the same renderer head/artifact was already persisted in canonical Drive. Git history preserves the superseded snapshot."
+  },
+  "source": {
+    "sha256": "9b3076cb542e358386942a0fb6b160f1345564d4326738f9a340e2b5b38e199d",
+    "start_frame": 145,
+    "end_frame_exclusive": 216,
+    "frame_count": 71,
+    "fps": 30,
+    "width": 512,
+    "height": 1108
+  },
+  "renderer": {
+    "head_sha": "0790a005f391327b731464d269e42864c64ea4cb",
+    "workflow_run": 33321379790,
+    "artifact_id": 9734987644,
+    "artifact_digest": "sha256:e3943283f2f63add79b3a51016fc7d1349053223e6f809952443be46104e214d"
+  },
+  "drive_evidence": {
+    "qualification_v2": "1D5bfqJhU6-_fJyKTotUz1wl6WT8T7l4Q",
+    "qualification_hypergraph": "1IY15RWLALxjLE1OH1_j2g1XqCALsxOP1",
+    "human_report": "1A6zDk-9Qcon5ngWPhYS_4A1ig_leoDkj",
+    "renderer_artifact": "1_q_LfzsQjcGyWQa6I0u0Ujy-AYyMQYJe"
+  },
+  "thresholds": {
+    "mean_bbox_iou_min": 0.90,
+    "mean_centroid_error_px_max": 3.0,
+    "mean_area_error_pct_max": 8.0,
+    "audio_onset_error_frames_max": 1.5
+  },
+  "post_repair": {
+    "setup": {
+      "mean_bbox_iou": 0.91488539359267,
+      "min_bbox_iou": 0.6913195796029583,
+      "mean_centroid_error_px": 1.1907387901648872,
+      "max_centroid_error_px": 3.7054014627298266,
+      "mean_area_error_pct": 5.188484875290219,
+      "declared_p1_gate": "PASS"
+    },
+    "hero": {
+      "mean_bbox_iou": 0.9899685191219658,
+      "min_bbox_iou": 0.9016393442622951,
+      "mean_centroid_error_px": 0.32418561091012266,
+      "max_centroid_error_px": 1.0,
+      "mean_area_error_pct": 0.7220068479990915,
+      "declared_p1_gate": "PASS"
+    },
+    "tail": {
+      "mean_bbox_iou": 0.9687611989552548,
+      "min_bbox_iou": 0.9310344827586207,
+      "mean_centroid_error_px": 0.5102539595604806,
+      "max_centroid_error_px": 1.0,
+      "mean_area_error_pct": 0.8355816635824428,
+      "declared_p1_gate": "PASS"
+    },
+    "audio": {
+      "source_peak_local_frame": 8.829931972789115,
+      "render_peak_local_frame": 9.27891156462585,
+      "absolute_error_frames": 0.44897959183673564,
+      "declared_p1_gate": "PASS",
+      "sfx_identity": "INFERRED_FROM_MIXED_AUDIO"
+    }
+  },
+  "defect_closure": {
+    "S04-DEF-GEOMETRY-SETUP": "CLOSED_BY_MEASURED_REPAIR_AT_DECLARED_MEAN_LAYOUT_GATE",
+    "S04-DEF-GEOMETRY-HERO": "CLOSED_BY_MEASURED_REPAIR",
+    "S04-DEF-GEOMETRY-TAIL": "CLOSED_BY_MEASURED_REPAIR",
+    "S04-DEF-AUDIO-ONSET": "CLOSED_BY_MEASURED_REPAIR",
+    "S04-DEF-COLOR-HERO": "OPEN_P2_PROXY_ONLY",
+    "S04-DEF-COLOR-TAIL": "OPEN_P2_PROXY_ONLY"
+  },
+  "adversarial_residuals": [
+    {
+      "id": "S04-ADV-GLYPH-001",
+      "severity": "P2_FIDELITY_CEILING_NOT_ACTION_LAYOUT_BLOCKER",
+      "finding": "Setup fallback-font visible glyph bbox reaches minimum IoU 0.6913195796 on isolated frames despite passing the declared mean layout gate.",
+      "worst_local_frame": 66,
+      "other_low_frames": [19,20,21,22,23,24,65],
+      "interpretation": "Do not promote current typography authority to exact font/glyph morphology. Exact reconstruction requires recovered source font/asset or an explicitly source-locked glyph/mask tier; structural-template mode may preserve measured layout and font class without claiming pixel-exact glyphs."
+    }
+  ],
+  "promotion": {
+    "structural_render_executed": true,
+    "p0_p1_measured_layout_audio_repair_closed": true,
+    "full_9d_fidelity_validated": false,
+    "canonical_template": false,
+    "issue_48_barrier_open": true
+  },
+  "blocked_dimensions": [
+    "exact original font identity and glyph morphology",
+    "original After Effects precomp/parenting/effect graph and Graph Editor curves",
+    "causal separation of source-native subject motion from editorial reframe",
+    "isolated original SFX stem/timbre",
+    "exact pre-grade caption fill tokens",
+    "full source-plate depth/camera fidelity"
+  ]
+}
