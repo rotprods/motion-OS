@@ -22,7 +22,7 @@ jobs:
         with:
           python-version: '3.12'
           cache: pip
-      - uses: actions/setup-node@49933ea5288ca8642d1e84afbd3f7d6820020 # v4
+      - uses: actions/setup-node@49933ea5288ca8642d1e84afbd3f7d6820020eca # v4
         with:
           node-version: '22'
       - name: Install FFmpeg runtime
