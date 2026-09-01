@@ -1,0 +1,16 @@
+{
+  "event_id": "20260901T163900000000Z-cgev2-death-resilience-started",
+  "event_type": "work.started",
+  "timestamp": "2026-09-01T16:39:00+02:00",
+  "agent_id": "motion://agent/chatgpt/cgev2-death-resilience-architect",
+  "project": "MOTION.OS",
+  "branch": "docs/cgev2-death-resilience-20260901-v1",
+  "commit_sha": "d4e628a1aef0cd382c3c2f1ea327a8ff70c41bd9",
+  "pr_number": null,
+  "summary": "Start a zero-context CGEV2 death-resilience workstream from live main and the latest observed Issue #39 watermark. The work is additive/recovery-only except for repairing the broken root continuity pointer; it must not overlap active T08/P4/P7 implementation scopes or self-promote snapshot authority.",
+  "affected_paths": ["PROJECT_CONTINUITY_MASTER.md","coordination/cgev2","state/cgev2","graph/cgev2","scripts/verify_cgev2_death_resilience.py","tests/test_cgev2_death_resilience.py"],
+  "checks": {"main_sha":"d4e628a1aef0cd382c3c2f1ea327a8ff70c41bd9","issue48":"OPEN","main_protected":"false","event_watermark_comment":"5494884169"},
+  "authority": "IMPLEMENTED",
+  "correlation_id": "motion://correlation/cgev2-death-drill-20260901",
+  "metadata": {"session_id":"motion://session/chatgpt/cgev2-death-resilience-architect/20260901T1639+0200","workstream_id":"motion://workstream/cgev2-death-resilience","objective_id":"motion://objective/zero-context-death-resilience","snapshot_authority":"NON_AUTHORITATIVE_DERIVED_RECOVERY_SNAPSHOT"}
+}
