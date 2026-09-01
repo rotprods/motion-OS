@@ -1,6 +1,6 @@
 {
   "event_id": "20260831T223200000000Z-cgev2-s11-visible-fidelity-checkpoint",
-  "event_type": "checkpoint",
+  "event_type": "work.checkpoint",
   "timestamp": "2026-08-31T22:32:00Z",
   "agent_id": "motion://agent/chatgpt/cgev2-s11-fidelity-reconstructor",
   "project": "MOTION.OS",
@@ -23,13 +23,15 @@
     "full_9d_fidelity": "NOT_CLAIMED",
     "regression_barrier": "OPEN:issue-48"
   },
-  "authority": "SOURCE_BOUND_VISIBLE_GEOMETRY_P0P1_CLOSED",
+  "authority": "VERIFIED",
   "correlation_id": "motion://work/s11-source-fidelity-gauntlet-v2",
   "metadata": {
     "session_id": "motion://session/chatgpt/cgev2-s11-fidelity/20260901T0008+0200",
     "workstream_id": "motion://workstream/t07-s11-source-fidelity-gauntlet-v2",
     "objective_id": "motion://objective/t07-s11-physical-fidelity",
+    "qualification_state": "SOURCE_BOUND_VISIBLE_GEOMETRY_P0P1_CLOSED",
     "authority_ceiling": "partial source-bound visible-output qualification only",
-    "next_safe_action": "start isolated S14_AUDIO_VISUAL_TEXT golden-scene workstream"
+    "next_safe_action": "start isolated S14_AUDIO_VISUAL_TEXT golden-scene workstream",
+    "schema_repair": "Pre-merge serialization repair: domain qualification moved from authority enum into metadata; semantic evidence and historical Git blob remain preserved."
   }
 }
