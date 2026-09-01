@@ -4,10 +4,12 @@
   "private": true,
   "scripts": {
     "render": "remotion render src/index.ts MotionOSRuntime out/runtime.mp4 --codec=h264 --log=verbose",
+    "render:golden-s16": "remotion render src/index.ts GoldenS16FactorX out/golden-s16.mp4 --codec=h264 --log=verbose",
     "compositions": "remotion compositions src/index.ts"
   },
   "dependencies": {
     "@remotion/cli": "4.0.506",
+    "@remotion/media": "4.0.506",
     "react": "19.1.1",
     "react-dom": "19.1.1",
     "remotion": "4.0.506"

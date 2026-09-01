@@ -1,0 +1,34 @@
+{
+  "authority": "MEASURED_VISIBLE_LAYOUT_AND_TIMING_PARTIAL_QUALIFICATION",
+  "blocked_dimensions": [
+    "exact Factor X font/source glyph outline",
+    "column/question-mark morphology/material/lighting",
+    "original AE graph/Graph Editor curves",
+    "exact opacity curves",
+    "source speaker pixels in structural mode",
+    "isolated original SFX stems",
+    "causal origin of local87+ global reflow"
+  ],
+  "drive_qualification_id": "1DLr6lMwSgLrzp-TcW2JZpZuZAZ2kUR_U",
+  "full_9d_fidelity_validated": false,
+  "gates": {
+    "column_geometry": true,
+    "factor_geometry": true,
+    "question_geometry": true,
+    "timing": true
+  },
+  "metrics": {
+    "column": {"expected_first":2,"expected_last":91,"first_error_frames":0,"last_error_frames":0,"mean_area_error_pct":0.0,"mean_bbox_iou":1.0,"mean_centroid_error_px":0.0,"min_bbox_iou":1.0,"observed_first":2,"observed_last":91},
+    "factor_x": {"expected_first":19,"expected_last":91,"first_error_frames":0,"last_error_frames":0,"mean_area_error_pct":0.0,"mean_bbox_iou":1.0,"mean_centroid_error_px":0.0,"min_bbox_iou":1.0,"observed_first":19,"observed_last":91},
+    "question_mark": {"expected_first":9,"expected_last":91,"first_error_frames":0,"last_error_frames":0,"mean_area_error_pct":0.0,"mean_bbox_iou":1.0,"mean_centroid_error_px":0.0,"min_bbox_iou":1.0,"observed_first":9,"observed_last":91}
+  },
+  "p0_p1_visible_geometry_gates_pass": true,
+  "qualification_sha256": "4bf5b78a6abddb6a4f5a30a989042ecb415dd8be64e6a98b2fd00415f7a03ffc",
+  "qualified_head": "e34b38061e2ad1d322238a011f5c6b9660b883ee",
+  "scene_id": "S16_FACTOR_X",
+  "schema_version": "motion-os.s16-layout-qualification-manifest/v1",
+  "source_track": {"drive_id":"178eElG7KSsUILKpmIijqaiHiBLculKeO","sha256":"2b12cf3e3f30a4ddff46b931cff15ba7080e4f94fd78cfe0957f3fa076fe283b"},
+  "workflow_artifact_digest": "sha256:01a8a99943698a2669cf887b6a406652d07cd93e62f2e0c37b4f3d9c1794f325",
+  "workflow_artifact_id": 9800670307,
+  "workflow_run": 33508449494
+}

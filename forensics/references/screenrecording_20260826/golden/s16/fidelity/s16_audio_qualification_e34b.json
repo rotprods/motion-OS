@@ -1,0 +1,24 @@
+{
+  "authority": "MEASURED_RENDERED_TRANSIENT_PEAK_VS_MEASURED_SOURCE_MIX_PROXY",
+  "drive_qualification_id": "11Ilq0GgccRmLvYsFGlarK3pwoDTk3XnL",
+  "events": [
+    {"error_frames":0.9021088435374148,"render_peak_frame":1.2721088435374148,"render_transient_score":0.024505584900524416,"source_peak_frame":0.37},
+    {"error_frames":0.6729251700680274,"render_peak_frame":5.312925170068027,"render_transient_score":0.02163949971970051,"source_peak_frame":4.64},
+    {"error_frames":0.5965306122448979,"render_peak_frame":10.326530612244898,"render_transient_score":0.03371020998099736,"source_peak_frame":9.73},
+    {"error_frames":-0.1474829931972792,"render_peak_frame":14.29251700680272,"render_transient_score":0.02419808000453613,"source_peak_frame":14.44},
+    {"error_frames":0.30170068027210917,"render_peak_frame":21.25170068027211,"render_transient_score":0.020359233731448087,"source_peak_frame":20.95},
+    {"error_frames":0.0721088435374142,"render_peak_frame":23.272108843537413,"render_transient_score":0.035574856073451296,"source_peak_frame":23.2},
+    {"error_frames":-0.07748299319727181,"render_peak_frame":36.292517006802726,"render_transient_score":0.024560065682827134,"source_peak_frame":36.37}
+  ],
+  "full_audio_fidelity_validated": false,
+  "gate_frames": 1.5,
+  "max_absolute_error_frames": 0.9021088435374148,
+  "mean_absolute_error_frames": 0.39576287657920206,
+  "onset_peak_gate_pass": true,
+  "qualification_sha256": "5291c19eae57092b2ec2c532e2222c1992f1274ab40af257534613eb7c05be04",
+  "qualified_head": "e34b38061e2ad1d322238a011f5c6b9660b883ee",
+  "scene_id": "S16_FACTOR_X",
+  "schema_version": "motion-os.s16-audio-qualification-manifest/v1",
+  "unknowns": ["isolated source SFX stems","source SFX identity/timbre","exact source transient envelope","music/voice/SFX source decomposition"],
+  "workflow_artifact_id": 9800670307
+}

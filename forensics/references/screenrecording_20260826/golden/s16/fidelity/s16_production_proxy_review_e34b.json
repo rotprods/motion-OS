@@ -1,0 +1,27 @@
+{
+  "artifact_head": "e34b38061e2ad1d322238a011f5c6b9660b883ee",
+  "artifact_id": 9800670307,
+  "audio_timing_proxy_gate_pass": true,
+  "authority": "ADVISORY_STRUCTURAL_PROXY_APPEARANCE_REVIEW_NOT_LAYOUT_GATE",
+  "blocked_dimensions": ["question-mark exact glyph/path/material","Factor X exact font/glyph outline","column exact source asset/material/lighting"],
+  "drive_contact_sheet_id": "11MzRd6mYxLpFsAmYYfFLb5k0cAHvbtIh",
+  "drive_review_id": "1QDKeWse4PEhx4o9tZirBLZHFtwD1oMGg",
+  "factor_x_fallback_anchor_advisory": {
+    "interpretation": "Fallback font remains visibly smaller/lower at the X anchor; exact font/glyph identity remains blocked. Layout/timing proxy is separately qualified.",
+    "render_frame_local54_rightmost_fallback_component": [400,729,49,50],
+    "source_frame_local54_x_anchor": [397,721,54,61]
+  },
+  "layout_geometry_gate_pass": true,
+  "promotion_rule": "Do not use layout-gate PASS to claim proxy morphology or exact asset fidelity.",
+  "question_proxy_visible_bbox": {
+    "frames_color_observed": 82,
+    "frames_expected": 83,
+    "interpretation": "Fallback Georgia question glyph under-fills the measured source red-component bbox. This does not invalidate the source track; it limits structural proxy morphology/bounds fidelity.",
+    "mean_bbox_iou": 0.48091903014157095,
+    "mean_centroid_error_px": 4.322594224781519,
+    "min_bbox_iou": 0.4592730661696179
+  },
+  "review_sha256": "701045d135b373cd95208777f92de2989eab87ccf6847c807df346bf264ee5b2",
+  "scene_id": "S16_FACTOR_X",
+  "schema_version": "motion-os.s16-production-proxy-visual-review/v1"
+}
