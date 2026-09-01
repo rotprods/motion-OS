@@ -1,0 +1,22 @@
+{
+  "schema_version": "motion-os.s14-audio-onset-qualification/v1",
+  "scene_id": "S14_AUDIO_VISUAL_TEXTO",
+  "renderer_head": "ebe8eedf210e4c2bd9c0465d38dfbb584d7a0471",
+  "artifact_id": 9781244633,
+  "source_authority": "MEASURED_MIXED_TRACK_TRANSIENT_PROXY",
+  "renderer_timbre_authority": "SYNTHETIC_FIXTURE_NOT_SOURCE_SFX_IDENTITY",
+  "events": [
+    {"source_peak_frame":10.05,"render_sequence_frame":10,"render_peak_frame":11.299319727891158,"error_frames":1.249319727891157},
+    {"source_peak_frame":14.40,"render_sequence_frame":14,"render_peak_frame":15.26530612244898,"error_frames":0.8653061224489793},
+    {"source_peak_frame":16.80,"render_sequence_frame":17,"render_peak_frame":18.258503401360542,"error_frames":1.4585034013605416},
+    {"source_peak_frame":45.75,"render_sequence_frame":46,"render_peak_frame":47.292517006802726,"error_frames":1.5425170068027256},
+    {"source_peak_frame":50.25,"render_sequence_frame":50,"render_peak_frame":51.25850340136055,"error_frames":1.0085034013605494},
+    {"source_peak_frame":56.25,"render_sequence_frame":56,"render_peak_frame":57.31972789115646,"error_frames":1.069727891156461},
+    {"source_peak_frame":62.85,"render_sequence_frame":63,"render_peak_frame":64.27891156462584,"error_frames":1.4289115646258423}
+  ],
+  "mean_absolute_error_frames": 1.2318270165208938,
+  "max_absolute_error_frames": 1.5425170068027256,
+  "gate_max_error_le_1_5_frames": false,
+  "full_audio_fidelity_validated": false,
+  "unknowns": ["isolated source SFX stems","source SFX identity","exact source transient envelope","music/voice/SFX decomposition"]
+}
