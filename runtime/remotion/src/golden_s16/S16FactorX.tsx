@@ -44,19 +44,19 @@ const QuestionGraphic:React.FC<{box:S16Box}> =({box})=>{
  </svg>;
 };
 
-const FactorText:React.FC<{box:S16Box&{relativeLuma:number};measurementMode?:boolean}> =({box,measurementMode=false})=>{
+const FactorText:React.FC<{box:S16Box&{relativeLuma:number}}> =({box})=>{
  const opacity=Math.max(0,Math.min(1,box.relativeLuma));
  return <svg data-layer="factor-x" width="512" height="1108" viewBox="0 0 512 1108" style={{position:'absolute',inset:0,overflow:'visible',opacity}}>
-   <text x={box.x} y={box.y+58} fill={measurementMode?measurement.factor:S16_SPEC.colors.factor} fontFamily="Arial Black,Arial,sans-serif" fontSize="72" fontWeight={900} textLength={box.width} lengthAdjust="spacingAndGlyphs" style={{filter:measurementMode?undefined:'drop-shadow(0 5px 3px rgba(0,0,0,.30))'}}>Factor X</text>
+   <text x={box.x} y={box.y+58} fill={S16_SPEC.colors.factor} fontFamily="Arial Black,Arial,sans-serif" fontSize="72" fontWeight={900} textLength={box.width} lengthAdjust="spacingAndGlyphs" style={{filter:'drop-shadow(0 5px 3px rgba(0,0,0,.30))'}}>Factor X</text>
  </svg>;
 };
 
 const EditorialLayers:React.FC<{measurementMode?:boolean}> =({measurementMode=false})=>{
  const frame=useCurrentFrame();const m=measuredS16(frame);
  if(measurementMode)return <AbsoluteFill style={{background:'transparent'}}>
-   {m.column?<div style={{position:'absolute',left:m.column.x,top:m.column.y,width:m.column.width,height:m.column.height,background:measurement.column}}/>:null}
-   {m.questionMark?<div style={{position:'absolute',left:m.questionMark.x,top:m.questionMark.y,width:m.questionMark.width,height:m.questionMark.height,background:measurement.question}}/>:null}
-   {m.factorX?<FactorText box={m.factorX} measurementMode/>:null}
+   {m.column?<div data-measurement="column-layout" style={{position:'absolute',left:m.column.x,top:m.column.y,width:m.column.width,height:m.column.height,background:measurement.column}}/>:null}
+   {m.questionMark?<div data-measurement="question-layout" style={{position:'absolute',left:m.questionMark.x,top:m.questionMark.y,width:m.questionMark.width,height:m.questionMark.height,background:measurement.question}}/>:null}
+   {m.factorX?<div data-measurement="factor-layout-proxy" style={{position:'absolute',left:m.factorX.x,top:m.factorX.y,width:m.factorX.width,height:m.factorX.height,background:measurement.factor}}/>:null}
  </AbsoluteFill>;
  return <AbsoluteFill style={{overflow:'hidden'}}>
    {m.questionMark?<QuestionGraphic box={m.questionMark}/>:null}
