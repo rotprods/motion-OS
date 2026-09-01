@@ -5,6 +5,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = ROOT / "forensics/references/screenrecording_20260826/golden/s04/s04_contract.json"
+CURRENT = ROOT / "forensics/references/screenrecording_20260826/golden/s04/fidelity/s04_fidelity_current.json"
 COMPONENT = ROOT / "runtime/remotion/src/golden_s04/S04Cientificamente.tsx"
 MEASURED_CAPTIONS = ROOT / "runtime/remotion/src/golden_s04/MeasuredCaptionSystem.tsx"
 MEASURED_TRACK = ROOT / "runtime/remotion/src/golden_s04/measuredTrack.ts"
@@ -18,6 +19,10 @@ def load_contract() -> dict:
     return json.loads(CONTRACT.read_text(encoding="utf-8"))
 
 
+def load_current() -> dict:
+    return json.loads(CURRENT.read_text(encoding="utf-8"))
+
+
 def test_s04_visual_duration_uses_frame_authority() -> None:
     contract = load_contract()
     source = contract["source"]
@@ -27,28 +32,34 @@ def test_s04_visual_duration_uses_frame_authority() -> None:
     assert source["height"] == 1108
 
 
-def test_s04_action_mapping_is_source_local_consistent() -> None:
+def test_s04_historical_action_mapping_is_preserved_and_source_local_consistent() -> None:
     contract = load_contract()
+    assert contract["schema_version"] == "motion-os.golden-scene/v2"
+    assert contract["supersedes"]["schema_version"] == "motion-os.golden-scene/v1"
+    actions = contract["historical_actions"]
+    assert [action["id"] for action in actions] == ["A022", "A023", "A024", "A025", "A026", "A027", "A028"]
     start = contract["source"]["start_frame"]
-    for action in contract["actions"]:
+    for action in actions:
         for local, source in zip(action["local"], action["source"], strict=True):
             assert source == start + local
-    hero = next(action for action in contract["actions"] if action["id"] == "A024")
+    hero = next(action for action in actions if action["id"] == "A024")
     assert hero["local"] == [11, 15, 20]
     assert hero["values"]["scale"] == [0.84, 1.12, 1.0]
+    assert hero["authority"] == "EVIDENCE_BOUND_INFERENCE"
 
 
 def test_unknown_font_and_source_media_do_not_self_promote() -> None:
     contract = load_contract()
+    current = load_current()
     assert contract["asset_policy"]["source_and_clean_plate"] == "DRIVE_ONLY"
     assert contract["asset_policy"]["git"] == "CODE_CONTRACTS_AND_TEXT_EVIDENCE_ONLY"
-    # Lifecycle may advance from BLOCKED -> REPAIR_IN_PROGRESS as evidence is
-    # gathered, but no contract-only change may self-promote to fidelity authority.
-    assert contract["authority"] == "STRUCTURAL_RENDER_EXECUTED_SOURCE_FIDELITY_REPAIR_IN_PROGRESS"
-    assert "FIDELITY_VALIDATED" not in contract["authority"]
+    assert contract["authority"] == "SOURCE_BOUND_PARTIAL_QUALIFICATION_P0P1_CLOSED"
+    assert contract["qualification"]["full_9d_fidelity_validated"] is False
+    assert current["promotion"]["canonical_template"] is False
+    assert current["promotion"]["issue_48_barrier_open"] is True
+    assert any("font" in item.lower() and "glyph" in item.lower() for item in contract["unknowns"])
     spec = SPEC.read_text(encoding="utf-8")
     assert "FONT_CLASS_ONLY_EXACT_FONT_UNKNOWN" in spec
-    assert "sourceFidelity: 'BLOCKED_UNTIL_9D_DIFF_REPAIR_PASS'" in spec
     assert "fontIdentity: 'UNKNOWN'" in spec
     assert "sfxIdentity: 'INFERRED_FROM_MIXED_AUDIO'" in spec
 
@@ -75,8 +86,6 @@ def test_measured_overlay_uses_source_bound_bbox_track_and_calibration() -> None
     assert "frame: 38, x: 58, y: 592, width: 422, height: 88" in track
     assert "frame: 68, x: 86, y: 586, width: 364, height: 60" in track
     assert 'lengthAdjust="spacingAndGlyphs"' in captions
-    # The source-visible bbox remains the target; renderer-specific glyph metrics
-    # are an explicit calibration layer rather than a hidden magic number.
     assert "VISIBLE_BOUNDS_CALIBRATION" in captions
     assert "textLengthDelta" in captions
     assert "fontSizeMultiplier" in captions
@@ -100,33 +109,54 @@ def test_composition_and_physical_workflow_are_registered() -> None:
     assert "actions/upload-artifact@" in workflow
 
 
-def test_inventory_discrepancy_history_is_preserved_and_extended() -> None:
+def test_v1_history_is_superseded_not_deleted() -> None:
     contract = load_contract()
-    discrepancies = contract["measured_discrepancies"]
-    ids = [item["id"] for item in discrepancies]
-    # Historical discrepancy identity is append-only. New physical findings are
-    # allowed and expected to extend it; deleting the old three would be a regression.
-    assert ids[:3] == ["S04-DISC-001", "S04-DISC-002", "S04-DISC-003"]
-    assert {"S04-DISC-004", "S04-DISC-005"}.issubset(ids)
-    by_id = {item["id"]: item for item in discrepancies}
-    assert by_id["S04-DISC-001"]["inventory_value"] == 146
-    assert by_id["S04-DISC-001"]["measured_reference_value"] == 145
-    assert by_id["S04-DISC-001"]["status"] == "RENDERER_REPAIRED_GRAPH_BACKPORT_OPEN"
-    assert by_id["S04-DISC-002"]["status"] == "RENDERER_REPAIRED_GRAPH_BACKPORT_OPEN"
-    assert by_id["S04-DISC-003"]["status"] == "RENDERER_REPAIRED_GRAPH_BACKPORT_OPEN"
-    assert by_id["S04-DISC-004"]["status"] == "EVIDENCE_BOUND_STRUCTURAL_INFERENCE"
-    assert by_id["S04-DISC-005"]["status"] == "RENDERER_REPAIR_IN_PROGRESS"
-    assert contract["renderer_repairs"]["caption_layout"]["authority"] == "MEASURED_HEURISTIC"
-    assert contract["renderer_repairs"]["caption_visible_bounds"]["authority"] == "MEASURED_HEURISTIC"
-    assert contract["renderer_repairs"]["sfx_onset_alignment"]["authority"] == "MEASURED_SOURCE_BOUND_TIMING_SFX_CLASS_INFERRED"
+    current = load_current()
+    assert contract["supersedes"]["commit"] == "0790a005f391327b731464d269e42864c64ea4cb"
+    assert current["supersedes"]["commit"] == "0790a005f391327b731464d269e42864c64ea4cb"
+    assert current["supersedes"]["state"] == "DEFECTS_FOUND_REPAIR_REQUIRED"
+    assert set(current["defect_closure"]) >= {
+        "S04-DEF-GEOMETRY-SETUP",
+        "S04-DEF-GEOMETRY-HERO",
+        "S04-DEF-GEOMETRY-TAIL",
+        "S04-DEF-AUDIO-ONSET",
+    }
+    assert current["defect_closure"]["S04-DEF-GEOMETRY-SETUP"].startswith("CLOSED_BY_")
+    assert current["defect_closure"]["S04-DEF-COLOR-HERO"] == "OPEN_P2_PROXY_ONLY"
 
 
-def test_source_bound_fidelity_gate_cannot_be_satisfied_by_contract_evolution_alone() -> None:
+def test_source_bound_fidelity_gate_requires_evidence_and_remains_partial() -> None:
     contract = load_contract()
-    gates = contract["qa_gates"]
-    assert gates["promotion_veto"] == "P0_OR_P1_DEFECT"
-    assert "mean bbox IoU >= 0.90 per caption role" in gates["source_bound_geometry"]
-    assert "mean centroid error <= 3px per role" in gates["source_bound_geometry"]
-    assert "mean area error <= 8% per role" in gates["source_bound_geometry"]
-    assert "primary transient timing absolute error <= 1.5 frames; class/stem identity excluded" in gates["source_bound_audio"]
-    assert contract["fidelity_baseline"]["authority"] == "MEASURED_SOURCE_BOUND_LOCAL_RUN"
+    current = load_current()
+    gates = contract["declared_p0_p1_gates"]
+    assert gates["mean_bbox_iou_min"] == 0.90
+    assert gates["mean_centroid_error_px_max"] == 3.0
+    assert gates["mean_area_error_pct_max"] == 8.0
+    assert gates["primary_audio_onset_error_frames_max"] == 1.5
+    assert gates["result"] == "PASS"
+    assert contract["qualification"]["drive_full_qualification"] == "1D5bfqJhU6-_fJyKTotUz1wl6WT8T7l4Q"
+    assert contract["qualification"]["artifact_id"] == 9734987644
+    assert contract["qualification"]["renderer_head"] == "0790a005f391327b731464d269e42864c64ea4cb"
+    assert current["promotion"]["p0_p1_measured_layout_audio_repair_closed"] is True
+    assert current["promotion"]["full_9d_fidelity_validated"] is False
+
+
+def test_mean_layout_pass_cannot_be_reinterpreted_as_exact_glyph_fidelity() -> None:
+    contract = load_contract()
+    current = load_current()
+    setup = current["post_repair"]["setup"]
+    assert setup["mean_bbox_iou"] >= current["thresholds"]["mean_bbox_iou_min"]
+    assert setup["min_bbox_iou"] < current["thresholds"]["mean_bbox_iou_min"]
+    assert contract["adversarial_ceiling"]["setup_worst_frame_iou"] == setup["min_bbox_iou"]
+    assert contract["adversarial_ceiling"]["status"] == "P2_FIDELITY_CEILING_NOT_ACTION_LAYOUT_BLOCKER"
+    assert current["adversarial_residuals"][0]["worst_local_frame"] == 66
+    assert "exact original font identity and glyph morphology" in current["blocked_dimensions"]
+
+
+def test_template_policy_preserves_behavior_without_source_locking_literal_content() -> None:
+    contract = load_contract()
+    policy = contract["template_policy"]
+    assert "measured screen-space trajectories" in policy["preserve"]
+    assert "shared-caption-parent behavioral relationship" in policy["preserve"]
+    assert "literal caption copy" in policy["do_not_source_lock_as_reusable_truth"]
+    assert "unknown original font identity" in policy["do_not_source_lock_as_reusable_truth"]
