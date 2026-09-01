@@ -1,1 +1,109 @@
-{"schema_version":"motion-os.golden-scene/v1","scene_id":"S04_CIENTIFICAMENTE","composition_id":"GoldenS04Cientificamente","overlay_composition_id":"GoldenS04Overlay","source":{"video_id":"screenrecording_2026-08-26_173251","sha256":"9b3076cb542e358386942a0fb6b160f1345564d4326738f9a340e2b5b38e199d","fps":30,"width":512,"height":1108,"start_frame":145,"end_frame_exclusive":216,"frame_count":71},"actions":[{"id":"A022","domain":"transition","local":[0,0,5],"source":[145,145,150],"verb":"cut","authority":"MEASURED_HEURISTIC"},{"id":"A023","domain":"caption","local":[1,5,9],"source":[146,150,154],"verb":"text_build","target":"CAP_SETUP","authority":"EVIDENCE_BOUND_INFERENCE"},{"id":"A024","domain":"caption","local":[11,15,20],"source":[156,160,165],"verb":"scale_punch","target":"CAP_CIENTIFICAMENTE","values":{"scale":[0.84,1.12,1.0]},"authority":"EVIDENCE_BOUND_INFERENCE"},{"id":"A025","domain":"caption","local":[38,43,50],"source":[183,188,195],"verb":"opacity_reveal","target":"CAP_IMPOSIBLE","authority":"EVIDENCE_BOUND_INFERENCE"},{"id":"A026","domain":"camera","local":[0,29,65],"source":[145,174,210],"verb":"reframe","target":"SUBJECT_PRECOMP","physical_camera_claim":false,"authority":"EVIDENCE_BOUND_INFERENCE"},{"id":"A027","domain":"audio","local":[11,15,25],"source":[156,160,170],"verb":"impact_sub_hit","target":"SFX_EMPHASIS","authority":"INFERRED_FROM_MIXED_AUDIO"},{"id":"A028","domain":"object","local":[60,67,71],"source":[205,212,216],"verb":"object_insert","target":"PHONE_HAND_PROP","authority":"EVIDENCE_BOUND_INFERENCE"}],"renderer_repairs":{"caption_layout":{"contract":"runtime/remotion/src/golden_s04/measuredTrack.ts","method":"REFERENCE_MINUS_INPAINTED_CLEAN_PLATE_COLOR_COMPONENT_BBOX","authority":"MEASURED_HEURISTIC","reason":"source-visible bounding boxes outrank the earlier semantic scale alias for physical layout"},"caption_visible_bounds":{"contract":"runtime/remotion/src/golden_s04/MeasuredCaptionSystem.tsx","method":"ROLE_SPECIFIC_SVG_VISIBLE_GLYPH_BOUNDS_CALIBRATION","authority":"MEASURED_HEURISTIC","source_measurement_head":"85c45c68faefe50f76217216bae075d32804eaca","reason":"current SVG font metrics produce P1 bbox/centroid mismatch even when measured screen-space boxes are supplied"},"sfx_onset_alignment":{"contract":"runtime/remotion/src/golden_s04/s04Spec.ts","source_transient_proxy_local_frame":8.85,"historical_renderer_peak_local_frame":16.35,"new_sequence_start_local_frame":8,"authority":"MEASURED_SOURCE_BOUND_TIMING_SFX_CLASS_INFERRED","reason":"renderer peak was 7.5 frames late relative to measured source emphasis onset"},"private_plate_composition":{"contract":"GoldenS04Overlay PNG sequence composited locally over Drive-only clean frames","authority":"STRUCTURAL_RENDER_EXECUTED_PENDING_LOCAL_COMPOSITE"}},"measured_discrepancies":[{"id":"S04-DISC-001","field":"CAP_SETUP.first_visible_frame","inventory_value":146,"measured_reference_value":145,"status":"RENDERER_REPAIRED_GRAPH_BACKPORT_OPEN","policy":"physical reconstruction follows measured frame while preserving the historical inference"},{"id":"S04-DISC-002","field":"CAP_CIENTIFICAMENTE.motion_shape","inventory_value":"scale 0.84 -> 1.12 -> 1.00 at local 11/15/20","measured_reference_value":"visible bbox expands from 110x12 at local 10 to 381x63 at local 15, 401x74 at local 20 and approximately 422x88 by local 38","status":"RENDERER_REPAIRED_GRAPH_BACKPORT_OPEN","policy":"retain A024 as historical evidence-bound inference; physical renderer consumes the measured bbox track instead of fabricating an overshoot"},{"id":"S04-DISC-003","field":"caption_camera_coupling","inventory_value":"caption scale and subject reframe represented as independent summarized actions","measured_reference_value":"caption screen-space geometry continues changing with the source reframe through the scene and contracts before the phone cut","status":"RENDERER_REPAIRED_GRAPH_BACKPORT_OPEN","policy":"screen-space caption track is authoritative for S04 reconstruction; causal decomposition remains a hypothesis until clean source layers exist"},{"id":"S04-DISC-004","field":"caption_group_parenting","inventory_value":"setup, hero and tail are represented as independent summarized caption actions","measured_reference_value":{"setup_hero_width_scale_correlation":0.9975202500257605,"setup_tail_width_scale_correlation":0.9939963827123907,"hero_tail_width_scale_correlation":0.9968121946478035,"setup_hero_normalized_rmse":0.004852626408599751},"status":"EVIDENCE_BOUND_STRUCTURAL_INFERENCE","policy":"model a shared screen-space caption parent after the hero entrance for reconstruction/template reasoning; do not claim original AE parenting topology"},{"id":"S04-DISC-005","field":"SFX_EMPHASIS.primary_onset","inventory_value":"synthetic impact Sequence anchored at local frame 15","measured_reference_value":"source strongest transient proxy local 8.85; ActionInventory independently links strong onset near source frame 154 (~local 9)","status":"RENDERER_REPAIR_IN_PROGRESS","policy":"move renderer Sequence anchor to local frame 8 so generated transient peak lands near measured local frame 9; SFX class remains inferred from mixed audio"}],"fidelity_baseline":{"contract":"forensics/references/screenrecording_20260826/golden/s04/fidelity/s04_fidelity_baseline.json","qualifier":"scripts/qualify_s04_fidelity.py","defect_graph":"forensics/references/screenrecording_20260826/golden/s04/fidelity/s04_defect_graph.json","current_measurement":"forensics/references/screenrecording_20260826/golden/s04/fidelity/s04_fidelity_current.json","authority":"MEASURED_SOURCE_BOUND_LOCAL_RUN"},"asset_policy":{"source_and_clean_plate":"DRIVE_ONLY","git":"CODE_CONTRACTS_AND_TEXT_EVIDENCE_ONLY","ci_plate":"PROCEDURAL_NON_SOURCE_FIXTURE","exact_local_plate_mode":"IMAGE_SEQUENCE_FROM_EXTERNAL_ASSET","overlay_sequence":"CI_RENDERED_TRANSPARENT_PNG"},"qa_gates":{"mechanical":["71 frames","30 fps","512x1108","audio stream present","sample frames decodable"],"structural":["setup visible at local 0","hero absent before local 10","hero visible from local 10","tail visible from local 38","captions removed at phone cut local 69"],"source_bound_geometry":["mean bbox IoU >= 0.90 per caption role","mean centroid error <= 3px per role","mean area error <= 8% per role"],"source_bound_audio":["primary transient timing absolute error <= 1.5 frames; class/stem identity excluded"],"fidelity":["temporal","motion","camera","typography","depth","color","fx","audio","retention"],"promotion_veto":"P0_OR_P1_DEFECT"},"authority":"STRUCTURAL_RENDER_EXECUTED_SOURCE_FIDELITY_REPAIR_IN_PROGRESS"}
+{
+  "schema_version": "motion-os.golden-scene/v2",
+  "scene_id": "S04_CIENTIFICAMENTE",
+  "composition_id": "GoldenS04Cientificamente",
+  "overlay_composition_id": "GoldenS04Overlay",
+  "supersedes": {
+    "schema_version": "motion-os.golden-scene/v1",
+    "commit": "0790a005f391327b731464d269e42864c64ea4cb",
+    "policy": "Historical action summaries remain evidence; v2 reconciles current qualification authority without claiming unavailable source internals."
+  },
+  "source": {
+    "video_id": "screenrecording_2026-08-26_173251",
+    "sha256": "9b3076cb542e358386942a0fb6b160f1345564d4326738f9a340e2b5b38e199d",
+    "fps": 30,
+    "width": 512,
+    "height": 1108,
+    "start_frame": 145,
+    "end_frame_exclusive": 216,
+    "frame_count": 71
+  },
+  "historical_actions": [
+    {"id":"A022","domain":"transition","local":[0,0,5],"source":[145,145,150],"verb":"cut","authority":"MEASURED_HEURISTIC"},
+    {"id":"A023","domain":"caption","local":[1,5,9],"source":[146,150,154],"verb":"text_build","target":"CAP_SETUP","authority":"EVIDENCE_BOUND_INFERENCE"},
+    {"id":"A024","domain":"caption","local":[11,15,20],"source":[156,160,165],"verb":"scale_punch","target":"CAP_CIENTIFICAMENTE","values":{"scale":[0.84,1.12,1.0]},"authority":"EVIDENCE_BOUND_INFERENCE"},
+    {"id":"A025","domain":"caption","local":[38,43,50],"source":[183,188,195],"verb":"opacity_reveal","target":"CAP_IMPOSIBLE","authority":"EVIDENCE_BOUND_INFERENCE"},
+    {"id":"A026","domain":"camera","local":[0,29,65],"source":[145,174,210],"verb":"reframe","target":"SUBJECT_PRECOMP","physical_camera_claim":false,"authority":"EVIDENCE_BOUND_INFERENCE"},
+    {"id":"A027","domain":"audio","local":[11,15,25],"source":[156,160,170],"verb":"impact_sub_hit","target":"SFX_EMPHASIS","authority":"INFERRED_FROM_MIXED_AUDIO"},
+    {"id":"A028","domain":"object","local":[60,67,71],"source":[205,212,216],"verb":"object_insert","target":"PHONE_HAND_PROP","authority":"EVIDENCE_BOUND_INFERENCE"}
+  ],
+  "physical_reconstruction": {
+    "caption_layout_contract": "runtime/remotion/src/golden_s04/measuredTrack.ts",
+    "caption_renderer": "runtime/remotion/src/golden_s04/MeasuredCaptionSystem.tsx",
+    "layout_method": "REFERENCE_MINUS_INPAINTED_CLEAN_PLATE_COLOR_COMPONENT_BBOX",
+    "layout_authority": "MEASURED_SOURCE_VISIBLE_SCREEN_SPACE_BBOX",
+    "caption_parent_hypothesis": {
+      "value": "SHARED_SCREEN_SPACE_PARENT_AFTER_HERO_ENTRY",
+      "authority": "EVIDENCE_BOUND_INFERENCE",
+      "setup_hero_width_scale_correlation": 0.9975202500257605,
+      "setup_tail_width_scale_correlation": 0.9939963827123907,
+      "hero_tail_width_scale_correlation": 0.9968121946478035,
+      "caveat": "Does not prove original After Effects parenting/precomp topology."
+    },
+    "audio_onset": {
+      "source_peak_local_frame": 8.829931972789115,
+      "render_peak_local_frame": 9.27891156462585,
+      "absolute_error_frames": 0.44897959183673564,
+      "sfx_identity": "INFERRED_FROM_MIXED_AUDIO"
+    }
+  },
+  "qualification": {
+    "current_git": "forensics/references/screenrecording_20260826/golden/s04/fidelity/s04_fidelity_current.json",
+    "drive_full_qualification": "1D5bfqJhU6-_fJyKTotUz1wl6WT8T7l4Q",
+    "drive_hypergraph": "1IY15RWLALxjLE1OH1_j2g1XqCALsxOP1",
+    "drive_report": "1A6zDk-9Qcon5ngWPhYS_4A1ig_leoDkj",
+    "renderer_head": "0790a005f391327b731464d269e42864c64ea4cb",
+    "workflow_run": 33321379790,
+    "artifact_id": 9734987644,
+    "artifact_digest": "sha256:e3943283f2f63add79b3a51016fc7d1349053223e6f809952443be46104e214d",
+    "state": "SOURCE_BOUND_PARTIAL_QUALIFICATION_P0P1_CLOSED",
+    "full_9d_fidelity_validated": false
+  },
+  "declared_p0_p1_gates": {
+    "temporal_visibility_exact": true,
+    "mean_bbox_iou_min": 0.90,
+    "mean_centroid_error_px_max": 3.0,
+    "mean_area_error_pct_max": 8.0,
+    "primary_audio_onset_error_frames_max": 1.5,
+    "result": "PASS"
+  },
+  "adversarial_ceiling": {
+    "setup_worst_frame_iou": 0.6913195796029583,
+    "status": "P2_FIDELITY_CEILING_NOT_ACTION_LAYOUT_BLOCKER",
+    "meaning": "Mean reconstructed-output layout gates pass, but fallback glyph morphology is not exact. Do not infer exact font/glyph fidelity from P0/P1 closure."
+  },
+  "asset_policy": {
+    "source_and_clean_plate": "DRIVE_ONLY",
+    "git": "CODE_CONTRACTS_AND_TEXT_EVIDENCE_ONLY",
+    "ci_plate": "PROCEDURAL_NON_SOURCE_FIXTURE",
+    "exact_local_plate_mode": "IMAGE_SEQUENCE_FROM_EXTERNAL_ASSET",
+    "overlay_sequence": "CI_RENDERED_TRANSPARENT_PNG"
+  },
+  "template_policy": {
+    "preserve": [
+      "caption appearance/visibility timing",
+      "measured screen-space trajectories",
+      "hero emphasis beat",
+      "shared-caption-parent behavioral relationship",
+      "audio-accent timing relationship"
+    ],
+    "do_not_source_lock_as_reusable_truth": [
+      "literal caption copy",
+      "speaker pixels",
+      "phone/source UI pixels",
+      "unknown original font identity",
+      "unknown original SFX stem"
+    ]
+  },
+  "unknowns": [
+    "exact original font identity and font files",
+    "exact original glyph morphology under fallback renderer fonts",
+    "original After Effects Graph Editor curves",
+    "original compositing/precomp/effect graph",
+    "original isolated SFX stem/timbre",
+    "exact pre-grade caption fill tokens",
+    "causal separation of source-native subject motion and editorial reframe",
+    "full source-plate depth/camera decomposition"
+  ],
+  "authority": "SOURCE_BOUND_PARTIAL_QUALIFICATION_P0P1_CLOSED"
+}
