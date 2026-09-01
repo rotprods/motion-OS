@@ -9,12 +9,20 @@ type State='audio'|'visual'|'texto';
 const tiles=Array.from({length:12},(_,i)=>i);
 const measurementCard:Record<State,string>={audio:'#00F36D',visual:'#00A8FF',texto:'#EA00FF'};
 const measurementHeading:Record<State,string>={audio:'#FFF200',visual:'#00FFF0',texto:'#FF7A00'};
+const measurementAnnotation:Record<State,string>={audio:'#FF1A66',visual:'#6DFF00',texto:'#A66CFF'};
 const headingVisibleBoundsCalibration:Record<State,{fontSizeMultiplier:number;baselineFactor:number;textLengthDelta:number;xOffset:number}>={
   // Calibrates this clean-runner fallback font to source-visible bounds. It does
   // not identify the unknown original font or claim original AE text metrics.
   audio:{fontSizeMultiplier:1.36,baselineFactor:1.0,textLengthDelta:5,xOffset:-2},
   visual:{fontSizeMultiplier:1.33,baselineFactor:1.0,textLengthDelta:7,xOffset:0},
   texto:{fontSizeMultiplier:1.51,baselineFactor:1.0,textLengthDelta:5,xOffset:-2},
+};
+const annotationVisibleBounds:Record<State,{left:number;top:number;width:number;height:number}>={
+  // Stable-state medians measured from source output. These are bbox constraints,
+  // not original vector paths or stroke-width authority.
+  audio:{left:4.6763,top:44.8077,width:87.7888,height:8.5714},
+  visual:{left:.3012,top:14.0071,width:98.8060,height:35.3571},
+  texto:{left:5.6022,top:1.5789,width:84.8315,height:19.4250},
 };
 
 const NestedMedia:React.FC<{state:State}> =({state})=>{
@@ -23,11 +31,6 @@ const NestedMedia:React.FC<{state:State}> =({state})=>{
    <div style={{position:'absolute',inset:0,background:'radial-gradient(circle at 50% 20%,rgba(255,255,255,.13),transparent 42%),repeating-linear-gradient(90deg,rgba(0,0,0,.12) 0 1px,transparent 1px 29px)',opacity:.65}}/>
    <div style={{position:'absolute',left:'10%',right:'8%',top:'8%',fontFamily:'Arial,Helvetica,sans-serif',fontWeight:700,color:'#ddd',fontSize:'5.8%'}}>How to Create a</div>
    <div style={{position:'absolute',left:'10%',right:'3%',top:'12%',fontFamily:'Arial Black,Arial,sans-serif',fontWeight:900,color:isTexto?S14_SPEC.colors.yellow:'#d8d5d0',fontSize:'10.2%',whiteSpace:'nowrap'}}>VIRAL SERIES</div>
-   {state==='audio'?<>
-      <div style={{position:'absolute',left:'13%',right:'12%',top:'43%',height:3,background:S14_SPEC.colors.red}}/>
-      <div style={{position:'absolute',left:'19%',top:'34%',height:'23%',width:3,background:S14_SPEC.colors.red}}/>
-      <div style={{position:'absolute',left:'15%',right:'13%',top:'42%',height:'5%',background:'repeating-linear-gradient(90deg,transparent 0 4px,#b71318 4px 6px,transparent 6px 10px)',opacity:.9}}/>
-   </>:null}
    {isVisual?<div style={{position:'absolute',left:'12%',right:'9%',top:'22%',height:'28%',display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'3%'}}>{tiles.map(i=><div key={i} style={{background:i%3===0?'#9b6f6f':'#777',border:'1px solid rgba(255,255,255,.22)',borderRadius:4}}/>)}</div>:null}
    {isTexto?<div style={{position:'absolute',left:'14%',right:'10%',top:'25%',height:'28%',display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'3%'}}>{tiles.slice(0,9).map(i=><div key={i} style={{background:i%2?'#777':'#999',border:'1px solid rgba(255,255,255,.18)',borderRadius:3}}/>)}</div>:null}
    <div style={{position:'absolute',left:'8%',right:'8%',bottom:'8%',height:'36%',borderTop:'3px solid rgba(240,240,240,.55)',background:'linear-gradient(180deg,transparent,rgba(225,225,225,.18))'}}/>
@@ -35,16 +38,20 @@ const NestedMedia:React.FC<{state:State}> =({state})=>{
  </AbsoluteFill>;
 };
 
-const Annotation:React.FC<{state:State}> =({state})=>{
- if(state==='audio')return null;
- if(state==='visual')return <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{position:'absolute',left:'3%',top:'18%',width:'95%',height:'36%',overflow:'visible'}}><ellipse cx="51" cy="49" rx="48" ry="45" fill="none" stroke={S14_SPEC.colors.red} strokeWidth="2.5"/></svg>;
- return <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{position:'absolute',left:'5%',top:'4%',width:'90%',height:'27%',overflow:'visible'}}><ellipse cx="50" cy="50" rx="48" ry="43" fill="none" stroke={S14_SPEC.colors.red} strokeWidth="2.5"/></svg>;
+const Annotation:React.FC<{state:State;measurement?:boolean}> =({state,measurement=false})=>{
+ const b=annotationVisibleBounds[state];const color=measurement?measurementAnnotation[state]:S14_SPEC.colors.red;
+ if(state==='audio')return <div data-annotation={state} style={{position:'absolute',left:`${b.left}%`,top:`${b.top}%`,width:`${b.width}%`,height:`${Math.max(b.height,16)}%`}}>
+   <div style={{position:'absolute',left:0,right:0,top:'50%',height:3,background:color}}/>
+   <div style={{position:'absolute',left:'17%',top:0,bottom:0,width:3,background:color}}/>
+   <div style={{position:'absolute',left:0,right:0,top:'42%',height:'16%',background:`repeating-linear-gradient(90deg,transparent 0 4px,${color} 4px 6px,transparent 6px 10px)`,opacity:.92}}/>
+ </div>;
+ return <svg data-annotation={state} viewBox="0 0 100 100" preserveAspectRatio="none" style={{position:'absolute',left:`${b.left}%`,top:`${b.top}%`,width:`${b.width}%`,height:`${b.height}%`,overflow:'visible'}}><ellipse cx="50" cy="50" rx="49" ry="46" fill="none" stroke={color} strokeWidth={measurement?6:2.7}/></svg>;
 };
 
 const Card:React.FC<{state:State;box:Box|null;measurement?:boolean}> =({state,box,measurement=false})=>{
  if(!box)return null;
  return <div data-card={state} style={{position:'absolute',left:box.x,top:box.y,width:box.width,height:box.height,borderRadius:Math.max(18,box.width*.085),overflow:'hidden',boxShadow:measurement?'none':'0 16px 26px rgba(0,0,0,.28)',background:measurement?measurementCard[state]:'#777'}}>
-   {measurement?null:<><NestedMedia state={state}/><Annotation state={state}/></>}
+   {measurement?<Annotation state={state} measurement/>:<><NestedMedia state={state}/><Annotation state={state}/></>}
  </div>;
 };
 
@@ -82,3 +89,4 @@ export const S14AudioVisualTexto:React.FC=()=>{
 };
 
 export const S14_HEADING_VISIBLE_BOUNDS_CALIBRATION=headingVisibleBoundsCalibration;
+export const S14_ANNOTATION_VISIBLE_BOUNDS=annotationVisibleBounds;
