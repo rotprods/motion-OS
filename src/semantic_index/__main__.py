@@ -6,6 +6,7 @@ from pathlib import Path
 
 from .benchmark import benchmark_live, benchmark_synthetic
 from .engine import SemanticKnowledgePlane
+from .evaluation import evaluate_dataset
 from .server import serve
 
 
@@ -27,6 +28,9 @@ def build_parser() -> argparse.ArgumentParser:
     query.add_argument("query")
     query.add_argument("--repo-id", action="append", default=[])
     query.add_argument("--limit", type=int, default=10)
+    evaluation = sub.add_parser("evaluate", help="run labeled file-level retrieval benchmark")
+    evaluation.add_argument("--dataset", type=Path, default=Path("benchmarks/semantic_retrieval_v1.json"))
+    evaluation.add_argument("--k", type=int, default=None, help="override dataset k")
     server = sub.add_parser("serve", help="serve /graphify and /cos-graph-engine on loopback")
     server.add_argument("--host", default="127.0.0.1")
     server.add_argument("--port", type=int, default=8791)
@@ -51,6 +55,12 @@ def main() -> None:
         return
     if args.command == "query":
         _print(plane.cos_graph_engine(args.query, limit=args.limit, repo_ids=args.repo_id or None))
+        return
+    if args.command == "evaluate":
+        report = evaluate_dataset(plane, args.dataset, k_override=args.k)
+        _print(report)
+        if not report.get("passed"):
+            raise SystemExit(2)
         return
     if args.command == "serve":
         if args.host not in {"127.0.0.1", "localhost", "::1"}:
