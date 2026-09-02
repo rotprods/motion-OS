@@ -1,0 +1,42 @@
+{
+  "schema_version": "motion-os.cross-scene-output-equivalence/v1",
+  "authority": "PHYSICALLY_MEASURED_INTERNAL_ARTIFACT_FILE_HASH_EQUIVALENCE",
+  "generated_at": "2026-09-02T08:18:00Z",
+  "scenes": {
+    "S11_UI_LIST": {
+      "qualified_renderer_head": "7cfe7bbd272b2adb65b4bea4792a67e4c91a5f7a",
+      "qualified_artifact_id": 9777929157,
+      "qualified_artifact_zip_sha256": "bb01aff438e045be41c0b3943c53118c55cf533680d2228de3feb69cf375d148",
+      "exact_head": "988e91893cb498f720b9c2656b3d6d85f2d56300",
+      "exact_head_artifact_id": 9802633943,
+      "exact_head_artifact_zip_sha256": "01c0823bd1e4f35b8ce2d47c11959fccf89f8d69098f3561ca596e81299ad874",
+      "old_internal_file_count": 141,
+      "exact_head_internal_file_count": 141,
+      "common_internal_file_count": 141,
+      "byte_identical_internal_files": 141,
+      "different_internal_files": 0,
+      "only_old": [],
+      "only_exact_head": [],
+      "output_equivalent": true,
+      "interpretation": "Source-bound qualification attached to the earlier physical renderer artifact may transfer to the exact scene head for the byte-identical rendered payload. The ZIP archive digest itself is not required to match because archive/container metadata may differ."
+    },
+    "S14_AUDIO_VISUAL_TEXTO": {
+      "qualified_renderer_head": "1ec6a2e561b2e7f67569242dbd3fbaebc724defa",
+      "qualified_artifact_id": 9781474661,
+      "qualified_artifact_zip_sha256": "61ecefaf94a60aaebc04e55c53391e06f7574014caab4f5cba92faf9f4a99f4d",
+      "exact_head": "12592bd8f8149767fafcb0ad0aa6036250ce540c",
+      "exact_head_artifact_id": 9781727915,
+      "exact_head_artifact_zip_sha256": "42cef4cb4c2ff26f0c8fffbb87dcf1933e9406049a29d7d74e71ba5519733df8",
+      "old_internal_file_count": 105,
+      "exact_head_internal_file_count": 105,
+      "common_internal_file_count": 105,
+      "byte_identical_internal_files": 105,
+      "different_internal_files": 0,
+      "only_old": [],
+      "only_exact_head": [],
+      "output_equivalent": true,
+      "interpretation": "Source-bound visible-state/audio qualification transfers to the exact scene head only for the byte-identical rendered payload. It does not upgrade blocked font/path/FX/depth/camera/stem claims."
+    }
+  },
+  "promotion_boundary": "Output equivalence bridges revision provenance; it cannot upgrade the semantic strength of the qualification being bridged."
+}
