@@ -1,0 +1,36 @@
+{
+  "event_id": "20260902T054913000000Z-gpt56-semantic-plane-pr-opened",
+  "event_type": "pr.opened",
+  "timestamp": "2026-09-02T05:49:13Z",
+  "agent_id": "chatgpt-gpt5.6-sol",
+  "project": "MOTION.OS",
+  "branch": "feat/semantic-knowledge-plane-qdrant",
+  "commit_sha": null,
+  "pr_number": 128,
+  "summary": "Opened draft PR #128 for the AVE x MOTION local semantic knowledge plane; paired AVE corpus PR is rotprods/ave#138. Promotion remains blocked on clean-runner and target-host live gates.",
+  "affected_paths": [
+    "src/semantic_index/",
+    "tests/test_semantic_index.py",
+    ".semantic-index.json",
+    "compose.semantic.yml",
+    "scripts/bootstrap_semantic_plane.sh",
+    "docs/SEMANTIC_KNOWLEDGE_PLANE.md",
+    "plans/phase_08_semantic_knowledge_plane.md",
+    "STATE.md",
+    "TASKS.md"
+  ],
+  "checks": {
+    "local_pytest": "8 passed",
+    "local_compileall": "PASS",
+    "synthetic_route_recall_at_10": "0.965",
+    "synthetic_reranked_topic_precision_at_10": "1.000",
+    "live_ollama_qdrant": "NOT_EXECUTED"
+  },
+  "authority": "EXECUTED",
+  "correlation_id": "AVE_MOTION_SEMANTIC_PLANE_V1",
+  "metadata": {
+    "peer_repo": "rotprods/ave",
+    "peer_pr": 138,
+    "promotion_status": "BLOCKED_PENDING_LIVE_AND_MERGE_SAFE"
+  }
+}

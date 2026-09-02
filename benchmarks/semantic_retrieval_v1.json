@@ -1,0 +1,217 @@
+{
+  "name": "AVE × MOTION.OS semantic retrieval v1",
+  "k": 10,
+  "chunk_oversample": 8,
+  "repo_ids": ["rotprods/ave", "rotprods/motion-OS"],
+  "gates": {
+    "hit_rate_at_k_min": 0.92,
+    "mean_recall_at_k_min": 0.75,
+    "mrr_min": 0.72,
+    "ndcg_at_k_min": 0.75
+  },
+  "cases": [
+    {
+      "id": "motion-visual-dna-extraction",
+      "query": "Where is Motion's Visual DNA extraction pipeline that converts reference video evidence into structured visual features?",
+      "expected": [
+        {"repo": "rotprods/motion-OS", "path_glob": "src/extraction/**"},
+        {"repo": "rotprods/motion-OS", "path_glob": "src/visual_dna/**"}
+      ]
+    },
+    {
+      "id": "motion-motionstyle-normalization",
+      "query": "Where is MotionStyle2JSON normalized and compiled into executable motion scene contracts?",
+      "expected": [
+        {"repo": "rotprods/motion-OS", "path_glob": "src/extraction/normalize.py"},
+        {"repo": "rotprods/motion-OS", "path_glob": "src/extraction/compilers.py"}
+      ]
+    },
+    {
+      "id": "motion-style-signature",
+      "query": "Where are StyleSignatures represented, persisted, and retrieved for reference style reuse?",
+      "expected": [
+        {"repo": "rotprods/motion-OS", "path_glob": "src/knowledge/style_signature.py"},
+        {"repo": "rotprods/motion-OS", "path_glob": "src/knowledge/style_store.py"},
+        {"repo": "rotprods/motion-OS", "path_glob": "src/knowledge/reference_store.py"}
+      ]
+    },
+    {
+      "id": "motion-semantic-plane",
+      "query": "Where is the local Ollama BGE-M3 and Qdrant semantic knowledge plane implemented?",
+      "expected": [
+        {"repo": "rotprods/motion-OS", "path_glob": "src/semantic_index/**"},
+        {"repo": "rotprods/motion-OS", "path_glob": "docs/SEMANTIC_KNOWLEDGE_PLANE.md"}
+      ]
+    },
+    {
+      "id": "motion-graph-engine",
+      "query": "Where is Motion's execution and causal graph engine implemented?",
+      "expected": [
+        {"repo": "rotprods/motion-OS", "path_glob": "src/graph/**"}
+      ]
+    },
+    {
+      "id": "motion-hybrid-rag",
+      "query": "Where is Motion's hybrid RAG retrieval implementation?",
+      "expected": [
+        {"repo": "rotprods/motion-OS", "path_glob": "src/rag/**"}
+      ]
+    },
+    {
+      "id": "motion-cos-coordination",
+      "query": "Where does Motion adapt canonical COS graph state into its coordination and projection layer?",
+      "expected": [
+        {"repo": "rotprods/motion-OS", "path_glob": "src/coordination/**"},
+        {"repo": "rotprods/motion-OS", "path_glob": "coordination/**"}
+      ]
+    },
+    {
+      "id": "motion-agent-ownership",
+      "query": "Where are agent ownership claims, active-agent coordination and merge-safe operating rules documented?",
+      "expected": [
+        {"repo": "rotprods/motion-OS", "path_glob": "coordination/**"}
+      ]
+    },
+    {
+      "id": "motion-evidence-schemas",
+      "query": "Where are the schemas and traceability contracts for extracted visual evidence and Visual DNA?",
+      "expected": [
+        {"repo": "rotprods/motion-OS", "path_glob": "schemas/**"},
+        {"repo": "rotprods/motion-OS", "path_glob": "tests/*visual*dna*"}
+      ]
+    },
+    {
+      "id": "motion-phase04-superwave",
+      "query": "Where is the Phase 04 Visual DNA superwave orchestration and reference-analysis execution entrypoint?",
+      "expected": [
+        {"repo": "rotprods/motion-OS", "path_glob": "scripts/run_phase04_visual_dna_superwave.py"},
+        {"repo": "rotprods/motion-OS", "path_glob": "plans/*phase*04*"}
+      ]
+    },
+    {
+      "id": "ave-render-orchestration",
+      "query": "Where is AVE's main render orchestration that turns editing state into rendered media?",
+      "expected": [
+        {"repo": "rotprods/ave", "path_glob": "core/render.js"},
+        {"repo": "rotprods/ave", "path_glob": "render/**"}
+      ]
+    },
+    {
+      "id": "ave-timeline",
+      "query": "Where is AVE's timeline editing and playhead or track logic implemented?",
+      "expected": [
+        {"repo": "rotprods/ave", "path_glob": "core/timeline.js"}
+      ]
+    },
+    {
+      "id": "ave-editor-api",
+      "query": "Where is AVE's editor-facing server API implemented?",
+      "expected": [
+        {"repo": "rotprods/ave", "path_glob": "server/editor-api.js"},
+        {"repo": "rotprods/ave", "path_glob": "server/**"}
+      ]
+    },
+    {
+      "id": "ave-ffmpeg-engine",
+      "query": "Where is AVE's FFmpeg rendering engine and media export execution implemented?",
+      "expected": [
+        {"repo": "rotprods/ave", "path_glob": "render/engine/ffmpeg.js"},
+        {"repo": "rotprods/ave", "path_glob": "render/**"}
+      ]
+    },
+    {
+      "id": "ave-static-graph",
+      "query": "Where is AVE's static dependency graph, community analysis and legacy 256D hashed vector baseline documented or generated?",
+      "expected": [
+        {"repo": "rotprods/ave", "path_glob": "GRAPH/README.md"},
+        {"repo": "rotprods/ave", "path_glob": "GRAPH/build.js"}
+      ]
+    },
+    {
+      "id": "ave-semantic-bridge",
+      "query": "Where is the AVE bridge from the legacy structural graph to the shared model semantic plane documented?",
+      "expected": [
+        {"repo": "rotprods/ave", "path_glob": "GRAPH/SEMANTIC-PLANE.md"}
+      ]
+    },
+    {
+      "id": "ave-browser-editor",
+      "query": "Where is AVE's browser editor interface and web client surface?",
+      "expected": [
+        {"repo": "rotprods/ave", "path_glob": "www/**"},
+        {"repo": "rotprods/ave", "path_glob": "server/**"}
+      ]
+    },
+    {
+      "id": "ave-runtime-hooks",
+      "query": "Where are AVE runtime initialization hooks and hook registration implemented?",
+      "expected": [
+        {"repo": "rotprods/ave", "path_glob": "hooks/**"}
+      ]
+    },
+    {
+      "id": "ave-canonical-ops",
+      "query": "Where are AVE's canonical operating and agent instructions defined?",
+      "expected": [
+        {"repo": "rotprods/ave", "path_glob": "CANON.md"},
+        {"repo": "rotprods/ave", "path_glob": "AGENTS.md"}
+      ]
+    },
+    {
+      "id": "cross-reference-to-render",
+      "query": "Trace the system from reference retrieval and Visual DNA extraction into executable rendering across Motion and AVE.",
+      "expected": [
+        {"repo": "rotprods/motion-OS", "path_glob": "src/extraction/**"},
+        {"repo": "rotprods/motion-OS", "path_glob": "src/visual_dna/**"},
+        {"repo": "rotprods/ave", "path_glob": "core/render.js"},
+        {"repo": "rotprods/ave", "path_glob": "render/**"}
+      ]
+    },
+    {
+      "id": "cross-structural-semantic-graph",
+      "query": "How do AVE structural dependency graph facts connect with Motion's semantic GraphRAG projection without conflating edge authority?",
+      "expected": [
+        {"repo": "rotprods/ave", "path_glob": "GRAPH/**"},
+        {"repo": "rotprods/motion-OS", "path_glob": "src/semantic_index/**"},
+        {"repo": "rotprods/motion-OS", "path_glob": "src/graph/**"}
+      ]
+    },
+    {
+      "id": "cross-agent-execution",
+      "query": "Where do agent coordination and executable editor or runtime actions live across Motion and AVE?",
+      "expected": [
+        {"repo": "rotprods/motion-OS", "path_glob": "src/coordination/**"},
+        {"repo": "rotprods/motion-OS", "path_glob": "coordination/**"},
+        {"repo": "rotprods/ave", "path_glob": "hooks/**"},
+        {"repo": "rotprods/ave", "path_glob": "server/**"}
+      ]
+    },
+    {
+      "id": "cross-timeline-analysis",
+      "query": "Where are timeline/media execution in AVE and reference video analysis or compilation in Motion implemented?",
+      "expected": [
+        {"repo": "rotprods/ave", "path_glob": "core/timeline.js"},
+        {"repo": "rotprods/ave", "path_glob": "render/**"},
+        {"repo": "rotprods/motion-OS", "path_glob": "src/extraction/**"}
+      ]
+    },
+    {
+      "id": "cross-provenance",
+      "query": "Where is source provenance preserved from repository graph evidence through semantic chunks and retrieval results?",
+      "expected": [
+        {"repo": "rotprods/ave", "path_glob": "GRAPH/**"},
+        {"repo": "rotprods/motion-OS", "path_glob": "src/semantic_index/core.py"},
+        {"repo": "rotprods/motion-OS", "path_glob": "src/semantic_index/structural.py"}
+      ]
+    },
+    {
+      "id": "cross-semantic-search",
+      "query": "Where is the shared AVE and Motion semantic search contract, Qdrant collection, graphify and COS GraphRAG operator surface defined?",
+      "expected": [
+        {"repo": "rotprods/ave", "path_glob": "GRAPH/SEMANTIC-PLANE.md"},
+        {"repo": "rotprods/motion-OS", "path_glob": "docs/SEMANTIC_KNOWLEDGE_PLANE.md"},
+        {"repo": "rotprods/motion-OS", "path_glob": "src/semantic_index/**"}
+      ]
+    }
+  ]
+}

@@ -9,6 +9,7 @@
 - CI Python 3.12: PASS.
 - Repo Health: PASS.
 - Security Baseline: PASS.
+- Phase 08 AVE × MOTION semantic knowledge plane: **IMPLEMENTED ON CANDIDATE BRANCH; NOT YET LIVE-VERIFIED OR CANONICAL**.
 
 ## Product state
 - Phase: v0.9.1 creative convergence + generalization validation.
@@ -29,11 +30,20 @@
 3. Connect authoritative full-video temporal multimodal critic.
 4. Converge canonical RC to semantic/creative release thresholds >=9.
 
+## Phase 08 semantic plane boundary
+- Source authority remains Git/commit history.
+- Qdrant collection `ave_motion_semantic_v1` is a derived, rebuildable retrieval projection only.
+- Native semantic vector: local Ollama `bge-m3` 1024D.
+- Derived `cos20`: deterministic 20D coarse routing vector; exact 1024D rerank determines final semantic ranking.
+- AVE `GRAPH/graph.json` and `communities.json` are reused as repository-owned structural metadata rather than replaced or reinterpreted as semantic truth.
+- Live host bootstrap, full AVE+MOTION indexing, graphify, real-corpus labeled retrieval evaluation and MERGE_SAFE remain promotion gates.
+
 ## Persistence
 - GitHub = software truth.
 - Drive = artifacts / progress / recovery truth.
 - SQLite = structured operational knowledge.
 - Graph = execution and causal lineage.
+- Qdrant = rebuildable semantic retrieval projection, **not authority**.
 - Local sandbox = disposable compute.
 
 ## Anti-overengineering
