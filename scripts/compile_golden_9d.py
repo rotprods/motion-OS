@@ -9,7 +9,7 @@ from reverse_engineering.qualification import compile_qualification_manifest
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Compile the MOTION.OS golden-scene 9D qualification graph")
+    parser = argparse.ArgumentParser(description="Compile MOTION.OS observable output-fidelity 9D graph")
     parser.add_argument("--manifest", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
@@ -20,10 +20,11 @@ def main() -> int:
     args.out.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
     print(json.dumps({
         "promotion_state": result["promotion_state"],
-        "full_9d_fidelity_validated": result["full_9d_fidelity_validated"],
-        "diagnostic_coverage_ratio": result["diagnostic_coverage_ratio"],
+        "output_fidelity_9d_validated": result["output_fidelity_9d_validated"],
+        "authoring_provenance_complete": result["authoring_provenance_complete"],
+        "diagnostic_output_claim_coverage_ratio": result["diagnostic_output_claim_coverage_ratio"],
         "defects_by_severity": result["defects_by_severity"],
-        "qualified_dimensions": [name for name, value in result["dimensions"].items() if value["qualified"]],
+        "qualified_dimensions": [name for name, value in result["output_dimensions"].items() if value["qualified"]],
     }, indent=2))
     return 0
 
