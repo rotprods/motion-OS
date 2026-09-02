@@ -16,6 +16,24 @@ from .model import (
 
 SCHEMA_VERSION = "motion-os.golden-9d-qualification-manifest/v1"
 
+# Each dimension must contain at least one claim whose semantic kind is strong
+# enough to represent the dimension rather than a weaker rendering proxy. This
+# prevents a manifest editor from replacing exact typography with layout boxes,
+# or full audio fidelity with onset timing, and then declaring 9D success.
+_MINIMUM_STRONG_CLAIM_KINDS: dict[FidelityDimension, frozenset[str]] = {
+    FidelityDimension.TEMPORAL: frozenset(
+        {"source_bound_layout_timing", "source_bound_visible_timing", "source_bound_state_timing"}
+    ),
+    FidelityDimension.MOTION: frozenset({"kinematic_curve", "original_easing_curve"}),
+    FidelityDimension.CAMERA: frozenset({"camera_causality", "camera_or_source_ui_causality"}),
+    FidelityDimension.TYPOGRAPHY: frozenset({"glyph_morphology"}),
+    FidelityDimension.DEPTH: frozenset({"depth_topology", "original_z_order"}),
+    FidelityDimension.COLOR: frozenset({"pre_grade_color", "color_grade", "material_color"}),
+    FidelityDimension.FX: frozenset({"effect_stack"}),
+    FidelityDimension.AUDIO: frozenset({"stem_identity"}),
+    FidelityDimension.RETENTION: frozenset({"retention_grammar"}),
+}
+
 
 def validate_qualification_manifest(manifest: Mapping[str, Any]) -> dict[str, Any]:
     if manifest.get("schema_version") != SCHEMA_VERSION:
@@ -81,6 +99,7 @@ def validate_qualification_manifest(manifest: Mapping[str, Any]) -> dict[str, An
             raise QualificationError(
                 f"dimension {dimension.value} requires at least one explicit claim"
             )
+        dimension_claims: list[QualificationClaim] = []
         for claim_id in ids:
             claim = claims.get(claim_id)
             if claim is None:
@@ -95,12 +114,20 @@ def validate_qualification_manifest(manifest: Mapping[str, Any]) -> dict[str, An
                 raise QualificationError(
                     f"program requirement cannot depend on non-required claim {claim_id}"
                 )
+            dimension_claims.append(claim)
             requirement_claims.add(claim_id)
+
+        required_kinds = _MINIMUM_STRONG_CLAIM_KINDS[dimension]
+        present_kinds = {claim.claim_kind for claim in dimension_claims}
+        if not (present_kinds & required_kinds):
+            raise QualificationError(
+                f"dimension {dimension.value} can be semantically laundered: expected at least one strong claim kind from {sorted(required_kinds)}, got {sorted(present_kinds)}"
+            )
 
     require_all_dimensions(seen_dimensions)
 
-    # A required claim must be visible from exactly one 9D requirement. Orphaned
-    # required claims are dangerous because they appear important but cannot veto promotion.
+    # A required claim must be visible from a 9D requirement. Orphaned required
+    # claims are dangerous because they appear important but cannot veto promotion.
     orphaned = sorted(
         claim.claim_id
         for claim in claims.values()
@@ -149,6 +176,7 @@ def compile_qualification_manifest(manifest: Mapping[str, Any]) -> dict[str, Any
             "unqualified_claim_ids": [item["claim_id"] for item in blockers],
             "qualified": not blockers,
             "authority_rule": "ALL_REQUIRED_CLAIMS_QUALIFIED_NO_AVERAGING",
+            "minimum_strong_claim_kinds": sorted(_MINIMUM_STRONG_CLAIM_KINDS[dimension]),
         }
 
     full_9d = all(item["qualified"] for item in dimensions.values())
