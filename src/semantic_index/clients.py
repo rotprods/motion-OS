@@ -117,10 +117,17 @@ class QdrantClient:
     def delete_stale(self, repo_id: str, index_run: str) -> dict[str, Any]:
         return self.http.request("POST", f"{self.collection_path}/points/delete?wait=true", {"filter": {"must": [{"key": "repo", "match": {"value": repo_id}}], "must_not": [{"key": "index_run", "match": {"value": index_run}}]}}).body
 
+    @staticmethod
+    def _repo_filter(repo_ids: Sequence[str] | None) -> dict[str, Any] | None:
+        if not repo_ids:
+            return None
+        return {"should": [{"key": "repo", "match": {"value": repo_id}} for repo_id in repo_ids]}
+
     def query(self, vector: Sequence[float], *, using: str, limit: int, repo_ids: Sequence[str] | None = None, with_vectors: Sequence[str] | bool = False) -> list[dict[str, Any]]:
         body: dict[str, Any] = {"query": [float(v) for v in vector], "using": using, "limit": int(limit), "with_payload": True, "with_vector": list(with_vectors) if isinstance(with_vectors, (list, tuple)) else bool(with_vectors)}
-        if repo_ids:
-            body["filter"] = {"should": [{"key": "repo", "match": {"value": repo_id}} for repo_id in repo_ids]}
+        repo_filter = self._repo_filter(repo_ids)
+        if repo_filter:
+            body["filter"] = repo_filter
         response = self.http.request("POST", f"{self.collection_path}/points/query", body).body
         result = response.get("result", {})
         if isinstance(result, list):
@@ -130,6 +137,32 @@ class QdrantClient:
             return points if isinstance(points, list) else []
         return []
 
+    def query_batch(self, vectors: Sequence[Sequence[float]], *, using: str, limit: int, repo_ids: Sequence[str] | None = None, with_vectors: Sequence[str] | bool = False) -> list[list[dict[str, Any]]]:
+        repo_filter = self._repo_filter(repo_ids)
+        searches: list[dict[str, Any]] = []
+        for vector in vectors:
+            body: dict[str, Any] = {"query": [float(v) for v in vector], "using": using, "limit": int(limit), "with_payload": True, "with_vector": list(with_vectors) if isinstance(with_vectors, (list, tuple)) else bool(with_vectors)}
+            if repo_filter:
+                body["filter"] = repo_filter
+            searches.append(body)
+        if not searches:
+            return []
+        response = self.http.request("POST", f"{self.collection_path}/points/query/batch", {"searches": searches}).body
+        result = response.get("result", [])
+        if not isinstance(result, list):
+            return [[] for _ in searches]
+        batches: list[list[dict[str, Any]]] = []
+        for item in result:
+            if isinstance(item, list):
+                batches.append(item)
+            elif isinstance(item, dict) and isinstance(item.get("points"), list):
+                batches.append(item["points"])
+            else:
+                batches.append([])
+        if len(batches) < len(searches):
+            batches.extend([[] for _ in range(len(searches) - len(batches))])
+        return batches[:len(searches)]
+
     def scroll(self, *, repo_ids: Sequence[str] | None = None, with_vectors: Sequence[str] | bool = False, page_size: int = 128) -> list[dict[str, Any]]:
         points: list[dict[str, Any]] = []
         offset: Any = None
@@ -137,8 +170,9 @@ class QdrantClient:
             body: dict[str, Any] = {"limit": page_size, "with_payload": True, "with_vector": list(with_vectors) if isinstance(with_vectors, (list, tuple)) else bool(with_vectors)}
             if offset is not None:
                 body["offset"] = offset
-            if repo_ids:
-                body["filter"] = {"should": [{"key": "repo", "match": {"value": repo_id}} for repo_id in repo_ids]}
+            repo_filter = self._repo_filter(repo_ids)
+            if repo_filter:
+                body["filter"] = repo_filter
             response = self.http.request("POST", f"{self.collection_path}/points/scroll", body).body
             result = response.get("result", {})
             batch = result.get("points", []) if isinstance(result, dict) else []
