@@ -90,6 +90,54 @@ def test_active_p7_ssrf_stack_is_required(tmp_path: Path) -> None:
     assert "authority_anchor_fingerprint_mismatch" in errors
 
 
+def test_missing_external_blocker_fails_closed(tmp_path: Path) -> None:
+    root = _copy_packet(tmp_path)
+    ctx = _load(root, "context")
+    ctx["external_blockers"] = []
+    _write(root, "context", ctx)
+    assert "external_blockers_missing" in validate_packet(root)
+
+
+def test_duplicate_active_program_id_fails_closed(tmp_path: Path) -> None:
+    root = _copy_packet(tmp_path)
+    ctx = _load(root, "context")
+    ctx["active_programs"].append(dict(ctx["active_programs"][0]))
+    _write(root, "context", ctx)
+    assert "duplicate_active_program_id" in validate_packet(root)
+
+
+def test_malformed_main_sha_fails_closed(tmp_path: Path) -> None:
+    root = _copy_packet(tmp_path)
+    ctx = _load(root, "context")
+    ctx["live_truth_anchor"]["main_sha"] = "not-a-sha"
+    _write(root, "context", ctx)
+    assert "invalid_main_sha" in validate_packet(root)
+
+
+def test_false_project_done_fails_closed(tmp_path: Path) -> None:
+    root = _copy_packet(tmp_path)
+    ctx = _load(root, "context")
+    ctx["project"]["project_done"] = True
+    _write(root, "context", ctx)
+    assert "snapshot_must_not_claim_project_done" in validate_packet(root)
+
+
+def test_self_promoted_snapshot_authority_fails_closed(tmp_path: Path) -> None:
+    root = _copy_packet(tmp_path)
+    ctx = _load(root, "context")
+    ctx["snapshot_authority"] = "CANONICAL_PROJECT_TRUTH"
+    _write(root, "context", ctx)
+    assert "snapshot_authority_must_be_derived" in validate_packet(root)
+
+
+def test_missing_next_safe_action_fails_closed(tmp_path: Path) -> None:
+    root = _copy_packet(tmp_path)
+    ctx = _load(root, "context")
+    ctx["next_safe_frontier"] = []
+    _write(root, "context", ctx)
+    assert "next_safe_frontier_missing" in validate_packet(root)
+
+
 def test_graph_ownership_must_target_explicit_scope(tmp_path: Path) -> None:
     root = _copy_packet(tmp_path)
     graph = _load(root, "graph")

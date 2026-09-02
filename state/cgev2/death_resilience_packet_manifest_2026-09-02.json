@@ -1,6 +1,6 @@
 {
   "schema": "motion-os.cgev2-death-resilience-packet-manifest/v1",
-  "generated_at": "2026-09-02T09:55:00+02:00",
+  "generated_at": "2026-09-02T10:22:12+02:00",
   "authority": "INTEGRITY_MANIFEST_NOT_PROJECT_TRUTH",
   "digest_mode": "git_blob_sha1+sha256_manifest",
   "files": {
@@ -8,9 +8,11 @@
     "coordination/cgev2/CGEV2_DEATH_RESILIENCE_HANDOFF_2026-09-01.md": "6e283c95b99e0e4fd66e1379773b360fcf24c945",
     "coordination/cgev2/NEXT_ITERATION_METAPROMPT_2026-09-01.md": "fed277b80900742d49633e11f2959cf3bf0f4f39",
     "graph/cgev2/death_resilience_graph_2026-09-01.json": "d9b8ca4e89fb14f443a2e6238fc8f4bc7198cd9b",
-    "scripts/verify_cgev2_death_resilience.py": "d288a6a30e95e2bf57c3b6a698a5640005bda9fb",
+    "scripts/verify_cgev2_death_resilience.py": "80b7912da6b7354c7115018562cdb9446fb09dd9",
     "state/cgev2/death_resilience_contextpack_2026-09-01.json": "18741d3f8dd9be2449eea0b5ab92ba928b0aeb32",
-    "state/cgev2/death_resilience_drive_mirror_2026-09-01.json": "7b8f7b1faa6ffeb362c6762c875c0f90f3d51a29"
+    "state/cgev2/death_resilience_drive_mirror_2026-09-01.json": "7b8f7b1faa6ffeb362c6762c875c0f90f3d51a29",
+    "tests/test_cgev2_death_resilience.py": "964d6705b45f500af384ac0cd3b11cfb590d2d03",
+    "tests/test_cgev2_drive_mirror.py": "bb26827ab9764850c30438166c5c00f642113e27"
   },
-  "files_fingerprint_sha256": "2ee0df487910c74a6f0ba050708216d66099d37586039dc3c436b4cd3ae5f735"
+  "files_fingerprint_sha256": "f0b33a2708437129303dfc0968f82740fbf81f30576c43507e8b286186e1e8ff"
 }

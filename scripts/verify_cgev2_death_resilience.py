@@ -19,6 +19,8 @@ RELATIVE_PATHS = {
     "drive_mirror": "state/cgev2/death_resilience_drive_mirror_2026-09-01.json",
     "manifest": "state/cgev2/death_resilience_packet_manifest_2026-09-02.json",
     "verifier": "scripts/verify_cgev2_death_resilience.py",
+    "tests": "tests/test_cgev2_death_resilience.py",
+    "drive_tests": "tests/test_cgev2_drive_mirror.py",
 }
 
 SHA40 = re.compile(r"^[0-9a-f]{40}$")
@@ -291,6 +293,19 @@ def validate_packet(
     orders = [item.get("order") for item in critical_path]
     if orders != list(range(1, len(critical_path) + 1)):
         errors.append("critical_path_order_invalid")
+
+    next_safe = ctx.get("next_safe_frontier", [])
+    if not isinstance(next_safe, list) or not next_safe:
+        errors.append("next_safe_frontier_missing")
+    else:
+        priorities = [item.get("priority") for item in next_safe]
+        if priorities != list(range(1, len(next_safe) + 1)):
+            errors.append("next_safe_frontier_priority_invalid")
+        for item in next_safe:
+            if not isinstance(item.get("action"), str) or not item["action"].strip():
+                errors.append("next_safe_frontier_action_missing")
+            if not isinstance(item.get("state"), str) or not item["state"].strip():
+                errors.append("next_safe_frontier_state_missing")
 
     recovery = ctx.get("zero_context_recovery", {})
     if recovery.get("entry_rule") != "DO_NOT_START_BY_TRUSTING_THIS_SNAPSHOT":
