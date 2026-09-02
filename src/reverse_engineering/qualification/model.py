@@ -6,7 +6,7 @@ from typing import Any, Mapping, Sequence
 
 
 class QualificationError(ValueError):
-    """Raised when a qualification claim would overstate available authority."""
+    """Raised when a qualification/provenance claim would overstate authority."""
 
 
 class FidelityDimension(str, Enum):
@@ -75,6 +75,8 @@ class SceneEvidence:
 
 @dataclass(frozen=True)
 class QualificationClaim:
+    """Observable-output claim that may participate in OUTPUT_FIDELITY_9D promotion."""
+
     claim_id: str
     scene_id: str
     dimension: FidelityDimension
@@ -108,39 +110,103 @@ class QualificationClaim:
         )
 
     def validate(self, evidence: Mapping[str, SceneEvidence]) -> None:
-        if not self.claim_id:
-            raise QualificationError("claim_id must not be empty")
+        _validate_common_claim(
+            claim_id=self.claim_id,
+            scene_id=self.scene_id,
+            status=self.status,
+            authority=self.authority,
+            evidence_ids=self.evidence_ids,
+            blocked_reason=self.blocked_reason,
+            evidence=evidence,
+        )
         if self.required and self.status is ClaimStatus.NOT_APPLICABLE:
             raise QualificationError(
                 f"required claim {self.claim_id} cannot be NOT_APPLICABLE"
             )
-        if self.status is ClaimStatus.QUALIFIED:
-            if self.authority is not EvidenceAuthority.PHYSICALLY_MEASURED:
-                raise QualificationError(
-                    f"qualified claim {self.claim_id} requires PHYSICALLY_MEASURED authority"
-                )
-            if not self.evidence_ids:
-                raise QualificationError(
-                    f"qualified claim {self.claim_id} requires durable evidence"
-                )
-        if self.status is ClaimStatus.BLOCKED and not self.blocked_reason:
+
+
+@dataclass(frozen=True)
+class AuthoringProvenanceClaim:
+    """Question about hidden source-authoring identity.
+
+    These claims are durable and queryable but are explicitly outside the output
+    fidelity promotion DAG. They may remain UNKNOWN forever without preventing
+    an output-equivalent reconstruction.
+    """
+
+    claim_id: str
+    scene_id: str
+    target: str
+    provenance_kind: str
+    status: ClaimStatus
+    authority: EvidenceAuthority
+    evidence_ids: tuple[str, ...]
+    notes: str
+    blocked_reason: str | None = None
+
+    @classmethod
+    def from_mapping(cls, data: Mapping[str, Any]) -> "AuthoringProvenanceClaim":
+        return cls(
+            claim_id=str(data["claim_id"]),
+            scene_id=str(data["scene_id"]),
+            target=str(data["target"]),
+            provenance_kind=str(data["provenance_kind"]),
+            status=ClaimStatus(str(data["status"])),
+            authority=EvidenceAuthority(str(data["authority"])),
+            evidence_ids=tuple(str(value) for value in data.get("evidence_ids", ())),
+            notes=str(data.get("notes", "")),
+            blocked_reason=_optional_str(data.get("blocked_reason")),
+        )
+
+    def validate(self, evidence: Mapping[str, SceneEvidence]) -> None:
+        _validate_common_claim(
+            claim_id=self.claim_id,
+            scene_id=self.scene_id,
+            status=self.status,
+            authority=self.authority,
+            evidence_ids=self.evidence_ids,
+            blocked_reason=self.blocked_reason,
+            evidence=evidence,
+        )
+
+
+def _validate_common_claim(
+    *,
+    claim_id: str,
+    scene_id: str,
+    status: ClaimStatus,
+    authority: EvidenceAuthority,
+    evidence_ids: tuple[str, ...],
+    blocked_reason: str | None,
+    evidence: Mapping[str, SceneEvidence],
+) -> None:
+    if not claim_id:
+        raise QualificationError("claim_id must not be empty")
+    if status is ClaimStatus.QUALIFIED:
+        if authority is not EvidenceAuthority.PHYSICALLY_MEASURED:
             raise QualificationError(
-                f"blocked claim {self.claim_id} requires blocked_reason"
+                f"qualified claim {claim_id} requires PHYSICALLY_MEASURED authority"
             )
-        for evidence_id in self.evidence_ids:
-            if evidence_id not in evidence:
-                raise QualificationError(
-                    f"claim {self.claim_id} references unknown evidence {evidence_id}"
-                )
-            ref = evidence[evidence_id]
-            if ref.scene_id not in {self.scene_id, "PROGRAM"}:
-                raise QualificationError(
-                    f"claim {self.claim_id} cannot consume evidence for {ref.scene_id}"
-                )
-            if self.status is ClaimStatus.QUALIFIED and _AUTHORITY_RANK[ref.authority] < _AUTHORITY_RANK[EvidenceAuthority.DETERMINISTIC_HEURISTIC]:
-                raise QualificationError(
-                    f"qualified claim {self.claim_id} depends on low-authority evidence {evidence_id}"
-                )
+        if not evidence_ids:
+            raise QualificationError(
+                f"qualified claim {claim_id} requires durable evidence"
+            )
+    if status is ClaimStatus.BLOCKED and not blocked_reason:
+        raise QualificationError(f"blocked claim {claim_id} requires blocked_reason")
+    for evidence_id in evidence_ids:
+        if evidence_id not in evidence:
+            raise QualificationError(
+                f"claim {claim_id} references unknown evidence {evidence_id}"
+            )
+        ref = evidence[evidence_id]
+        if ref.scene_id not in {scene_id, "PROGRAM"}:
+            raise QualificationError(
+                f"claim {claim_id} cannot consume evidence for {ref.scene_id}"
+            )
+        if status is ClaimStatus.QUALIFIED and _AUTHORITY_RANK[ref.authority] < _AUTHORITY_RANK[EvidenceAuthority.DETERMINISTIC_HEURISTIC]:
+            raise QualificationError(
+                f"qualified claim {claim_id} depends on low-authority evidence {evidence_id}"
+            )
 
 
 def validate_evidence_revision(
@@ -148,7 +214,7 @@ def validate_evidence_revision(
     scene_head: str,
     known_evidence: Mapping[str, SceneEvidence],
 ) -> None:
-    """Reject stale-head evidence unless an explicit equivalence proof bridges revisions."""
+    """Reject stale-head evidence unless an explicit physical output-equivalence proof bridges revisions."""
 
     if evidence.revision is None or evidence.revision == scene_head:
         return
@@ -173,10 +239,16 @@ def validate_evidence_revision(
 
 
 def validate_proxy_semantics(claim: QualificationClaim) -> None:
-    """Prevent a proxy from silently satisfying a stronger semantic target."""
+    """Prevent a weaker proxy from silently satisfying a stronger visible-output target."""
 
-    exact_markers = ("exact_", "glyph_morphology", "source_pixels", "asset_identity", "stem_identity", "material_identity")
-    if claim.proxy_for and any(marker in claim.semantic_target for marker in exact_markers):
+    strong_markers = (
+        "glyph_morphology",
+        "source_pixels",
+        "rendered_effect_signature",
+        "audio_output_signature",
+        "rendered_color_field",
+    )
+    if claim.proxy_for and any(marker in claim.semantic_target for marker in strong_markers):
         if claim.status is ClaimStatus.QUALIFIED:
             raise QualificationError(
                 f"proxy claim {claim.claim_id} cannot qualify stronger target {claim.semantic_target}"
