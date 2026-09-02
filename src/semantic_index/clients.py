@@ -186,3 +186,9 @@ class QdrantClient:
 
     def set_payload(self, point_id: str | int, payload: dict[str, Any]) -> dict[str, Any]:
         return self.http.request("POST", f"{self.collection_path}/points/payload?wait=true", {"payload": payload, "points": [point_id]}).body
+
+    def set_payload_batch(self, updates: Sequence[tuple[str | int, dict[str, Any]]]) -> dict[str, Any]:
+        if not updates:
+            return {"status": "noop"}
+        operations = [{"set_payload": {"payload": payload, "points": [point_id]}} for point_id, payload in updates]
+        return self.http.request("POST", f"{self.collection_path}/points/batch?wait=true", {"operations": operations}).body
