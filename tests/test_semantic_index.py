@@ -6,6 +6,7 @@ from pathlib import Path
 from src.semantic_index.clients import HttpResponse, QdrantClient
 from src.semantic_index.core import RepoManifest, SemanticConfig, DeterministicJLProjector, chunk_repository, chunk_text
 from src.semantic_index.engine import SemanticKnowledgePlane
+from src.semantic_index.structural import load_structural_context
 
 
 def _unit(index: int, dims: int = 1024) -> list[float]:
@@ -170,3 +171,15 @@ def test_doctor_fails_closed_when_embedding_model_is_missing() -> None:
     assert report["ollama"]["model_present"] is False
     assert report["ollama"]["ok"] is False
     assert report["ok"] is False
+
+
+def test_existing_ave_graph_is_reused_as_structural_metadata(tmp_path: Path) -> None:
+    graph_dir = tmp_path / "GRAPH"
+    graph_dir.mkdir()
+    (graph_dir / "graph.json").write_text('{"nodes":[{"id":"src/a.js","file":"src/a.js","type":"src","deps":["src/b.js"],"dependents":["src/c.js"]}]}', encoding="utf-8")
+    (graph_dir / "communities.json").write_text('{"communities":[{"id":7,"label":"render","topDir":"src","members":["src/a.js"]}]}', encoding="utf-8")
+    context = load_structural_context(tmp_path)
+    assert context["src/a.js"]["source"] == "GRAPH/graph.json"
+    assert context["src/a.js"]["dependencies"] == ["src/b.js"]
+    assert context["src/a.js"]["dependents"] == ["src/c.js"]
+    assert context["src/a.js"]["community"]["label"] == "render"
