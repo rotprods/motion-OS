@@ -129,9 +129,9 @@ class QualificationClaim:
 class AuthoringProvenanceClaim:
     """Question about hidden source-authoring identity.
 
-    These claims are durable and queryable but are explicitly outside the output
-    fidelity promotion DAG. They may remain UNKNOWN forever without preventing
-    an output-equivalent reconstruction.
+    These claims are durable/queryable but explicitly outside the output-fidelity
+    promotion DAG. They may remain UNKNOWN forever without preventing an
+    output-equivalent reconstruction.
     """
 
     claim_id: str
@@ -199,7 +199,11 @@ def _validate_common_claim(
                 f"claim {claim_id} references unknown evidence {evidence_id}"
             )
         ref = evidence[evidence_id]
-        if ref.scene_id not in {scene_id, "PROGRAM"}:
+        # Scene claims may consume evidence from themselves plus PROGRAM-wide
+        # evidence. PROGRAM claims are aggregators and may intentionally consume
+        # evidence from any registered scene; otherwise cross-scene qualification
+        # would require laundering scene evidence into fake PROGRAM duplicates.
+        if scene_id != "PROGRAM" and ref.scene_id not in {scene_id, "PROGRAM"}:
             raise QualificationError(
                 f"claim {claim_id} cannot consume evidence for {ref.scene_id}"
             )
