@@ -1,0 +1,234 @@
+{
+  "schema": "motion-os.cgev2-death-resilience-graph/v2",
+  "graph_authority": "DERIVED_PROJECTION_NO_REVERSE_WRITES",
+  "captured_at": "2026-09-01T16:39:00+02:00",
+  "nodes": [
+    {
+      "id": "project:motion-os",
+      "type": "Project",
+      "state": "BLOCKED_RELEASE"
+    },
+    {
+      "id": "git:main:d4e628",
+      "type": "Commit",
+      "state": "LIVE_AT_CAPTURE"
+    },
+    {
+      "id": "barrier:issue48",
+      "type": "Barrier",
+      "state": "OPEN"
+    },
+    {
+      "id": "bus:issue39:5496132723",
+      "type": "EventWatermark",
+      "state": "LATEST_AT_RECONCILIATION"
+    },
+    {
+      "id": "program:pce",
+      "type": "Program",
+      "state": "VERIFIED_UNPROMOTED"
+    },
+    {
+      "id": "pr:118",
+      "type": "PullRequest",
+      "state": "P3_VERIFIED_UNPROMOTED"
+    },
+    {
+      "id": "pr:123",
+      "type": "PullRequest",
+      "state": "P3_FRAME_HARDENING_OPEN"
+    },
+    {
+      "id": "pr:119",
+      "type": "PullRequest",
+      "state": "P4_RECOVERY_VERIFIED_PROVIDER_BLOCKED"
+    },
+    {
+      "id": "pr:120",
+      "type": "PullRequest",
+      "state": "P7_SECURITY_DRAFT"
+    },
+    {
+      "id": "pr:126",
+      "type": "PullRequest",
+      "state": "T08_ACTIVE_FOREIGN_OWNED"
+    },
+    {
+      "id": "artifact:rc06",
+      "type": "Artifact",
+      "state": "RECOVERED_EXACT",
+      "sha256": "fbfd4fda97b1e4d07b8477018324210324c8115c0f5b9a3515eb27ae255f0f1f"
+    },
+    {
+      "id": "artifact:p3master",
+      "type": "Artifact",
+      "state": "TECHNICAL_PROOF",
+      "sha256": "2c11f29609a3f093f10f1ac36c1291e4560bad6fe62e7fc2a1a8c468282735e0"
+    },
+    {
+      "id": "block:provider",
+      "type": "ExternalBlocker",
+      "state": "BLOCKED_EXTERNAL"
+    },
+    {
+      "id": "block:ruleset",
+      "type": "ExternalBlocker",
+      "state": "BLOCKED_EXTERNAL"
+    },
+    {
+      "id": "risk:truth-drift",
+      "type": "Risk",
+      "state": "OPEN_P1"
+    },
+    {
+      "id": "risk:main-unprotected",
+      "type": "Risk",
+      "state": "OPEN_P0"
+    },
+    {
+      "id": "task:p7.2",
+      "type": "Task",
+      "state": "IN_PROGRESS"
+    },
+    {
+      "id": "milestone:project-done",
+      "type": "Milestone",
+      "state": "BLOCKED"
+    },
+    {
+      "id": "pr:122",
+      "type": "PullRequest",
+      "state": "P7_SSRF_HARDENING_DRAFT"
+    },
+    {
+      "id": "scope:t08-reverse-engineering",
+      "type": "SemanticScope",
+      "state": "FOREIGN_OWNED_AT_RECONCILIATION"
+    },
+    {
+      "id": "scope:p7-security",
+      "type": "SemanticScope",
+      "state": "ACTIVE_STACK"
+    },
+    {
+      "id": "gate:p4-real-provider",
+      "type": "AuthorityGate",
+      "state": "BLOCKED_EXTERNAL"
+    }
+  ],
+  "edges": [
+    {
+      "source": "project:motion-os",
+      "type": "HAS_LIVE_REVISION",
+      "target": "git:main:d4e628"
+    },
+    {
+      "source": "barrier:issue48",
+      "type": "BLOCKS",
+      "target": "milestone:project-done"
+    },
+    {
+      "source": "bus:issue39:5496132723",
+      "type": "INVALIDATES_STALE_CONTEXT_BEFORE",
+      "target": "program:pce"
+    },
+    {
+      "source": "pr:118",
+      "type": "PRODUCES",
+      "target": "artifact:p3master"
+    },
+    {
+      "source": "pr:123",
+      "type": "HARDENS",
+      "target": "pr:118"
+    },
+    {
+      "source": "pr:119",
+      "type": "VERIFIES_RECOVERY_OF",
+      "target": "artifact:rc06"
+    },
+    {
+      "source": "pr:120",
+      "type": "PARALLEL_WITH",
+      "target": "pr:119"
+    },
+    {
+      "source": "block:ruleset",
+      "type": "AMPLIFIES",
+      "target": "risk:main-unprotected"
+    },
+    {
+      "source": "risk:truth-drift",
+      "type": "REQUIRES",
+      "target": "task:p7.2"
+    },
+    {
+      "source": "task:p7.2",
+      "type": "REDUCES_RISK_OF",
+      "target": "risk:truth-drift"
+    },
+    {
+      "source": "artifact:rc06",
+      "type": "REQUIRED_BY",
+      "target": "milestone:project-done"
+    },
+    {
+      "source": "block:ruleset",
+      "type": "BLOCKS",
+      "target": "milestone:project-done"
+    },
+    {
+      "source": "pr:119",
+      "type": "PREPARES",
+      "target": "gate:p4-real-provider"
+    },
+    {
+      "source": "block:provider",
+      "type": "BLOCKS",
+      "target": "gate:p4-real-provider"
+    },
+    {
+      "source": "gate:p4-real-provider",
+      "type": "REQUIRED_BY",
+      "target": "milestone:project-done"
+    },
+    {
+      "source": "pr:126",
+      "type": "OWNS_SEMANTIC_SCOPE",
+      "target": "scope:t08-reverse-engineering"
+    },
+    {
+      "source": "pr:120",
+      "type": "OWNS_SEMANTIC_SCOPE",
+      "target": "scope:p7-security"
+    },
+    {
+      "source": "pr:122",
+      "type": "HARDENS",
+      "target": "scope:p7-security"
+    }
+  ],
+  "cos_dimensions": {
+    "L0": "system/authority topology in this graph",
+    "L1": "critical path in ContextPack",
+    "L2": "project/barrier/PR/task states",
+    "L3": "dependency edges",
+    "L4": "NOT_APPLICABLE to recovery snapshot",
+    "L5": "recovery/promotion control flow",
+    "L6": "GitHub→events→evidence→state→projection data flow",
+    "L7": "NOT_APPLICABLE",
+    "L8": "protocol/decision/evidence knowledge links",
+    "L9": "authority vocabulary and stale-surface semantics",
+    "L10": "NOT_APPLICABLE; similarity is not authority",
+    "L11": "zero-context retrieval route",
+    "L12": "snapshot TTL=invalidate on live drift",
+    "L13": "active agent/PR ownership",
+    "L14": "GitHub/Drive/Todoist/provider trust boundaries",
+    "L15": "CGEV2/PCE workflow",
+    "L16": "external provider + GitHub control-plane boundaries",
+    "L17": "creative/product quality path",
+    "L18": "CAL2 empirical learning path",
+    "L19": "release authority path"
+  },
+  "reconciled_at": "2026-09-02T09:55:00+02:00"
+}

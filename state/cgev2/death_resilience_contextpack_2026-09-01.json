@@ -1,0 +1,386 @@
+{
+  "schema": "motion-os.cgev2-death-resilience-contextpack/v3",
+  "snapshot_authority": "NON_AUTHORITATIVE_DERIVED_RECOVERY_SNAPSHOT",
+  "captured_at": "2026-09-01T16:39:00+02:00",
+  "refresh_before_mutation": true,
+  "project": {
+    "project_id": "motion://project/motion-os",
+    "repository": "rotprods/motion-OS",
+    "north_star": "Brief in → professional motion-design master out with autonomous research, reference intelligence, assets, composition, motion, audio, QA, graph-native repair and reproducible release.",
+    "release_status": "BLOCKED",
+    "project_done": false
+  },
+  "session": {
+    "agent_id": "motion://agent/chatgpt/cgev2-death-resilience-architect",
+    "session_id": "motion://session/chatgpt/cgev2-death-resilience-architect/20260901T1639+0200",
+    "workstream_id": "motion://workstream/cgev2-death-resilience",
+    "objective_id": "motion://objective/zero-context-death-resilience",
+    "correlation_id": "motion://correlation/cgev2-death-drill-20260901",
+    "branch": "docs/cgev2-death-resilience-20260901-v1"
+  },
+  "protocol_resolution": {
+    "universal_registry": {
+      "repository": "rotprods/rot.knowledge",
+      "path": "_hub/command-registry/registry.json",
+      "exact_sha": "a44cf558585fb04c139d3058c6be7fb044021256",
+      "status": "CANDIDATE_NOT_PROMOTED"
+    },
+    "cgev2": {
+      "command_id": "CMD-CGEV2",
+      "canonical_name": "/CGEV2",
+      "version": "2.0.0",
+      "repository": "rotprods/fiscal-ai",
+      "path": "commands/CGEV2.md",
+      "exact_sha": "d0d1804bda26bfc1f2273df168724ca7087a785c",
+      "authority_ceiling": "CANONICAL_CANDIDATE_NOT_PROMOTED"
+    },
+    "pce": {
+      "command_id": "CMD-PCE",
+      "canonical_name": "/PROJECT-COMPLETION-ENGINE",
+      "repository": "rotprods/motion-OS",
+      "path": "coordination/PROJECT_COMPLETION_ENGINE.md",
+      "exact_sha": "f139c8202ffb34c67a269437947a2b8ef92564e5",
+      "pr": 94,
+      "issue": 93,
+      "authority_ceiling": "VERIFIED_BRANCH_HEAD_NOT_PROMOTED"
+    },
+    "composition": "COMP-CGEV2-PCE",
+    "resolution_failure_state": "COMMAND_AUTHORITY_BLOCKED"
+  },
+  "live_truth_anchor": {
+    "main_sha": "d4e628a1aef0cd382c3c2f1ea327a8ff70c41bd9",
+    "main_protected": false,
+    "event_bus": {
+      "issue": 39,
+      "latest_comment_id_at_capture": 5496132723,
+      "latest_comment_created_at": "2026-09-01T15:15:00Z",
+      "latest_known_event_id": "evt_cgev2_death_resilience_start_20260901T1639+0200"
+    },
+    "promotion_barrier": {
+      "issue": 48,
+      "state": "OPEN",
+      "release_event_observed": false
+    },
+    "completion_control_issue": 93,
+    "drive_root_id": "1RsHZbf6yGE92L3wnbyxriCMx47HeBAOB",
+    "todoist": {
+      "project_id": "6hF667qC8hwC3vJX",
+      "section_id": "6hPXvX3jC57g79mX",
+      "section_name": "MOTION.OS — Project Completion Engine"
+    }
+  },
+  "authority_hierarchy": [
+    "LIVE_GITHUB_LIFECYCLE_AND_MAIN",
+    "CANONICAL_EVENT_FABRIC_AND_IMMUTABLE_EVENTS",
+    "DURABLE_IDENTITY_BOUND_EVIDENCE_AND_ARTIFACTS",
+    "CANONICAL_MACHINE_STATE_WHEN_CURRENT_AND_VALIDATED",
+    "DERIVED_COS_GRAPH_AND_CONTEXTPACK",
+    "HUMAN_DOCUMENTS_AND_TASK_MANAGER_PROJECTIONS"
+  ],
+  "known_stale_or_broken_surfaces": [
+    {
+      "surface": "PROJECT_CONTINUITY_MASTER.md@main",
+      "severity": "P0_CONTINUITY",
+      "observed": "literal placeholder x",
+      "rule": "DO_NOT_USE_AS_RECOVERY_AUTHORITY"
+    },
+    {
+      "surface": "state/project_state.json@main",
+      "severity": "P1_TRUTH_DRIFT",
+      "observed": "RC06/RC07-era blockers and HyperFrames unverified claim lag branch evidence",
+      "rule": "LIVE_GITHUB_AND_EVIDENCE_SUPERSEDE"
+    },
+    {
+      "surface": "STATE.md/TASKS.md/HANDOFF.md@main",
+      "severity": "P1_TRUTH_DRIFT",
+      "observed": "historical runtime/release facts lag branch evidence",
+      "rule": "READ_AS_PROJECTION_UNLESS_RECONCILED"
+    },
+    {
+      "surface": "coordination/ACTIVE_AGENTS.yaml@main",
+      "severity": "P1_OWNERSHIP_DRIFT",
+      "observed": "bootstrap read model from 2026-08-27 still lists PR44 active",
+      "rule": "BUS_AND_LIVE_PRS_SUPERSEDE"
+    }
+  ],
+  "active_programs": [
+    {
+      "id": "PCE",
+      "issue": 93,
+      "pr": 94,
+      "head": "f139c8202ffb34c67a269437947a2b8ef92564e5",
+      "state": "VERIFIED_BRANCH_HEAD_NOT_PROMOTED",
+      "scope": "completion control"
+    },
+    {
+      "id": "V2",
+      "issue": 78,
+      "pr": 91,
+      "head": "8f44f989bba854c29882a52400d75495e4607e86",
+      "state": "OPEN_DRAFT_LIVE_HEAD_BODY_HAS_OLDER_QUALIFIED_HEAD",
+      "scope": "derived architecture"
+    },
+    {
+      "id": "P3",
+      "pr": 118,
+      "head": "e500e12741ede0938b92b1d3d09433ecdfe2c06c",
+      "state": "VERIFIED_PR_MERGE_CANDIDATE_NOT_PROMOTED",
+      "scope": "heterogeneous renderer master",
+      "master_sha256": "2c11f29609a3f093f10f1ac36c1291e4560bad6fe62e7fc2a1a8c468282735e0"
+    },
+    {
+      "id": "P3_FRAME",
+      "pr": 123,
+      "head": "30746d342c26c25953b995b00c535a8fd7429c97",
+      "state": "OPEN_DRAFT",
+      "scope": "counted visual-frame authority hardening"
+    },
+    {
+      "id": "P4",
+      "pr": 119,
+      "head": "8aed8f220b0ef818ac4f0d603bd080e3d85fe6e0",
+      "state": "RECOVERY_VERIFIED_PROVIDER_JOB_READY_EXTERNAL_BLOCK",
+      "scope": "real master and provider authority",
+      "rc06_sha256": "fbfd4fda97b1e4d07b8477018324210324c8115c0f5b9a3515eb27ae255f0f1f",
+      "provider_job": "p4-rc06-full-video-provider-job-v1"
+    },
+    {
+      "id": "P7",
+      "pr": 120,
+      "head": "d9ac0ef0bc717a312e618fec583b175faabd67be",
+      "state": "OPEN_DRAFT_INTEGRATED_CANDIDATE_NOT_PROMOTED",
+      "scope": "security critical path"
+    },
+    {
+      "id": "P7_SSRF",
+      "pr": 122,
+      "head": "20ff1d2c64b66c495761bdf68c7ccf5d1c2a6143",
+      "state": "OPEN_DRAFT_STACKED_HARDENING",
+      "scope": "numeric-host SSRF hardening stacked on P7"
+    },
+    {
+      "id": "T08",
+      "pr": 126,
+      "head": "b47671afb3135ecbf30ef2293595400dc2f07db9",
+      "state": "ACTIVE_FOREIGN_OWNED_IMPLEMENTED_UNVERIFIED_AT_CAPTURE",
+      "scope": "nine-dimensional reverse-engineering qualification"
+    }
+  ],
+  "t07_golden_state": {
+    "S04": {
+      "pr": 96,
+      "head": "8ec35aca85d37c14c8ce19761c90bfe3db38ad95",
+      "authority": "SOURCE_BOUND_PARTIAL_P0P1_CLOSED_NOT_FULL_9D"
+    },
+    "S11": {
+      "pr": 107,
+      "head": "988e918828c15c33f06181564b678937a14a2d2c",
+      "authority": "SOURCE_BOUND_VISIBLE_GEOMETRY_P0P1_CLOSED_NOT_FULL_9D"
+    },
+    "S14": {
+      "pr": 124,
+      "head": "12592bd876af5f160fa34221588ad4646009bda6",
+      "authority": "SOURCE_BOUND_VISIBLE_GEOMETRY_P0P1_CLOSED_NOT_FULL_9D"
+    },
+    "S16": {
+      "pr": 125,
+      "head": "8e6fcb79d0d7958c0f023f128297059c97a7e674",
+      "authority": "SOURCE_BOUND_LAYOUT_TIMING_PLUS_AUDIO_PROXY_NOT_FULL_9D"
+    }
+  },
+  "external_blockers": [
+    {
+      "id": "BLOCK-PROVIDER-FULLVIDEO",
+      "severity": "P0_PRODUCT",
+      "owner_type": "external-provider-integration",
+      "state": "BLOCKED_EXTERNAL",
+      "description": "No qualified connected provider can attest full-video semantic review bound to exact media SHA.",
+      "resolution_trigger": "connect/authorize provider and execute p4-rc06-full-video-provider-job-v1"
+    },
+    {
+      "id": "BLOCK-GITHUB-RULESET",
+      "severity": "P0_GOVERNANCE",
+      "owner_type": "external-admin",
+      "state": "BLOCKED_EXTERNAL",
+      "description": "main.protected=false and available connector lacks protection-write action.",
+      "resolution_trigger": "apply native main ruleset and verify rejection tests"
+    }
+  ],
+  "open_risks": [
+    {
+      "id": "RISK-PR-SPRAWL",
+      "severity": "P1",
+      "description": "draft/stacked PR graph can drift from main and PR-body claims"
+    },
+    {
+      "id": "RISK-MAIN-UNPROTECTED",
+      "severity": "P0",
+      "description": "direct main writes remain administratively possible"
+    },
+    {
+      "id": "RISK-DOC-TRUTH-DRIFT",
+      "severity": "P1",
+      "description": "main state/handoff/task surfaces are stale and continuity master was broken"
+    },
+    {
+      "id": "RISK-SELF-ATTESTED-QA",
+      "severity": "P0",
+      "description": "internal sampled review must never masquerade as authoritative full-video QA"
+    }
+  ],
+  "critical_path": [
+    {
+      "order": 1,
+      "task": "Truth/Event authority promotion preparation",
+      "state": "VERIFIED_UNPROMOTED_CANDIDATES_EXIST"
+    },
+    {
+      "order": 2,
+      "task": "QA causal kernel",
+      "state": "VERIFIED_UNPROMOTED_CANDIDATES_EXIST"
+    },
+    {
+      "order": 3,
+      "task": "P3 renderer + frame-authority hardening",
+      "state": "VERIFIED_P3_PLUS_OPEN_HARDENING"
+    },
+    {
+      "order": 4,
+      "task": "P4 exact real-master recovery",
+      "state": "PASS_RC06_EXACT"
+    },
+    {
+      "order": 5,
+      "task": "P4 real full-video provider run",
+      "state": "BLOCKED_EXTERNAL"
+    },
+    {
+      "order": 6,
+      "task": "Creative tournament + repair + benchmark",
+      "state": "BLOCKED_BY_P4_PROVIDER"
+    },
+    {
+      "order": 7,
+      "task": "CAL2 empirical learning",
+      "state": "BLOCKED_BY_P5"
+    },
+    {
+      "order": 8,
+      "task": "Security/recovery/governance",
+      "state": "PARTIAL_PARALLEL"
+    },
+    {
+      "order": 9,
+      "task": "Barrier release + promotion + whole-product gauntlet",
+      "state": "BLOCKED"
+    },
+    {
+      "order": 10,
+      "task": "Immutable release + independent PROJECT_DONE reconstruction",
+      "state": "BLOCKED"
+    }
+  ],
+  "own_write_scopes": [
+    "PROJECT_CONTINUITY_MASTER.md",
+    "coordination/cgev2/**",
+    "state/cgev2/**",
+    "graph/cgev2/**",
+    "scripts/verify_cgev2_death_resilience.py",
+    "tests/test_cgev2_death_resilience.py",
+    "state/agent_events/2026-09-01/*cgev2-death*",
+    "state/cgev2/death_resilience_packet_manifest_2026-09-02.json",
+    "tests/test_cgev2_drive_mirror.py",
+    "state/agent_events/2026-09-02/*cgev2-death*"
+  ],
+  "foreign_owned_paths": [
+    "src/reverse_engineering/qualification.py",
+    "src/reverse_engineering/defect_graph.py",
+    "schemas/golden_scene_qualification.schema.json",
+    "schemas/fidelity_defect.schema.json",
+    "src/qa/master_recovery.py",
+    "src/qa/temporal_multimodal.py",
+    "src/qa/creative_tournament.py",
+    "src/qa/release_manifest.py"
+  ],
+  "zero_context_recovery": {
+    "time_budget_target_minutes": 5,
+    "entry_rule": "DO_NOT_START_BY_TRUSTING_THIS_SNAPSHOT",
+    "steps": [
+      "resolve /CGEV2 and /PROJECT-COMPLETION-ENGINE from durable command identity",
+      "read live main SHA/protection",
+      "read live AGENTS.md and GOAL.md",
+      "read newest Issue39 watermark",
+      "read Issue48 and explicit barrier-release status",
+      "read Issue93 plus live PR heads/semantic scopes",
+      "inspect relevant immutable agent events",
+      "inspect Drive latest handoff and verify artifacts by SHA",
+      "reconcile Todoist only as projection",
+      "recompute conflicts/blockers/critical path/next-safe-action",
+      "create unique session and emit WORK_STARTED",
+      "execute/test/persist/handoff"
+    ],
+    "staleness_invalidation": [
+      "main_sha changed",
+      "Issue39 watermark changed",
+      "Issue48/barrier state changed",
+      "owned PR head changed",
+      "new semantic-scope collision",
+      "artifact identity changed"
+    ],
+    "success_condition": "fresh agent reconstructs same authority/blockers/ownership/next-safe-action class without chat"
+  },
+  "next_safe_frontier": [
+    {
+      "priority": 1,
+      "action": "complete and verify this P7.2 death drill",
+      "state": "IN_PROGRESS"
+    },
+    {
+      "priority": 2,
+      "action": "do not compete with active T08 PR126",
+      "state": "ACTIVE_OTHER_AGENT"
+    },
+    {
+      "priority": 3,
+      "action": "continue non-overlapping P7 work after fresh preflight",
+      "state": "PARALLEL_SAFE_WITH_PREFLIGHT"
+    },
+    {
+      "priority": 4,
+      "action": "execute P4 provider job when qualified provider exists",
+      "state": "BLOCKED_EXTERNAL"
+    },
+    {
+      "priority": 5,
+      "action": "do not start promotion until barrier/ruleset requirements pass",
+      "state": "BLOCKED"
+    }
+  ],
+  "successor_invocation": {
+    "command_sequence": [
+      "/CGEV2",
+      "/PROJECT-COMPLETION-ENGINE"
+    ],
+    "first_instruction": "VERIFY LIVE TRUTH BEFORE EXECUTION. This packet is acceleration, not authority."
+  },
+  "reconciled_at": "2026-09-02T09:55:00+02:00",
+  "live_truth_probe": {
+    "schema": "motion-os.cgev2-live-truth-probe/v1",
+    "required_before_mutation": true,
+    "required_fields": [
+      "main_sha",
+      "main_protected",
+      "event_bus_latest_comment_id",
+      "promotion_barrier_state",
+      "promotion_release_event_observed",
+      "program_heads"
+    ]
+  },
+  "authority_anchor_fingerprint_sha256": "d735d13b9dadc94459d5d531c28d01c0b0a0566c8c29d0ff8d7ed16f11cd717c",
+  "authority_anchor_fingerprint_scope": "live main/protection + Issue39 watermark + Issue48 barrier + every active-program PR/head",
+  "packet_integrity": {
+    "manifest_path": "state/cgev2/death_resilience_packet_manifest_2026-09-02.json",
+    "digest_mode": "git_blob_sha1+sha256_manifest",
+    "manifest_required": true
+  }
+}
