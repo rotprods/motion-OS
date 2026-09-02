@@ -63,6 +63,23 @@
 - [ ] Persist corpus StyleSignatures and evaluate retrieval quality.
 - [ ] Compile + **actually render** >=3 analyzed references through Remotion production runtime.
 
+## P1 — Phase 08 semantic knowledge plane
+- [x] Source-aware deterministic chunking with repo/commit/path/line/hash provenance.
+- [x] Secret-path exclusion + common inline credential redaction.
+- [x] Local Ollama `bge-m3` 1024D embedding contract with fail-closed dimension probe.
+- [x] Versioned Qdrant named-vector contract: `semantic` 1024D + `cos20` 20D.
+- [x] Deterministic 20D coarse router + exact 1024D rerank.
+- [x] Reuse AVE dependency/community graph as explicitly structural payload metadata.
+- [x] `/graphify` semantic-neighbor materialization and `/cos-graph-engine` retrieval surface.
+- [x] Deterministic synthetic routing benchmark and unit/contract suite.
+- [ ] Run bootstrap on target Mac host with Ollama + Qdrant and require `doctor.ok=true`.
+- [ ] Fully index current `rotprods/ave` + `rotprods/motion-OS` commits and record chunk/point counts.
+- [ ] Graphify the complete indexed corpus and record cross-repo edge statistics.
+- [ ] Execute live latency/throughput benchmark on target host.
+- [ ] Build >=25 labeled real cross-repo queries and report Recall@10/MRR/NDCG.
+- [ ] Use the indexed corpus to close `reference retrieval → Visual DNA → style synthesis → rendered comparison`.
+- [ ] MERGE_SAFE clean-runner proof before canonical promotion.
+
 ## P2 — operations
 - [ ] Protect `main` / private-repo hardening when a settings-write path is available.
 - [ ] Fully automate connector-backed session-close.
