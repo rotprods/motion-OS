@@ -24,38 +24,42 @@ jobs:
           cache: pip
       - run: python -m pip install --upgrade pip
       - run: pip install -e '.[dev]'
-      - name: Adversarial 9D contract tests
+      - name: Adversarial output-fidelity 9D contract tests
         run: python -m pytest -q tests/test_reverse_engineering_9d_contracts.py
-      - name: Compile exact-head qualification graph
+      - name: Compile exact-head output-fidelity graph
         run: |
           mkdir -p .artifacts/golden-9d
           python scripts/compile_golden_9d.py \
-            --manifest forensics/references/screenrecording_20260826/golden/aggregate_9d/golden_evidence_manifest.json \
-            --out .artifacts/golden-9d/current_qualification.json
-      - name: Verify expected fail-closed frontier
+            --manifest forensics/references/screenrecording_20260826/golden/aggregate_9d/golden_output_fidelity_manifest_v2.json \
+            --out .artifacts/golden-9d/current_output_fidelity.json
+      - name: Verify expected fail-closed frontier and provenance split
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
-          p=Path('.artifacts/golden-9d/current_qualification.json')
+          p=Path('.artifacts/golden-9d/current_output_fidelity.json')
           d=json.loads(p.read_text())
-          assert set(d['dimensions']) == {'temporal','motion','camera','typography','depth','color','fx','audio','retention'}
-          assert d['dimensions']['temporal']['qualified'] is True
-          assert d['full_9d_fidelity_validated'] is False
+          assert set(d['output_dimensions']) == {'temporal','motion','camera','typography','depth','color','fx','audio','retention'}
+          assert d['output_dimensions']['temporal']['qualified'] is True
+          assert d['output_dimensions']['retention']['qualified'] is True
+          assert d['output_fidelity_9d_validated'] is False
+          assert d['authoring_provenance_is_output_fidelity_gate'] is False
+          assert d['authoring_provenance_complete'] is False
           assert d['canonical_template'] is False
-          assert d['promotion_state'] == 'CROSS_SCENE_PARTIAL_QUALIFICATION'
-          assert d['defect_frontier']
+          assert d['promotion_state'] == 'OUTPUT_FIDELITY_PARTIAL'
+          assert d['output_defect_frontier']
           assert d['diagnostic_coverage_ratio_is_promotion_authority'] is False
           print(json.dumps({
-            'qualified_dimensions':[k for k,v in d['dimensions'].items() if v['qualified']],
+            'qualified_dimensions':[k for k,v in d['output_dimensions'].items() if v['qualified']],
             'defects_by_severity':d['defects_by_severity'],
-            'coverage':d['diagnostic_coverage_ratio'],
+            'coverage':d['diagnostic_output_claim_coverage_ratio'],
             'promotion_state':d['promotion_state'],
+            'authoring_provenance_complete':d['authoring_provenance_complete'],
           },indent=2))
           PY
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: reverse-engineering-golden-9d-proof
           if-no-files-found: error
-          path: .artifacts/golden-9d/current_qualification.json
+          path: .artifacts/golden-9d/current_output_fidelity.json
           retention-days: 14
