@@ -1,18 +1,21 @@
 {
-  "schema": "motion-os.cgev2-drive-mirror/v1",
+  "schema": "motion-os.cgev2-drive-mirror/v2",
   "project": "MOTION.OS",
   "created_at": "2026-09-01T17:10:00+02:00",
+  "canonical_parent_verified_at": "2026-09-02T09:54:00+02:00",
   "authority": "DURABLE_RECOVERY_MIRROR_NOT_PROJECT_TRUTH",
   "source_pr": 127,
   "source_branch": "docs/cgev2-death-resilience-20260901-v1",
-  "source_snapshot_fingerprint_sha256": "123651820c2976de8e266fcbb56c1c3cabb0da7878d14e86cc37d16a5c50bc99",
+  "source_authority_anchor_fingerprint_sha256": "d735d13b9dadc94459d5d531c28d01c0b0a0566c8c29d0ff8d7ed16f11cd717c",
   "google_drive": {
     "mount": "/Google Drive",
-    "destination_path": "/Google Drive/08_INFRA_BACKUPS_EXPORTS/MOTION_OS_CGEV2_DEATH_RESILIENCE_HANDOFF_2026-09-01.md",
+    "destination_path": "/Google Drive/00_AGENT_HANDOFF/MOTION_OS_CGEV2_DEATH_RESILIENCE_HANDOFF_2026-09-01.md",
     "file_id": "external-gdrive:file:1udVfyb6IS6KgfaxXu78knGQqYvcN-r8J",
-    "directory_id": "external-gdrive:folder:1t8Y34fkpBos2KIbIQgz9gWkj2-o3hcoX",
-    "directory_name": "08_INFRA_BACKUPS_EXPORTS",
-    "upload_status": "SUCCEEDED"
+    "directory_id": "external-gdrive:folder:1EeF_juiXk8rmMrUHhN0HBPy1m2NhDOyb",
+    "directory_name": "00_AGENT_HANDOFF",
+    "upload_status": "SUCCEEDED",
+    "content_sha256": "967d35487e592412880dc2077f3c006b0456cdb5a22c9761e36f6ccaa1deeaa4",
+    "content_bytes": 4333
   },
   "mirror_role": "Independent durable human-readable recovery path if conversational context is gone. GitHub live authority must still be refreshed before action.",
   "required_bootstrap": [

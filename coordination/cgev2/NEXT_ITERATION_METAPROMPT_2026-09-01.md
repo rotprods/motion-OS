@@ -59,6 +59,41 @@ Prefer the highest-value task that is READY and non-overlapping. At the historic
 
 Recompute this frontier from live truth.
 
+## Executable staleness gate
+
+Before any mutation, serialize the freshly observed authority into an **ephemeral** JSON file (do not commit it) with this schema:
+
+```json
+{
+  "schema": "motion-os.cgev2-live-truth-probe/v1",
+  "main_sha": "<live-40-char-sha>",
+  "main_protected": false,
+  "event_bus_latest_comment_id": 0,
+  "promotion_barrier_state": "OPEN",
+  "promotion_release_event_observed": false,
+  "program_heads": {
+    "PCE": "<live-head>",
+    "V2": "<live-head>",
+    "P3": "<live-head>",
+    "P3_FRAME": "<live-head>",
+    "P4": "<live-head>",
+    "P7": "<live-head>",
+    "P7_SSRF": "<live-head>",
+    "T08": "<live-head>"
+  }
+}
+```
+
+Then execute:
+
+```bash
+python scripts/verify_cgev2_death_resilience.py \
+  --live-truth .artifacts/cgev2-live-truth.json \
+  --require-live
+```
+
+Any `stale:*`, missing live field, packet-integrity error, command-resolution mismatch or non-zero exit invalidates the old frontier. Reconcile again before writing. Static packet validation without `--require-live` proves packet integrity only; it never grants mutation authority.
+
 ## Wave loop
 
 `RECONCILE → CLAIM → IMPLEMENT → LOCAL TEST → ADVERSARIAL TEST → PHYSICAL PROOF → CODE/SECURITY REVIEW → PERSIST EVIDENCE → UPDATE GRAPH/TASKS/HANDOFF → RECONCILE AGAIN`.
