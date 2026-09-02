@@ -70,6 +70,21 @@ def test_qualified_output_claim_cannot_be_inference_authority():
         validate_qualification_manifest(data)
 
 
+def test_program_output_claim_may_aggregate_registered_scene_evidence():
+    data = load_manifest()
+    audio = output_claim(data, "PROGRAM_AUDIO_GRAMMAR")
+    assert {"S04_SOURCE_QUAL","S14_AUDIO_QUAL","S16_EXACT_REVERIFY"}.issubset(set(audio["evidence_ids"]))
+    validate_qualification_manifest(data)
+
+
+def test_scene_output_claim_cannot_consume_unrelated_scene_evidence():
+    data = copy.deepcopy(load_manifest())
+    item = output_claim(data, "S04_KINEMATICS")
+    item["evidence_ids"].append("S16_EXACT_REVERIFY")
+    with pytest.raises(QualificationError, match="cannot consume evidence"):
+        validate_qualification_manifest(data)
+
+
 def test_authoring_provenance_cannot_enter_output_promotion_graph():
     data = copy.deepcopy(load_manifest())
     requirement(data, "audio")["claim_ids"] = ["PROV_ORIGINAL_STEMS"]
@@ -112,8 +127,7 @@ def test_required_dimension_cannot_be_removed():
 
 
 def test_blocked_provenance_does_not_create_output_defects():
-    data = load_manifest()
-    result = compile_qualification_manifest(data)
+    result = compile_qualification_manifest(load_manifest())
     output_ids = {item["claim_id"] for item in result["output_defect_frontier"]}
     assert "PROV_ORIGINAL_AE_GRAPH" not in output_ids
     assert "PROV_ORIGINAL_STEMS" not in output_ids
