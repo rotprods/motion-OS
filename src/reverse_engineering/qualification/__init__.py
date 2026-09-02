@@ -1,6 +1,7 @@
 """Evidence-gated cross-scene qualification for MOTION.OS reverse engineering."""
 
 from .model import (
+    AuthoringProvenanceClaim,
     ClaimStatus,
     EvidenceAuthority,
     FidelityDimension,
@@ -11,6 +12,7 @@ from .model import (
 from .compiler import compile_qualification_manifest, validate_qualification_manifest
 
 __all__ = [
+    "AuthoringProvenanceClaim",
     "ClaimStatus",
     "EvidenceAuthority",
     "FidelityDimension",
