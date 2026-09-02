@@ -1,0 +1,42 @@
+{
+  "event_id": "20260902T081229000000Z-cgev2-death-resilience-primary-completed",
+  "event_type": "work.completed",
+  "timestamp": "2026-09-02T08:12:29Z",
+  "agent_id": "motion://agent/chatgpt/cgev2-death-resilience-architect",
+  "project": "MOTION.OS",
+  "branch": "docs/cgev2-death-resilience-20260901-v1",
+  "commit_sha": "768b10069ef1a9ae26a3fc18b9499a916b897d16",
+  "pr_number": 127,
+  "summary": "Primary P7.2 death-resilience repair completed and exact-head verified. The packet now fails closed on live main/watermark/barrier/program-head drift, binds exact protocol identity, runs adversarial mutation tests, models explicit semantic ownership/provider gates, includes PR #122, and records the canonical Drive 00_AGENT_HANDOFF mirror. This event closes primary implementation only; independent CP-DR0..12 acceptance and promotion remain separate, with Issue #48 OPEN and main unprotected.",
+  "affected_paths": [
+    "coordination/cgev2/NEXT_ITERATION_METAPROMPT_2026-09-01.md",
+    "graph/cgev2/death_resilience_graph_2026-09-01.json",
+    "scripts/verify_cgev2_death_resilience.py",
+    "state/cgev2/death_resilience_contextpack_2026-09-01.json",
+    "state/cgev2/death_resilience_drive_mirror_2026-09-01.json",
+    "state/cgev2/death_resilience_packet_manifest_2026-09-02.json",
+    "tests/test_cgev2_death_resilience.py",
+    "tests/test_cgev2_drive_mirror.py"
+  ],
+  "checks": {
+    "isolated_mutational_gauntlet": "17 passed",
+    "merge_safe_run_33607252534": "SUCCESS; 317 passed, 1 skipped",
+    "coordination_contracts_run_33607252524": "SUCCESS; Python 3.11 + 3.12",
+    "immutable_agent_event_validation": "SUCCESS; 7 pre-existing events on verified implementation head",
+    "drive_mirror": "file 1udVfyb6IS6KgfaxXu78knGQqYvcN-r8J; SHA256 967d35487e592412880dc2077f3c006b0456cdb5a22c9761e36f6ccaa1deeaa4; 4333 bytes; parent 00_AGENT_HANDOFF",
+    "promotion_barrier": "Issue #48 OPEN",
+    "main_protection": "false"
+  },
+  "authority": "VERIFIED",
+  "correlation_id": "motion://correlation/cgev2-death-drill-20260901",
+  "metadata": {
+    "session_id": "motion://session/chatgpt/cgev2-death-resilience-architect/20260901T1639+0200",
+    "workstream_id": "motion://workstream/cgev2-death-resilience",
+    "objective_id": "motion://objective/zero-context-death-resilience",
+    "completion_scope": "PRIMARY_P7.2_IMPLEMENTATION_ONLY",
+    "independent_acceptance": "PENDING_CP-DR0..CP-DR12",
+    "promotion_authority": false,
+    "verified_implementation_head": "768b10069ef1a9ae26a3fc18b9499a916b897d16",
+    "event_bus_watermark_before_event_commit": "5496132723"
+  }
+}
