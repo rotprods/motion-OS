@@ -42,7 +42,20 @@ class SemanticKnowledgePlane:
             names = {str(model.get("name") or model.get("model")) for model in models if isinstance(model, dict)}
             base = self.config.ollama_model.split(":", 1)[0]
             model_present = any(name.split(":", 1)[0] == base for name in names if name)
-            report["ollama"].update({"ok": True, "model_present": model_present, "models": sorted(names)})
+            embedding_contract_ok = False
+            probe_dims = None
+            if model_present:
+                probe = self.ollama.embed(["semantic knowledge plane dimension probe"])[0]
+                probe_dims = len(probe)
+                embedding_contract_ok = probe_dims == self.config.semantic_dims
+            report["ollama"].update({
+                "service_ok": True,
+                "ok": bool(model_present and embedding_contract_ok),
+                "model_present": model_present,
+                "embedding_contract_ok": embedding_contract_ok,
+                "probe_dims": probe_dims,
+                "models": sorted(names),
+            })
         except SemanticServiceError as exc:
             report["ollama"]["error"] = str(exc)
         try:
