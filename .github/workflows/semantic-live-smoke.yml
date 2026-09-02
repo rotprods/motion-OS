@@ -130,7 +130,7 @@ jobs:
           mkdir -p semantic-smoke-artifacts
           python -m src.semantic_index doctor | tee semantic-smoke-artifacts/doctor.json
           python -m src.semantic_index index --repo /tmp/semantic-fixture | tee semantic-smoke-artifacts/index.json
-          python -m src.semantic_index graphify --repo-id ci/semantic-fixture --neighbors 3 | tee semantic-smoke-artifacts/graphify.json
+          python -m src.semantic_index graphify --repo-id ci/semantic-fixture --neighbors 3 --min-score -1.0 | tee semantic-smoke-artifacts/graphify.json
           python -m src.semantic_index query --repo-id ci/semantic-fixture --limit 5 \
             "reference retrieval visual dna render critic" | tee semantic-smoke-artifacts/query.json
           python -m src.semantic_index benchmark --live --iterations 3 | tee semantic-smoke-artifacts/benchmark.json
@@ -139,6 +139,7 @@ jobs:
         run: |
           python - <<'PY'
           import json
+          import math
           from pathlib import Path
 
           root = Path("semantic-smoke-artifacts")
@@ -155,8 +156,13 @@ jobs:
           assert len(reports) == 1 and reports[0]["upserted"] > 0, index
           assert graphify["nodes_updated"] > 0, graphify
           assert graphify["query_batches"] > 0, graphify
+          assert graphify["write_batches"] > 0, graphify
+          assert graphify["edges"] > 0, graphify
           assert query["hits"], query
           assert query["active_retrieval_levels"] == ["L8", "L9", "L10", "L11", "L12"], query
+          top = query["hits"][0]
+          assert top["payload"]["path"] in {"src/render_pipeline.py", "src/retrieval.py", "src/agent_graph.md"}, query
+          assert math.isfinite(float(top["semantic_score"])), query
           assert benchmark["synthetic"]["passed"] is True, benchmark
           assert benchmark["live"]["passed"] is True, benchmark
           assert benchmark["passed"] is True, benchmark
