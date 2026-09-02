@@ -34,17 +34,19 @@ class FakeQdrant:
         self.events.append("query_batch")
         return [[{"id": "neighbor", "score": 0.8, "vector": {"semantic": self.source}, "payload": {"repo": "rotprods/motion-OS", "path": "b.py", "start_line": 1, "end_line": 4}}] for _ in vectors]
 
-    def set_payload(self, point_id, payload):
-        self.payloads.append(payload)
+    def set_payload_batch(self, updates):
+        self.events.append("set_payload_batch")
+        self.payloads.extend(payload for _, payload in updates)
         return {"result": True}
 
 
-def test_graphify_batches_qdrant_queries_and_labels_semantic_edges() -> None:
+def test_graphify_batches_qdrant_reads_and_writes_and_labels_semantic_edges() -> None:
     qdrant = FakeQdrant()
     plane = SemanticKnowledgePlane(SemanticConfig(), ollama=FakeOllama(), qdrant=qdrant)
     report = plane.graphify(neighbors=1, query_batch_size=32)
-    assert report["graphify_version"] == "graphify-v2-batched-query"
+    assert report["graphify_version"] == "graphify-v3-batched-io"
     assert report["query_batches"] == 1
+    assert report["write_batches"] == 1
     assert report["cross_repo_edges"] == 1
-    assert "query_batch" in qdrant.events
+    assert qdrant.events == ["query_batch", "set_payload_batch"]
     assert qdrant.payloads[0]["graph_neighbors"][0]["edge_type"] == "semantic_neighbor"
