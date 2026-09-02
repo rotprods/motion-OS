@@ -134,12 +134,14 @@ class SemanticKnowledgePlane:
             route = self._extract_named_vector(point, "cos20")
             if semantic is not None and route is not None:
                 eligible.append((point, semantic, route))
-        updated = edge_count = cross_repo_edges = query_batches = 0
+        updated = edge_count = cross_repo_edges = query_batches = write_batches = 0
         candidate_limit = max(neighbors * self.config.route_multiplier, 32)
         for offset in range(0, len(eligible), query_batch_size):
             group = eligible[offset:offset + query_batch_size]
             candidate_groups = self.qdrant.query_batch([route for _, _, route in group], using="cos20", limit=candidate_limit, repo_ids=repo_ids, with_vectors=["semantic"])
             query_batches += 1
+            payload_updates: list[tuple[str | int, dict[str, Any]]] = []
+            graphified_at = datetime.now(timezone.utc).isoformat()
             for (point, semantic, _), candidates in zip(group, candidate_groups):
                 point_id = point.get("id")
                 payload = dict(point.get("payload") or {})
@@ -159,9 +161,13 @@ class SemanticKnowledgePlane:
                 ranked = ranked[:neighbors]
                 edge_count += len(ranked)
                 cross_repo_edges += sum(1 for item in ranked if item.get("repo") != payload.get("repo"))
-                self.qdrant.set_payload(point_id, {"graph_neighbors": ranked, "graphify_version": "graphify-v2-batched-query", "graphified_at": datetime.now(timezone.utc).isoformat(), "cos_level_bindings": ["L8", "L9", "L10", "L11", "L12"]})
-                updated += 1
-        return {"graphify_version": "graphify-v2-batched-query", "collection": self.config.qdrant_collection, "nodes_seen": len(points), "nodes_updated": updated, "edges": edge_count, "cross_repo_edges": cross_repo_edges, "neighbors_per_node": neighbors, "query_batch_size": query_batch_size, "query_batches": query_batches, "cos_active_levels": {"L8": "Knowledge Graph: chunk identity + provenance + repository-owned structural metadata", "L9": "Semantic Graph: semantic-neighbor relations", "L10": "Embedding Graph: bge-m3 1024D + cos20 route vector", "L11": "GraphRAG: route -> native rerank -> provenance", "L12": "Memory Graph: rebuildable Qdrant projection; Git remains authority"}}
+                if point_id is not None:
+                    payload_updates.append((point_id, {"graph_neighbors": ranked, "graphify_version": "graphify-v3-batched-io", "graphified_at": graphified_at, "cos_level_bindings": ["L8", "L9", "L10", "L11", "L12"]}))
+                    updated += 1
+            if payload_updates:
+                self.qdrant.set_payload_batch(payload_updates)
+                write_batches += 1
+        return {"graphify_version": "graphify-v3-batched-io", "collection": self.config.qdrant_collection, "nodes_seen": len(points), "nodes_updated": updated, "edges": edge_count, "cross_repo_edges": cross_repo_edges, "neighbors_per_node": neighbors, "query_batch_size": query_batch_size, "query_batches": query_batches, "write_batches": write_batches, "cos_active_levels": {"L8": "Knowledge Graph: chunk identity + provenance + repository-owned structural metadata", "L9": "Semantic Graph: semantic-neighbor relations", "L10": "Embedding Graph: bge-m3 1024D + cos20 route vector", "L11": "GraphRAG: route -> native rerank -> provenance", "L12": "Memory Graph: rebuildable Qdrant projection; Git remains authority"}}
 
     def cos_graph_engine(self, query: str, *, limit: int = 10, repo_ids: Sequence[str] | None = None) -> dict[str, Any]:
         hits = self.search(query, limit=limit, repo_ids=repo_ids)
