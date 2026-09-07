@@ -4,34 +4,22 @@ set -euo pipefail
 ROOT="$(git rev-parse --show-toplevel)"
 cd "$ROOT"
 
-base="origin/main"
-if ! git rev-parse --verify "$base" >/dev/null 2>&1; then
-  base="HEAD~1"
-fi
-
-changed="$(git diff --name-only "$base"...HEAD 2>/dev/null || git diff --name-only HEAD~1 HEAD)"
-
+# A missing origin/main or shallow history forces full checks, never HEAD~1-only.
+profiles="$(python scripts/change_impact.py --git-base origin/main --profiles)"
 printf 'MOTION.OS pre-push local verification\n'
 python scripts/local_verify.py quick
-
-if printf '%s\n' "$changed" | python scripts/change_impact.py --check analysis >/dev/null; then
-  echo 'analysis-sensitive changes detected'
-  python scripts/local_verify.py analysis
-fi
-
-if printf '%s\n' "$changed" | python scripts/change_impact.py --check remotion >/dev/null; then
-  echo 'Remotion-sensitive changes detected'
-  python scripts/local_verify.py remotion
-fi
-
-if printf '%s\n' "$changed" | python scripts/change_impact.py --check security >/dev/null; then
-  if command -v pip-audit >/dev/null 2>&1; then
-    python scripts/local_verify.py security --skip-install-check
-  else
-    echo 'WARNING: dependency/security change but pip-audit is not installed locally.' >&2
-    echo 'Install with: pip install pip-audit' >&2
-    exit 1
-  fi
-fi
-
+while IFS= read -r profile; do
+  case "$profile" in
+    '') continue ;;
+    analysis|remotion) python scripts/local_verify.py "$profile" ;;
+    security)
+      if ! command -v pip-audit >/dev/null 2>&1; then
+        echo 'Required pip-audit unavailable; security verification blocked.' >&2
+        exit 1
+      fi
+      python scripts/local_verify.py security --skip-install-check
+      ;;
+    *) echo 'Invalid verification profile; push blocked.' >&2; exit 1 ;;
+  esac
+done <<< "$profiles"
 python scripts/agent_event.py validate
