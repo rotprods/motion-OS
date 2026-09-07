@@ -129,6 +129,7 @@ def test_valid_nul_input_and_fixed_profile_output(tmp_path):
 def test_real_hook_uses_same_git_impact_and_propagates_profile_failure(tmp_path):
     init_repo(tmp_path)
     scripts = tmp_path/'scripts'; scripts.mkdir()
+    shutil.copyfile(ROOT/'scripts/pre_push_ref_guard.py', scripts/'pre_push_ref_guard.py')
     shutil.copyfile(CLASSIFIER, scripts/'change_impact.py')
     (scripts/'local_verify.py').write_text(
         'import os,sys\nwith open(os.environ["TRACE"], "a") as f: f.write(sys.argv[1]+"\\n")\n'
@@ -140,7 +141,7 @@ def test_real_hook_uses_same_git_impact_and_propagates_profile_failure(tmp_path)
     new = tmp_path/'docs/old.md'; new.parent.mkdir(); old.rename(new); commit(tmp_path)
     trace=tmp_path/'trace'
     cp=subprocess.run(['bash', str(ROOT/'.githooks/pre-push')], cwd=tmp_path,
-                      env={**os.environ,'TRACE':str(trace)}, capture_output=True, timeout=20)
+                      env={**os.environ,'TRACE':str(trace)}, input=b'HEAD '+b'a'*40+b' refs/heads/feature '+b'b'*40+b'\n', capture_output=True, timeout=20)
     assert cp.returncode == 7
     assert trace.read_text().splitlines() == ['quick','remotion']
 
@@ -149,8 +150,9 @@ def test_classifier_crash_cannot_be_swallowed_by_hook(tmp_path):
     init_repo(tmp_path)
     (tmp_path/'scripts').mkdir()
     (tmp_path/'scripts/change_impact.py').write_text('raise SystemExit(2)\n')
+    shutil.copyfile(ROOT/'scripts/pre_push_ref_guard.py',tmp_path/'scripts/pre_push_ref_guard.py')
     cp=subprocess.run(['bash', str(ROOT/'.githooks/pre-push')], cwd=tmp_path,
-                      capture_output=True, timeout=20)
+                      input=b'HEAD '+b'a'*40+b' refs/heads/feature '+b'b'*40+b'\n', capture_output=True, timeout=20)
     assert cp.returncode == 2
     assert b'local_verify' not in cp.stderr
 
