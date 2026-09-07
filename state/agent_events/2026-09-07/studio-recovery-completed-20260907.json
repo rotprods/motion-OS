@@ -8,7 +8,7 @@
   "authority": "VERIFIED",
   "branch": "fix/studio-recovery-contract-20260907",
   "checks": {
-    "merge_safe_run": 34156274959,
+    "merge_safe_run": "34156274959",
     "pytest": "673 passed, 1 skipped, 5 warnings"
   },
   "commit_sha": "94b027d10f466926d2a15235f94c1132143497f7",
