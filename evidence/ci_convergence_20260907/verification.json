@@ -1,0 +1,39 @@
+{
+  "schema": "motion-os.ci-convergence-verification/v1",
+  "authority": "EXACT_STACKED_CANDIDATE_VERIFIED_NOT_PROMOTED",
+  "recorded_at": "2026-09-07T17:15:54.983105+00:00",
+  "repository": "rotprods/motion-OS",
+  "pr": 131,
+  "stack_base_pr": 130,
+  "stack_base_sha": "9a7b7435d6b884785c41a7e21212581f0dd80c1d",
+  "implementation_sha": "eb0f104caf6efad5113a322210d676721fde0266",
+  "tested_synthetic_merge_sha": "5ae1d4715ab20eb27969ff248c315e2e62d93ab6",
+  "clean_runner": {
+    "merge_safe": {"run_id": 34146588775, "status": "SUCCESS", "all_seven_jobs_success": true},
+    "coordination": {"run_id": 34146588637, "status": "SUCCESS"},
+    "quick": {"job_id": 101819849187, "python": "3.12.14", "passed": 513, "skipped": 1, "warnings": 5},
+    "compat311": {"job_id": 101819880774, "status": "SUCCESS"},
+    "physical_analysis": {"job_id": 101819880372, "status": "SUCCESS"},
+    "dependency_security": {"job_id": 101819880419, "status": "SUCCESS", "scope": "Python pip-audit only"},
+    "remotion": {"job_id": 101819880550, "status": "SUCCESS"},
+    "actionlint": {"version": "1.7.12", "status": "EXECUTED_PASS", "archive_sha256": "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8"},
+    "native_events": {"status": "PASS", "count": 9}
+  },
+  "local": {"scope": "isolated exact-file mirror; not complete checkout", "python": "3.13.5", "passed": 219, "failed": 0, "skipped": 0, "new_cases": 77, "prior_gate_cases": 136, "prior_classifier_cases": 6, "original_red_cases": 7},
+  "artifacts": [
+    {"id": 10027911370, "role": "strict_gate_verdict", "sha256": "c17632032e47df9b27968475b114a6612745865c0a504a21064fb57acb7153bc", "bytes": 367, "downloaded_and_hash_checked": true},
+    {"id": 10027907480, "role": "node_install_and_physical_render", "sha256": "d857c24e980d8b9380cb52fd659f9d9f8265c79f358018a1e1b39c82917b7617", "bytes": 162461, "downloaded_and_hash_checked": true}
+  ],
+  "node_receipt": {
+    "approved_sha256": {"package-lock.json": "9c77bffa2c30ddc1347785f40f18b5d03663faba375d293259201afc80d78e55", "package.json": "10edac842ee8127cd87c259ec4d7811aa5f76de179d8cbe9c18520ae8c4f1520"},
+    "authority": "FROZEN_INSTALL_ONLY", "errors": [],
+    "installed_tree_sha256": "ef29b3c2dc680ed16f22c137c9fc66579c1b14ad95669730dc69b29c98d1a889",
+    "installs": [{"exit_code": 0, "lock_and_manifest_unchanged": true, "number": 1}, {"exit_code": 0, "lock_and_manifest_unchanged": true, "number": 2}],
+    "schema": "motion-os.node-lock-verification/v1", "status": "PASS",
+    "toolchain": {"node": "v22.23.2", "npm": "10.9.8"}
+  },
+  "media": {"sha256": "8e4d6f23f97fc686806b31c71b20c064597457bee496abc5a4c1a16e6ca05e03", "bytes": 282119, "width": 640, "height": 360, "counted_frames": 90, "fps": "30/1", "visual_seconds": 3.0, "local_ffprobe": "PASS", "same_bytes_as_prior_sc06_fixture": true, "authority": "TECHNICAL_RUNTIME_FIXTURE_ONLY"},
+  "review": {"type": "SAME_AGENT_ADVERSARIAL_SELF_REVIEW", "independent_approval": false},
+  "terminal_gates": {"cp1_complete": false, "main_changed": false, "production_ready": false, "barrier48_release": false},
+  "residuals": ["Python transitive lock and exact runtime/OS toolchain not frozen", "npm vulnerability audit not executed", "zizmor not executed", "branch-only foreign workflows excluded until integration", "independent acceptance pending", "local audit-missing behavior and donor103/104 integration pending", "native main protection absent", "whole-product frontend/backend/provider E2E not qualified"]
+}
