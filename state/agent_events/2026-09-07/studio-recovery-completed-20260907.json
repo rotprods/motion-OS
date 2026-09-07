@@ -1,0 +1,27 @@
+{
+  "affected_paths": [
+    "src/studio/inspector.py",
+    "tests/test_phase05_graph_qa_repair_studio.py",
+    "evidence/studio_recovery_20260907"
+  ],
+  "agent_id": "motion://agent/chatgpt/studio-recovery-integrator",
+  "authority": "VERIFIED",
+  "branch": "fix/studio-recovery-contract-20260907",
+  "checks": {
+    "merge_safe_run": 34156274959,
+    "pytest": "673 passed, 1 skipped, 5 warnings"
+  },
+  "commit_sha": "94b027d10f466926d2a15235f94c1132143497f7",
+  "correlation_id": "motion://correlation/studio-recovery-20260907",
+  "event_id": "studio-recovery-completed-20260907",
+  "event_type": "work.completed",
+  "metadata": {
+    "base_pr": 133,
+    "issue48": "OPEN",
+    "main_mutated": false
+  },
+  "pr_number": 134,
+  "project": "MOTION.OS",
+  "summary": "Studio zero-context recovery readiness now fails closed on missing render/evidence inputs; exact candidate clean-runner passed. Separate product executor gap remains open.",
+  "timestamp": "2026-09-07T19:45:00Z"
+}

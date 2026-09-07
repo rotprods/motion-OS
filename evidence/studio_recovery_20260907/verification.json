@@ -1,0 +1,77 @@
+{
+  "artifacts": {
+    "remotion": {
+      "bytes": 162468,
+      "downloaded_and_hash_verified": true,
+      "id": 10031085542,
+      "sha256": "37be444029de313332cd045541d217c9cbc0295286b1653230826ce3eae1852a"
+    },
+    "security": {
+      "bytes": 497,
+      "downloaded_and_hash_verified": true,
+      "id": 10031068410,
+      "sha256": "fd3207ae8db5aede0cd21d01718b08359b4ec0dfcff700216effd8d1b75c62ce"
+    },
+    "verdict": {
+      "bytes": 367,
+      "downloaded_and_hash_verified": true,
+      "id": 10031088895,
+      "sha256": "4d8ab7b2e4545dd04af8e94893d02ce816a990d2a47db40d1f449669c67a96e6"
+    }
+  },
+  "authority": "VERIFIED_BRANCH_CANDIDATE_NOT_PROMOTED",
+  "base_pr": 133,
+  "base_sha": "9fd56cbf8f0b4cf0335f4983b6980ca6ea0384a2",
+  "clean_runner": {
+    "actionlint": "PASS",
+    "dependency_security": "PASS",
+    "merge_safe": "PASS",
+    "native_event_validation_events": 15,
+    "physical_analysis": "PASS",
+    "physical_remotion": "PASS",
+    "python_3_11": "PASS",
+    "python_3_12": "PASS",
+    "repo_health": "PASS"
+  },
+  "implementation_sha": "94b027d10f466926d2a15235f94c1132143497f7",
+  "merge_safe_run": {
+    "id": 34156274959,
+    "status": "SUCCESS",
+    "tests": {
+      "passed": 673,
+      "skipped": 1,
+      "warnings": 5
+    }
+  },
+  "next_frontier": "Connect a production caller for execute_verified_studio_handoff via a separate explicit Studio execution transition; authorization CLI remains side-effect free by contract.",
+  "not_claimed": [
+    "P7.2 agent-death regression",
+    "creative qualification",
+    "provider execution",
+    "main promotion",
+    "CP1 completion",
+    "production readiness"
+  ],
+  "repair": {
+    "artifact_refs_required_nonempty": true,
+    "asset_manifest_hash_requires_sha256_shape": true,
+    "git_sha_requires_40_hex": true,
+    "graph_hash_requires_sha256_shape": true,
+    "malformed_or_duplicate_assignments_rejected": true,
+    "missing_render_manifest_unresolved_all_layers": true,
+    "no_provenance_gaps_required": true,
+    "no_unresolved_layers_required": true,
+    "qa_summary_required_nonempty": true,
+    "render_manifest_hash_requires_sha256_shape": true
+  },
+  "reproduced_failure_family": [
+    "render_manifest=null treated as zero unresolved layers",
+    "asset manifest identity ignored by recovery_ready",
+    "render manifest identity ignored by recovery_ready",
+    "QA evidence ignored by recovery_ready",
+    "artifact references ignored by recovery_ready"
+  ],
+  "schema": "motion-os.studio-recovery-verification/v1",
+  "tested_synthetic_merge_sha": "c795f7007353fa95b8060f5cf38595f848aa08a6",
+  "workstream": "studio-zero-context-recovery-readiness"
+}
