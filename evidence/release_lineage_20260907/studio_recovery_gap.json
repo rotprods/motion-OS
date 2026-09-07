@@ -1,0 +1,42 @@
+{
+  "source_blob": "60e00e65f96790696516e67147aa215daa67f986",
+  "scope": "actual inspected function with synthetic graph protocol input; not product E2E",
+  "missing_manifest": {
+    "git_sha": "d4e628a1aef0cd382c3c2f1ea327a8ff70c41bd9",
+    "graph_id": "test",
+    "graph_revision": 1,
+    "graph_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "asset_manifest_hash": null,
+    "render_manifest_hash": null,
+    "qa_summary": {},
+    "artifact_refs": [],
+    "zero_context_requirements": {
+      "graph_hash_present": true,
+      "git_sha_present": true,
+      "no_unresolved_layers": true,
+      "no_provenance_gaps": true
+    },
+    "recovery_ready": true,
+    "manifest_hash": "3446fab035443d6a4a3d5a382f84d46c9548615671292366da7993d39c88f0b5"
+  },
+  "empty_manifest": {
+    "git_sha": "d4e628a1aef0cd382c3c2f1ea327a8ff70c41bd9",
+    "graph_id": "test",
+    "graph_revision": 1,
+    "graph_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "asset_manifest_hash": null,
+    "render_manifest_hash": null,
+    "qa_summary": {},
+    "artifact_refs": [],
+    "zero_context_requirements": {
+      "graph_hash_present": true,
+      "git_sha_present": true,
+      "no_unresolved_layers": false,
+      "no_provenance_gaps": true
+    },
+    "recovery_ready": false,
+    "manifest_hash": "c9351f4cd98b39ba30d4a70d7c1da8c2066a53600703dde19a1294569174fb1c"
+  },
+  "defect": "Missing render manifest yields recovery_ready true; explicit empty assignments yields false on same layer",
+  "status": "REPRODUCED_NOT_REPAIRED; check active donor integrations before editing inspector"
+}

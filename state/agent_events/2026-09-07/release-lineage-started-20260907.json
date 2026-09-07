@@ -1,0 +1,21 @@
+{
+  "affected_paths": [
+    ".github/workflows/main-lineage-sentinel.yml",
+    ".github/workflows/release-guard.yml",
+    "scripts/main_lineage_sentinel.py",
+    "scripts/release_authority_guard.py"
+  ],
+  "agent_id": "motion://agent/chatgpt/release-lineage-integrator",
+  "authority": "IMPLEMENTED",
+  "branch": "fix/release-lineage-integration-20260907",
+  "checks": {},
+  "commit_sha": "cd1414bcbb58112e9fe5171613f98ba36ec43d2b",
+  "correlation_id": "motion://correlation/release-lineage-20260907",
+  "event_id": "release-lineage-started-20260907",
+  "event_type": "work.started",
+  "metadata": {},
+  "pr_number": null,
+  "project": "MOTION.OS",
+  "summary": "Integrate existing main/release lineage guards into PR132 with bounded metadata, strict state binding and scoped authority; no release or main mutation.",
+  "timestamp": "2026-09-07T18:47:39.524824Z"
+}
