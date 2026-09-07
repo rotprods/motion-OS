@@ -161,23 +161,22 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
       - name: Require every applicable gate to pass
         env:
-          CLASSIFY: ${{ needs.classify.result }}
-          QUICK: ${{ needs.quick.result }}
-          COMPAT311: ${{ needs.compat311.result }}
-          ANALYSIS: ${{ needs.analysis.result }}
-          REMOTION: ${{ needs.remotion.result }}
-          SECURITY: ${{ needs.security.result }}
+          MERGE_SAFE_NEEDS_JSON: ${{ toJSON(needs) }}
+          MERGE_SAFE_EVENT_NAME: ${{ github.event_name }}
+        shell: bash
         run: |
           set -euo pipefail
-          python - <<'PY'
-          import os, sys
-          states={k:os.environ[k] for k in ('CLASSIFY','QUICK','COMPAT311','ANALYSIS','REMOTION','SECURITY')}
-          print(states)
-          bad={k:v for k,v in states.items() if v not in {'success','skipped'}}
-          if bad:
-              print('MERGE_SAFE=FAIL', bad)
-              sys.exit(1)
-          print('MERGE_SAFE=PASS')
-          PY
+          mkdir -p .artifacts
+          python3 scripts/merge_safe_gate.py | tee .artifacts/merge-safe-verdict.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: merge-safe-verdict
+          path: .artifacts/merge-safe-verdict.json
+          if-no-files-found: error
+          retention-days: 7

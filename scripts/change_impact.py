@@ -36,6 +36,8 @@ PATTERNS: dict[str, tuple[str, ...]] = {
         r"^\.github/workflows/merge-gate\.yml$",
         r"^scripts/local_verify\.py$",
         r"^scripts/change_impact\.py$",
+        r"^scripts/merge_safe_gate\.py$",
+        r"^tests/test_merge_safe_gate\.py$",
         r"^scripts/agent_event\.py$",
         r"^schemas/agent_event\.schema\.json$",
         r"^\.githooks/pre-push$",

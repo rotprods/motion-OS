@@ -1,0 +1,21 @@
+{
+  "affected_paths": [
+    ".github/workflows/merge-gate.yml",
+    "scripts/change_impact.py",
+    "scripts/merge_safe_gate.py",
+    "tests/test_merge_safe_gate.py"
+  ],
+  "agent_id": "motion://agent/chatgpt/ci-gate-engineer",
+  "authority": "IMPLEMENTED",
+  "branch": "fix/sc06-merge-safe-fail-closed-20260907",
+  "checks": {},
+  "commit_sha": "d4e628a1aef0cd382c3c2f1ea327a8ff70c41bd9",
+  "correlation_id": "motion://correlation/sc06-gate-20260907",
+  "event_id": "sc06-gate-started-20260907",
+  "event_type": "work.started",
+  "metadata": {},
+  "pr_number": null,
+  "project": "MOTION.OS",
+  "summary": "Start remote candidate preparation after Bus WORK_STARTED 5572864724 and DECISION_PROPOSED 5572919867. Local baseline exact workflow produced five unsafe PASS regressions. Isolated mirror implementation and tests now exist; no full repository or cloud verification has yet been claimed. Native event emitted before remote candidate mutation. Scope is the final CI verdict, two full-impact classifier paths and tests, not PR58 pinning, PR95 installs, main, provider or release authority.",
+  "timestamp": "2026-09-07T15:42:05.768487Z"
+}
