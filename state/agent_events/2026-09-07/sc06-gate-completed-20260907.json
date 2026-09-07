@@ -1,0 +1,22 @@
+{
+  "affected_paths": [
+    ".github/workflows/merge-gate.yml",
+    "evidence/ci_gate_20260907/verification.json",
+    "scripts/change_impact.py",
+    "scripts/merge_safe_gate.py",
+    "tests/test_merge_safe_gate.py"
+  ],
+  "agent_id": "motion://agent/chatgpt/ci-gate-engineer",
+  "authority": "VERIFIED",
+  "branch": "fix/sc06-merge-safe-fail-closed-20260907",
+  "checks": {},
+  "commit_sha": "3e6844933315ecf3ecada9d2fc799a600603db7a",
+  "correlation_id": "motion://correlation/sc06-gate-20260907",
+  "event_id": "sc06-gate-completed-20260907",
+  "event_type": "work.completed",
+  "metadata": {},
+  "pr_number": 130,
+  "project": "MOTION.OS",
+  "summary": "Bounded SC06 implementation tested on synthetic merge cfdccfdccbb583632e95a6ad20019e3e983bcab8, Merge Safe 34140053978 SUCCESS: 436 passed / 1 skipped / 5 warnings, all jobs executed successfully. Local mirror 136 tests and 196608 finite truth-table cases passed. Actual verdict and Remotion archives downloaded and SHA256-verified; local ffprobe counted 90 frames. Same-agent adversarial self-review 5133749519 is not independent approval. Four remote code blobs match local tested bytes. This closes bounded implementation only: CP1, frozen toolchain, full classifier, native protection, integration and production remain incomplete. Keep #130 DRAFT under #48; no main mutation, spend or deployment.",
+  "timestamp": "2026-09-07T15:55:06.010472Z"
+}
