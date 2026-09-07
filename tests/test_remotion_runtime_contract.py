@@ -46,6 +46,16 @@ def test_mux_audio_padding_does_not_invalidate_exact_visual_timeline():
     assert report["observed"]["mux_tail_padding_s"] == pytest.approx(0.050667)
 
 
+def test_runtime_evidence_binds_scene_and_transition_lineage():
+    spec = compile_remotion_scene_spec(build_doc())
+    report = verify_probe(spec, _probe(), video_bytes=282119, video_sha256="d" * 64)
+    assert report["schema"] == "motion-os.remotion-runtime-evidence/v3"
+    assert report["spec_lineage"] == {
+        "scene_ids": ["S01", "S02", "S03"],
+        "transition_types": ["cut", "slide", "match_move"],
+    }
+
+
 def test_excessive_mux_tail_is_rejected_without_weakening_visual_contract():
     spec = compile_remotion_scene_spec(build_doc())
     report = verify_probe(spec, _probe(duration=3.25), video_bytes=1, video_sha256="b" * 64)
