@@ -1,0 +1,78 @@
+{
+  "schema": "motion-os.remotion-layer-pixel-verification/v1",
+  "authority": "VERIFIED_BRANCH_CANDIDATE_NOT_PROMOTED",
+  "base_pr": 136,
+  "base_sha": "8946f34ede9ab96a16f330d5a8304111dc668037",
+  "implementation_sha": "7b6bb30817949e3e4f2b91a099e71247f7936d9c",
+  "tested_synthetic_merge_sha": "b8d86470a79fc9bdb740dda04d1d4d820b6bfe0e",
+  "merge_safe_run": {
+    "id": 34158812435,
+    "status": "SUCCESS",
+    "tests": {"passed": 709, "skipped": 1, "warnings": 5}
+  },
+  "checks": {
+    "python_3_12": "PASS",
+    "python_3_11": "PASS",
+    "repo_health": "PASS",
+    "agent_event_validation_events": 18,
+    "dependency_security": "PASS",
+    "physical_analysis": "PASS",
+    "physical_remotion": "PASS",
+    "input_to_pixel_sensitivity": "PASS",
+    "merge_safe": "PASS"
+  },
+  "runtime_artifact": {
+    "id": 10031908025,
+    "bytes": 251627,
+    "sha256": "6663d9756f0f425e669287397b88369fb4aa10252bff6ac4223e677903bb4b06",
+    "downloaded_and_inspected": true
+  },
+  "baseline": {
+    "runtime_spec_sha256": "175abd483b99c9fed9b7e18e8324c47186311856e94e99c80ef0e4674e2f1e94",
+    "video_sha256": "e221eea3d9a66d20ba3c5d8cbf89a7e864fbe32f9319791cabb9c595d8826552",
+    "video_bytes": 370181,
+    "frames": 90,
+    "fps": 30.0,
+    "width": 640,
+    "height": 360,
+    "transition_types": [
+      "cut",
+      "match_geometry_or_existing_element",
+      "match_geometry_or_existing_element",
+      "match_geometry_or_existing_element"
+    ]
+  },
+  "input_sensitivity": {
+    "gate": "PASS",
+    "scene_id": "scene:B00_HOOK",
+    "layer_id": "layer:B00_HOOK:typography",
+    "frame_index": 11,
+    "original_text_sha256": "9f4323718459d49832fc74f8da70a202a224e3ef315a565f423d239a695b5178",
+    "mutated_text_sha256": "54f4015e9bc31776d7549043a712698af3f43065e7276e9954ec3c150121ec15",
+    "original_text_length": 18,
+    "mutated_text_length": 53,
+    "spec_original_sha256": "175abd483b99c9fed9b7e18e8324c47186311856e94e99c80ef0e4674e2f1e94",
+    "spec_mutated_sha256": "a511af83ea55bca2e63758c576f399afb2f79548553fa1eed54dabdee5815d1e",
+    "spec_restored_byte_exact": true,
+    "variant_video_sha256": "87fa177781cefcd6c20218e83758b4c586ddb21ddc504806c852990b0929d221",
+    "variant_video_bytes": 386966,
+    "baseline_frame_sha256": "8a593990899114f7ba05d4fedd85096c98361a28dd065bbf96e702712d8a5b11",
+    "variant_frame_sha256": "130de208c043284a5c36462617714a1e5c12895f46506c64fd3901613f16d7c6",
+    "raw_frame_bytes": 691200,
+    "changed_rgb_bytes": 191614,
+    "changed_ratio": 0.2772193287037037,
+    "authority": "technical_input_to_pixel_causality"
+  },
+  "not_claimed": [
+    "creative qualification",
+    "real provider asset pixels",
+    "visual transition semantics",
+    "temporal critic authority",
+    "main promotion",
+    "production readiness"
+  ],
+  "next_frontier": [
+    "Make a provenance-bound local Asset media file causally affect rendered pixels without remote URL fetching.",
+    "Make transition type causally affect scene-entry pixels rather than existing only as displayed metadata."
+  ]
+}
