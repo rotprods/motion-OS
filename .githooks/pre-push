@@ -4,6 +4,9 @@ set -euo pipefail
 ROOT="$(git rev-parse --show-toplevel)"
 cd "$ROOT"
 
+# Reuse donor103: inspect the actual proposed destination before verification.
+python scripts/pre_push_ref_guard.py
+
 # A missing origin/main or shallow history forces full checks, never HEAD~1-only.
 profiles="$(python scripts/change_impact.py --git-base origin/main --profiles)"
 printf 'MOTION.OS pre-push local verification\n'
@@ -13,10 +16,6 @@ while IFS= read -r profile; do
     '') continue ;;
     analysis|remotion) python scripts/local_verify.py "$profile" ;;
     security)
-      if ! command -v pip-audit >/dev/null 2>&1; then
-        echo 'Required pip-audit unavailable; security verification blocked.' >&2
-        exit 1
-      fi
       python scripts/local_verify.py security --skip-install-check
       ;;
     *) echo 'Invalid verification profile; push blocked.' >&2; exit 1 ;;

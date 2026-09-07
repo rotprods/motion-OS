@@ -1,0 +1,21 @@
+{
+  "affected_paths": [
+    ".githooks/pre-push",
+    "scripts/local_verify.py",
+    "scripts/pre_push_ref_guard.py",
+    "scripts/security_static.py"
+  ],
+  "agent_id": "motion://agent/chatgpt/security-verification-integrator",
+  "authority": "PROPOSED",
+  "branch": "fix/security-verification-receipts-20260907",
+  "checks": {},
+  "commit_sha": "909591e61fc0691d9ef1328180d374507fea4441",
+  "correlation_id": "motion://correlation/security-verification-20260907",
+  "event_id": "security-verification-started-20260907",
+  "event_type": "work.started",
+  "metadata": {},
+  "pr_number": null,
+  "project": "MOTION.OS",
+  "summary": "Integrate donor70 scanner and donor103 main-push guard with PR131; repair missing-scanner false PASS and durable failure reporting. Local mirror only; main and release unchanged.",
+  "timestamp": "2026-09-07T17:40:06.265229Z"
+}
