@@ -65,21 +65,16 @@ jobs:
           deps_lock="pylock._deps-${LOCK_NAME#pylock.}"
           build_lock="pylock._build-${LOCK_NAME#pylock.}"
           tool_lock="pylock._tool-${LOCK_NAME#pylock.}"
-          candidate=".artifacts/${LOCK_NAME}.candidate.toml"
+          candidate=".artifacts/${LOCK_NAME%.toml}-candidate.toml"
 
-          # 1) Resolve project dependencies while deliberately omitting the local root.
           python -m pip lock --only-deps -e ".[${LOCK_EXTRAS}]" -o "$deps_lock"
-          # 2) Resolve the exact build backend into its own hash-complete pylock.
           python -m pip lock 'setuptools==84.0.0' -o "$build_lock"
 
           inputs=(-r "$deps_lock" -r "$build_lock")
           if [[ -n "$LOCK_REQUIREMENT" ]]; then
-            # 3) Security tooling is also resolved independently first, so combining
-            # locks never introduces a naked unhashed requirement.
             python -m pip lock "$LOCK_REQUIREMENT" -o "$tool_lock"
             inputs+=(-r "$tool_lock")
           fi
-          # 4) Compose only hash-bearing inputs into the final installable candidate.
           python -m pip lock "${inputs[@]}" -o "$candidate"
 
           python - "$candidate" "$LOCK_NAME" "${{ matrix.python }}" "$LOCK_REQUIREMENT" <<'PY'
@@ -156,7 +151,7 @@ jobs:
         with:
           name: installable-${{ matrix.lock_name }}
           path: |
-            .artifacts/${{ matrix.lock_name }}.candidate.toml
+            .artifacts/${{ matrix.lock_name%.toml }}-candidate.toml
             .artifacts/${{ matrix.lock_name }}.probe.json
           if-no-files-found: error
           retention-days: 7
