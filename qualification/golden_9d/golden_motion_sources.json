@@ -2,9 +2,10 @@
   "schema_version": "motion-os.golden-motion-sources/v2",
   "canvas": {"width": 512, "height": 1108},
   "laws": {
-    "boundary_clipping": "A screen-clipped bbox is visible-output evidence, not authority for the hidden object's underlying trajectory/easing.",
+    "boundary_clipping": "A bbox clipped by the scene-visible viewport is visible-output evidence, not authority for the hidden object's underlying trajectory/easing.",
     "projection_resolution": "Linear interpolation of sparse measured keyframes is a renderer/evidence projection and cannot be promoted to original easing authority.",
-    "source_lock": "Frames classified SOURCE_LOCK may be measured for exact visible reconstruction but are excluded from reusable structural motion grammar unless independently proven editorial."
+    "source_lock": "Frames classified SOURCE_LOCK may be measured for exact visible reconstruction but are excluded from reusable structural motion grammar unless independently proven editorial.",
+    "transform_decomposition": "Centroid translation, bbox size change, edge movement and visibility/reveal are separate observables; centroid motion alone cannot define object direction when bbox shape changes materially."
   },
   "scenes": {
     "S04_CIENTIFICAMENTE": {
@@ -15,6 +16,7 @@
       "projection_mode": "KEYFRAME_LINEAR_RENDERER_PROJECTION",
       "authority": "MEASURED_SOURCE_VISIBLE_SCREEN_SPACE_BBOX_KEYFRAME_PROJECTION",
       "fps": 30,
+      "clip_rect": [0, 0, 512, 1108],
       "entities": {"setup": "SETUP_TRACK", "hero": "HERO_TRACK", "tail": "TAIL_TRACK"},
       "structural_exclude_ranges": [],
       "caveat": "Tracks stop before the source phone transition; Graph Editor/easing remains unknown."
@@ -27,6 +29,7 @@
       "projection_mode": "KEYFRAME_LINEAR_RENDERER_PROJECTION",
       "authority": "MEASURED_SOURCE_VISIBLE_HEURISTIC_KEYFRAME_PROJECTION",
       "fps": 30,
+      "clip_rect": [0, 0, 512, 1108],
       "entities": {"pill": "PILL", "hook": "HOOK", "absolute": "ABS", "x_row": "XROW", "diamond_row": "DROW", "megaphone_row": "MROW"},
       "structural_exclude_ranges": [],
       "caveat": "Visible bbox motion is authoritative for layout trajectory, not original easing or camera causality."
@@ -39,6 +42,7 @@
       "projection_mode": "KEYFRAME_LINEAR_RENDERER_PROJECTION_FROM_VERSIONED_FULL_SOURCE_TRACK",
       "authority": "MEASURED_VISIBLE_KEYFRAME_PROJECTION_V2_FROM_VERSIONED_SOURCE_TRACK",
       "fps": 30,
+      "clip_rect": [0, 0, 512, 1108],
       "entities": {
         "audio_card": "AUDIO_CARD",
         "visual_card": "VISUAL_CARD",
@@ -58,10 +62,11 @@
       "projection_mode": "FULL_FRAME_NO_INTERPOLATION",
       "authority": "MEASURED_SOURCE_BOUND_FULL_FRAME_PROJECTION_V2",
       "fps": 30,
+      "clip_rect": [0, 0, 512, 1014],
       "entities": {"column": "COLUMN", "question_mark": "QUESTION", "factor_x": "FACTOR"},
       "factor_arrays": ["FACTOR"],
       "structural_exclude_ranges": [[87, 91]],
-      "caveat": "Local87+ common upward reflow coincides with Reels UI reveal and is SOURCE_LOCK/causation UNKNOWN; exclude from reusable structural grammar."
+      "caveat": "The editorial/source content viewport ends at y=1014; early column/Factor-X bboxes are bottom-clipped/revealed. Local87+ common upward reflow coincides with Reels UI reveal and is SOURCE_LOCK/causation UNKNOWN."
     }
   }
 }
