@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "motion-os://schemas/golden-9d-matrix/v1",
+  "title": "MOTION.OS Cross-Golden 9D Qualification Matrix",
+  "type": "object",
+  "required": ["schema_version", "authority", "barriers", "dimensions", "scenes", "aggregate", "promotion"],
+  "properties": {
+    "schema_version": {"const": "motion-os.golden-9d-matrix/v1"},
+    "authority": {"const": "DERIVED_QUALIFICATION_PROJECTION"},
+    "barriers": {
+      "type": "object",
+      "required": ["issue_48_open"],
+      "properties": {"issue_48_open": {"type": "boolean"}},
+      "additionalProperties": true
+    },
+    "dimensions": {
+      "type": "array",
+      "minItems": 9,
+      "maxItems": 9,
+      "uniqueItems": true,
+      "items": {"enum": ["temporal", "motion", "camera", "typography", "depth", "color", "fx", "audio", "retention"]}
+    },
+    "scenes": {
+      "type": "object",
+      "minProperties": 4,
+      "additionalProperties": {"$ref": "#/$defs/scene"}
+    },
+    "aggregate": {"type": "object"},
+    "promotion": {"type": "object"}
+  },
+  "$defs": {
+    "state": {"enum": ["QUALIFIED", "PARTIAL", "BLOCKED", "UNKNOWN", "NOT_APPLICABLE"]},
+    "modeQualification": {
+      "type": "object",
+      "required": ["state", "qualified_aspects", "blocked_aspects", "evidence_refs"],
+      "properties": {
+        "state": {"$ref": "#/$defs/state"},
+        "qualified_aspects": {"type": "array", "items": {"type": "string"}},
+        "blocked_aspects": {"type": "array", "items": {"type": "string"}},
+        "evidence_refs": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": false
+    },
+    "dimensionQualification": {
+      "type": "object",
+      "required": ["reconstruct_exact", "structural_template"],
+      "properties": {
+        "reconstruct_exact": {"$ref": "#/$defs/modeQualification"},
+        "structural_template": {"$ref": "#/$defs/modeQualification"}
+      },
+      "additionalProperties": false
+    },
+    "scene": {
+      "type": "object",
+      "required": ["pr", "head_sha", "source", "ci", "artifact", "authority_ceiling", "dimensions"],
+      "properties": {
+        "pr": {"type": "integer"},
+        "head_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "source": {"type": "object"},
+        "ci": {"type": "object"},
+        "artifact": {"type": "object"},
+        "authority_ceiling": {"type": "string"},
+        "dimensions": {
+          "type": "object",
+          "required": ["temporal", "motion", "camera", "typography", "depth", "color", "fx", "audio", "retention"],
+          "additionalProperties": {"$ref": "#/$defs/dimensionQualification"}
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}
