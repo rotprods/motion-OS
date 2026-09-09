@@ -54,12 +54,14 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p .artifacts
-          python -m pip lock -e ".[${LOCK_EXTRAS}]" -o ".artifacts/${LOCK_NAME}"
+          # pip lock resolves editable directory paths relative to the lock file.
+          # Keep the candidate lock beside pyproject.toml; only receipts live in .artifacts.
+          python -m pip lock -e ".[${LOCK_EXTRAS}]" -o "${LOCK_NAME}"
           python - "$LOCK_NAME" "${{ matrix.python }}" <<'PY'
           from pathlib import Path
           import hashlib, json, sys, tomllib
           name, expected_python = sys.argv[1:]
-          path = Path('.artifacts') / name
+          path = Path(name)
           raw = path.read_bytes()
           doc = tomllib.loads(raw.decode('utf-8'))
           if doc.get('lock-version') != '1.0':
@@ -84,10 +86,11 @@ jobs:
           print(json.dumps(receipt, sort_keys=True))
           PY
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
         with:
           name: ${{ matrix.lock_name }}
           path: |
-            .artifacts/${{ matrix.lock_name }}
+            ${{ matrix.lock_name }}
             .artifacts/${{ matrix.lock_name }}.receipt.json
           if-no-files-found: error
           retention-days: 7
