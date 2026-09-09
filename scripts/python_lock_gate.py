@@ -23,6 +23,13 @@ ALLOWED_WHEEL_HOST = 'files.pythonhosted.org'
 BOOTSTRAP_DISTS = {'pip', 'setuptools', 'wheel'}
 
 
+class LockCommandError(RuntimeError):
+    def __init__(self, step: str, returncode: int):
+        super().__init__(f'{step}_failed')
+        self.step = step
+        self.returncode = returncode
+
+
 def _canonical_name(value: str) -> str:
     return re.sub(r'[-_.]+', '-', value).lower()
 
@@ -166,19 +173,33 @@ def validate(lock_name: str, *, root: Path = ROOT) -> dict:
     }
 
 
-def _run(cmd: list[str], *, cwd: Path, timeout: int = 300) -> subprocess.CompletedProcess[str]:
+def _sanitized_tail(stdout: str, stderr: str, *, limit: int = 1600) -> str:
+    combined = (stderr + '\n' + stdout)[-limit:]
+    combined = re.sub(r'https?://\S+', '<url>', combined)
+    combined = re.sub(r'(?i)(token|password|authorization|secret)\s*[:=]\s*\S+', r'\1=<redacted>', combined)
+    return ''.join(ch if ch in '\n\t' or ord(ch) >= 32 else '?' for ch in combined).strip()
+
+
+def _run(cmd: list[str], *, cwd: Path, step: str, timeout: int = 300) -> subprocess.CompletedProcess[str]:
     cp = subprocess.run(cmd, cwd=cwd, text=True, capture_output=True, timeout=timeout, shell=False)
     if cp.returncode:
-        raise RuntimeError(f'command_failed:{cmd[1] if len(cmd) > 1 else cmd[0]}:{cp.returncode}')
+        tail = _sanitized_tail(cp.stdout, cp.stderr)
+        print(json.dumps({
+            'event': 'LOCK_COMMAND_FAILED',
+            'step': step,
+            'returncode': cp.returncode,
+            'sanitized_tail': tail,
+        }, sort_keys=True), file=sys.stderr)
+        raise LockCommandError(step, cp.returncode)
     return cp
 
 
-def _inventory(python: Path, *, cwd: Path = ROOT) -> dict[str, str]:
+def _inventory(python: Path, *, cwd: Path = ROOT, step: str = 'inventory') -> dict[str, str]:
     code = (
         "import importlib.metadata as m,json; "
         "print(json.dumps(sorted((d.metadata['Name'],d.version) for d in m.distributions() if d.metadata.get('Name'))))"
     )
-    cp = _run([str(python), '-c', code], cwd=cwd)
+    cp = _run([str(python), '-c', code], cwd=cwd, step=step)
     pairs = json.loads(cp.stdout)
     out: dict[str, str] = {}
     seen: set[str] = set()
@@ -202,11 +223,19 @@ def reproduce(lock_name: str, *, root: Path = ROOT) -> dict:
     with tempfile.TemporaryDirectory(prefix='motion-python-lock-') as tmp:
         for idx in (1, 2):
             venv = Path(tmp) / f'env{idx}'
-            _run([sys.executable, '-m', 'venv', str(venv)], cwd=root)
+            _run([sys.executable, '-m', 'venv', str(venv)], cwd=root, step=f'create_venv_{idx}')
             py = venv / 'bin/python'
-            _run([str(py), '-m', 'pip', 'install', '--disable-pip-version-check', 'pip==26.2.1'], cwd=root)
-            _run([str(py), '-m', 'pip', 'install', '--disable-pip-version-check', '-r', lock_name], cwd=root)
-            actual = _inventory(py, cwd=root)
+            _run(
+                [str(py), '-m', 'pip', 'install', '--disable-pip-version-check', 'pip==26.2.1'],
+                cwd=root,
+                step=f'pin_pip_{idx}',
+            )
+            _run(
+                [str(py), '-m', 'pip', 'install', '--disable-pip-version-check', '-r', lock_name],
+                cwd=root,
+                step=f'install_lock_{idx}',
+            )
+            actual = _inventory(py, cwd=root, step=f'inventory_{idx}')
             if actual != expected:
                 raise ValueError('installed_inventory_mismatch')
             inventories.append(actual)
@@ -263,7 +292,15 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(result, sort_keys=True, allow_nan=False))
         return 0
     except Exception as exc:
-        result = {'schema': 'motion-os.python-lock-verification/v1', 'status': 'BLOCKED', 'lock': args.lock, 'reason': type(exc).__name__}
+        result = {
+            'schema': 'motion-os.python-lock-verification/v1',
+            'status': 'BLOCKED',
+            'lock': args.lock,
+            'reason': str(exc) if isinstance(exc, (ValueError, LockCommandError)) else type(exc).__name__,
+        }
+        if isinstance(exc, LockCommandError):
+            result['command_step'] = exc.step
+            result['returncode'] = exc.returncode
         try:
             _write(args.json_out, result)
         except Exception:
