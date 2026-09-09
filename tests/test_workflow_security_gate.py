@@ -20,7 +20,7 @@ PIN_UPLOAD = "ea165f8d65b6e75b540449e92b4886f43607fa02"
 
 def safe_workflow(extra_steps: str = "") -> str:
     return f"""name: safe
-on:\n  pull_request:\npermissions:\n  contents: read\njobs:\n  test:\n    runs-on: ubuntu-24.04\n    timeout-minutes: 10\n    steps:\n      - uses: actions/checkout@{PIN_CHECKOUT}\n        with:\n          persist-credentials: false\n      - uses: actions/setup-python@{PIN_PYTHON}\n        with:\n          python-version: '3.12.14'\n      - run: python -V\n{extra_steps}"""
+on:\n  pull_request:\npermissions:\n  contents: read\nconcurrency:\n  group: safe-test\n  cancel-in-progress: true\njobs:\n  test:\n    runs-on: ubuntu-24.04\n    timeout-minutes: 10\n    steps:\n      - uses: actions/checkout@{PIN_CHECKOUT}\n        with:\n          persist-credentials: false\n      - uses: actions/setup-python@{PIN_PYTHON}\n        with:\n          python-version: '3.12.14'\n      - run: python -V\n{extra_steps}"""
 
 
 def codes(text: str) -> set[str]:
@@ -42,6 +42,10 @@ def test_checkout_must_disable_persistent_credentials():
 
 def test_workflow_requires_explicit_permissions():
     assert "MISSING_EXPLICIT_PERMISSIONS" in codes(safe_workflow().replace("permissions:\n  contents: read\n", ""))
+
+
+def test_workflow_requires_explicit_concurrency():
+    assert "MISSING_CONCURRENCY_POLICY" in codes(safe_workflow().replace("concurrency:\n  group: safe-test\n  cancel-in-progress: true\n", ""))
 
 
 def test_write_token_permission_fails():
@@ -85,14 +89,19 @@ def test_job_without_timeout_fails():
     assert "JOB_TIMEOUT_MISSING" in codes(safe_workflow().replace("    timeout-minutes: 10\n", ""))
 
 
-def test_direct_untrusted_event_context_in_shell_fails():
+def test_direct_github_context_in_shell_fails():
     text = safe_workflow("      - run: echo '${{ github.event.pull_request.title }}'\n")
-    assert "UNTRUSTED_CONTEXT_IN_SHELL" in codes(text)
+    assert "TEMPLATE_EXPRESSION_IN_SHELL" in codes(text)
 
 
-def test_untrusted_context_via_env_is_not_source_interpolation_in_run():
+def test_direct_matrix_context_in_shell_fails():
+    text = safe_workflow("      - run: echo '${{ matrix.environment }}'\n")
+    assert "TEMPLATE_EXPRESSION_IN_SHELL" in codes(text)
+
+
+def test_context_via_env_is_not_template_interpolation_in_run():
     text = safe_workflow("      - name: env-safe\n        env:\n          TITLE: ${{ github.event.pull_request.title }}\n        run: printf '%s\\n' \"$TITLE\"\n")
-    assert "UNTRUSTED_CONTEXT_IN_SHELL" not in codes(text)
+    assert "TEMPLATE_EXPRESSION_IN_SHELL" not in codes(text)
 
 
 def test_artifact_upload_must_fail_closed_and_include_hidden_files():
