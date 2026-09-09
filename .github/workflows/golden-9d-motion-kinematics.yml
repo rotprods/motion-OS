@@ -85,20 +85,32 @@ jobs:
           from pathlib import Path
           p=Path('.artifacts/golden_9d/motion_kinematics.json')
           d=json.loads(p.read_text())
-          assert d['schema_version']=='motion-os.golden-motion-kinematics/v2'
+          assert d['schema_version']=='motion-os.golden-motion-kinematics/v3'
           assert d['authority']=='DERIVED_FROM_PINNED_SOURCE_BOUND_TRACKS'
           assert len(d['scenes'])==4
           count=sum(len(scene['entities']) for scene in d['scenes'].values())
           assert count==18, count
+
+          s11=d['scenes']['S11_UI_LIST']['entities']
+          assert s11['pill']['motion_segments'][0]['dominant_transform_class'] in {'SCALE_OR_REVEAL_DOMINANT','MIXED_TRANSLATION_AND_SCALE'}
+          assert 'BBOX_SHAPE_CHANGE_CONFLATES_TRANSLATION_WITH_SCALE_OR_REVEAL' in s11['pill']['motion_segments'][0]['caveats']
+
           s14=d['scenes']['S14_AUDIO_VISUAL_TEXTO']['entities']
           assert any(e['boundary_clipped_sample_count']>0 for e in s14.values())
+          assert any(seg['curve_authority']=='VISIBLE_OUTPUT_CLIPPED_PROXY_NOT_HIDDEN_OBJECT_CURVE' for e in s14.values() for seg in e['motion_segments'])
+
           s16=d['scenes']['S16_FACTOR_X']['entities']
+          assert s16['column']['clip_rect']==[0,0,512,1014]
+          assert s16['column']['boundary_clipped_sample_count']>0
           assert all(e['structural_exclude_ranges']==[[87,91]] for e in s16.values())
           assert all(e['structural_excluded_sample_count']>0 for e in s16.values())
+
           Path('.artifacts/golden_9d/motion_kinematics_summary.json').write_text(json.dumps({
             'scene_count':4,
             'entity_count':count,
+            's11_pill_initial_transform_class':s11['pill']['motion_segments'][0]['dominant_transform_class'],
             's14_entities_with_boundary_clipping':sorted(k for k,v in s14.items() if v['boundary_clipped_sample_count']>0),
+            's16_column_bottom_clipped_samples':s16['column']['boundary_clipped_sample_count'],
             's16_structural_exclude_range':[87,91],
             'curve_authority':d['curve_authority'],
           },indent=2)+'\n')
