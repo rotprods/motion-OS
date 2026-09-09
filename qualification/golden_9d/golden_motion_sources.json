@@ -1,0 +1,49 @@
+{
+  "schema_version": "motion-os.golden-motion-sources/v1",
+  "scenes": {
+    "S04_CIENTIFICAMENTE": {
+      "ref": "8ec35a259399d7b196b40627d782315a019e65e2",
+      "checkout_dir": ".golden_sources/s04",
+      "path": "runtime/remotion/src/golden_s04/measuredTrack.ts",
+      "format": "ts_keyframed_boxes",
+      "authority": "MEASURED_SOURCE_VISIBLE_SCREEN_SPACE_BBOX_KEYFRAME_PROJECTION",
+      "fps": 30,
+      "entities": {"setup": "SETUP_TRACK", "hero": "HERO_TRACK", "tail": "TAIL_TRACK"}
+    },
+    "S11_UI_LIST": {
+      "ref": "988e91893cb498f720b9c2656b3d6d85f2d56300",
+      "checkout_dir": ".golden_sources/s11",
+      "path": "runtime/remotion/src/golden_s11/sourceMeasuredTrack.ts",
+      "format": "ts_keyframed_boxes",
+      "authority": "MEASURED_SOURCE_VISIBLE_HEURISTIC_KEYFRAME_PROJECTION",
+      "fps": 30,
+      "entities": {"pill": "PILL", "hook": "HOOK", "absolute": "ABS", "x_row": "XROW", "diamond_row": "DROW", "megaphone_row": "MROW"}
+    },
+    "S14_AUDIO_VISUAL_TEXTO": {
+      "ref": "12592bd8f8149767fafcb0ad0aa6036250ce540c",
+      "checkout_dir": ".golden_sources/s14",
+      "path": "runtime/remotion/src/golden_s14/sourceMeasuredTrack.ts",
+      "format": "ts_keyframed_boxes",
+      "authority": "MEASURED_VISIBLE_KEYFRAME_PROJECTION_V2_FROM_VERSIONED_SOURCE_TRACK",
+      "fps": 30,
+      "entities": {
+        "audio_card": "AUDIO_CARD",
+        "visual_card": "VISUAL_CARD",
+        "texto_card": "TEXTO_CARD",
+        "audio_heading": "AUDIO_HEAD",
+        "visual_heading": "VISUAL_HEAD",
+        "texto_heading": "TEXTO_HEAD"
+      }
+    },
+    "S16_FACTOR_X": {
+      "ref": "8e6fcb79d0d7958c0f023f128297059c97a7e674",
+      "checkout_dir": ".golden_sources/s16",
+      "path": "runtime/remotion/src/golden_s16/sourceMeasuredTrack.ts",
+      "format": "ts_indexed_tuple_boxes",
+      "authority": "MEASURED_SOURCE_BOUND_FULL_FRAME_PROJECTION_V2",
+      "fps": 30,
+      "entities": {"column": "COLUMN", "question_mark": "QUESTION", "factor_x": "FACTOR"},
+      "factor_arrays": ["FACTOR"]
+    }
+  }
+}
