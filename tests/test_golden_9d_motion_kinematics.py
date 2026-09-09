@@ -46,7 +46,7 @@ def test_empty_track_uses_python_false_and_does_not_crash():
     assert result == {"authority": "TEST", "visible": False}
 
 
-def test_descending_screen_y_is_valid_physical_upward_motion():
+def test_descending_screen_y_is_valid_physical_upward_translation_when_size_is_stable():
     m = load_module()
     rows = [
         {"frame": 0, "x": 10.0, "y": 100.0, "width": 20.0, "height": 20.0},
@@ -57,7 +57,40 @@ def test_descending_screen_y_is_valid_physical_upward_motion():
     ]
     result = m.kinematics(rows, 30, "TEST", canvas={"width": 512, "height": 1108}, projection_mode="FULL_FRAME_NO_INTERPOLATION")
     assert result["samples"][1]["direction"] == "UP"
+    assert result["samples"][1]["transform_class"] == "TRANSLATION_DOMINANT"
     assert result["metrics"]["max_speed_px_per_frame"] == 10.0
+
+
+def test_bbox_growth_cannot_be_mislabeled_as_centroid_translation():
+    m = load_module()
+    rows = [
+        {"frame": 0, "x": 100.0, "y": 530.0, "width": 336.0, "height": 32.0},
+        {"frame": 1, "x": 96.0, "y": 514.0, "width": 340.0, "height": 64.0},
+        {"frame": 2, "x": 92.0, "y": 500.0, "width": 348.0, "height": 92.0},
+        {"frame": 3, "x": 84.0, "y": 496.0, "width": 362.0, "height": 104.0},
+    ]
+    result = m.kinematics(rows, 30, "TEST", projection_mode="FULL_FRAME_NO_INTERPOLATION")
+    assert any(s.get("transform_class") == "SCALE_OR_REVEAL_DOMINANT" for s in result["samples"])
+    segment = result["motion_segments"][0]
+    assert segment["dominant_transform_class"] in {"SCALE_OR_REVEAL_DOMINANT", "MIXED_TRANSLATION_AND_SCALE"}
+    assert "BBOX_SHAPE_CHANGE_CONFLATES_TRANSLATION_WITH_SCALE_OR_REVEAL" in segment["caveats"]
+    assert segment["curve_proxy_confidence"] == "LOW"
+
+
+def test_visibility_build_caps_translation_curve_authority():
+    m = load_module()
+    rows = [
+        {"frame": 0, "x": 96.0, "y": 580.0, "width": 110.0, "height": 12.0, "opacity_proxy": 0.32},
+        {"frame": 1, "x": 92.0, "y": 577.0, "width": 354.0, "height": 51.0, "opacity_proxy": 1.0},
+        {"frame": 2, "x": 89.0, "y": 578.0, "width": 359.0, "height": 56.0, "opacity_proxy": 1.0},
+        {"frame": 3, "x": 86.0, "y": 580.0, "width": 365.0, "height": 60.0, "opacity_proxy": 1.0},
+        {"frame": 4, "x": 82.0, "y": 582.0, "width": 374.0, "height": 62.0, "opacity_proxy": 1.0},
+    ]
+    result = m.kinematics(rows, 30, "TEST", projection_mode="FULL_FRAME_NO_INTERPOLATION")
+    assert result["samples"][1]["transform_class"] == "SCALE_OR_REVEAL_DOMINANT"
+    segment = result["motion_segments"][0]
+    assert segment["dominant_transform_class"] == "SCALE_OR_REVEAL_DOMINANT"
+    assert segment["curve_authority"] == "BBOX_CENTROID_SPEED_PROXY_NOT_PURE_TRANSLATION_CURVE"
 
 
 def test_boundary_clipping_caps_curve_authority_instead_of_inventing_hidden_easing():
@@ -78,6 +111,20 @@ def test_boundary_clipping_caps_curve_authority_instead_of_inventing_hidden_easi
     assert "SCREEN_BOUNDARY_CLIPPING_DISTORTS_VISIBLE_BBOX_KINEMATICS" in segment["caveats"]
 
 
+def test_scene_clip_rect_can_expose_bottom_reveal_hidden_by_full_canvas():
+    m = load_module()
+    rows = [
+        {"frame": 0, "x": 30.0, "y": 858.0, "width": 230.0, "height": 156.0},
+        {"frame": 1, "x": 30.0, "y": 846.0, "width": 230.0, "height": 168.0},
+        {"frame": 2, "x": 30.0, "y": 836.0, "width": 230.0, "height": 178.0},
+        {"frame": 3, "x": 30.0, "y": 828.0, "width": 230.0, "height": 186.0},
+    ]
+    result = m.kinematics(rows, 30, "TEST", clip_rect=[0, 0, 512, 1014], projection_mode="FULL_FRAME_NO_INTERPOLATION")
+    assert result["boundary_clipped_sample_count"] == 4
+    assert all("BOTTOM" in s["screen_clip_flags"] for s in result["samples"])
+    assert result["motion_segments"][0]["curve_authority"] == "VISIBLE_OUTPUT_CLIPPED_PROXY_NOT_HIDDEN_OBJECT_CURVE"
+
+
 def test_keyframe_linear_projection_cannot_claim_original_easing():
     m = load_module()
     rows = [
@@ -88,8 +135,8 @@ def test_keyframe_linear_projection_cannot_claim_original_easing():
     assert result["motion_segments"]
     for segment in result["motion_segments"]:
         assert segment["curve_proxy_confidence"] in {"LOW", "NONE"}
-        assert "ORIGINAL_GRAPH_EDITOR" not in segment["curve_authority"] or "NOT_ORIGINAL_GRAPH_EDITOR" in segment["curve_authority"]
         assert "KEYFRAME_LINEAR_INTERPOLATION_CAN_SHAPE_SPEED_PROFILE" in segment["caveats"]
+        assert segment["curve_authority"] != "ORIGINAL_AFTER_EFFECTS_GRAPH_EDITOR"
 
 
 def test_source_lock_range_is_measured_but_excluded_from_structural_motion_grammar():
@@ -122,8 +169,10 @@ def test_motion_manifest_is_pinned_to_live_golden_heads_and_s16_reflow_is_source
     }
     for scene, sha in expected.items():
         assert manifest["scenes"][scene]["ref"] == sha
-    assert manifest["scenes"]["S16_FACTOR_X"]["projection_mode"] == "FULL_FRAME_NO_INTERPOLATION"
-    assert manifest["scenes"]["S16_FACTOR_X"]["structural_exclude_ranges"] == [[87, 91]]
+    s16 = manifest["scenes"]["S16_FACTOR_X"]
+    assert s16["projection_mode"] == "FULL_FRAME_NO_INTERPOLATION"
+    assert s16["structural_exclude_ranges"] == [[87, 91]]
+    assert s16["clip_rect"] == [0, 0, 512, 1014]
 
 
 def test_curve_authority_is_explicitly_behavioral_not_original_after_effects_graph_editor():
@@ -131,3 +180,4 @@ def test_curve_authority_is_explicitly_behavioral_not_original_after_effects_gra
     assert "BEHAVIORAL_PROXY_ONLY_NOT_ORIGINAL_AFTER_EFFECTS_GRAPH_EDITOR" in source
     assert "RENDERER_PROJECTION_BEHAVIOR_PROXY_NOT_MEASURED_ORIGINAL_EASING" in source
     assert "VISIBLE_OUTPUT_CLIPPED_PROXY_NOT_HIDDEN_OBJECT_CURVE" in source
+    assert "BBOX_CENTROID_SPEED_PROXY_NOT_PURE_TRANSLATION_CURVE" in source
