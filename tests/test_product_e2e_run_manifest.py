@@ -214,4 +214,6 @@ def test_product_finalizer_is_directly_executable_from_repo_root():
         timeout=10,
     )
     assert completed.returncode == 0, completed.stderr
-    assert "technical product manifest" in completed.stdout
+    assert "--bundle" in completed.stdout
+    assert "--artifact-ref" in completed.stdout
+    assert "--git-sha" in completed.stdout
