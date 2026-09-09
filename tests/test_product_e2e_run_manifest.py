@@ -3,6 +3,9 @@ from __future__ import annotations
 from copy import deepcopy
 import hashlib
 import json
+from pathlib import Path
+import subprocess
+import sys
 
 import pytest
 
@@ -21,6 +24,7 @@ ARTIFACT = b"contract-only-mp4-placeholder"
 ARTIFACT_SHA = hashlib.sha256(ARTIFACT).hexdigest()
 SPEC_FILE_SHA = "b" * 64
 ARTIFACT_REF = "github-actions://rotprods/motion-OS/run/fixture/merge-safe-remotion-evidence/runtime-local.mp4"
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def _bundle() -> dict:
@@ -199,3 +203,15 @@ def test_technical_manifest_cannot_claim_production_or_project_done():
         mutated["manifest_hash"] = canonical_hash(unsigned)
         with pytest.raises(ProductRunManifestError):
             verify_product_run_manifest(mutated)
+
+
+def test_product_finalizer_is_directly_executable_from_repo_root():
+    completed = subprocess.run(
+        [sys.executable, "scripts/studio_finalize_run.py", "--help"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+    assert completed.returncode == 0, completed.stderr
+    assert "technical product manifest" in completed.stdout
