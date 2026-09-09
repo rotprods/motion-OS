@@ -7,11 +7,12 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 COMPILER = ROOT / "qualification/golden_9d/compile_motion_kinematics.py"
+QUALIFIER = ROOT / "qualification/golden_9d/qualify_motion_kinematics.py"
 MANIFEST = ROOT / "qualification/golden_9d/golden_motion_sources.json"
 
 
-def load_module():
-    spec = importlib.util.spec_from_file_location("golden_motion_kinematics", COMPILER)
+def load_module(path: Path, name: str):
+    spec = importlib.util.spec_from_file_location(name, path)
     assert spec and spec.loader
     module = importlib.util.module_from_spec(spec)
     sys.modules[spec.name] = module
@@ -19,8 +20,16 @@ def load_module():
     return module
 
 
+def compiler():
+    return load_module(COMPILER, "golden_motion_kinematics")
+
+
+def qualifier():
+    return load_module(QUALIFIER, "golden_motion_qualifier")
+
+
 def test_keyframe_parser_and_interpolator_preserve_frame_geometry():
-    m = load_module()
+    m = compiler()
     text = "const TRACK:KF[]=[{frame:0,x:0,y:10,width:20,height:30},{frame:2,x:4,y:6,width:24,height:34}];"
     rows = m.parse_keyframed_boxes(text, "TRACK")
     out = m.interpolate_keyframes(rows)
@@ -32,7 +41,7 @@ def test_keyframe_parser_and_interpolator_preserve_frame_geometry():
 
 
 def test_indexed_tuple_parser_preserves_nulls_and_factor_proxy():
-    m = load_module()
+    m = compiler()
     text = "const FACTOR:(RawFactor|null)[]=[null,[1,2,3,4,0.5],[2,3,3,4,1]];"
     rows = m.parse_indexed_tuples(text, "FACTOR", factor=True)
     assert rows[0] is None
@@ -41,13 +50,13 @@ def test_indexed_tuple_parser_preserves_nulls_and_factor_proxy():
 
 
 def test_empty_track_uses_python_false_and_does_not_crash():
-    m = load_module()
+    m = compiler()
     result = m.kinematics([], 30, "TEST")
     assert result == {"authority": "TEST", "visible": False}
 
 
 def test_descending_screen_y_is_valid_physical_upward_translation_when_size_is_stable():
-    m = load_module()
+    m = compiler()
     rows = [
         {"frame": 0, "x": 10.0, "y": 100.0, "width": 20.0, "height": 20.0},
         {"frame": 1, "x": 10.0, "y": 90.0, "width": 20.0, "height": 20.0},
@@ -62,7 +71,7 @@ def test_descending_screen_y_is_valid_physical_upward_translation_when_size_is_s
 
 
 def test_bbox_growth_cannot_be_mislabeled_as_centroid_translation():
-    m = load_module()
+    m = compiler()
     rows = [
         {"frame": 0, "x": 100.0, "y": 530.0, "width": 336.0, "height": 32.0},
         {"frame": 1, "x": 96.0, "y": 514.0, "width": 340.0, "height": 64.0},
@@ -78,7 +87,7 @@ def test_bbox_growth_cannot_be_mislabeled_as_centroid_translation():
 
 
 def test_visibility_build_caps_translation_curve_authority():
-    m = load_module()
+    m = compiler()
     rows = [
         {"frame": 0, "x": 96.0, "y": 580.0, "width": 110.0, "height": 12.0, "opacity_proxy": 0.32},
         {"frame": 1, "x": 92.0, "y": 577.0, "width": 354.0, "height": 51.0, "opacity_proxy": 1.0},
@@ -94,7 +103,7 @@ def test_visibility_build_caps_translation_curve_authority():
 
 
 def test_boundary_clipping_caps_curve_authority_instead_of_inventing_hidden_easing():
-    m = load_module()
+    m = compiler()
     rows = [
         {"frame": 0, "x": 12.0, "y": 100.0, "width": 30.0, "height": 30.0},
         {"frame": 1, "x": 6.0, "y": 100.0, "width": 30.0, "height": 30.0},
@@ -112,7 +121,7 @@ def test_boundary_clipping_caps_curve_authority_instead_of_inventing_hidden_easi
 
 
 def test_scene_clip_rect_can_expose_bottom_reveal_hidden_by_full_canvas():
-    m = load_module()
+    m = compiler()
     rows = [
         {"frame": 0, "x": 30.0, "y": 858.0, "width": 230.0, "height": 156.0},
         {"frame": 1, "x": 30.0, "y": 846.0, "width": 230.0, "height": 168.0},
@@ -126,7 +135,7 @@ def test_scene_clip_rect_can_expose_bottom_reveal_hidden_by_full_canvas():
 
 
 def test_keyframe_linear_projection_cannot_claim_original_easing():
-    m = load_module()
+    m = compiler()
     rows = [
         {"frame": i, "x": float(i * i), "y": 10.0, "width": 20.0, "height": 20.0}
         for i in range(6)
@@ -140,7 +149,7 @@ def test_keyframe_linear_projection_cannot_claim_original_easing():
 
 
 def test_source_lock_range_is_measured_but_excluded_from_structural_motion_grammar():
-    m = load_module()
+    m = compiler()
     rows = [
         {"frame": f, "x": 10.0, "y": float(100 - f), "width": 20.0, "height": 20.0}
         for f in range(84, 92)
@@ -181,3 +190,45 @@ def test_curve_authority_is_explicitly_behavioral_not_original_after_effects_gra
     assert "RENDERER_PROJECTION_BEHAVIOR_PROXY_NOT_MEASURED_ORIGINAL_EASING" in source
     assert "VISIBLE_OUTPUT_CLIPPED_PROXY_NOT_HIDDEN_OBJECT_CURVE" in source
     assert "BBOX_CENTROID_SPEED_PROXY_NOT_PURE_TRANSLATION_CURVE" in source
+
+
+def test_motion_qualifier_keeps_w1_complete_but_dimension_partial():
+    q = qualifier()
+    synthetic = {
+        "schema_version": "motion-os.golden-motion-kinematics/v3",
+        "authority": "DERIVED_FROM_PINNED_SOURCE_BOUND_TRACKS",
+        "scenes": {
+            "TEST": {
+                "source_ref": "0" * 40,
+                "projection_mode": "KEYFRAME_LINEAR_RENDERER_PROJECTION",
+                "entities": {
+                    "hero": {
+                        "visible": True,
+                        "sample_count": 5,
+                        "samples": [
+                            {"frame": 0},
+                            {"frame": 1, "speed_px_per_frame": 0.8},
+                            {"frame": 2, "speed_px_per_frame": 2.0},
+                            {"frame": 3, "speed_px_per_frame": 2.0},
+                            {"frame": 4, "speed_px_per_frame": 0.7},
+                        ],
+                        "motion_segments": [
+                            {
+                                "dominant_transform_class": "TRANSLATION_DOMINANT",
+                                "screen_boundary_clipped": False,
+                                "structural_template_eligible": True,
+                                "curve_proxy_confidence": "LOW",
+                            }
+                        ],
+                    }
+                },
+            }
+        },
+    }
+    result = q.qualify(synthetic)
+    assert result["w1_state"] == "COMPLETE_WITH_RESIDUAL_MOTION_AUTHORITY_BLOCKERS"
+    assert result["scene_results"]["TEST"]["visible_bbox_kinematics"]["state"] == "QUALIFIED"
+    assert result["scene_results"]["TEST"]["easing_behavior"]["state"] == "BLOCKED"
+    assert result["scene_results"]["TEST"]["reconstruct_exact_motion"]["state"] == "PARTIAL"
+    assert result["scene_results"]["TEST"]["structural_template_motion"]["state"] == "PARTIAL"
+    assert result["cross_golden"]["original_easing_graph"] == "BLOCKED"
