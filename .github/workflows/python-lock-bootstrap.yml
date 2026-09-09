@@ -9,6 +9,7 @@ on:
       - '.github/workflows/python-lock-bootstrap.yml'
       - 'scripts/python_lock_gate.py'
       - 'tests/test_python_lock_gate.py'
+      - 'ci/python_toolchain.json'
   workflow_dispatch:
 
 permissions:
@@ -29,13 +30,20 @@ jobs:
         include:
           - python: '3.11.16'
             extras: 'dev'
+            requirement: ''
             lock_name: 'pylock.py311-dev.toml'
           - python: '3.12.14'
             extras: 'dev'
+            requirement: ''
             lock_name: 'pylock.py312-dev.toml'
           - python: '3.12.14'
             extras: 'dev,analysis'
+            requirement: ''
             lock_name: 'pylock.py312-analysis.toml'
+          - python: '3.12.14'
+            extras: 'dev'
+            requirement: 'pip-audit==2.10.1'
+            lock_name: 'pylock.py312-security.toml'
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -49,18 +57,23 @@ jobs:
       - name: Generate environment-specific lock
         env:
           LOCK_EXTRAS: ${{ matrix.extras }}
+          LOCK_REQUIREMENT: ${{ matrix.requirement }}
           LOCK_NAME: ${{ matrix.lock_name }}
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p .artifacts
+          extra_requirement=()
+          if [[ -n "$LOCK_REQUIREMENT" ]]; then
+            extra_requirement+=("$LOCK_REQUIREMENT")
+          fi
           # pip lock resolves editable directory paths relative to the lock file.
           # Keep the candidate lock beside pyproject.toml; only receipts live in .artifacts.
-          python -m pip lock -e ".[${LOCK_EXTRAS}]" -o "${LOCK_NAME}"
-          python - "$LOCK_NAME" "${{ matrix.python }}" <<'PY'
+          python -m pip lock -e ".[${LOCK_EXTRAS}]" "${extra_requirement[@]}" -o "${LOCK_NAME}"
+          python - "$LOCK_NAME" "${{ matrix.python }}" "$LOCK_REQUIREMENT" <<'PY'
           from pathlib import Path
           import hashlib, json, sys, tomllib
-          name, expected_python = sys.argv[1:]
+          name, expected_python, extra_requirement = sys.argv[1:]
           path = Path(name)
           raw = path.read_bytes()
           doc = tomllib.loads(raw.decode('utf-8'))
@@ -74,6 +87,7 @@ jobs:
               'lock_name': name,
               'python': expected_python,
               'pip': '26.2.1',
+              'extra_requirement': extra_requirement or None,
               'pyproject_sha256': hashlib.sha256(Path('pyproject.toml').read_bytes()).hexdigest(),
               'lock_sha256': hashlib.sha256(raw).hexdigest(),
               'lock_bytes': len(raw),
