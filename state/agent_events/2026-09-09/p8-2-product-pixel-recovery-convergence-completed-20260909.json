@@ -1,0 +1,45 @@
+{
+  "event_id": "p8-2-product-pixel-recovery-convergence-completed-20260909",
+  "event_type": "work.completed",
+  "timestamp": "2026-09-09T13:14:30Z",
+  "agent_id": "motion://agent/chatgpt/product-pixel-recovery-convergence",
+  "project": "MOTION.OS",
+  "branch": "integration/product-pixel-recovery-20260909",
+  "commit_sha": "0499fa9bba3a36514b4ff2b9eafc87378278321a",
+  "pr_number": 145,
+  "summary": "PR145 converged PR143 Product E2E/offline recovery and PR137 rendered-pixel causality as a real two-parent merge. Merge Safe, Product E2E and Offline Replay all passed on the same synthetic candidate; independent artifact inspection confirmed one shared runtime output/evidence identity with input-to-pixel PASS and recovery-ready offline replay. Integrated evidence completed an exact Drive upload/download round-trip. Branch qualification only; #48 remains OPEN and production/creative/provider/PROJECT_DONE authority remain false.",
+  "affected_paths": [
+    "evidence/product_pixel_recovery_convergence_20260909/QUALIFICATION.md",
+    "runtime/remotion/src/MotionOSRuntime.tsx",
+    "scripts/local_verify.py",
+    "src/studio/run_manifest.py",
+    "src/studio/replay.py"
+  ],
+  "checks": {
+    "merge_safe_run": "34355003912:SUCCESS",
+    "product_e2e_run": "34355003940:SUCCESS",
+    "offline_replay_run": "34355003966:SUCCESS",
+    "synthetic_merge_sha": "a320694dd9abc3451a3b09d12401809f057fc18c",
+    "python_suite": "738 passed, 1 skipped, 5 warnings",
+    "input_sensitivity": "PASS:191614_rgb_bytes:0.2772193287037037",
+    "product_manifest_hash": "a1e52b1f1ba8752c52500ef4e1ecd86cda9ff5714d131ded8d92007594cdeaf9",
+    "replay_report_hash": "fe918a754a211f072fdebb7d62cbeea128a8121955362fa7c42efe0107a5b379",
+    "physical_mp4_sha256": "e221eea3d9a66d20ba3c5d8cbf89a7e864fbe32f9319791cabb9c595d8826552",
+    "integrated_drive_roundtrip_sha256": "64144d56b9d82b8b8d27bf4f1af6cc1645f4ef0a4f092d75e679495dcb9ddd68"
+  },
+  "authority": "VERIFIED",
+  "correlation_id": "motion://correlation/product-pixel-recovery-convergence-20260909",
+  "metadata": {
+    "tracker_issue": 144,
+    "project_completion_issue": 93,
+    "promotion_barrier_issue": 48,
+    "first_parent": "2d3bf35f11dc77bec4fb953c13ff2af43a5200e7",
+    "second_parent": "4c1aa1c4813318778558abb06769881c13199b3b",
+    "run_id": "RUN_77BB7458918C653AFF1B",
+    "drive_file_id": "1YvDQXRXWSX4sszCHZuD6osWlWXoIRDkx",
+    "production_authority": false,
+    "creative_authority": false,
+    "provider_authority": false,
+    "project_done": false
+  }
+}
