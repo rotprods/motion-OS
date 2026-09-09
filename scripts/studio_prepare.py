@@ -3,8 +3,15 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
+import sys
+from tempfile import NamedTemporaryFile
 from typing import Any
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from src.studio.content_bridge import prepare_studio_execution
 
@@ -16,12 +23,46 @@ def _load(path: Path) -> dict[str, Any]:
     return document
 
 
-def _write(path: Path, value: object) -> None:
+def _write_atomic(path: Path, value: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+    payload = json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
+    tmp_path: Path | None = None
+    try:
+        with NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            dir=path.parent,
+            prefix=f".{path.name}.",
+            suffix=".tmp",
+            delete=False,
+        ) as handle:
+            handle.write(payload)
+            handle.flush()
+            os.fsync(handle.fileno())
+            tmp_path = Path(handle.name)
+        tmp_path.replace(path)
+    finally:
+        if tmp_path is not None:
+            tmp_path.unlink(missing_ok=True)
+
+
+def _persist_outputs(
+    bundle: dict[str, Any],
+    *,
+    out: Path,
+    runtime_spec_out: Path | None,
+    graph_out: Path | None,
+) -> None:
+    # The bundle is the authoritative completion marker. Remove any prior marker
+    # before writing derived sidecars, then publish the new bundle last. A crash
+    # or sidecar failure therefore cannot leave a stale bundle representing the
+    # interrupted execution as complete.
+    out.unlink(missing_ok=True)
+    if runtime_spec_out is not None:
+        _write_atomic(runtime_spec_out, bundle["runtime_spec"])
+    if graph_out is not None:
+        _write_atomic(graph_out, bundle["graph"])
+    _write_atomic(out, bundle)
 
 
 def main() -> int:
@@ -38,6 +79,10 @@ def main() -> int:
     parser.add_argument("--height", type=int, default=1920)
     args = parser.parse_args()
 
+    # Fail closed on reruns: once this invocation starts, a previous bundle at
+    # the requested destination must not remain usable as evidence of success.
+    args.out.unlink(missing_ok=True)
+
     manifest = _load(args.manifest)
     handoff = _load(args.handoff)
     bundle = prepare_studio_execution(
@@ -47,11 +92,12 @@ def main() -> int:
         width=args.width,
         height=args.height,
     )
-    _write(args.out, bundle)
-    if args.runtime_spec_out:
-        _write(args.runtime_spec_out, bundle["runtime_spec"])
-    if args.graph_out:
-        _write(args.graph_out, bundle["graph"])
+    _persist_outputs(
+        bundle,
+        out=args.out,
+        runtime_spec_out=args.runtime_spec_out,
+        graph_out=args.graph_out,
+    )
 
     print(
         json.dumps(
