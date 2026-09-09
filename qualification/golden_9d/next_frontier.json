@@ -1,0 +1,81 @@
+{
+  "schema_version": "motion-os.golden-9d-frontier/v1",
+  "north_star": "Convert the professional reference video into renderer-independent, source-bound editing behavior such that a zero-context agent can reconstruct or structurally reuse the editing DNA without arbitrary creative decisions.",
+  "current_checkpoint": "T07_GOLDEN_SOURCE_BOUND_PARTIAL_QUALIFICATION_COMPLETE",
+  "target_checkpoint": "T08_STRUCTURAL_EDITING_DNA_9D_QUALIFIED",
+  "hard_barriers": [
+    "Issue #48 remains OPEN",
+    "No CANONICAL_TEMPLATE until cross-renderer parity and empirical generalization pass"
+  ],
+  "waves": [
+    {
+      "id": "T08-W1",
+      "priority": "P0",
+      "name": "Motion kinematics and easing authority",
+      "why": "T07 proves screen-space timing/layout but does not yet fully encode velocity, acceleration, settle, overshoot and reusable easing behavior across all golden scenes.",
+      "scenes": ["S04_CIENTIFICAMENTE", "S11_UI_LIST", "S14_AUDIO_VISUAL_TEXTO", "S16_FACTOR_X"],
+      "outputs": ["motion_kinematics.json", "easing_proxy_graph.json", "motion_dimension_qualification.json"],
+      "tests": ["full-frame trajectory replay", "velocity/acceleration diff", "settle/overshoot error", "no sparse-projection drift"],
+      "dod": "Every reusable motion entity has full-frame or equivalence-proven trajectory plus evidence-bound velocity/settle/easing classification; no renderer-local timing repair remains."
+    },
+    {
+      "id": "T08-W2",
+      "priority": "P0",
+      "name": "Camera, depth and occlusion graph",
+      "why": "The user-visible premium look depends on foreground/midground/background, subject occlusion, 2.5D layering and distinguishing crop/reframe from real/editorial camera behavior.",
+      "scenes": ["S04_CIENTIFICAMENTE", "S11_UI_LIST", "S14_AUDIO_VISUAL_TEXTO", "S16_FACTOR_X"],
+      "outputs": ["camera_event_graph.json", "depth_partial_order.json", "occlusion_graph.json", "three_d_proxy_events.json"],
+      "tests": ["global-vs-local flow separation", "occlusion consistency over time", "cycle-free depth partial order", "unknown relation remains unknown"],
+      "dod": "Every materially visible z/occlusion relation is measured or explicitly UNKNOWN; camera/reframe events have source evidence and no source-native motion is silently promoted to editing grammar."
+    },
+    {
+      "id": "T08-W3",
+      "priority": "P0",
+      "name": "Stimulus and retention grammar",
+      "why": "Replicating the editing identity requires the cadence of pattern interrupts, caption refreshes, inserts, depth changes, camera changes and deliberate calm windows, not only element geometry.",
+      "scenes": ["S04_CIENTIFICAMENTE", "S11_UI_LIST", "S14_AUDIO_VISUAL_TEXTO", "S16_FACTOR_X"],
+      "outputs": ["stimulus_timeline.json", "event_clusters.json", "retention_grammar.json", "dead_interval_report.json"],
+      "tests": ["visual events/sec", "P50/P90 stimulus interval", "max dead interval", "cluster completeness", "calm-hold preservation"],
+      "dod": "Every high-salience attention event is represented as a causal event cluster and the reusable retention cadence is measurable without equating object count with quality."
+    },
+    {
+      "id": "T08-W4",
+      "priority": "P1",
+      "name": "Audio-SFX relationship graph",
+      "why": "S04/S14/S16 have onset proxies but S11 lacks source-bound audio qualification; timbre/envelope/class relationships remain incomplete.",
+      "scenes": ["S04_CIENTIFICAMENTE", "S11_UI_LIST", "S14_AUDIO_VISUAL_TEXTO", "S16_FACTOR_X"],
+      "outputs": ["audio_event_graph.json", "visual_audio_sync.json", "sfx_slot_grammar.json"],
+      "tests": ["visual-event/onset offset", "renderer-latency separation", "SFX slot timing", "no timbre authority without stems"],
+      "dod": "Structural-template mode has evidence-bound audio event timing/function slots for every major golden payoff; exact-source mode keeps stem/timbre unknowns explicit."
+    },
+    {
+      "id": "T08-W5",
+      "priority": "P1",
+      "name": "Typography, color and FX tiering",
+      "why": "Current gates intentionally separate layout from exact glyphs/materials. T08 must formalize which properties are reusable roles, which are visible-output measurements and which are SOURCE_LOCK/UNKNOWN.",
+      "scenes": ["S04_CIENTIFICAMENTE", "S11_UI_LIST", "S14_AUDIO_VISUAL_TEXTO", "S16_FACTOR_X"],
+      "outputs": ["typography_role_graph.json", "color_role_graph.json", "effect_stack_proxy.json", "source_lock_manifest.json"],
+      "tests": ["layout-proxy vs glyph authority separation", "role substitution", "output color-diff evidence", "FX unsupported-claim rejection"],
+      "dod": "Structural typography/color/FX roles are reproducible without falsely claiming original font, pre-grade token, plugin or hidden AE effect identity."
+    },
+    {
+      "id": "T08-W6",
+      "priority": "P1",
+      "name": "Cross-renderer parity",
+      "why": "After Effects, Remotion and HyperFrames must execute one canonical EditingGraph rather than drift into independent interpretations.",
+      "dependencies": ["T08-W1", "T08-W2", "T08-W3", "T08-W4", "T08-W5"],
+      "outputs": ["ae_reconstruction_spec", "remotion_spec", "hyperframes_spec", "cross_renderer_diff.json"],
+      "tests": ["frame timing parity", "layer/z parity", "caption parity", "audio-event parity", "motion-curve parity"],
+      "dod": "The three executors remain within declared per-dimension tolerances from the same canonical graph with no renderer-local creative decisions."
+    },
+    {
+      "id": "T09",
+      "priority": "P1",
+      "name": "Three-content generalization",
+      "dependencies": ["T08-W6"],
+      "outputs": ["three substitution runs", "source-lock leakage report", "template identity scorecard without aggregate authority"],
+      "dod": "Three unseen content packs reproduce the editing identity while source-specific media/copy/assets are replaced and no original literal content leaks into the structural template."
+    }
+  ],
+  "next_safe_action": "Execute T08-W1 on the four existing full/measured source tracks; derive velocity, acceleration, settle and easing proxies without modifying golden renderer branches."
+}
