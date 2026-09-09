@@ -11,7 +11,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   lineage:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -19,7 +19,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
-          python-version: '3.12'
+          python-version: '3.12.14'
       - name: Verify exact main commit against merged PR metadata
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -32,4 +32,5 @@ jobs:
           name: main-lineage-evidence
           path: .artifacts/main-lineage.json
           if-no-files-found: error
+          include-hidden-files: true
           retention-days: 14
