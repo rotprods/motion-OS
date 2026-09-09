@@ -33,8 +33,12 @@ on:
       - '.github/workflows/coordination-ci.yml'
 permissions:
   contents: read
+concurrency:
+  group: coordination-contracts-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 jobs:
   coordination-contracts:
+    name: Coordination contracts / Python ${{ matrix.python }}
     runs-on: ubuntu-24.04
     timeout-minutes: 12
     strategy:
@@ -45,6 +49,8 @@ jobs:
             environment: quick311
           - python: '3.12.14'
             environment: quick312
+    env:
+      CI_ENVIRONMENT: ${{ matrix.environment }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -54,13 +60,27 @@ jobs:
           python-version: ${{ matrix.python }}
           cache: pip
       - name: Create frozen coordination environment
-        run: python scripts/python_ci_env.py create --environment '${{ matrix.environment }}' --json-out '.artifacts/coordination-${{ matrix.environment }}-environment.json'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/python_ci_env.py create \
+            --environment "$CI_ENVIRONMENT" \
+            --json-out ".artifacts/coordination-${CI_ENVIRONMENT}-environment.json"
       - name: Compile coordination surfaces
-        run: '.venv-ci/${{ matrix.environment }}/bin/python -m compileall -q src/coordination scripts/coordination_cli.py'
+        shell: bash
+        run: |
+          set -euo pipefail
+          ".venv-ci/${CI_ENVIRONMENT}/bin/python" -m compileall -q src/coordination scripts/coordination_cli.py
       - name: Run coordination contract suite
-        run: '.venv-ci/${{ matrix.environment }}/bin/python -m pytest -q tests/test_coordination_*.py'
+        shell: bash
+        run: |
+          set -euo pipefail
+          ".venv-ci/${CI_ENVIRONMENT}/bin/python" -m pytest -q tests/test_coordination_*.py
       - name: Repository health
-        run: '.venv-ci/${{ matrix.environment }}/bin/python scripts/repo_health.py'
+        shell: bash
+        run: |
+          set -euo pipefail
+          ".venv-ci/${CI_ENVIRONMENT}/bin/python" scripts/repo_health.py
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
