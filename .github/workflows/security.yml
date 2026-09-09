@@ -10,6 +10,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   dependency-audit:
+    name: Frozen dependency and repository security audit
     runs-on: ubuntu-24.04
     timeout-minutes: 14
     steps:
