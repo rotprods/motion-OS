@@ -1,17 +1,15 @@
 #!/usr/bin/env python3
 """Fail-closed GitHub Actions policy gate for MOTION.OS.
 
-This intentionally uses only the Python standard library so the policy that
-selects trusted CI dependencies does not itself require another package parser.
-It is a conservative source-policy scanner, not a replacement for actionlint or
-zizmor.  Those tools remain independent analyzers.
+The primary policy is stdlib-only so trust selection does not depend on the
+third-party analyzer being audited. actionlint and zizmor remain independent
+secondary analyzers.
 """
 from __future__ import annotations
 
 import argparse
 import json
 import re
-import sys
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
@@ -38,18 +36,36 @@ class Finding:
 def _step_end(lines: list[str], start: int) -> int:
     indent = len(lines[start]) - len(lines[start].lstrip())
     for idx in range(start + 1, len(lines)):
-        line = lines[idx]
-        stripped = line.lstrip()
-        current = len(line) - len(stripped)
+        stripped = lines[idx].lstrip()
+        current = len(lines[idx]) - len(stripped)
         if current == indent and stripped.startswith("- "):
             return idx
     return len(lines)
 
 
-def _literal_versions(value: str) -> list[str]:
+def _literal_scalar(value: str) -> str | None:
     if "${{" in value:
-        return []
-    return re.findall(r"['\"]?(\d+\.\d+(?:\.\d+)?)['\"]?", value)
+        return None
+    return value.strip().strip("'\"")
+
+
+def _inside_run(lines: list[str], index: int) -> bool:
+    """Return True only when index is the run scalar or part of its block body."""
+    stripped = lines[index].lstrip()
+    if stripped.startswith("run:") or stripped.startswith("- run:"):
+        return True
+    indent = len(lines[index]) - len(stripped)
+    for pos in range(index - 1, -1, -1):
+        previous = lines[pos]
+        if not previous.strip():
+            continue
+        prior_stripped = previous.lstrip()
+        prior_indent = len(previous) - len(prior_stripped)
+        if prior_indent < indent:
+            return prior_stripped.startswith("run:") or prior_stripped.startswith("- run:")
+        if prior_indent == indent and prior_stripped.startswith("- "):
+            return False
+    return False
 
 
 def audit_text(path: str, text: str) -> list[Finding]:
@@ -60,8 +76,7 @@ def audit_text(path: str, text: str) -> list[Finding]:
         findings.append(Finding(severity, code, path, line + 1, message))
 
     jobs_index = next((i for i, line in enumerate(lines) if line.strip() == "jobs:"), len(lines))
-    permissions_index = next((i for i, line in enumerate(lines[:jobs_index]) if line.startswith("permissions:")), None)
-    if permissions_index is None:
+    if not any(line.startswith("permissions:") for line in lines[:jobs_index]):
         add("P1", "MISSING_EXPLICIT_PERMISSIONS", 0, "workflow must declare top-level permissions explicitly")
 
     for i, line in enumerate(lines):
@@ -75,25 +90,24 @@ def audit_text(path: str, text: str) -> list[Finding]:
         if re.match(r"^[A-Za-z0-9_-]+:\s*write\s*$", stripped):
             add("P1", "WRITE_TOKEN_PERMISSION", i, "steady-state CI must not request write-capable GITHUB_TOKEN scopes")
 
-        if "continue-on-error:" in stripped and re.search(r"continue-on-error:\s*true\b", stripped, re.I):
+        if re.search(r"continue-on-error:\s*true\b", stripped, re.I):
             add("P1", "CONTINUE_ON_ERROR", i, "required CI steps may not convert failure into success")
 
         if re.search(r"runs-on:\s*[^#]*-latest\b", stripped):
             add("P1", "FLOATING_RUNNER_IMAGE", i, "runner image must use a fixed OS release, not *-latest")
 
         if stripped.startswith("python-version:"):
-            value = stripped.split(":", 1)[1].strip()
-            versions = _literal_versions(value)
-            for version in versions:
-                if not VERSION_RE.fullmatch(version):
-                    add("P1", "FLOATING_PYTHON_VERSION", i, f"Python version must be an exact patch release: {version}")
-
+            literal = _literal_scalar(stripped.split(":", 1)[1])
+            if literal is not None and not VERSION_RE.fullmatch(literal):
+                add("P1", "FLOATING_PYTHON_VERSION", i, f"Python version must be an exact patch release: {literal}")
         if stripped.startswith("node-version:"):
-            value = stripped.split(":", 1)[1].strip()
-            versions = _literal_versions(value)
-            for version in versions:
-                if not VERSION_RE.fullmatch(version):
-                    add("P1", "FLOATING_NODE_VERSION", i, f"Node version must be an exact patch release: {version}")
+            literal = _literal_scalar(stripped.split(":", 1)[1])
+            if literal is not None and not VERSION_RE.fullmatch(literal):
+                add("P1", "FLOATING_NODE_VERSION", i, f"Node version must be an exact patch release: {literal}")
+        if re.match(r"^-?\s*python:\s*", stripped):
+            literal = _literal_scalar(stripped.split(":", 1)[1])
+            if literal is not None and re.fullmatch(r"\d+(?:\.\d+){0,2}", literal) and not VERSION_RE.fullmatch(literal):
+                add("P1", "FLOATING_PYTHON_MATRIX_VERSION", i, f"Python matrix value must be an exact patch release: {literal}")
 
         if re.search(r"(?:python\s+-m\s+)?pip\s+install\s+--upgrade\s+pip\b", stripped):
             add("P1", "FLOATING_PIP_UPGRADE", i, "pip must be pinned by the canonical environment contract, never upgraded to latest")
@@ -103,12 +117,8 @@ def audit_text(path: str, text: str) -> list[Finding]:
         if stripped == "if-no-files-found: warn":
             add("P1", "EVIDENCE_UPLOAD_WARN", i, "required evidence upload must fail when files are missing")
 
-        if UNSAFE_SHELL_CONTEXT_RE.search(line):
-            # Only meaningful inside a run block; conservative source policy still
-            # blocks direct template insertion anywhere on a run line/body.
-            prior = "\n".join(lines[max(0, i - 30): i + 1])
-            if re.search(r"(?:^|\n)\s*run:\s*(?:\||>|[^\n]+)", prior):
-                add("P1", "UNTRUSTED_CONTEXT_IN_SHELL", i, "potentially attacker-controlled GitHub context must enter shell through env/argv, not template expansion")
+        if UNSAFE_SHELL_CONTEXT_RE.search(line) and _inside_run(lines, i):
+            add("P1", "UNTRUSTED_CONTEXT_IN_SHELL", i, "potentially attacker-controlled GitHub context must enter shell through env/argv, not template expansion")
 
         if re.search(r"sudo\s+apt-get\s+install\b", stripped):
             add("P2", "UNPINNED_OS_PACKAGE", i, "OS package repository resolution is not content-addressed; retain as explicit media-toolchain residual")
@@ -142,7 +152,6 @@ def audit_text(path: str, text: str) -> list[Finding]:
                 elif not 1 <= int(retention.group(1)) <= 30:
                     add("P1", "EVIDENCE_RETENTION_OUT_OF_POLICY", i, "evidence retention must be between 1 and 30 days")
 
-    # Every job with a runner must carry a finite timeout.
     jobs: list[tuple[str, int, int]] = []
     for i in range(jobs_index + 1, len(lines)):
         match = JOB_RE.match(lines[i])
@@ -182,7 +191,7 @@ def main(argv: list[str] | None = None) -> int:
         "schema": "motion-os.workflow-security/v1",
         "status": "FAIL" if blocking else "PASS",
         "root": str(root),
-        "workflow_count": len(list((root / ".github" / "workflows").glob("*.y*ml"))) if (root / ".github" / "workflows").is_dir() else 0,
+        "workflow_count": len([*(root / ".github" / "workflows").glob("*.yml"), *(root / ".github" / "workflows").glob("*.yaml")]) if (root / ".github" / "workflows").is_dir() else 0,
         "blocking_count": len(blocking),
         "warning_count": len(findings) - len(blocking),
         "findings": [asdict(item) for item in findings],
