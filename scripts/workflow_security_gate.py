@@ -17,9 +17,6 @@ ACTION_RE = re.compile(r"^\s*(?:-\s*)?uses:\s*([^\s#]+)")
 FULL_SHA_ACTION_RE = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+(?:/[^@\s]+)?@[0-9a-f]{40}$")
 JOB_RE = re.compile(r"^  ([A-Za-z0-9_-]+):\s*$")
 VERSION_RE = re.compile(r"^\d+\.\d+\.\d+$")
-UNSAFE_SHELL_CONTEXT_RE = re.compile(
-    r"\$\{\{\s*(?:github\.event\.|github\.head_ref\b|github\.ref_name\b)"
-)
 PRIVILEGED_TRIGGERS = ("pull_request_target:", "workflow_run:", "issue_comment:", "repository_dispatch:")
 AUTHORITY_UPLOAD = "actions/upload-artifact@"
 
@@ -76,8 +73,11 @@ def audit_text(path: str, text: str) -> list[Finding]:
         findings.append(Finding(severity, code, path, line + 1, message))
 
     jobs_index = next((i for i, line in enumerate(lines) if line.strip() == "jobs:"), len(lines))
-    if not any(line.startswith("permissions:") for line in lines[:jobs_index]):
+    header = lines[:jobs_index]
+    if not any(line.startswith("permissions:") for line in header):
         add("P1", "MISSING_EXPLICIT_PERMISSIONS", 0, "workflow must declare top-level permissions explicitly")
+    if not any(line.startswith("concurrency:") for line in header):
+        add("P1", "MISSING_CONCURRENCY_POLICY", 0, "workflow must declare explicit top-level concurrency semantics")
 
     for i, line in enumerate(lines):
         stripped = line.strip()
@@ -117,8 +117,8 @@ def audit_text(path: str, text: str) -> list[Finding]:
         if stripped == "if-no-files-found: warn":
             add("P1", "EVIDENCE_UPLOAD_WARN", i, "required evidence upload must fail when files are missing")
 
-        if UNSAFE_SHELL_CONTEXT_RE.search(line) and _inside_run(lines, i):
-            add("P1", "UNTRUSTED_CONTEXT_IN_SHELL", i, "potentially attacker-controlled GitHub context must enter shell through env/argv, not template expansion")
+        if "${{" in line and _inside_run(lines, i):
+            add("P1", "TEMPLATE_EXPRESSION_IN_SHELL", i, "GitHub expression interpolation is forbidden inside run; pass values through env/argv instead")
 
         if re.search(r"sudo\s+apt-get\s+install\b", stripped):
             add("P2", "UNPINNED_OS_PACKAGE", i, "OS package repository resolution is not content-addressed; retain as explicit media-toolchain residual")
