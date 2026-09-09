@@ -1,0 +1,58 @@
+name: Python Lock Bootstrap Cleanup
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - '.github/workflows/python-lock-bootstrap-cleanup.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    if: github.repository == 'rotprods/motion-OS' && (github.head_ref == 'feat/python-ci-locks-20260909' || github.ref_name == 'feat/python-ci-locks-20260909')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TARGET_BRANCH: feat/python-ci-locks-20260909
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Refuse cleanup unless canonical lock bytes are exact
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' '4ebe8e5a5beb027d02824a67c3d00b8c4c0bef9c08e0cb14b96ed9182543aebe' pylock.py311-dev.toml | sha256sum --check --strict
+          printf '%s  %s\n' 'af5afbc2ee43f8719e0343a26e7ca0062d32a7a0f459c55c9e51d68d515c8f41' pylock.py312-dev.toml | sha256sum --check --strict
+          printf '%s  %s\n' 'c532a7e0d48fd2e43cda6a459685fd8aeb3f61da24e45f8eced46c7187c31388' pylock.py312-analysis.toml | sha256sum --check --strict
+          printf '%s  %s\n' '6c111783b033ebd8a6e859ce732d8fc35293905a2bb6ee8b62111515bfae1747' pylock.py312-audit.toml | sha256sum --check --strict
+      - name: Remove superseded P8.5 bootstrap surfaces
+        shell: bash
+        run: |
+          set -euo pipefail
+          delete_if_present() {
+            local path="$1" sha
+            sha="$(gh api "repos/${GITHUB_REPOSITORY}/contents/${path}?ref=${TARGET_BRANCH}" --jq .sha 2>/dev/null || true)"
+            if [[ -z "$sha" ]]; then
+              echo "$path already absent"
+              return
+            fi
+            gh api --method DELETE "repos/${GITHUB_REPOSITORY}/contents/${path}" \
+              -f message="chore(python): retire superseded ${path}" \
+              -f branch="$TARGET_BRANCH" -f sha="$sha" >/dev/null
+          }
+          delete_if_present pylock.py312-security.toml
+          delete_if_present ci/python_toolchain.json
+          delete_if_present scripts/python_lock_gate.py
+          delete_if_present tests/test_python_lock_gate.py
+          delete_if_present scripts/python_environment.py
+          delete_if_present tests/test_python_environment.py
+          delete_if_present .github/workflows/python-lock-bootstrap.yml
+          delete_if_present .github/workflows/python-lock-installable-probe.yml
+          delete_if_present .github/workflows/python-environment-smoke.yml
+          delete_if_present .github/workflows/python-lock-promote.yml
+          delete_if_present .github/workflows/python-lock-promote-v2.yml
+          delete_if_present .github/workflows/python-lock-bootstrap-cleanup.yml
