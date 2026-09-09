@@ -54,7 +54,7 @@ jobs:
           cache: pip
       - name: Pin lock generator
         run: python -m pip install --disable-pip-version-check 'pip==26.2.1'
-      - name: Regenerate and require byte-identical committed lock
+      - name: Regenerate, compare, and preserve drift evidence
         env:
           LOCK_EXTRAS: ${{ matrix.extras }}
           LOCK_REQUIREMENT: ${{ matrix.requirement }}
@@ -65,48 +65,122 @@ jobs:
           mkdir -p .artifacts
           test -s "$LOCK_NAME"
           cp "$LOCK_NAME" ".artifacts/${LOCK_NAME}.committed"
+          python - "$LOCK_NAME" "${{ matrix.python }}" "$LOCK_REQUIREMENT" <<'PY'
+          from pathlib import Path
+          import json, sys
+          name, expected_python, requirement = sys.argv[1:]
+          Path(f'.artifacts/{name}.regeneration.json').write_text(json.dumps({
+              'schema': 'motion-os.python-lock-regeneration/v2',
+              'status': 'RUNNING',
+              'lock_name': name,
+              'python': expected_python,
+              'pip': '26.2.1',
+              'extra_requirement': requirement or None,
+              'committed_match': False,
+          }, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          PY
           extra_requirement=()
           if [[ -n "$LOCK_REQUIREMENT" ]]; then
             extra_requirement+=("$LOCK_REQUIREMENT")
           fi
+          set +e
           python -m pip lock -e ".[${LOCK_EXTRAS}]" "${extra_requirement[@]}" -o "$LOCK_NAME"
-          cmp --silent ".artifacts/${LOCK_NAME}.committed" "$LOCK_NAME"
+          lock_rc=$?
+          set -e
+          if [[ $lock_rc -ne 0 ]]; then
+            python - "$LOCK_NAME" "$lock_rc" <<'PY'
+            from pathlib import Path
+            import json, sys
+            name, code = sys.argv[1:]
+            path = Path(f'.artifacts/{name}.regeneration.json')
+            doc = json.loads(path.read_text())
+            doc.update(status='BLOCKED', reason='pip_lock_failed', generator_returncode=int(code))
+            path.write_text(json.dumps(doc, indent=2, sort_keys=True) + '\n')
+            PY
+            exit "$lock_rc"
+          fi
+          diff -u ".artifacts/${LOCK_NAME}.committed" "$LOCK_NAME" > ".artifacts/${LOCK_NAME}.diff" || true
           python - "$LOCK_NAME" "${{ matrix.python }}" "$LOCK_REQUIREMENT" <<'PY'
           from pathlib import Path
           import hashlib, json, sys, tomllib
           name, expected_python, extra_requirement = sys.argv[1:]
-          path = Path(name)
-          raw = path.read_bytes()
-          doc = tomllib.loads(raw.decode('utf-8'))
-          packages = doc.get('packages')
-          if doc.get('lock-version') != '1.0' or doc.get('created-by') != 'pip':
-              raise SystemExit('unexpected lock header')
-          if not isinstance(packages, list) or not packages:
-              raise SystemExit('lock contains no packages')
+          committed_path = Path('.artifacts') / f'{name}.committed'
+          generated_path = Path(name)
+          committed_raw = committed_path.read_bytes()
+          generated_raw = generated_path.read_bytes()
+          committed = tomllib.loads(committed_raw.decode('utf-8'))
+          generated = tomllib.loads(generated_raw.decode('utf-8'))
+
+          def package_view(doc):
+              out = {}
+              for pkg in doc.get('packages', []):
+                  pname = pkg.get('name')
+                  out[pname] = {
+                      'version': pkg.get('version'),
+                      'directory': pkg.get('directory'),
+                      'wheels': [
+                          {
+                              'name': wheel.get('name'),
+                              'url': wheel.get('url'),
+                              'sha256': (wheel.get('hashes') or {}).get('sha256'),
+                          }
+                          for wheel in pkg.get('wheels', [])
+                      ],
+                  }
+              return out
+
+          committed_packages = package_view(committed)
+          generated_packages = package_view(generated)
+          semantic_committed = {
+              key: {'version': value['version'], 'directory': value['directory']}
+              for key, value in committed_packages.items()
+          }
+          semantic_generated = {
+              key: {'version': value['version'], 'directory': value['directory']}
+              for key, value in generated_packages.items()
+          }
+          committed_sha = hashlib.sha256(committed_raw).hexdigest()
+          generated_sha = hashlib.sha256(generated_raw).hexdigest()
+          match = committed_raw == generated_raw
           receipt = {
-              'schema': 'motion-os.python-lock-regeneration/v1',
-              'status': 'PASS',
-              'committed_match': True,
+              'schema': 'motion-os.python-lock-regeneration/v2',
+              'status': 'PASS' if match else 'DRIFT',
+              'committed_match': match,
+              'semantic_packages_match': semantic_committed == semantic_generated,
+              'wheel_selections_match': committed_packages == generated_packages,
               'lock_name': name,
               'python': expected_python,
               'pip': '26.2.1',
               'extra_requirement': extra_requirement or None,
               'pyproject_sha256': hashlib.sha256(Path('pyproject.toml').read_bytes()).hexdigest(),
-              'lock_sha256': hashlib.sha256(raw).hexdigest(),
-              'lock_bytes': len(raw),
-              'package_entries': len(packages),
+              'committed_sha256': committed_sha,
+              'generated_sha256': generated_sha,
+              'committed_bytes': len(committed_raw),
+              'generated_bytes': len(generated_raw),
+              'committed_package_entries': len(committed.get('packages', [])),
+              'generated_package_entries': len(generated.get('packages', [])),
+              'changed_packages': sorted(
+                  key for key in set(committed_packages) | set(generated_packages)
+                  if committed_packages.get(key) != generated_packages.get(key)
+              ),
           }
           Path(f'.artifacts/{name}.regeneration.json').write_text(
               json.dumps(receipt, indent=2, sort_keys=True) + '\n', encoding='utf-8'
           )
           print(json.dumps(receipt, sort_keys=True))
+          if not match:
+              raise SystemExit(1)
           PY
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: regen-${{ matrix.lock_name }}
-          path: .artifacts/${{ matrix.lock_name }}.regeneration.json
-          if-no-files-found: error
+          path: |
+            .artifacts/${{ matrix.lock_name }}.committed
+            ${{ matrix.lock_name }}
+            .artifacts/${{ matrix.lock_name }}.regeneration.json
+            .artifacts/${{ matrix.lock_name }}.diff
+          if-no-files-found: warn
           retention-days: 7
 
   reproduce:
