@@ -115,6 +115,56 @@ def _direction(dx: float, dy: float, area_ratio: float) -> str:
     return ("DOWN_" if dy > 0 else "UP_") + ("RIGHT" if dx > 0 else "LEFT")
 
 
+def _transform_components(a: dict[str, float], b: dict[str, float]) -> dict[str, Any]:
+    acx, acy = a["x"] + a["width"] / 2, a["y"] + a["height"] / 2
+    bcx, bcy = b["x"] + b["width"] / 2, b["y"] + b["height"] / 2
+    dx, dy = bcx - acx, bcy - acy
+    dw, dh = b["width"] - a["width"], b["height"] - a["height"]
+    left_delta = b["x"] - a["x"]
+    top_delta = b["y"] - a["y"]
+    right_delta = (b["x"] + b["width"]) - (a["x"] + a["width"])
+    bottom_delta = (b["y"] + b["height"]) - (a["y"] + a["height"])
+    translation_energy = math.hypot(dx, dy)
+    size_change_energy = math.hypot(dw, dh) / 2
+    relative_size_change = max(
+        abs(dw) / max(abs(a["width"]), 1e-9),
+        abs(dh) / max(abs(a["height"]), 1e-9),
+    )
+    opacity_delta = abs(float(b.get("opacity_proxy", 1.0)) - float(a.get("opacity_proxy", 1.0)))
+    area_ratio = (b["width"] * b["height"]) / max(1e-9, a["width"] * a["height"])
+
+    if translation_energy < 0.45 and relative_size_change < 0.01 and opacity_delta < 0.03:
+        transform_class = "STATIC_OR_MICRO"
+    elif (
+        opacity_delta >= 0.12
+        or (relative_size_change >= 0.08 and size_change_energy >= translation_energy * 0.90)
+        or (area_ratio >= 1.50 and size_change_energy >= translation_energy * 0.75)
+    ):
+        transform_class = "SCALE_OR_REVEAL_DOMINANT"
+    elif translation_energy >= size_change_energy * 1.75 and relative_size_change < 0.12:
+        transform_class = "TRANSLATION_DOMINANT"
+    else:
+        transform_class = "MIXED_TRANSLATION_AND_SCALE"
+
+    return {
+        "centroid_delta_px": [dx, dy],
+        "centroid_displacement_px": translation_energy,
+        "size_delta_px": [dw, dh],
+        "size_change_energy_px": size_change_energy,
+        "relative_size_change": relative_size_change,
+        "opacity_proxy_delta": opacity_delta,
+        "area_scale_ratio": area_ratio,
+        "edge_delta_px": {
+            "left": left_delta,
+            "top": top_delta,
+            "right": right_delta,
+            "bottom": bottom_delta,
+        },
+        "centroid_direction": _direction(dx, dy, area_ratio),
+        "transform_class": transform_class,
+    }
+
+
 def _curve_proxy(speeds: list[float]) -> tuple[str, str]:
     if len(speeds) < 4:
         return "INSUFFICIENT_SAMPLES", "LOW"
@@ -145,20 +195,19 @@ def _frame_in_ranges(frame: int, ranges: list[list[int]]) -> bool:
     return any(int(start) <= frame <= int(end) for start, end in ranges)
 
 
-def _clip_flags(row: dict[str, float], canvas: dict[str, float] | None) -> list[str]:
-    if not canvas:
+def _clip_flags(row: dict[str, float], clip_rect: list[float] | None) -> list[str]:
+    if not clip_rect:
         return []
-    width = float(canvas["width"])
-    height = float(canvas["height"])
+    left, top, right, bottom = map(float, clip_rect)
     eps = 0.25
     flags = []
-    if row["x"] <= eps:
+    if row["x"] <= left + eps:
         flags.append("LEFT")
-    if row["y"] <= eps:
+    if row["y"] <= top + eps:
         flags.append("TOP")
-    if row["x"] + row["width"] >= width - eps:
+    if row["x"] + row["width"] >= right - eps:
         flags.append("RIGHT")
-    if row["y"] + row["height"] >= height - eps:
+    if row["y"] + row["height"] >= bottom - eps:
         flags.append("BOTTOM")
     return flags
 
@@ -174,10 +223,13 @@ def kinematics(
     authority: str,
     *,
     canvas: dict[str, float] | None = None,
+    clip_rect: list[float] | None = None,
     projection_mode: str = "UNKNOWN",
     structural_exclude_ranges: list[list[int]] | None = None,
 ) -> dict[str, Any]:
     exclusions = structural_exclude_ranges or []
+    if clip_rect is None and canvas:
+        clip_rect = [0.0, 0.0, float(canvas["width"]), float(canvas["height"])]
     visible = [r for r in rows if r is not None]
     if not visible:
         return {"authority": authority, "visible": False}
@@ -196,8 +248,7 @@ def kinematics(
         frame = int(row["frame"])
         cx = row["x"] + row["width"] / 2
         cy = row["y"] + row["height"] / 2
-        area = max(1e-9, row["width"] * row["height"])
-        clipping = _clip_flags(row, canvas)
+        clipping = _clip_flags(row, clip_rect)
         excluded = _frame_in_ranges(frame, exclusions)
         sample: dict[str, Any] = {
             "frame": frame,
@@ -215,21 +266,21 @@ def kinematics(
 
         consecutive = prev is not None and frame == int(prev["frame"]) + 1
         if consecutive:
-            pcx = prev["x"] + prev["width"] / 2
-            pcy = prev["y"] + prev["height"] / 2
-            dx, dy = cx - pcx, cy - pcy
-            speed = math.hypot(dx, dy)
-            prev_area = max(1e-9, prev["width"] * prev["height"])
-            area_ratio = area / prev_area
-            log_scale_rate = math.log(area_ratio) / 2
-            step_clipped = bool(clipping or _clip_flags(prev, canvas))
+            transform = _transform_components(prev, row)
+            speed = float(transform["centroid_displacement_px"])
+            log_scale_rate = math.log(max(1e-9, float(transform["area_scale_ratio"]))) / 2
+            step_clipped = bool(clipping or _clip_flags(prev, clip_rect))
             step_excluded = excluded or _frame_in_ranges(int(prev["frame"]), exclusions)
             sample.update({
-                "delta_px": [dx, dy],
+                "delta_px": transform["centroid_delta_px"],
                 "speed_px_per_frame": speed,
                 "speed_px_per_second": speed * fps,
                 "log_scale_rate_per_frame": log_scale_rate,
-                "direction": _direction(dx, dy, area_ratio),
+                "direction": transform["centroid_direction"],
+                "transform_class": transform["transform_class"],
+                "size_delta_px": transform["size_delta_px"],
+                "relative_size_change": transform["relative_size_change"],
+                "edge_delta_px": transform["edge_delta_px"],
                 "step_screen_clipped": step_clipped,
                 "step_structural_template_eligible": not step_excluded,
             })
@@ -262,11 +313,9 @@ def kinematics(
         end = seg[-1]
         a = by_frame.get(start) or by_frame[seg[0]]
         b = by_frame[end]
-        dx = (b["x"] + b["width"] / 2) - (a["x"] + a["width"] / 2)
-        dy = (b["y"] + b["height"] / 2) - (a["y"] + a["height"] / 2)
-        area_ratio = (b["width"] * b["height"]) / max(1e-9, a["width"] * a["height"])
+        transform = _transform_components(a, b)
         seg_samples = [sample_by_frame[f] for f in range(start, end + 1) if f in sample_by_frame]
-        seg_speeds = [s.get("speed_px_per_frame", 0.0) for s in seg_samples if "speed_px_per_frame" in s]
+        seg_speeds = [s["speed_px_per_frame"] for s in seg_samples if "speed_px_per_frame" in s]
         curve, confidence = _curve_proxy(seg_speeds)
         clipped = any(s.get("screen_clip_flags") or s.get("step_screen_clipped") for s in seg_samples)
         excluded = any(not s.get("structural_template_eligible", True) or not s.get("step_structural_template_eligible", True) for s in seg_samples)
@@ -280,16 +329,25 @@ def kinematics(
             confidence = _cap_confidence(confidence, "LOW")
             caveats.append("SCREEN_BOUNDARY_CLIPPING_DISTORTS_VISIBLE_BBOX_KINEMATICS")
             curve_authority = "VISIBLE_OUTPUT_CLIPPED_PROXY_NOT_HIDDEN_OBJECT_CURVE"
+        if transform["transform_class"] in {"SCALE_OR_REVEAL_DOMINANT", "MIXED_TRANSLATION_AND_SCALE"}:
+            confidence = _cap_confidence(confidence, "LOW")
+            caveats.append("BBOX_SHAPE_CHANGE_CONFLATES_TRANSLATION_WITH_SCALE_OR_REVEAL")
+            if not clipped:
+                curve_authority = "BBOX_CENTROID_SPEED_PROXY_NOT_PURE_TRANSLATION_CURVE"
         if excluded:
             caveats.append("SOURCE_LOCK_RANGE_EXCLUDED_FROM_STRUCTURAL_MOTION_GRAMMAR")
         segment_summaries.append({
             "start_frame": start,
             "end_frame": end,
             "duration_frames": end - start + 1,
-            "net_delta_px": [dx, dy],
-            "area_scale_ratio": area_ratio,
-            "dominant_direction": _direction(dx, dy, area_ratio),
+            "net_delta_px": transform["centroid_delta_px"],
+            "centroid_direction": transform["centroid_direction"],
+            "dominant_transform_class": transform["transform_class"],
+            "area_scale_ratio": transform["area_scale_ratio"],
+            "size_delta_px": transform["size_delta_px"],
+            "edge_delta_px": transform["edge_delta_px"],
             "behavioral_curve_proxy": curve,
+            "curve_basis": "BBOX_CENTROID_SPEED",
             "curve_proxy_confidence": confidence,
             "curve_authority": curve_authority,
             "screen_boundary_clipped": clipped,
@@ -300,6 +358,7 @@ def kinematics(
     return {
         "authority": authority,
         "projection_mode": projection_mode,
+        "clip_rect": clip_rect,
         "visible": True,
         "first_visible_frame": int(visible[0]["frame"]),
         "last_visible_frame": int(visible[-1]["frame"]),
@@ -341,6 +400,7 @@ def compile_manifest(manifest: dict, root: Path) -> dict:
                 float(spec["fps"]),
                 spec["authority"],
                 canvas=canvas,
+                clip_rect=spec.get("clip_rect"),
                 projection_mode=spec.get("projection_mode", "UNKNOWN"),
                 structural_exclude_ranges=spec.get("structural_exclude_ranges", []),
             )
@@ -349,11 +409,12 @@ def compile_manifest(manifest: dict, root: Path) -> dict:
             "source_path": spec["path"],
             "authority": spec["authority"],
             "projection_mode": spec.get("projection_mode", "UNKNOWN"),
+            "clip_rect": spec.get("clip_rect"),
             "caveat": spec.get("caveat"),
             "entities": entities,
         }
     return {
-        "schema_version": "motion-os.golden-motion-kinematics/v2",
+        "schema_version": "motion-os.golden-motion-kinematics/v3",
         "authority": "DERIVED_FROM_PINNED_SOURCE_BOUND_TRACKS",
         "curve_authority": "BEHAVIORAL_PROXY_ONLY_NOT_ORIGINAL_AFTER_EFFECTS_GRAPH_EDITOR",
         "laws": manifest.get("laws", {}),
