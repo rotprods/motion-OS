@@ -151,7 +151,7 @@ jobs:
         with:
           name: installable-${{ matrix.lock_name }}
           path: |
-            .artifacts/${{ matrix.lock_name%.toml }}-candidate.toml
+            .artifacts/pylock.*-candidate.toml
             .artifacts/${{ matrix.lock_name }}.probe.json
           if-no-files-found: error
           retention-days: 7
