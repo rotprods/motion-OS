@@ -73,6 +73,7 @@ def _expected_inventory(lock_doc: dict, project_version: str) -> tuple[dict[str,
     if not isinstance(packages, list) or not packages or len(packages) > MAX_PACKAGES:
         raise ValueError('invalid_packages')
     out: dict[str, str] = {}
+    seen: set[str] = set()
     local_count = 0
     for pkg in packages:
         if not isinstance(pkg, dict):
@@ -81,8 +82,9 @@ def _expected_inventory(lock_doc: dict, project_version: str) -> tuple[dict[str,
         if not isinstance(name, str) or not NAME_RE.fullmatch(name):
             raise ValueError('invalid_package_name')
         cname = _canonical_name(name)
-        if cname in out:
+        if cname in seen:
             raise ValueError('duplicate_package_name')
+        seen.add(cname)
         directory = pkg.get('directory')
         if directory is not None:
             if cname != 'motion-os' or directory != {'path': '.', 'editable': True}:
@@ -171,20 +173,22 @@ def _run(cmd: list[str], *, cwd: Path, timeout: int = 300) -> subprocess.Complet
     return cp
 
 
-def _inventory(python: Path) -> dict[str, str]:
+def _inventory(python: Path, *, cwd: Path = ROOT) -> dict[str, str]:
     code = (
         "import importlib.metadata as m,json; "
         "print(json.dumps(sorted((d.metadata['Name'],d.version) for d in m.distributions() if d.metadata.get('Name'))))"
     )
-    cp = _run([str(python), '-c', code], cwd=ROOT)
+    cp = _run([str(python), '-c', code], cwd=cwd)
     pairs = json.loads(cp.stdout)
     out: dict[str, str] = {}
+    seen: set[str] = set()
     for name, version in pairs:
         cname = _canonical_name(name)
+        if cname in seen:
+            raise ValueError('duplicate_installed_distribution')
+        seen.add(cname)
         if cname in BOOTSTRAP_DISTS:
             continue
-        if cname in out and out[cname] != version:
-            raise ValueError('duplicate_installed_distribution')
         out[cname] = version
     return out
 
@@ -202,7 +206,7 @@ def reproduce(lock_name: str, *, root: Path = ROOT) -> dict:
             py = venv / 'bin/python'
             _run([str(py), '-m', 'pip', 'install', '--disable-pip-version-check', 'pip==26.2.1'], cwd=root)
             _run([str(py), '-m', 'pip', 'install', '--disable-pip-version-check', '-r', lock_name], cwd=root)
-            actual = _inventory(py)
+            actual = _inventory(py, cwd=root)
             if actual != expected:
                 raise ValueError('installed_inventory_mismatch')
             inventories.append(actual)
@@ -238,7 +242,9 @@ def _write(path: Path | None, value: dict) -> None:
     try:
         with os.fdopen(fd, 'w', encoding='utf-8') as f:
             json.dump(value, f, indent=2, sort_keys=True, allow_nan=False)
-            f.write('\n'); f.flush(); os.fsync(f.fileno())
+            f.write('\n')
+            f.flush()
+            os.fsync(f.fileno())
         os.replace(temp, target)
     finally:
         if os.path.exists(temp):
@@ -258,8 +264,10 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     except Exception as exc:
         result = {'schema': 'motion-os.python-lock-verification/v1', 'status': 'BLOCKED', 'lock': args.lock, 'reason': type(exc).__name__}
-        try: _write(args.json_out, result)
-        except Exception: pass
+        try:
+            _write(args.json_out, result)
+        except Exception:
+            pass
         print(json.dumps(result, sort_keys=True))
         return 2
 
