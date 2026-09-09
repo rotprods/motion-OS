@@ -30,6 +30,10 @@ jobs:
         with:
           python-version: '3.12'
           cache: pip
+      - name: Initialize fail-visible rehearsal receipt
+        run: |
+          mkdir -p .artifacts
+          printf '%s\n' '{"schema":"motion-os.release-candidate-rehearsal/v1","status":"RUNNING","authority":"BLOCKED","promotion_authorized":false,"release_authorized":false,"project_done":false}' > .artifacts/release-candidate-rehearsal.json
       - run: python -m pip install --upgrade pip
       - run: pip install -e '.[dev]'
       - name: Run rehearsal regression contract
