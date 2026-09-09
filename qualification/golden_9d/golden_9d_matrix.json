@@ -1,0 +1,246 @@
+{
+  "schema_version": "motion-os.golden-9d-matrix/v1",
+  "authority": "DERIVED_QUALIFICATION_PROJECTION",
+  "generated_from": {
+    "event_bus_issue": 39,
+    "qualification_issue": 154,
+    "base_reverse_engineering_pr": 64,
+    "base_reverse_engineering_head": "2e26e311e506b6aaaa32f827e1579ddaa1e3ea58",
+    "live_golden_prs": [96, 107, 124, 125]
+  },
+  "barriers": {
+    "issue_48_open": true,
+    "merge_or_template_promotion_allowed": false,
+    "reason": "Global historical-authority regression barrier remains open. Branch-local qualification cannot promote CANONICAL_TEMPLATE."
+  },
+  "dimensions": ["temporal", "motion", "camera", "typography", "depth", "color", "fx", "audio", "retention"],
+  "state_semantics": {
+    "QUALIFIED": "The declared dimension contract for this mode is physically/source-bound evidenced at the current scope.",
+    "PARTIAL": "Material aspects are evidenced but at least one behavior required by this mode remains blocked or unmeasured.",
+    "BLOCKED": "Evidence is insufficient for dimension-level authority in this mode.",
+    "UNKNOWN": "The source does not support a justified claim.",
+    "NOT_APPLICABLE": "The dimension is explicitly irrelevant to this scene/mode."
+  },
+  "mode_semantics": {
+    "reconstruct_exact": "Preserve source-specific visible behavior and appearance as far as evidence permits. Unknown original assets/fonts/stems/project internals remain blockers.",
+    "structural_template": "Preserve reusable editing behavior while allowing SOURCE_LOCK/VARIABLE_SLOT substitution. Source-specific identity may be replaced but motion/depth/timing/attention behavior still requires evidence."
+  },
+  "scenes": {
+    "S04_CIENTIFICAMENTE": {
+      "pr": 96,
+      "head_sha": "8ec35a259399d7b196b40627d782315a019e65e2",
+      "source": {"start_frame": 145, "end_frame_exclusive": 216, "frame_count": 71, "fps": 30, "width": 512, "height": 1108},
+      "ci": {"remotion_run": 33512543155, "remotion_result": "SUCCESS", "merge_safe_run": 33512543087, "merge_safe_result": "SUCCESS"},
+      "artifact": {"id": 9802271767, "digest": "sha256:338318f80fb52e5567f2c6efe2b2cdb6ec0d704e28c30317e08cff67b4604bdf"},
+      "authority_ceiling": "SOURCE_BOUND_PARTIAL_QUALIFICATION_P0P1_CLOSED",
+      "dimensions": {
+        "temporal": {
+          "reconstruct_exact": {"state": "QUALIFIED", "qualified_aspects": ["scene duration/frame count", "caption visible timing for setup/hero/tail", "declared emphasis onset"], "blocked_aspects": [], "evidence_refs": ["PR#96", "S04 DefectGraph", "artifact#9802271767"]},
+          "structural_template": {"state": "QUALIFIED", "qualified_aspects": ["caption beat timing", "hero entrance relationship", "impact timing"], "blocked_aspects": [], "evidence_refs": ["S04 source-bound qualification"]}
+        },
+        "motion": {
+          "reconstruct_exact": {"state": "PARTIAL", "qualified_aspects": ["screen-space caption geometry/trajectory", "shared-parent behavioral correlation"], "blocked_aspects": ["original Graph Editor curves", "causal separation of source-native subject motion vs editorial reframe"], "evidence_refs": ["S04 DefectGraph common-caption-parent inference"]},
+          "structural_template": {"state": "PARTIAL", "qualified_aspects": ["caption geometry trajectory", "hero independent entrance", "shared-group behavior"], "blocked_aspects": ["easing/velocity curve authority", "editorial reframe classification"], "evidence_refs": ["S04 DefectGraph"]}
+        },
+        "camera": {
+          "reconstruct_exact": {"state": "BLOCKED", "qualified_aspects": [], "blocked_aspects": ["source-native subject motion vs crop/reframe causality", "full camera decomposition"], "evidence_refs": ["S04 residual unknowns"]},
+          "structural_template": {"state": "BLOCKED", "qualified_aspects": [], "blocked_aspects": ["which apparent reframe is reusable editorial grammar"], "evidence_refs": ["S04 residual unknowns"]}
+        },
+        "typography": {
+          "reconstruct_exact": {"state": "PARTIAL", "qualified_aspects": ["visible bounds/layout/timing", "role hierarchy"], "blocked_aspects": ["exact font identity", "exact glyph morphology", "worst-frame setup glyph residual"], "evidence_refs": ["S04-ADV-GLYPH-001"]},
+          "structural_template": {"state": "QUALIFIED", "qualified_aspects": ["font-role class", "screen-space layout", "caption hierarchy", "keyword hero behavior"], "blocked_aspects": [], "evidence_refs": ["S04 DefectGraph", "structural-template substitution policy"]}
+        },
+        "depth": {
+          "reconstruct_exact": {"state": "BLOCKED", "qualified_aspects": [], "blocked_aspects": ["subject/depth decomposition", "occlusion topology"], "evidence_refs": ["S04 residual unknowns"]},
+          "structural_template": {"state": "BLOCKED", "qualified_aspects": [], "blocked_aspects": ["reusable layer-depth grammar"], "evidence_refs": ["S04 residual unknowns"]}
+        },
+        "color": {
+          "reconstruct_exact": {"state": "PARTIAL", "qualified_aspects": ["visible post-grade color proxies measured"], "blocked_aspects": ["exact pre-grade fill tokens", "P2 visible-color residuals"], "evidence_refs": ["S04 DefectGraph P2 color proxies"]},
+          "structural_template": {"state": "PARTIAL", "qualified_aspects": ["visible color-role relationship"], "blocked_aspects": ["canonical source-to-template color transform not yet formalized"], "evidence_refs": ["S04 DefectGraph"]}
+        },
+        "fx": {
+          "reconstruct_exact": {"state": "BLOCKED", "qualified_aspects": [], "blocked_aspects": ["effect stack", "blur/glow/shadow/motion-blur parameters"], "evidence_refs": ["S04 residual unknowns"]},
+          "structural_template": {"state": "BLOCKED", "qualified_aspects": [], "blocked_aspects": ["reusable FX grammar not source-bound qualified"], "evidence_refs": ["S04 residual unknowns"]}
+        },
+        "audio": {
+          "reconstruct_exact": {"state": "PARTIAL", "qualified_aspects": ["emphasis onset alignment <=1.5f"], "blocked_aspects": ["original SFX stem", "timbre", "envelope/layering"], "evidence_refs": ["S04-DEF-AUDIO-ONSET"]},
+          "structural_template": {"state": "PARTIAL", "qualified_aspects": ["visual-impact timing relationship"], "blocked_aspects": ["SFX class/envelope grammar not fully measured"], "evidence_refs": ["S04 DefectGraph"]}
+        },
+        "retention": {
+          "reconstruct_exact": {"state": "PARTIAL", "qualified_aspects": ["major caption/impact beat sequence"], "blocked_aspects": ["frame-level stimulus-density qualification", "attention-target entropy"], "evidence_refs": ["S04 action timing"]},
+          "structural_template": {"state": "PARTIAL", "qualified_aspects": ["setup -> hero -> tail payoff structure"], "blocked_aspects": ["formal retention grammar metrics"], "evidence_refs": ["S04 action timing"]}
+        }
+      }
+    },
+    "S11_UI_LIST": {
+      "pr": 107,
+      "head_sha": "988e91893cb498f720b9c2656b3d6d85f2d56300",
+      "source": {"start_frame": 405, "end_frame_exclusive": 535, "frame_count": 130, "fps": 30, "width": 512, "height": 1108},
+      "ci": {"remotion_run": 33513406293, "remotion_result": "SUCCESS", "merge_safe_run": 33513406383, "merge_safe_result": "SUCCESS"},
+      "artifact": {"id": 9802633943, "digest": "sha256:01c0823bd1e4f35b8ce2d47c11959fccf89f8d69098f3561ca596e81299ad874"},
+      "authority_ceiling": "SOURCE_BOUND_VISIBLE_GEOMETRY_P0P1_CLOSED",
+      "dimensions": {
+        "temporal": {
+          "reconstruct_exact": {"state": "QUALIFIED", "qualified_aspects": ["scene duration", "pill/copy/row first-visible timings", "declared row subevents"], "blocked_aspects": [], "evidence_refs": ["S11 DefectGraph", "artifact#9802633943"]},
+          "structural_template": {"state": "QUALIFIED", "qualified_aspects": ["UI-list beat timing", "row stagger onsets", "pill/copy sequence"], "blocked_aspects": [], "evidence_refs": ["S11 DefectGraph"]}
+        },
+        "motion": {
+          "reconstruct_exact": {"state": "PARTIAL", "qualified_aspects": ["pill continuous screen-space track", "row entrance scale/position tracks"], "blocked_aspects": ["original easing/Graph Editor curves", "support-copy full physical track"], "evidence_refs": ["S11-DEF-001", "S11-DEF-003/004/005", "S11-DEF-006"]},
+          "structural_template": {"state": "PARTIAL", "qualified_aspects": ["continuous pill group motion", "row-specific stagger timing/scale"], "blocked_aspects": ["complete support-copy motion grammar", "easing family authority"], "evidence_refs": ["S11 DefectGraph"]}
+        },
+        "camera": {
+          "reconstruct_exact": {"state": "BLOCKED", "qualified_aspects": [], "blocked_aspects": ["camera/reframe causal decomposition"], "evidence_refs": ["S11 remaining UNKNOWN domains"]},
+          "structural_template": {"state": "BLOCKED", "qualified_aspects": [], "blocked_aspects": ["reusable camera grammar"], "evidence_refs": ["S11 remaining UNKNOWN domains"]}
+        },
+        "typography": {
+          "reconstruct_exact": {"state": "PARTIAL", "qualified_aspects": ["boxed emphasis geometry", "text-role spatial relationship"], "blocked_aspects": ["exact font identity/glyph morphology", "support-copy exact morphology"], "evidence_refs": ["S11-DEF-002", "S11-DEF-006"]},
+          "structural_template": {"state": "PARTIAL", "qualified_aspects": ["boxed keyword role", "support-copy column relationship"], "blocked_aspects": ["support-copy full semantic/typographic grammar"], "evidence_refs": ["S11 DefectGraph"]}
+        },
+        "depth": {
+          "reconstruct_exact": {"state": "BLOCKED", "qualified_aspects": [], "blocked_aspects": ["full depth/occlusion topology"], "evidence_refs": ["S11 remaining UNKNOWN domains"]},
+          "structural_template": {"state": "BLOCKED", "qualified_aspects": [], "blocked_aspects": ["reusable z/depth grammar"], "evidence_refs": ["S11 remaining UNKNOWN domains"]}
+        },
+        "color": {
+          "reconstruct_exact": {"state": "BLOCKED", "qualified_aspects": [], "blocked_aspects": ["exact pre-grade color tokens/output color diff"], "evidence_refs": ["S11 remaining UNKNOWN domains"]},
+          "structural_template": {"state": "PARTIAL", "qualified_aspects": ["semantic dark-pill/white-copy/icon contrast roles"], "blocked_aspects": ["color-token extraction/transform not formally qualified"], "evidence_refs": ["S11 visible-output structure"]}
+        },
+        "fx": {
+          "reconstruct_exact": {"state": "BLOCKED", "qualified_aspects": [], "blocked_aspects": ["complete FX/material stack", "arrow path/mask morphology"], "evidence_refs": ["S11 remaining UNKNOWN domains"]},
+          "structural_template": {"state": "BLOCKED", "qualified_aspects": [], "blocked_aspects": ["reusable FX grammar"], "evidence_refs": ["S11 remaining UNKNOWN domains"]}
+        },
+        "audio": {
+          "reconstruct_exact": {"state": "BLOCKED", "qualified_aspects": [], "blocked_aspects": ["source-bound SFX timing/envelope/stems not qualified"], "evidence_refs": ["S11 remaining UNKNOWN domains"]},
+          "structural_template": {"state": "BLOCKED", "qualified_aspects": [], "blocked_aspects": ["audio-event grammar not physically source-bound"], "evidence_refs": ["S11 remaining UNKNOWN domains"]}
+        },
+        "retention": {
+          "reconstruct_exact": {"state": "PARTIAL", "qualified_aspects": ["pill/copy/row stimulus ordering"], "blocked_aspects": ["stimulus-density and attention-entropy metrics"], "evidence_refs": ["S11 measured subevents"]},
+          "structural_template": {"state": "PARTIAL", "qualified_aspects": ["progressive list reveal/pattern-interrupt sequence"], "blocked_aspects": ["formal retention grammar"], "evidence_refs": ["S11 measured subevents"]}
+        }
+      }
+    },
+    "S14_AUDIO_VISUAL_TEXTO": {
+      "pr": 124,
+      "head_sha": "12592bd8f8149767fafcb0ad0aa6036250ce540c",
+      "source": {"start_frame": 561, "end_frame_exclusive": 655, "frame_count": 94, "fps": 30, "width": 512, "height": 1108},
+      "ci": {"remotion_run": 33456714673, "remotion_result": "SUCCESS", "merge_safe_run": 33456714946, "merge_safe_result": "SUCCESS"},
+      "artifact": {"id": 9781727915, "digest": "sha256:42cef4cb4c2ff26f0c8fffbb87dcf1933e9406049a29d7d74e71ba5519733df8"},
+      "authority_ceiling": "SOURCE_BOUND_VISIBLE_AND_ONSET_P0P1_CLOSED",
+      "dimensions": {
+        "temporal": {
+          "reconstruct_exact": {"state": "QUALIFIED", "qualified_aspects": ["scene duration", "audio->visual transition window", "visual->texto transition window", "state timing", "annotation timing"], "blocked_aspects": [], "evidence_refs": ["S14 DefectGraph", "artifact#9781727915"]},
+          "structural_template": {"state": "QUALIFIED", "qualified_aspects": ["three-state sequence", "transition/activation/settle timing", "state-bound annotation timing"], "blocked_aspects": [], "evidence_refs": ["S14 contract/DefectGraph"]}
+        },
+        "motion": {
+          "reconstruct_exact": {"state": "PARTIAL", "qualified_aspects": ["card/heading/annotation screen-space trajectories", "continuous selected-card reframe"], "blocked_aspects": ["original parent graph", "Graph Editor curves", "exact annotation vector path"], "evidence_refs": ["S14-DEF-SRC-001", "S14 measured tracks"]},
+          "structural_template": {"state": "QUALIFIED", "qualified_aspects": ["carousel direction/state transitions", "card/heading trajectories", "annotation state trajectory"], "blocked_aspects": [], "evidence_refs": ["S14 measured state machine", "S14-DEF-SRC-001"]}
+        },
+        "camera": {
+          "reconstruct_exact": {"state": "BLOCKED", "qualified_aspects": [], "blocked_aspects": ["camera vs state-reframe causality", "original camera/parenting model"], "evidence_refs": ["S14 residual blockers"]},
+          "structural_template": {"state": "BLOCKED", "qualified_aspects": [], "blocked_aspects": ["reusable camera grammar distinct from carousel geometry"], "evidence_refs": ["S14 residual blockers"]}
+        },
+        "typography": {
+          "reconstruct_exact": {"state": "PARTIAL", "qualified_aspects": ["heading geometry/timing/state identity"], "blocked_aspects": ["exact heading font/glyph outline"], "evidence_refs": ["S14 DefectGraph"]},
+          "structural_template": {"state": "QUALIFIED", "qualified_aspects": ["heading role, placement, timing, state binding"], "blocked_aspects": [], "evidence_refs": ["S14 state-machine contract"]}
+        },
+        "depth": {
+          "reconstruct_exact": {"state": "PARTIAL", "qualified_aspects": ["selected-card foreground relationship and state hierarchy"], "blocked_aspects": ["full z/depth reconstruction", "hidden mattes"], "evidence_refs": ["S14 state-machine visible hierarchy"]},
+          "structural_template": {"state": "PARTIAL", "qualified_aspects": ["hero card/heading/annotation hierarchy"], "blocked_aspects": ["formal depth/occlusion graph not yet qualified"], "evidence_refs": ["S14 visible-state contract"]}
+        },
+        "color": {
+          "reconstruct_exact": {"state": "BLOCKED", "qualified_aspects": [], "blocked_aspects": ["source-bound color/grade comparison not a declared gate"], "evidence_refs": ["S14 residual blockers"]},
+          "structural_template": {"state": "PARTIAL", "qualified_aspects": ["state-specific red annotation role"], "blocked_aspects": ["formal palette/grade invariants"], "evidence_refs": ["S14 state annotations"]}
+        },
+        "fx": {
+          "reconstruct_exact": {"state": "BLOCKED", "qualified_aspects": [], "blocked_aspects": ["exact annotation stroke/path construction", "complete FX stack"], "evidence_refs": ["S14 residual blockers"]},
+          "structural_template": {"state": "BLOCKED", "qualified_aspects": [], "blocked_aspects": ["reusable FX grammar not isolated from media"], "evidence_refs": ["S14 residual blockers"]}
+        },
+        "audio": {
+          "reconstruct_exact": {"state": "PARTIAL", "qualified_aspects": ["rendered transient/source-proxy onset alignment"], "blocked_aspects": ["SFX identity/timbre/stems/exact envelope"], "evidence_refs": ["S14-DEF-AUDIO-001"]},
+          "structural_template": {"state": "QUALIFIED", "qualified_aspects": ["transition-linked audio accent timing", "renderer latency compensation kept separate from source event"], "blocked_aspects": [], "evidence_refs": ["S14-DEF-AUDIO-001"]}
+        },
+        "retention": {
+          "reconstruct_exact": {"state": "PARTIAL", "qualified_aspects": ["semantic state-change cadence"], "blocked_aspects": ["attention entropy/stimulus-density qualification"], "evidence_refs": ["S14 state machine"]},
+          "structural_template": {"state": "PARTIAL", "qualified_aspects": ["audio->visual->texto escalation pattern"], "blocked_aspects": ["formal retention metrics"], "evidence_refs": ["S14 state machine"]}
+        }
+      }
+    },
+    "S16_FACTOR_X": {
+      "pr": 125,
+      "head_sha": "8e6fcb79d0d7958c0f023f128297059c97a7e674",
+      "source": {"start_frame": 727, "end_frame_exclusive": 819, "frame_count": 92, "fps": 30, "width": 512, "height": 1108},
+      "ci": {"remotion_run": 33509838092, "remotion_result": "SUCCESS", "merge_safe_run": 33509838099, "merge_safe_result": "SUCCESS"},
+      "artifact": {"id": 9801246395, "digest": "sha256:d4c46db77186ecacde60568b5530c36e19f24dceabaf97e7dbad5da1a51b4ceb"},
+      "authority_ceiling": "STRUCTURAL_RENDER_EXECUTED + SOURCE_BOUND_LAYOUT_TIMING_QUALIFIED + AUDIO_TIMING_PROXY_QUALIFIED",
+      "dimensions": {
+        "temporal": {
+          "reconstruct_exact": {"state": "QUALIFIED", "qualified_aspects": ["92-frame scene duration", "column/question/Factor-X first/last timing", "calm-hold timing", "UI-reflow boundary"], "blocked_aspects": [], "evidence_refs": ["S16 exact-head reverification", "S16 DefectGraph"]},
+          "structural_template": {"state": "QUALIFIED", "qualified_aspects": ["foreground escalation timing", "payoff settle", "33-frame calm hold"], "blocked_aspects": [], "evidence_refs": ["S16 contract"]}
+        },
+        "motion": {
+          "reconstruct_exact": {"state": "PARTIAL", "qualified_aspects": ["full-frame column/question/Factor-X layout trajectories", "no interpolation projection"], "blocked_aspects": ["exact opacity curves", "original Graph Editor curves", "asset-internal 3D deformation"], "evidence_refs": ["S16-DEF-MEAS-001 resolution", "full-frame track v2"]},
+          "structural_template": {"state": "PARTIAL", "qualified_aspects": ["foreground rise/pop/title-slide trajectories", "calm hold"], "blocked_aspects": ["opacity/easing grammar not fully source-bound"], "evidence_refs": ["S16 full-frame track"]}
+        },
+        "camera": {
+          "reconstruct_exact": {"state": "PARTIAL", "qualified_aspects": ["static-source-framing proxy through local86"], "blocked_aspects": ["causal origin of local87+ global reflow"], "evidence_refs": ["S16 camera phase contract"]},
+          "structural_template": {"state": "PARTIAL", "qualified_aspects": ["do not add editorial camera motion during payoff hold"], "blocked_aspects": ["local87+ reflow defaults to SOURCE_LOCK until independently proven editorial"], "evidence_refs": ["S16 camera phase contract"]}
+        },
+        "typography": {
+          "reconstruct_exact": {"state": "PARTIAL", "qualified_aspects": ["Factor X layout/timing proxy"], "blocked_aspects": ["exact Factor X font", "glyph outline/morphology"], "evidence_refs": ["S16-DEF-QA-001", "S16-DEF-FID-001"]},
+          "structural_template": {"state": "QUALIFIED", "qualified_aspects": ["payoff title layout, timing, hierarchy above foreground cluster"], "blocked_aspects": [], "evidence_refs": ["S16 authority-aligned layout proxy"]}
+        },
+        "depth": {
+          "reconstruct_exact": {"state": "PARTIAL", "qualified_aspects": ["COLUMN > SUBJECT", "QUESTION > SUBJECT", "FACTOR_X > COLUMN", "FACTOR_X > QUESTION"], "blocked_aspects": ["unique COLUMN-vs-QUESTION z-order", "exact asset depth/material"], "evidence_refs": ["S16 partial depth order"]},
+          "structural_template": {"state": "PARTIAL", "qualified_aspects": ["foreground metaphor over subject", "payoff title over foreground cluster"], "blocked_aspects": ["COLUMN-vs-QUESTION order intentionally unresolved"], "evidence_refs": ["S16 partial depth order"]}
+        },
+        "color": {
+          "reconstruct_exact": {"state": "BLOCKED", "qualified_aspects": [], "blocked_aspects": ["source-bound grade/material/color fidelity not qualified"], "evidence_refs": ["S16-DEF-FID-001"]},
+          "structural_template": {"state": "PARTIAL", "qualified_aspects": ["red question / neutral stone / neutral payoff role separation"], "blocked_aspects": ["formal color-grade invariants"], "evidence_refs": ["S16 structural proxy"]}
+        },
+        "fx": {
+          "reconstruct_exact": {"state": "BLOCKED", "qualified_aspects": [], "blocked_aspects": ["question/column material-lighting", "shadows/FX stack", "original effect graph"], "evidence_refs": ["S16-DEF-FID-001"]},
+          "structural_template": {"state": "BLOCKED", "qualified_aspects": [], "blocked_aspects": ["source-bound material/FX grammar not qualified"], "evidence_refs": ["S16-DEF-FID-001"]}
+        },
+        "audio": {
+          "reconstruct_exact": {"state": "PARTIAL", "qualified_aspects": ["mixed-track transient timing proxy max error 0.902109f"], "blocked_aspects": ["isolated stems", "SFX identity/timbre", "exact envelopes"], "evidence_refs": ["S16 exact-head reverification"]},
+          "structural_template": {"state": "QUALIFIED", "qualified_aspects": ["major visual-event/audio-accent timing"], "blocked_aspects": [], "evidence_refs": ["S16 audio proxy qualification"]}
+        },
+        "retention": {
+          "reconstruct_exact": {"state": "PARTIAL", "qualified_aspects": ["foreground escalation and calm-hold cadence"], "blocked_aspects": ["formal stimulus/attention entropy measurement"], "evidence_refs": ["S16 retention contract"]},
+          "structural_template": {"state": "PARTIAL", "qualified_aspects": ["low-entropy anchor -> foreground escalation -> payoff -> deliberate calm hold"], "blocked_aspects": ["cross-content retention effect not empirically generalized"], "evidence_refs": ["S16 retention contract"]}
+        }
+      }
+    }
+  },
+  "aggregate": {
+    "reconstruct_exact": {
+      "temporal": "QUALIFIED_ACROSS_ALL_GOLDENS",
+      "motion": "PARTIAL_ACROSS_ALL_GOLDENS",
+      "camera": "BLOCKED_OR_PARTIAL",
+      "typography": "PARTIAL_ACROSS_ALL_GOLDENS",
+      "depth": "BLOCKED_OR_PARTIAL",
+      "color": "BLOCKED_OR_PARTIAL",
+      "fx": "BLOCKED_ACROSS_ALL_GOLDENS",
+      "audio": "PARTIAL_AND_SCENE_COVERAGE_INCOMPLETE",
+      "retention": "PARTIAL_ACROSS_ALL_GOLDENS"
+    },
+    "structural_template": {
+      "temporal": "QUALIFIED_ACROSS_ALL_GOLDENS",
+      "motion": "PARTIAL_CROSS_GOLDEN",
+      "camera": "BLOCKED_OR_PARTIAL",
+      "typography": "MIXED_QUALIFIED_PARTIAL",
+      "depth": "BLOCKED_OR_PARTIAL",
+      "color": "PARTIAL_NOT_FORMALLY_GATED",
+      "fx": "BLOCKED_ACROSS_ALL_GOLDENS",
+      "audio": "MIXED_QUALIFIED_BLOCKED",
+      "retention": "PARTIAL_CROSS_GOLDEN"
+    }
+  },
+  "promotion": {
+    "full_9d_fidelity_validated": false,
+    "structural_template_9d_validated": false,
+    "cross_renderer_parity_validated": false,
+    "empirically_generalized": false,
+    "canonical_template": false,
+    "issue_48_barrier_open": true
+  }
+}
