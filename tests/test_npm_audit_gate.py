@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 from copy import deepcopy
-import json
-from pathlib import Path
 import subprocess
+from pathlib import Path
 import sys
 
 import pytest
@@ -86,8 +85,7 @@ def test_invalid_total_is_rejected():
 def test_unknown_severity_is_rejected():
     payload = _payload()
     payload["vulnerabilities"]["pkg-weird"] = {"name": "pkg-weird", "severity": "urgent"}
-    payload["metadata"]["vulnerabilities"]["total"] = 1
-    with pytest.raises(ValueError, match="invalid_vulnerability_entry|vulnerability_count_mismatch"):
+    with pytest.raises(ValueError, match="invalid_vulnerability_entry"):
         gate.assess_npm_audit(payload, tool_returncode=1)
 
 
