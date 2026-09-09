@@ -30,6 +30,15 @@ def _copy_fixture(tmp_path: Path, lock_name: str = 'pylock.py312-dev.toml') -> P
     return root
 
 
+def _rehash_lock_contract(root: Path, lock_name: str) -> None:
+    manifest_path = root / 'ci/python_toolchain.json'
+    manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+    lock = root / lock_name
+    manifest['locks'][lock_name]['sha256'] = hashlib.sha256(lock.read_bytes()).hexdigest()
+    manifest['locks'][lock_name]['package_entries'] = len(tomllib.loads(lock.read_text(encoding='utf-8'))['packages'])
+    manifest_path.write_text(json.dumps(manifest), encoding='utf-8')
+
+
 def _mock_environment(monkeypatch, version: str = '3.12.14') -> None:
     monkeypatch.setattr(gate.platform, 'python_version', lambda: version)
     monkeypatch.setattr(gate.platform, 'system', lambda: 'Linux')
@@ -74,6 +83,21 @@ def test_security_lock_contains_exact_pip_audit_and_pip(monkeypatch):
     assert versions['pip'] == '26.2.1'
 
 
+def test_duplicate_bootstrap_distribution_is_rejected_even_when_rehashed(monkeypatch, tmp_path: Path):
+    lock_name = 'pylock.py312-security.toml'
+    root = _copy_fixture(tmp_path, lock_name)
+    _mock_environment(monkeypatch)
+    lock = root / lock_name
+    text = lock.read_text(encoding='utf-8')
+    start = text.index('[[packages]]\nname = "pip"\n')
+    next_start = text.index('[[packages]]\n', start + len('[[packages]]\n'))
+    duplicate = text[start:next_start]
+    lock.write_text(text + '\n' + duplicate, encoding='utf-8')
+    _rehash_lock_contract(root, lock_name)
+    with pytest.raises(ValueError, match='duplicate_package_name'):
+        gate.validate(lock_name, root=root)
+
+
 def test_python_patch_mismatch_fails_closed(monkeypatch, tmp_path: Path):
     root = _copy_fixture(tmp_path)
     _mock_environment(monkeypatch, '3.12.13')
@@ -105,10 +129,7 @@ def test_untrusted_wheel_origin_is_rejected_even_when_manifest_rehashed(monkeypa
     lock = root / 'pylock.py312-dev.toml'
     text = lock.read_text().replace('https://files.pythonhosted.org/', 'https://evil.example/', 1)
     lock.write_text(text)
-    manifest_path = root / 'ci/python_toolchain.json'
-    manifest = json.loads(manifest_path.read_text())
-    manifest['locks']['pylock.py312-dev.toml']['sha256'] = hashlib.sha256(lock.read_bytes()).hexdigest()
-    manifest_path.write_text(json.dumps(manifest))
+    _rehash_lock_contract(root, 'pylock.py312-dev.toml')
     with pytest.raises(ValueError, match='untrusted_wheel_origin'):
         gate.validate('pylock.py312-dev.toml', root=root)
 
@@ -119,10 +140,7 @@ def test_local_project_must_remain_editable_dot(monkeypatch, tmp_path: Path):
     lock = root / 'pylock.py312-dev.toml'
     text = lock.read_text().replace('path = "."\neditable = true', 'path = "../outside"\neditable = true')
     lock.write_text(text)
-    manifest_path = root / 'ci/python_toolchain.json'
-    manifest = json.loads(manifest_path.read_text())
-    manifest['locks']['pylock.py312-dev.toml']['sha256'] = hashlib.sha256(lock.read_bytes()).hexdigest()
-    manifest_path.write_text(json.dumps(manifest))
+    _rehash_lock_contract(root, 'pylock.py312-dev.toml')
     with pytest.raises(ValueError, match='invalid_local_project_entry'):
         gate.validate('pylock.py312-dev.toml', root=root)
 
