@@ -46,13 +46,6 @@ url = "https://files.pythonhosted.org/packages/41/45/1a4ed80516f02155c51f51e8ced
 sha256 = "98802fee3a11ee76ecaca44429fda8a41bff98b00a0f2838151b113f210cc6fe"
 
 [[packages]]
-name = "motion-os"
-
-[packages.directory]
-path = "."
-editable = true
-
-[[packages]]
 name = "packaging"
 version = "26.3"
 
@@ -128,6 +121,17 @@ url = "https://files.pythonhosted.org/packages/5e/19/7e98f468bd50346faff5b10e529
 
 [packages.wheels.hashes]
 sha256 = "9c1255b302953c86a486b81d330d5ee1d5bd937691ce271b6be0ef0e299eaab7"
+
+[[packages]]
+name = "setuptools"
+version = "84.0.0"
+
+[[packages.wheels]]
+name = "setuptools-84.0.0-py3-none-any.whl"
+url = "https://files.pythonhosted.org/packages/95/9c/c510029fc6ef33a6275cd2c5d3cecd6613dfd6aa401d57c54f1c18852ccf/setuptools-84.0.0-py3-none-any.whl"
+
+[packages.wheels.hashes]
+sha256 = "51a52592b3b99e102b609654876bd65f19f999935166d1352678931132b0c670"
 
 [[packages]]
 name = "typing-extensions"
