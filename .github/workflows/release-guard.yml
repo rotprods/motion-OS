@@ -5,9 +5,13 @@ on:
     tags: ['v*']
 permissions:
   contents: read
-  pull-requests: read
+  pull-requests: read # required to prove the release SHA originated from a merged PR into main
+concurrency:
+  group: release-guard-${{ github.ref }}
+  cancel-in-progress: false
 jobs:
   guard:
+    name: Verify release lineage and committed release state
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
