@@ -8,6 +8,18 @@ on:
       - 'pylock.py312-dev.toml'
       - 'ci/python_environments.json'
       - 'scripts/python_ci_env.py'
+      - 'src/studio/**'
+      - 'src/content/**'
+      - 'src/graph/**'
+      - 'src/renderers/**'
+      - 'src/compilers/**'
+      - 'scripts/studio_*.py'
+      - 'scripts/build_remotion_runtime_fixture.py'
+      - 'scripts/verify_remotion_render.py'
+      - 'scripts/verify_remotion_input_sensitivity.py'
+      - 'runtime/remotion/**'
+      - 'tests/test_product_e2e_run_manifest.py'
+      - 'tests/test_product_e2e_replay.py'
       - '.github/workflows/python-frozen-product-gauntlet.yml'
   workflow_dispatch:
 
@@ -33,7 +45,7 @@ jobs:
           cache: pip
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: '22'
+          node-version: '22.23.2'
       - name: Install physical media runtime
         run: |
           sudo apt-get update -qq
@@ -89,7 +101,7 @@ jobs:
           cache: pip
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: '22'
+          node-version: '22.23.2'
       - name: Install physical media runtime
         run: |
           sudo apt-get update -qq
