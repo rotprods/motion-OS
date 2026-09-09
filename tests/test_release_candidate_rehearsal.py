@@ -37,6 +37,15 @@ def _assess(*, protected: bool = False, barrier: str = "open", expected: str = M
     )
 
 
+def _isolated_writer(tmp_path: Path):
+    def write(path: Path | None, document: dict) -> None:
+        if path is None:
+            return
+        target = tmp_path / Path(path).name
+        target.write_text(json.dumps(document, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return write
+
+
 def test_live_current_state_is_blocked_by_both_external_preconditions():
     result = _assess()
     rehearsal.verify_attestation(result)
@@ -190,10 +199,11 @@ def test_rehearsal_cli_bootstraps_from_clean_checkout_without_site_packages():
 def test_ci_expected_blocked_mode_returns_success_only_for_exact_blocked_state(monkeypatch, tmp_path: Path):
     responses = iter([_main(), _barrier(), _main(), _barrier()])
     monkeypatch.setattr(rehearsal, "_github_json", lambda **kwargs: next(responses))
+    monkeypatch.setattr(rehearsal, "_write_report", _isolated_writer(tmp_path))
     monkeypatch.setenv("GITHUB_REPOSITORY", REPO)
     monkeypatch.setenv("GITHUB_SHA", CANDIDATE)
     monkeypatch.setenv("GITHUB_TOKEN", "test-token")
-    out = tmp_path / "rehearsal.json"
+    out = Path("rehearsal.json")
 
     code = rehearsal.main([
         "--expected-main-sha", MAIN,
@@ -202,7 +212,7 @@ def test_ci_expected_blocked_mode_returns_success_only_for_exact_blocked_state(m
     ])
 
     assert code == 0
-    persisted = json.loads(out.read_text(encoding="utf-8"))
+    persisted = json.loads((tmp_path / out.name).read_text(encoding="utf-8"))
     rehearsal.verify_attestation(persisted)
     assert persisted["status"] == "BLOCKED_EXTERNAL"
 
@@ -210,12 +220,13 @@ def test_ci_expected_blocked_mode_returns_success_only_for_exact_blocked_state(m
 def test_normal_cli_mode_refuses_zero_exit_for_blocked_candidate(monkeypatch, tmp_path: Path):
     responses = iter([_main(), _barrier(), _main(), _barrier()])
     monkeypatch.setattr(rehearsal, "_github_json", lambda **kwargs: next(responses))
+    monkeypatch.setattr(rehearsal, "_write_report", _isolated_writer(tmp_path))
     monkeypatch.setenv("GITHUB_REPOSITORY", REPO)
     monkeypatch.setenv("GITHUB_SHA", CANDIDATE)
     monkeypatch.setenv("GITHUB_TOKEN", "test-token")
 
     code = rehearsal.main([
         "--expected-main-sha", MAIN,
-        "--json-out", str(tmp_path / "rehearsal.json"),
+        "--json-out", "rehearsal.json",
     ])
     assert code == 2
