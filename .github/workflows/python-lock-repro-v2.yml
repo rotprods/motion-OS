@@ -105,7 +105,7 @@ jobs:
             .artifacts/${{ matrix.lock_name }}.regeneration.json
             .artifacts/${{ matrix.lock_name }}.diff
             .artifacts/pylock.*-generated.toml
-          if-no-files-found: warn
+          if-no-files-found: error
           include-hidden-files: true
           retention-days: 7
 
