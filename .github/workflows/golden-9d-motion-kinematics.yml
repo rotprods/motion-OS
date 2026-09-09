@@ -68,7 +68,10 @@ jobs:
       - name: Contract and adversarial tests
         run: |
           python -m pytest -q tests/test_golden_9d_matrix.py tests/test_golden_9d_motion_kinematics.py
-          python -m py_compile qualification/golden_9d/compile_readiness.py qualification/golden_9d/compile_motion_kinematics.py
+          python -m py_compile \
+            qualification/golden_9d/compile_readiness.py \
+            qualification/golden_9d/compile_motion_kinematics.py \
+            qualification/golden_9d/qualify_motion_kinematics.py
 
       - name: Compile source-bound motion kinematics
         run: |
@@ -78,13 +81,19 @@ jobs:
             --root . \
             --out .artifacts/golden_9d/motion_kinematics.json
 
+      - name: Qualify W1 motion authority
+        run: |
+          python qualification/golden_9d/qualify_motion_kinematics.py \
+            --kinematics .artifacts/golden_9d/motion_kinematics.json \
+            --out .artifacts/golden_9d/motion_dimension_qualification.json
+
       - name: Verify four-scene eighteen-entity proof
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
-          p=Path('.artifacts/golden_9d/motion_kinematics.json')
-          d=json.loads(p.read_text())
+          d=json.loads(Path('.artifacts/golden_9d/motion_kinematics.json').read_text())
+          q=json.loads(Path('.artifacts/golden_9d/motion_dimension_qualification.json').read_text())
           assert d['schema_version']=='motion-os.golden-motion-kinematics/v3'
           assert d['authority']=='DERIVED_FROM_PINNED_SOURCE_BOUND_TRACKS'
           assert len(d['scenes'])==4
@@ -105,6 +114,12 @@ jobs:
           assert all(e['structural_exclude_ranges']==[[87,91]] for e in s16.values())
           assert all(e['structural_excluded_sample_count']>0 for e in s16.values())
 
+          assert q['w1_state']=='COMPLETE_WITH_RESIDUAL_MOTION_AUTHORITY_BLOCKERS'
+          assert q['cross_golden']['visible_bbox_kinematics']=='QUALIFIED_ACROSS_ALL_FOUR_AT_THEIR_PINNED_TRACK_RESOLUTION'
+          assert q['cross_golden']['reconstruct_exact_motion']=='PARTIAL'
+          assert q['cross_golden']['structural_template_motion']=='PARTIAL'
+          assert q['cross_golden']['original_easing_graph']=='BLOCKED'
+
           Path('.artifacts/golden_9d/motion_kinematics_summary.json').write_text(json.dumps({
             'scene_count':4,
             'entity_count':count,
@@ -113,6 +128,9 @@ jobs:
             's16_column_bottom_clipped_samples':s16['column']['boundary_clipped_sample_count'],
             's16_structural_exclude_range':[87,91],
             'curve_authority':d['curve_authority'],
+            'w1_state':q['w1_state'],
+            'motion_exact':q['cross_golden']['reconstruct_exact_motion'],
+            'motion_structural':q['cross_golden']['structural_template_motion'],
           },indent=2)+'\n')
           PY
 
@@ -124,5 +142,6 @@ jobs:
           if-no-files-found: error
           path: |
             .artifacts/golden_9d/motion_kinematics.json
+            .artifacts/golden_9d/motion_dimension_qualification.json
             .artifacts/golden_9d/motion_kinematics_summary.json
           retention-days: 14
