@@ -20,29 +20,37 @@ concurrency:
 
 jobs:
   probe:
-    name: Probe ${{ matrix.lock_name }}
+    name: Probe ${{ matrix.id }}
     runs-on: ubuntu-24.04
     timeout-minutes: 12
     strategy:
       fail-fast: false
       matrix:
         include:
-          - python: '3.11.16'
+          - id: 'py311-dev'
+            python: '3.11.16'
             extras: 'dev'
+            project_lock: 'pylock.py311-dev.toml'
+            tool_lock: ''
             requirement: ''
-            lock_name: 'pylock.py311-dev.toml'
-          - python: '3.12.14'
+          - id: 'py312-dev'
+            python: '3.12.14'
             extras: 'dev'
+            project_lock: 'pylock.py312-dev.toml'
+            tool_lock: ''
             requirement: ''
-            lock_name: 'pylock.py312-dev.toml'
-          - python: '3.12.14'
+          - id: 'py312-analysis'
+            python: '3.12.14'
             extras: 'dev,analysis'
+            project_lock: 'pylock.py312-analysis.toml'
+            tool_lock: ''
             requirement: ''
-            lock_name: 'pylock.py312-analysis.toml'
-          - python: '3.12.14'
+          - id: 'py312-security'
+            python: '3.12.14'
             extras: 'dev'
+            project_lock: 'pylock.py312-dev.toml'
+            tool_lock: 'pylock.py312-audit.toml'
             requirement: 'pip-audit==2.10.1'
-            lock_name: 'pylock.py312-security.toml'
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -53,64 +61,87 @@ jobs:
           cache: pip
       - name: Pin probe generator
         run: python -m pip install --disable-pip-version-check 'pip==26.2.1'
-      - name: Generate hash-complete third-party lock and prove installability
+      - name: Generate hash-complete locks and prove installability
         env:
+          PROBE_ID: ${{ matrix.id }}
           LOCK_EXTRAS: ${{ matrix.extras }}
           LOCK_REQUIREMENT: ${{ matrix.requirement }}
-          LOCK_NAME: ${{ matrix.lock_name }}
+          PROJECT_LOCK: ${{ matrix.project_lock }}
+          TOOL_LOCK: ${{ matrix.tool_lock }}
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p .artifacts
-          deps_lock="pylock._deps-${LOCK_NAME#pylock.}"
-          build_lock="pylock._build-${LOCK_NAME#pylock.}"
-          tool_lock="pylock._tool-${LOCK_NAME#pylock.}"
-          candidate=".artifacts/${LOCK_NAME%.toml}-candidate.toml"
+          deps_lock="pylock._deps-${PROBE_ID}.toml"
+          build_lock="pylock._build-${PROBE_ID}.toml"
+          project_candidate=".artifacts/${PROJECT_LOCK%.toml}-candidate.toml"
 
           python -m pip lock --only-deps -e ".[${LOCK_EXTRAS}]" -o "$deps_lock"
           python -m pip lock 'setuptools==84.0.0' -o "$build_lock"
+          python -m pip lock -r "$deps_lock" -r "$build_lock" -o "$project_candidate"
 
-          inputs=(-r "$deps_lock" -r "$build_lock")
+          tool_candidate=''
           if [[ -n "$LOCK_REQUIREMENT" ]]; then
-            python -m pip lock "$LOCK_REQUIREMENT" -o "$tool_lock"
-            inputs+=(-r "$tool_lock")
+            tool_candidate=".artifacts/${TOOL_LOCK%.toml}-candidate.toml"
+            python -m pip lock "$LOCK_REQUIREMENT" -o "$tool_candidate"
           fi
-          python -m pip lock "${inputs[@]}" -o "$candidate"
 
-          python - "$candidate" "$LOCK_NAME" "${{ matrix.python }}" "$LOCK_REQUIREMENT" <<'PY'
+          python - "$project_candidate" "$tool_candidate" "$PROBE_ID" "${{ matrix.python }}" <<'PY'
           from pathlib import Path
           import hashlib, json, sys, tomllib
-          candidate_name, logical_name, expected_python, requirement = sys.argv[1:]
-          candidate = Path(candidate_name)
-          raw = candidate.read_bytes()
-          doc = tomllib.loads(raw.decode('utf-8'))
-          packages = doc.get('packages')
-          if doc.get('lock-version') != '1.0' or doc.get('created-by') != 'pip':
-              raise SystemExit('invalid candidate header')
-          if not isinstance(packages, list) or not packages:
-              raise SystemExit('candidate packages missing')
-          names = [str(p.get('name')) for p in packages]
-          if 'motion-os' in names or any('directory' in p for p in packages):
-              raise SystemExit('local project leaked into installable lock')
-          versions = {str(p.get('name')): p.get('version') for p in packages}
-          if versions.get('setuptools') != '84.0.0':
+          project_path, tool_path, probe_id, expected_python = sys.argv[1:]
+
+          def load(path):
+              raw = Path(path).read_bytes()
+              doc = tomllib.loads(raw.decode('utf-8'))
+              packages = doc.get('packages')
+              if doc.get('lock-version') != '1.0' or doc.get('created-by') != 'pip':
+                  raise SystemExit('invalid lock header')
+              if not isinstance(packages, list) or not packages:
+                  raise SystemExit('lock packages missing')
+              if any('directory' in p for p in packages):
+                  raise SystemExit('local directory leaked into installable lock')
+              view = {}
+              for package in packages:
+                  name = str(package.get('name'))
+                  wheels = tuple(sorted(
+                      (str(w.get('name')), str((w.get('hashes') or {}).get('sha256')))
+                      for w in package.get('wheels', [])
+                  ))
+                  view[name] = (package.get('version'), wheels)
+              return raw, doc, view
+
+          project_raw, project_doc, project_view = load(project_path)
+          if project_view.get('setuptools', (None,))[0] != '84.0.0':
               raise SystemExit('setuptools build backend not locked')
-          if requirement and versions.get('pip-audit') != '2.10.1':
-              raise SystemExit('pip-audit root not locked')
+
+          tool_raw = b''
+          tool_view = {}
+          tool_sha = None
+          if tool_path:
+              tool_raw, tool_doc, tool_view = load(tool_path)
+              if tool_view.get('pip-audit', (None,))[0] != '2.10.1':
+                  raise SystemExit('pip-audit root not locked')
+              for name in sorted(set(project_view) & set(tool_view)):
+                  if project_view[name] != tool_view[name]:
+                      raise SystemExit(f'overlapping lock mismatch: {name}')
+              tool_sha = hashlib.sha256(tool_raw).hexdigest()
+
           receipt = {
-              'schema': 'motion-os.python-installable-lock-probe/v2',
+              'schema': 'motion-os.python-installable-lock-probe/v3',
               'status': 'GENERATED',
-              'logical_lock_name': logical_name,
+              'probe_id': probe_id,
               'python': expected_python,
               'pip': '26.2.1',
               'setuptools_build': '84.0.0',
-              'extra_requirement': requirement or None,
-              'candidate_sha256': hashlib.sha256(raw).hexdigest(),
-              'candidate_bytes': len(raw),
-              'package_entries': len(packages),
-              'package_versions': versions,
+              'project_lock_sha256': hashlib.sha256(project_raw).hexdigest(),
+              'project_lock_bytes': len(project_raw),
+              'project_package_entries': len(project_doc['packages']),
+              'tool_lock_sha256': tool_sha,
+              'tool_package_entries': len(tool_view),
+              'overlap_packages': sorted(set(project_view) & set(tool_view)),
           }
-          Path(f'.artifacts/{logical_name}.probe.json').write_text(
+          Path(f'.artifacts/{probe_id}.probe.json').write_text(
               json.dumps(receipt, indent=2, sort_keys=True) + '\n', encoding='utf-8'
           )
           PY
@@ -118,18 +149,24 @@ jobs:
           python -m venv .artifacts/probe-env
           probe_py=.artifacts/probe-env/bin/python
           "$probe_py" -m pip install --disable-pip-version-check 'pip==26.2.1'
-          "$probe_py" -m pip install --disable-pip-version-check -r "$candidate"
+          "$probe_py" -m pip install --disable-pip-version-check -r "$project_candidate"
+          if [[ -n "$tool_candidate" ]]; then
+            "$probe_py" -m pip install --disable-pip-version-check -r "$tool_candidate"
+          fi
           "$probe_py" -m pip install --disable-pip-version-check --no-build-isolation --no-deps -e .
           "$probe_py" - <<'PY'
           import PIL, jsonschema, pytest, src
           print('PROBE_IMPORTS_OK')
           PY
+          if [[ -n "$LOCK_REQUIREMENT" ]]; then
+            "$probe_py" -m pip_audit --version
+          fi
 
-          "$probe_py" - "$LOCK_NAME" <<'PY'
+          "$probe_py" - "$PROBE_ID" <<'PY'
           from pathlib import Path
           import hashlib, importlib.metadata as m, json, sys
-          logical_name = sys.argv[1]
-          receipt_path = Path(f'.artifacts/{logical_name}.probe.json')
+          probe_id = sys.argv[1]
+          receipt_path = Path(f'.artifacts/{probe_id}.probe.json')
           receipt = json.loads(receipt_path.read_text())
           inventory = sorted(
               (d.metadata['Name'], d.version)
@@ -144,14 +181,15 @@ jobs:
               inventory=inventory,
           )
           receipt_path.write_text(json.dumps(receipt, indent=2, sort_keys=True) + '\n')
-          print(json.dumps({k: receipt[k] for k in ('status','logical_lock_name','candidate_sha256','inventory_sha256')}, sort_keys=True))
+          print(json.dumps({k: receipt[k] for k in ('status','probe_id','project_lock_sha256','tool_lock_sha256','inventory_sha256')}, sort_keys=True))
           PY
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
-          name: installable-${{ matrix.lock_name }}
+          name: installable-${{ matrix.id }}
           path: |
             .artifacts/pylock.*-candidate.toml
-            .artifacts/${{ matrix.lock_name }}.probe.json
+            .artifacts/${{ matrix.id }}.probe.json
           if-no-files-found: error
+          include-hidden-files: true
           retention-days: 7
