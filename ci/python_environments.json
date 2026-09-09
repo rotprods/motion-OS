@@ -1,0 +1,20 @@
+{
+  "schema": "motion-os.python-environments/v2",
+  "platform": {"system": "Linux", "machine": "x86_64"},
+  "pip": "26.2.1",
+  "setuptools_build": "84.0.0",
+  "project": {"name": "motion-os", "version": "0.9.1"},
+  "pyproject_sha256": "12c9a7cbcc712c1a6e56b44bf9644ca626e5de5bc6a22beb4534aa515d566890",
+  "locks": {
+    "pylock.py311-dev.toml": {"sha256": "4ebe8e5a5beb027d02824a67c3d00b8c4c0bef9c08e0cb14b96ed9182543aebe", "package_entries": 13},
+    "pylock.py312-dev.toml": {"sha256": "af5afbc2ee43f8719e0343a26e7ca0062d32a7a0f459c55c9e51d68d515c8f41", "package_entries": 13},
+    "pylock.py312-analysis.toml": {"sha256": "c532a7e0d48fd2e43cda6a459685fd8aeb3f61da24e45f8eced46c7187c31388", "package_entries": 16},
+    "pylock.py312-audit.toml": {"sha256": "6c111783b033ebd8a6e859ce732d8fc35293905a2bb6ee8b62111515bfae1747", "package_entries": 29}
+  },
+  "environments": {
+    "quick311": {"python": "3.11.16", "project_lock": "pylock.py311-dev.toml"},
+    "quick312": {"python": "3.12.14", "project_lock": "pylock.py312-dev.toml"},
+    "analysis": {"python": "3.12.14", "project_lock": "pylock.py312-analysis.toml"},
+    "security": {"python": "3.12.14", "project_lock": "pylock.py312-dev.toml", "tool_lock": "pylock.py312-audit.toml"}
+  }
+}
