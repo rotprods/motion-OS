@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import importlib.util
+import sys
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -9,6 +10,7 @@ MODULE_PATH = ROOT / "scripts" / "workflow_security_gate.py"
 spec = importlib.util.spec_from_file_location("workflow_security_gate", MODULE_PATH)
 assert spec and spec.loader
 mod = importlib.util.module_from_spec(spec)
+sys.modules[spec.name] = mod
 spec.loader.exec_module(mod)
 
 PIN_CHECKOUT = "11d5960a326750d5838078e36cf38b85af677262"
