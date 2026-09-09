@@ -2,6 +2,7 @@
   "schema": "motion-os.python-environments/v2",
   "platform": {"system": "Linux", "machine": "x86_64"},
   "pip": "26.2.1",
+  "pip_audit": "2.10.1",
   "setuptools_build": "84.0.0",
   "project": {"name": "motion-os", "version": "0.9.1"},
   "pyproject_sha256": "12c9a7cbcc712c1a6e56b44bf9644ca626e5de5bc6a22beb4534aa515d566890",
