@@ -3,8 +3,12 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: runtime-smoke-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   smoke:
+    name: Prove runner startup
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
