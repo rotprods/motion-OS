@@ -15,7 +15,7 @@ on:
 
 permissions:
   contents: read
-  issues: read
+  issues: read # required to read the live Issue #48 promotion barrier
 
 concurrency:
   group: release-candidate-rehearsal-${{ github.event.pull_request.number || github.ref }}
@@ -46,9 +46,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
           CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          REPOSITORY: ${{ github.repository }}
         run: |
           .venv-ci/quick312/bin/python scripts/release_candidate_rehearsal.py \
-            --repository "${{ github.repository }}" \
+            --repository "$REPOSITORY" \
             --candidate-sha "$CANDIDATE_SHA" \
             --expected-main-sha d4e628a1aef0cd382c3c2f1ea327a8ff70c41bd9 \
             --expect-status BLOCKED_EXTERNAL \
