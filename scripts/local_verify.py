@@ -119,13 +119,11 @@ def main(argv: list[str] | None = None) -> int:
             blocked(name, "required_binary_missing")
 
     try:
-        # Invalidate an old PASS before attempting a tool, import, scan or test.
         _write_report(args.json_out, report)
         report["git_sha"] = _observed_head()
         _write_report(args.json_out, report)
         py = sys.executable
         if args.profile in {"security", "merge"}:
-            # Availability is checked early; --skip-install-check cannot bypass it.
             if importlib.util.find_spec("pip_audit") is None:
                 blocked("pip-audit", "required_module_missing")
             scanner = ROOT / "scripts/security_static.py"
@@ -156,9 +154,20 @@ def main(argv: list[str] | None = None) -> int:
                                         "out/runtime-local.mp4", "--codec=h264", "--log=error"], cwd=runtime)
             execute("remotion-verify", [py, "scripts/verify_remotion_render.py", "--spec", "runtime/remotion/src/runtimeSpec.json",
                                         "--video", "runtime/remotion/out/runtime-local.mp4", "--out", "runtime/remotion/render_evidence.local.json"])
+            execute(
+                "remotion-input-sensitivity",
+                [
+                    py,
+                    "scripts/verify_remotion_input_sensitivity.py",
+                    "--spec", "runtime/remotion/src/runtimeSpec.json",
+                    "--baseline-video", "runtime/remotion/out/runtime-local.mp4",
+                    "--variant-video", "runtime/remotion/out/runtime-sensitivity.mp4",
+                    "--evidence", "runtime/remotion/render_evidence.local.json",
+                ],
+                timeout=300,
+            )
         if args.profile in {"security", "merge"}:
             execute("static-security", [py, "scripts/security_static.py"])
-            # Audit this interpreter's environment. Raw external errors are not logged.
             execute("pip-audit", [py, "-m", "pip_audit", "--progress-spinner", "off"], timeout=180, quiet=True)
         if not report["results"]:
             blocked("verification", "no_checks_executed")
@@ -170,7 +179,6 @@ def main(argv: list[str] | None = None) -> int:
         report["results"].append({"name": "verification", "status": "BLOCKED", "required": True,
                                   "reason": "interrupted", "returncode": None})
     except Exception as exc:
-        # Keep the exception type for diagnosis, never an untrusted exception message.
         report["status"] = "BLOCKED"
         report["results"].append({"name": "verification", "status": "BLOCKED", "required": True,
                                   "reason": "verification_internal_error", "error_type": type(exc).__name__, "returncode": None})
