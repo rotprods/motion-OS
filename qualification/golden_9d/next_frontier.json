@@ -1,8 +1,20 @@
 {
   "schema_version": "motion-os.golden-9d-frontier/v1",
   "north_star": "Convert the professional reference video into renderer-independent, source-bound editing behavior such that a zero-context agent can reconstruct or structurally reuse the editing DNA without arbitrary creative decisions.",
-  "current_checkpoint": "T07_GOLDEN_SOURCE_BOUND_PARTIAL_QUALIFICATION_COMPLETE",
+  "current_checkpoint": "T08_W1_MOTION_KINEMATICS_COMPLETE_WITH_RESIDUAL_AUTHORITY_BLOCKERS",
   "target_checkpoint": "T08_STRUCTURAL_EDITING_DNA_9D_QUALIFIED",
+  "active_pr": 157,
+  "active_branch": "feat/reverse-engineering-golden-9d-qualification-v1",
+  "continuity": {
+    "w1_evidence_head": "f2d0a0b487f6b7e287d6e24138d05f0fb9baded9",
+    "w1_documentation_head": "a538f44e22bc5fec78c5a95cd0454e224e7218ca",
+    "w1_state": "COMPLETE_WITH_RESIDUAL_MOTION_AUTHORITY_BLOCKERS",
+    "w1_drive_artifact": "154wCG7CFfnyOzWu9OT8k3gMWhcUCD_xi",
+    "active_wave": "T08-W2",
+    "historical_overlapping_pr": 129,
+    "historical_overlapping_pr_policy": "READ_ONLY_INVARIANT_AND_EVIDENCE_DONOR",
+    "issue_48_state": "OPEN"
+  },
   "hard_barriers": [
     "Issue #48 remains OPEN",
     "No CANONICAL_TEMPLATE until cross-renderer parity and empirical generalization pass"
@@ -12,16 +24,19 @@
       "id": "T08-W1",
       "priority": "P0",
       "name": "Motion kinematics and easing authority",
+      "status": "COMPLETE_WITH_RESIDUAL_MOTION_AUTHORITY_BLOCKERS",
       "why": "T07 proves screen-space timing/layout but does not yet fully encode velocity, acceleration, settle, overshoot and reusable easing behavior across all golden scenes.",
       "scenes": ["S04_CIENTIFICAMENTE", "S11_UI_LIST", "S14_AUDIO_VISUAL_TEXTO", "S16_FACTOR_X"],
       "outputs": ["motion_kinematics.json", "easing_proxy_graph.json", "motion_dimension_qualification.json"],
       "tests": ["full-frame trajectory replay", "velocity/acceleration diff", "settle/overshoot error", "no sparse-projection drift"],
-      "dod": "Every reusable motion entity has full-frame or equivalence-proven trajectory plus evidence-bound velocity/settle/easing classification; no renderer-local timing repair remains."
+      "dod": "Every reusable motion entity has full-frame or equivalence-proven trajectory plus evidence-bound velocity/settle/easing classification; no renderer-local timing repair remains.",
+      "residual": "220 low-amplitude bbox-motion candidates require T08-W2 optical-flow/camera corroboration; exact original easing remains blocked."
     },
     {
       "id": "T08-W2",
       "priority": "P0",
       "name": "Camera, depth and occlusion graph",
+      "status": "ACTIVE_NEXT_FRONTIER",
       "why": "The user-visible premium look depends on foreground/midground/background, subject occlusion, 2.5D layering and distinguishing crop/reframe from real/editorial camera behavior.",
       "scenes": ["S04_CIENTIFICAMENTE", "S11_UI_LIST", "S14_AUDIO_VISUAL_TEXTO", "S16_FACTOR_X"],
       "outputs": ["camera_event_graph.json", "depth_partial_order.json", "occlusion_graph.json", "three_d_proxy_events.json"],
@@ -32,6 +47,7 @@
       "id": "T08-W3",
       "priority": "P0",
       "name": "Stimulus and retention grammar",
+      "status": "PENDING",
       "why": "Replicating the editing identity requires the cadence of pattern interrupts, caption refreshes, inserts, depth changes, camera changes and deliberate calm windows, not only element geometry.",
       "scenes": ["S04_CIENTIFICAMENTE", "S11_UI_LIST", "S14_AUDIO_VISUAL_TEXTO", "S16_FACTOR_X"],
       "outputs": ["stimulus_timeline.json", "event_clusters.json", "retention_grammar.json", "dead_interval_report.json"],
@@ -42,6 +58,7 @@
       "id": "T08-W4",
       "priority": "P1",
       "name": "Audio-SFX relationship graph",
+      "status": "PENDING",
       "why": "S04/S14/S16 have onset proxies but S11 lacks source-bound audio qualification; timbre/envelope/class relationships remain incomplete.",
       "scenes": ["S04_CIENTIFICAMENTE", "S11_UI_LIST", "S14_AUDIO_VISUAL_TEXTO", "S16_FACTOR_X"],
       "outputs": ["audio_event_graph.json", "visual_audio_sync.json", "sfx_slot_grammar.json"],
@@ -52,6 +69,7 @@
       "id": "T08-W5",
       "priority": "P1",
       "name": "Typography, color and FX tiering",
+      "status": "PENDING",
       "why": "Current gates intentionally separate layout from exact glyphs/materials. T08 must formalize which properties are reusable roles, which are visible-output measurements and which are SOURCE_LOCK/UNKNOWN.",
       "scenes": ["S04_CIENTIFICAMENTE", "S11_UI_LIST", "S14_AUDIO_VISUAL_TEXTO", "S16_FACTOR_X"],
       "outputs": ["typography_role_graph.json", "color_role_graph.json", "effect_stack_proxy.json", "source_lock_manifest.json"],
@@ -62,6 +80,7 @@
       "id": "T08-W6",
       "priority": "P1",
       "name": "Cross-renderer parity",
+      "status": "PENDING",
       "why": "After Effects, Remotion and HyperFrames must execute one canonical EditingGraph rather than drift into independent interpretations.",
       "dependencies": ["T08-W1", "T08-W2", "T08-W3", "T08-W4", "T08-W5"],
       "outputs": ["ae_reconstruction_spec", "remotion_spec", "hyperframes_spec", "cross_renderer_diff.json"],
@@ -72,10 +91,11 @@
       "id": "T09",
       "priority": "P1",
       "name": "Three-content generalization",
+      "status": "PENDING",
       "dependencies": ["T08-W6"],
       "outputs": ["three substitution runs", "source-lock leakage report", "template identity scorecard without aggregate authority"],
       "dod": "Three unseen content packs reproduce the editing identity while source-specific media/copy/assets are replaced and no original literal content leaks into the structural template."
     }
   ],
-  "next_safe_action": "Execute T08-W1 on the four existing full/measured source tracks; derive velocity, acceleration, settle and easing proxies without modifying golden renderer branches."
+  "next_safe_action": "Execute T08-W2 on PR #157 without reopening W1: corroborate the 220 low-amplitude bbox-motion candidates with source-bound optical flow; separate global/editorial reframe from source-native/local motion; construct cycle-free depth/occlusion partial orders; preserve unsupported relations as UNKNOWN; keep all golden renderer branches read-only unless a new regression is demonstrated."
 }
