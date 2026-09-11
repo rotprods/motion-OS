@@ -41,7 +41,7 @@
 - `graphify-v4-qdrant-prefetch-rerank` performs `cos20` prefetch + exact semantic rerank inside Qdrant and transfers no 1024D vectors back to Python during graphification.
 - 25-query real-corpus benchmark ground truth is frozen and stale architecture labels are guarded by tests. AVE stale authority docs discovered during archaeology are excluded from the AVE semantic corpus until repaired.
 - Full AVE + MOTION indexing, complete cross-repo graphify, labeled Recall@10/MRR/NDCG and portable Qdrant snapshot remain the promotion gate.
-- AVE private GitHub Actions currently fails before any job step begins; this is recorded as runner unavailable / cause unresolved, not as a semantic-plane test failure. `scripts/qualify_semantic_corpus.sh` is the fail-closed local/Mac execution path.
+- AVE private GitHub Actions currently cannot allocate runners because the account-level GitHub Actions included usage and configured Actions budget are exhausted for the current billing period. This is an infrastructure/billing gate, not a semantic-plane failure. Restore Actions budget/capacity or execute `scripts/qualify_semantic_corpus.sh` on the target Mac/sibling checkouts before promotion.
 
 ## Persistence
 - GitHub = software truth.
