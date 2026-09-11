@@ -1,0 +1,132 @@
+{
+  "schema_version": "1.0",
+  "job_id": "p4-rc06-full-video-provider-job-v1",
+  "project": "MOTION.OS",
+  "phase": "P4",
+  "status": "READY_FOR_EXTERNAL_PROVIDER",
+  "authority": "PREPARED_NOT_EXECUTED",
+  "master": {
+    "identity_id": "RC06",
+    "media_sha256": "fbfd4fda97b1e4d07b8477018324210324c8115c0f5b9a3515eb27ae255f0f1f",
+    "bytes": 11253549,
+    "frame_count": 300,
+    "fps": 30.0,
+    "duration_ms": 10000,
+    "width": 1080,
+    "height": 1920,
+    "drive_file_id": "1r3y35J735DhfyW4e5rDBcTRTdEKPPnrf",
+    "recovery_evidence": "evidence/p4_rc06_real_master_recovery_2026-08-31.json"
+  },
+  "sampling": {
+    "policy": "uniform_plus_boundaries_v1",
+    "target_samples": 24,
+    "decoded_pixel_format": "rgb24",
+    "frame_hash_semantics": "sha256_of_decoded_rgb24_pixel_bytes",
+    "raw_frame_bytes_each": 6220800,
+    "samples": [
+      {"frame_index":0,"timestamp_ms":0,"sha256":"8a82609edfabb9f9b4b254821a3a828ffa12917af70d5478f85d338fde4cc544"},
+      {"frame_index":13,"timestamp_ms":433,"sha256":"5ba909829586fd5ddec772343b711a1f929645ecae8c7d29031bab38d8112935"},
+      {"frame_index":26,"timestamp_ms":867,"sha256":"bafee0d0f8a94f2e68b66a9fb153ec457674d788ad719df328d4e27e4d6b1527"},
+      {"frame_index":39,"timestamp_ms":1300,"sha256":"8bcb5de50fd56e018b541678d26e590be4147fc43c92f4950f3e3959db5ff9ab"},
+      {"frame_index":52,"timestamp_ms":1733,"sha256":"2c15c62214d945052ed337a17aa71cf959a3eaa1b0e2050e2899ff7fcfe42bb4"},
+      {"frame_index":65,"timestamp_ms":2167,"sha256":"beb0ed7f1ebae33826437423020cce0a6861b4aa57877362ddef543058d401fc"},
+      {"frame_index":78,"timestamp_ms":2600,"sha256":"d38704a81e4758eaa20f708b4eb27dd2945a8b41308a582b4c10b00695c5b2b9"},
+      {"frame_index":91,"timestamp_ms":3033,"sha256":"d6c9aee8a9f80e8249a96cf7a31ebca56e58a2c437377c8348f566fb621c9cf2"},
+      {"frame_index":104,"timestamp_ms":3467,"sha256":"0e89743892296ef68ed331800e41af6beeab3a6b0deb059b31d11a76291df2db"},
+      {"frame_index":117,"timestamp_ms":3900,"sha256":"f45b1508563501e1112d5998bfd0f0554812d1c4c9698bff28e2af7bc165fce0"},
+      {"frame_index":130,"timestamp_ms":4333,"sha256":"5fe54aa99b025a37f0290a54e6a91e82b8a4d8c2208e96e70b53c2f05be05808"},
+      {"frame_index":143,"timestamp_ms":4767,"sha256":"b578eaf3716e878f7996fc581cbfbe016020bac18eaf1c41c0ee3c0613f740ea"},
+      {"frame_index":156,"timestamp_ms":5200,"sha256":"110f3d183856d55b662c5990f3e133de06f7d5b9546fcb129c201c225b616b1f"},
+      {"frame_index":169,"timestamp_ms":5633,"sha256":"c7a81e79e989a6e2a7b3c7d66047cd7336475e02b41eba01320fc16df52bd6e8"},
+      {"frame_index":182,"timestamp_ms":6067,"sha256":"fb3f414035cea60d4fd5633fd9497ce1851ecc7afd1f8572b00fd4ec205a3202"},
+      {"frame_index":195,"timestamp_ms":6500,"sha256":"022b89e25be842212d92378e03aa5eb5c2cf5f732904039ec3e9ff00e7ba2cde"},
+      {"frame_index":208,"timestamp_ms":6933,"sha256":"cb1340808867bda4cb373b8c2a9cfdb378768d3a3076bbee691545d9befc0f50"},
+      {"frame_index":221,"timestamp_ms":7367,"sha256":"001ca39b352c50421d298fe9c584d120fb4cbe6024761922cc84ed68441a996e"},
+      {"frame_index":234,"timestamp_ms":7800,"sha256":"29a3cb575879a27d3d89c246daa3a35a23922f487223cd49579a70f1062ffeee"},
+      {"frame_index":247,"timestamp_ms":8233,"sha256":"738299137bffa73f415bbd8e57ea88007a5f9a75b107b12901380023a5af481f"},
+      {"frame_index":260,"timestamp_ms":8667,"sha256":"dacdf833393c4db94d16f6228b409be400fa73031c52ca1fda90d7ba10f8a013"},
+      {"frame_index":273,"timestamp_ms":9100,"sha256":"c98497e9661bce2b4ec815128ac51f1dda5c2c4fc3658a1bf167f7c61516f689"},
+      {"frame_index":286,"timestamp_ms":9533,"sha256":"c0b2450b369436e06835fb46430c0af517e7ef645b6d0f24e230ea637e9eed90"},
+      {"frame_index":299,"timestamp_ms":9967,"sha256":"e2ea4695afdab67579131bfb7dde19b5fb5cc0e032ae0187650465f63ee33058"}
+    ]
+  },
+  "provider_requirements": {
+    "must_receive_or_access_entire_video": true,
+    "must_review_entire_video_not_only_samples": true,
+    "must_return_stable_provider_identity": true,
+    "must_return_nonempty_provider_run_id": true,
+    "must_explicitly_attest_full_video_review": true,
+    "must_bind_media_sha256": "fbfd4fda97b1e4d07b8477018324210324c8115c0f5b9a3515eb27ae255f0f1f",
+    "must_not_claim_authority_if_media_is_transcoded_or_replaced_without_new_sha": true
+  },
+  "temporal_payload_contract": {
+    "required_fields": ["provider","provider_run_id","authoritative","score","dimensions","defects","recommendation"],
+    "score_range": [0.0,10.0],
+    "recommended_dimensions": [
+      "temporal_coherence",
+      "motion_choreography",
+      "transition_quality",
+      "typography_temporal_stability",
+      "asset_integration",
+      "pacing",
+      "professional_finish"
+    ],
+    "defect_fields": ["code","severity","start_ms","end_ms","evidence_frame_indices","description"],
+    "severity_values": ["P0","P1","P2","P3"],
+    "recommendation_values": ["RELEASE","ITERATE","BLOCK"],
+    "release_policy": "RELEASE is valid only when authoritative full-video evidence exists, score >= 9.0, and P0/P1 defects are absent."
+  },
+  "creative_payload_contract": {
+    "required_dimensions": [
+      "composition",
+      "hierarchy",
+      "typography",
+      "motion_choreography",
+      "transition_quality",
+      "asset_realism",
+      "asset_integration",
+      "depth",
+      "lighting",
+      "style_coherence",
+      "originality",
+      "narrative_clarity",
+      "brand_alignment",
+      "final_frame_memorability",
+      "professional_finish"
+    ],
+    "mean_gate": 9.0,
+    "hard_thresholds": {
+      "composition": 8.5,
+      "typography": 9.0,
+      "asset_realism": 8.5,
+      "motion_choreography": 9.0,
+      "transition_quality": 8.8,
+      "professional_finish": 9.0
+    },
+    "provider_attested_media_review_required": true,
+    "provider_run_id_required": true
+  },
+  "known_non_authoritative_preflight": {
+    "sampled_visual_strengths": [
+      "coherent editorial beige/black visual system",
+      "clear REBELLION to MOVEMENT to SYSTEM narrative hierarchy",
+      "consistent coin hero integration",
+      "structured final MOTION SYSTEM frame"
+    ],
+    "known_risks_or_unknowns": [
+      "motion choreography cannot be certified from sampled still frames",
+      "transition continuity requires full temporal review",
+      "small editorial copy readability should be checked at delivery size",
+      "legacy RC06 color metadata differs from the newer BT.709-limited contract"
+    ],
+    "authority": "NONE"
+  },
+  "execution": {
+    "provider": null,
+    "provider_run_id": null,
+    "executed": false,
+    "authoritative": false,
+    "blocked_reason": "NO_QUALIFIED_FULL_VIDEO_PROVIDER_AVAILABLE_IN_CURRENT_RUNTIME"
+  },
+  "next_action": "Give the exact RC06 media object to one qualified full-video multimodal provider, capture its immutable run identity and full-video attestation, then ingest its payload through src/qa/temporal_multimodal.py and src/qa/creative_tournament.py without altering the media SHA."
+}

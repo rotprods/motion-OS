@@ -1,0 +1,33 @@
+{
+  "event_id": "evt_chatgpt_p4_rc06_recovered_20260831T175900+0200",
+  "event_type": "work.checkpoint",
+  "timestamp": "2026-08-31T17:59:00+02:00",
+  "agent_id": "agent:openai:gpt-5.6-sol:p4",
+  "project": "MOTION.OS",
+  "branch": "feat/p4-real-master-authority-v1",
+  "commit_sha": null,
+  "pr_number": null,
+  "summary": "RC06 was physically re-materialized from its durable Google Drive artifact and its observed SHA256/size exactly match the canonical artifact registry identity. RC09E remains selected historically but has no exact recoverable artifact identity. P4 therefore has verified real-master recovery authority only; real full-video provider authority remains blocked and release remains false.",
+  "affected_paths": [
+    "evidence/p4_rc06_real_master_recovery_2026-08-31.json",
+    "state/p4_real_master_authority.json",
+    "tests/test_p4_real_master_evidence.py"
+  ],
+  "checks": {
+    "drive_materialization": "PASS",
+    "registry_sha256_match": "PASS",
+    "drive_size_match": "PASS",
+    "ffprobe_structure": "PASS",
+    "rc09e_exact_identity": "UNAVAILABLE_FAIL_CLOSED",
+    "real_full_video_provider": "BLOCKED_NOT_AVAILABLE"
+  },
+  "authority": "VERIFIED",
+  "correlation_id": "motion://completion/P4/real-master-authority",
+  "metadata": {
+    "rc06_sha256": "fbfd4fda97b1e4d07b8477018324210324c8115c0f5b9a3515eb27ae255f0f1f",
+    "rc06_bytes": 11253549,
+    "drive_file_id": "1r3y35J735DhfyW4e5rDBcTRTdEKPPnrf",
+    "recovery_contract_sha256": "0d6a18b1aed9a7474c86a411058a4b066240ecf7bb59f61d9724994b924fa1ec",
+    "release_authority": false
+  }
+}
