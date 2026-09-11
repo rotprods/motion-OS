@@ -123,6 +123,22 @@ class QdrantClient:
             return None
         return {"should": [{"key": "repo", "match": {"value": repo_id}} for repo_id in repo_ids]}
 
+    @staticmethod
+    def _parse_query_batch(result: object, expected: int) -> list[list[dict[str, Any]]]:
+        if not isinstance(result, list):
+            return [[] for _ in range(expected)]
+        batches: list[list[dict[str, Any]]] = []
+        for item in result:
+            if isinstance(item, list):
+                batches.append(item)
+            elif isinstance(item, dict) and isinstance(item.get("points"), list):
+                batches.append(item["points"])
+            else:
+                batches.append([])
+        if len(batches) < expected:
+            batches.extend([[] for _ in range(expected - len(batches))])
+        return batches[:expected]
+
     def query(self, vector: Sequence[float], *, using: str, limit: int, repo_ids: Sequence[str] | None = None, with_vectors: Sequence[str] | bool = False) -> list[dict[str, Any]]:
         body: dict[str, Any] = {"query": [float(v) for v in vector], "using": using, "limit": int(limit), "with_payload": True, "with_vector": list(with_vectors) if isinstance(with_vectors, (list, tuple)) else bool(with_vectors)}
         repo_filter = self._repo_filter(repo_ids)
@@ -148,20 +164,47 @@ class QdrantClient:
         if not searches:
             return []
         response = self.http.request("POST", f"{self.collection_path}/points/query/batch", {"searches": searches}).body
-        result = response.get("result", [])
-        if not isinstance(result, list):
-            return [[] for _ in searches]
-        batches: list[list[dict[str, Any]]] = []
-        for item in result:
-            if isinstance(item, list):
-                batches.append(item)
-            elif isinstance(item, dict) and isinstance(item.get("points"), list):
-                batches.append(item["points"])
-            else:
-                batches.append([])
-        if len(batches) < len(searches):
-            batches.extend([[] for _ in range(len(searches) - len(batches))])
-        return batches[:len(searches)]
+        return self._parse_query_batch(response.get("result", []), len(searches))
+
+    def query_prefetch_rerank_by_ids_batch(
+        self,
+        point_ids: Sequence[str | int],
+        *,
+        candidate_limit: int,
+        limit: int,
+        repo_ids: Sequence[str] | None = None,
+        score_threshold: float | None = None,
+    ) -> list[list[dict[str, Any]]]:
+        """Route by stored cos20 vectors, then rerank the candidate set by stored semantic vectors in Qdrant."""
+        if candidate_limit < limit:
+            raise ValueError("candidate_limit must be >= limit")
+        repo_filter = self._repo_filter(repo_ids)
+        searches: list[dict[str, Any]] = []
+        for point_id in point_ids:
+            prefetch: dict[str, Any] = {
+                "query": point_id,
+                "using": "cos20",
+                "limit": int(candidate_limit),
+            }
+            if repo_filter:
+                prefetch["filter"] = repo_filter
+            body: dict[str, Any] = {
+                "prefetch": prefetch,
+                "query": point_id,
+                "using": "semantic",
+                "limit": int(limit),
+                "with_payload": True,
+                "with_vector": False,
+            }
+            if repo_filter:
+                body["filter"] = repo_filter
+            if score_threshold is not None:
+                body["score_threshold"] = float(score_threshold)
+            searches.append(body)
+        if not searches:
+            return []
+        response = self.http.request("POST", f"{self.collection_path}/points/query/batch", {"searches": searches}).body
+        return self._parse_query_batch(response.get("result", []), len(searches))
 
     def scroll(self, *, repo_ids: Sequence[str] | None = None, with_vectors: Sequence[str] | bool = False, page_size: int = 128) -> list[dict[str, Any]]:
         points: list[dict[str, Any]] = []
