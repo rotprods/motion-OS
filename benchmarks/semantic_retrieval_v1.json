@@ -144,10 +144,11 @@
       ]
     },
     {
-      "id": "ave-runtime-hooks",
-      "query": "Where are AVE runtime initialization hooks and hook registration implemented?",
+      "id": "ave-runtime-dispatcher",
+      "query": "Where is AVE's A2A runtime dispatcher and its exhaustive action-routing contract implemented?",
       "expected": [
-        {"repo": "rotprods/ave", "path_glob": "hooks/**"}
+        {"repo": "rotprods/ave", "path_glob": "ave.js"},
+        {"repo": "rotprods/ave", "path_glob": "tests/unit/a2a-routing.js"}
       ]
     },
     {
@@ -184,7 +185,7 @@
       "expected": [
         {"repo": "rotprods/motion-OS", "path_glob": "src/coordination/**"},
         {"repo": "rotprods/motion-OS", "path_glob": "coordination/**"},
-        {"repo": "rotprods/ave", "path_glob": "hooks/**"},
+        {"repo": "rotprods/ave", "path_glob": "ave.js"},
         {"repo": "rotprods/ave", "path_glob": "server/**"}
       ]
     },
