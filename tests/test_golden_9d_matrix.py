@@ -121,11 +121,19 @@ def test_qualified_dimension_cannot_hide_blocked_aspects():
         raise AssertionError("compiler accepted a QUALIFIED state with hidden blockers")
 
 
-def test_escaped_failure_corpus_contains_cross_scene_oracle_and_projection_invariants():
+def test_escaped_failure_corpus_contains_cross_scene_oracle_projection_and_w2_causal_invariants():
     d = json.loads(FAILURES_PATH.read_text())
     families = {x["family"] for x in d["families"]}
-    assert "MEASUREMENT_TARGET_IDENTITY_NOT_ISOLATED" in families
-    assert "HAND_AUTHORED_SPARSE_PROJECTION_NOT_MECHANICALLY_DERIVED_FROM_FULL_FRAME_AUTHORITY" in families
-    assert "CROSS_AUTHORITY_GEOMETRY_COMPARISON" in families
-    assert "DESCENDING_PHYSICAL_AXIS_USED_DIRECTLY_AS_MONOTONIC_INTERPOLATION_DOMAIN" in families
-    assert "CONVERSATIONAL_EXECUTION_CLAIM_WITHOUT_DURABLE_PROVIDER_EVIDENCE" in families
+    required = {
+        "MEASUREMENT_TARGET_IDENTITY_NOT_ISOLATED",
+        "HAND_AUTHORED_SPARSE_PROJECTION_NOT_MECHANICALLY_DERIVED_FROM_FULL_FRAME_AUTHORITY",
+        "CROSS_AUTHORITY_GEOMETRY_COMPARISON",
+        "DESCENDING_PHYSICAL_AXIS_USED_DIRECTLY_AS_MONOTONIC_INTERPOLATION_DOMAIN",
+        "CONVERSATIONAL_EXECUTION_CLAIM_WITHOUT_DURABLE_PROVIDER_EVIDENCE",
+        "STALE_FRONTIER_PROJECTION_REPLAYS_COMPLETED_WORK",
+        "FOREGROUND_MOTION_LAUNDERED_AS_CAMERA",
+        "LOW_TEXTURE_BACKGROUND_FLOW_FALSE_NEGATIVE_ON_GLOBAL_REFLOW",
+        "LOW_AMPLITUDE_BBOX_VARIATION_PROMOTED_WITHOUT_PIXEL_FLOW_CORROBORATION",
+        "TOTAL_Z_ORDER_INVENTED_FROM_FLATTENED_SOURCE",
+    }
+    assert required.issubset(families)
