@@ -1,16 +1,27 @@
 {
   "schema_version": "motion-os.golden-9d-frontier/v1",
   "north_star": "Convert the professional reference video into renderer-independent, source-bound editing behavior such that a zero-context agent can reconstruct or structurally reuse the editing DNA without arbitrary creative decisions.",
-  "current_checkpoint": "T08_W1_MOTION_KINEMATICS_COMPLETE_WITH_RESIDUAL_AUTHORITY_BLOCKERS",
+  "current_checkpoint": "T08_W2_CAMERA_DEPTH_OCCLUSION_COMPLETE_WITH_EXPLICIT_CAUSAL_AND_DEPTH_UNKNOWNS",
   "target_checkpoint": "T08_STRUCTURAL_EDITING_DNA_9D_QUALIFIED",
   "active_pr": 157,
   "active_branch": "feat/reverse-engineering-golden-9d-qualification-v1",
   "continuity": {
     "w1_evidence_head": "f2d0a0b487f6b7e287d6e24138d05f0fb9baded9",
-    "w1_documentation_head": "a538f44e22bc5fec78c5a95cd0454e224e7218ca",
     "w1_state": "COMPLETE_WITH_RESIDUAL_MOTION_AUTHORITY_BLOCKERS",
     "w1_drive_artifact": "154wCG7CFfnyOzWu9OT8k3gMWhcUCD_xi",
-    "active_wave": "T08-W2",
+    "w2_executable_qualification_head": "80d8926f49873dabc64cc381e22806fc92740194",
+    "w2_matrix_projection_head": "4a3b586af7e92aa4fcce6f696ac09e85d0364adb",
+    "w2_state": "COMPLETE_WITH_EXPLICIT_CAUSAL_AND_DEPTH_UNKNOWNS",
+    "w2_workflow_run": 34600058526,
+    "w2_artifact_id": 10263503237,
+    "w2_artifact_digest": "sha256:d9994c23d4915273d41ac14ffed1452bc696abae69c4cb1d8815398695633a78",
+    "w2_drive_artifact": "11P40ZMe2khhyHOKep3vGh3Q9Xe86u-Ro",
+    "w2_drive_physical_flow": "1sfIurf_bie-Ji5dQldw-y1D9w_PtL92z",
+    "w2_drive_micro_motion": "1JQCbfLPuRJ4E4IU3bPcQVgmXGFKYTPQ8",
+    "w2_drive_summary": "1CCGajR2_ysAm6jqVh8HSbRMkTymywJK7",
+    "w2_drive_qualification": "1rlNiPy70UzTVm-EzIlozRwgpXUkRJtQ7",
+    "w2_drive_defect_graph": "1LK3MZA5Ti3K2i4UxBPNgrKIOr3A7Na5N",
+    "active_wave": "T08-W3",
     "historical_overlapping_pr": 129,
     "historical_overlapping_pr_policy": "READ_ONLY_INVARIANT_AND_EVIDENCE_DONOR",
     "issue_48_state": "OPEN"
@@ -24,35 +35,43 @@
       "id": "T08-W1",
       "priority": "P0",
       "name": "Motion kinematics and easing authority",
-      "status": "COMPLETE_WITH_RESIDUAL_MOTION_AUTHORITY_BLOCKERS",
+      "status": "COMPLETE_WITH_RESIDUAL_ORIGINAL_EASING_BLOCKER",
       "why": "T07 proves screen-space timing/layout but does not yet fully encode velocity, acceleration, settle, overshoot and reusable easing behavior across all golden scenes.",
       "scenes": ["S04_CIENTIFICAMENTE", "S11_UI_LIST", "S14_AUDIO_VISUAL_TEXTO", "S16_FACTOR_X"],
       "outputs": ["motion_kinematics.json", "easing_proxy_graph.json", "motion_dimension_qualification.json"],
       "tests": ["full-frame trajectory replay", "velocity/acceleration diff", "settle/overshoot error", "no sparse-projection drift"],
       "dod": "Every reusable motion entity has full-frame or equivalence-proven trajectory plus evidence-bound velocity/settle/easing classification; no renderer-local timing repair remains.",
-      "residual": "220 low-amplitude bbox-motion candidates require T08-W2 optical-flow/camera corroboration; exact original easing remains blocked."
+      "residual": "W2 physically adjudicated all 220 low-amplitude candidates into 95 directional corroborations, 81 visible-activity/no-translation promotions, 41 non-corroborations and 3 SOURCE_LOCK exclusions. Original easing/Graph Editor authority remains blocked."
     },
     {
       "id": "T08-W2",
       "priority": "P0",
       "name": "Camera, depth and occlusion graph",
-      "status": "ACTIVE_NEXT_FRONTIER",
+      "status": "COMPLETE_WITH_EXPLICIT_CAUSAL_AND_DEPTH_UNKNOWNS",
       "why": "The user-visible premium look depends on foreground/midground/background, subject occlusion, 2.5D layering and distinguishing crop/reframe from real/editorial camera behavior.",
       "scenes": ["S04_CIENTIFICAMENTE", "S11_UI_LIST", "S14_AUDIO_VISUAL_TEXTO", "S16_FACTOR_X"],
       "outputs": ["camera_event_graph.json", "depth_partial_order.json", "occlusion_graph.json", "three_d_proxy_events.json"],
       "tests": ["global-vs-local flow separation", "occlusion consistency over time", "cycle-free depth partial order", "unknown relation remains unknown"],
-      "dod": "Every materially visible z/occlusion relation is measured or explicitly UNKNOWN; camera/reframe events have source evidence and no source-native motion is silently promoted to editing grammar."
+      "dod": "Every materially visible z/occlusion relation is measured or explicitly UNKNOWN; camera/reframe events have source evidence and no source-native motion is silently promoted to editing grammar.",
+      "result": {
+        "camera_reconstruct_exact": "PARTIAL_ACROSS_ALL_GOLDENS",
+        "camera_structural_template": "S11_S14_S16_QUALIFIED_S04_PARTIAL_CAUSAL_LIMIT",
+        "depth_reconstruct_exact": "PARTIAL_ACROSS_ALL_GOLDENS",
+        "depth_structural_template": "PARTIAL_ACROSS_ALL_GOLDENS",
+        "original_camera_or_ae_parenting": "BLOCKED_OR_UNKNOWN",
+        "source_lock_reflow": "EXCLUDED_FROM_STRUCTURAL_CAMERA_GRAMMAR"
+      }
     },
     {
       "id": "T08-W3",
       "priority": "P0",
       "name": "Stimulus and retention grammar",
-      "status": "PENDING",
+      "status": "ACTIVE_NEXT_FRONTIER",
       "why": "Replicating the editing identity requires the cadence of pattern interrupts, caption refreshes, inserts, depth changes, camera changes and deliberate calm windows, not only element geometry.",
       "scenes": ["S04_CIENTIFICAMENTE", "S11_UI_LIST", "S14_AUDIO_VISUAL_TEXTO", "S16_FACTOR_X"],
       "outputs": ["stimulus_timeline.json", "event_clusters.json", "retention_grammar.json", "dead_interval_report.json"],
-      "tests": ["visual events/sec", "P50/P90 stimulus interval", "max dead interval", "cluster completeness", "calm-hold preservation"],
-      "dod": "Every high-salience attention event is represented as a causal event cluster and the reusable retention cadence is measurable without equating object count with quality."
+      "tests": ["visual events/sec", "P50/P90 stimulus interval", "max dead interval", "cluster completeness", "calm-hold preservation", "no object-count-as-retention-quality laundering"],
+      "dod": "Every high-salience attention event is represented as a causal event cluster and the reusable retention cadence is measurable without equating object count or raw pixel change with retention quality."
     },
     {
       "id": "T08-W4",
@@ -97,5 +116,5 @@
       "dod": "Three unseen content packs reproduce the editing identity while source-specific media/copy/assets are replaced and no original literal content leaks into the structural template."
     }
   ],
-  "next_safe_action": "Execute T08-W2 on PR #157 without reopening W1: corroborate the 220 low-amplitude bbox-motion candidates with source-bound optical flow; separate global/editorial reframe from source-native/local motion; construct cycle-free depth/occlusion partial orders; preserve unsupported relations as UNKNOWN; keep all golden renderer branches read-only unless a new regression is demonstrated."
+  "next_safe_action": "Execute T08-W3 over S04/S11/S14/S16 without reopening W1/W2: compile high-salience source-bound events and causal event clusters; measure event cadence, P50/P90 inter-stimulus intervals and maximum dead intervals; preserve S16 local54..86 as an intentional calm hold; distinguish semantic/editorial stimulus from source-native subject movement, media playback and SOURCE_LOCK UI; do not infer retention quality or audience effect from event count, pixel activity or cadence alone."
 }
