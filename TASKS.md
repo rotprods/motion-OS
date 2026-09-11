@@ -86,7 +86,8 @@
 - [ ] Promote PR #128 only after the full-corpus gates above pass; physical smoke alone is insufficient.
 
 ### Current external blocker
-- AVE private Actions jobs are currently terminating before any step starts, including the repository's pre-existing CI. Treat this as `RUNNER_UNAVAILABLE / CAUSE_UNRESOLVED`, not a test failure. The local/Mac qualification runner is the operational escape hatch and preserves all thresholds.
+- [x] Root cause identified: the account-level GitHub Actions included usage and configured Actions budget are exhausted for the current billing period, preventing private-repository runner allocation. This explains the no-step AVE failures and is not a semantic-plane test failure.
+- [ ] Restore private Actions capacity by changing the account Actions budget/capacity, or run the fail-closed local/Mac qualification path. Do not lower semantic quality thresholds to bypass the infrastructure gate.
 
 ## P2 — operations
 - [ ] Protect `main` / private-repo hardening when a settings-write path is available.
