@@ -5,9 +5,11 @@ on:
     paths:
       - "src/semantic_index/**"
       - "tests/test_semantic*.py"
+      - "benchmarks/semantic_retrieval_v1.json"
       - ".semantic-index.json"
       - "compose.semantic.yml"
       - "scripts/bootstrap_semantic_plane.sh"
+      - "scripts/qualify_semantic_corpus.sh"
       - ".github/workflows/semantic-live-smoke.yml"
   workflow_dispatch:
 
@@ -158,6 +160,8 @@ jobs:
           assert graphify["query_batches"] > 0, graphify
           assert graphify["write_batches"] > 0, graphify
           assert graphify["edges"] > 0, graphify
+          assert graphify["vector_payload_transfer"] == "none", graphify
+          assert graphify["graphify_version"] == "graphify-v4-qdrant-prefetch-rerank", graphify
           assert query["hits"], query
           assert query["active_retrieval_levels"] == ["L8", "L9", "L10", "L11", "L12"], query
           top = query["hits"][0]
