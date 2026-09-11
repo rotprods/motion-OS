@@ -1,0 +1,108 @@
+{
+  "schema_version": "motion-os.golden-escaped-failures/v1",
+  "authority": "DERIVED_FROM_PERSISTED_DEFECT_GRAPHS",
+  "families": [
+    {
+      "id": "GF-001",
+      "family": "CONVERSATIONAL_EXECUTION_CLAIM_WITHOUT_DURABLE_PROVIDER_EVIDENCE",
+      "origin_scenes": ["S16_FACTOR_X"],
+      "invariant": "No EXECUTED/VERIFIED/FIDELITY authority may derive from chat state alone. Require resolvable head + provider run + artifact/evidence provenance."
+    },
+    {
+      "id": "GF-002",
+      "family": "MEAN_GATE_HIDES_WORST_FRAME_RESIDUAL",
+      "origin_scenes": ["S04_CIENTIFICAMENTE"],
+      "invariant": "Every fidelity gate over frame series must preserve at least minimum/worst-frame and low-percentile evidence in addition to the mean. Mean success cannot erase a material local residual."
+    },
+    {
+      "id": "GF-003",
+      "family": "MEASUREMENT_TARGET_IDENTITY_NOT_ISOLATED",
+      "origin_scenes": ["S11_UI_LIST", "S14_AUDIO_VISUAL_TEXTO"],
+      "invariant": "A target entity must have semantically isolated measurement identity before connected-component geometry is used for fidelity authority."
+    },
+    {
+      "id": "GF-004",
+      "family": "STATIC_OR_SUMMARY_REPRESENTATION_COLLAPSED_TEMPORAL_TRAJECTORY",
+      "origin_scenes": ["S11_UI_LIST", "S14_AUDIO_VISUAL_TEXTO"],
+      "invariant": "Continuous source-visible motion may not be replaced by one stable bbox or coarse semantic anchor without equivalence proof."
+    },
+    {
+      "id": "GF-005",
+      "family": "HAND_AUTHORED_SPARSE_PROJECTION_NOT_MECHANICALLY_DERIVED_FROM_FULL_FRAME_AUTHORITY",
+      "origin_scenes": ["S16_FACTOR_X"],
+      "invariant": "A reduced/keyframe projection may replace a full-frame measured track only if an automated equivalence test proves declared error bounds."
+    },
+    {
+      "id": "GF-006",
+      "family": "CROSS_AUTHORITY_GEOMETRY_COMPARISON",
+      "origin_scenes": ["S16_FACTOR_X"],
+      "invariant": "The oracle must compare the same authority type: layout proxy to layout proxy, visible glyph outline to visible glyph outline, asset morphology to asset morphology."
+    },
+    {
+      "id": "GF-007",
+      "family": "DESCENDING_PHYSICAL_AXIS_USED_DIRECTLY_AS_MONOTONIC_INTERPOLATION_DOMAIN",
+      "origin_scenes": ["S16_FACTOR_X"],
+      "invariant": "Renderer interpolation domains must satisfy runtime monotonicity independently of physical direction; mapping equivalence must be regression-tested."
+    },
+    {
+      "id": "GF-008",
+      "family": "RENDERER_TRANSIENT_PEAK_LATENCY",
+      "origin_scenes": ["S14_AUDIO_VISUAL_TEXTO"],
+      "invariant": "Canonical source audio-event timing and renderer scheduling compensation are separate nodes. Calibration may move the renderer event but may never rewrite source timing."
+    },
+    {
+      "id": "GF-009",
+      "family": "TRACK_IDENTITY_SWAP_DURING_CROSSING",
+      "origin_scenes": ["S14_AUDIO_VISUAL_TEXTO"],
+      "invariant": "Entity identity across crossings must use temporal continuity/semantic evidence. Corrections are versioned and preserve original raw measurements."
+    },
+    {
+      "id": "GF-010",
+      "family": "TEST_ASSERTS_DOCUMENTATION_WORDING_INSTEAD_OF_SEMANTIC_AUTHORITY",
+      "origin_scenes": ["S14_AUDIO_VISUAL_TEXTO"],
+      "invariant": "Tests protect contracts/state/behavior, not arbitrary prose strings. Documentation cannot become runtime authority through brittle assertions."
+    },
+    {
+      "id": "GF-011",
+      "family": "INVALID_OR_MANUALLY_RECONSTRUCTED_GITHUB_ACTION_PIN",
+      "origin_scenes": ["S14_AUDIO_VISUAL_TEXTO"],
+      "invariant": "Action revisions require provider-resolvable provenance. Never repair an immutable SHA by visually guessing missing characters; shape validation alone is insufficient."
+    },
+    {
+      "id": "GF-012",
+      "family": "DYNAMIC_MODULE_EXECUTION_WITHOUT_IMPORT_SYSTEM_REGISTRATION",
+      "origin_scenes": ["S14_AUDIO_VISUAL_TEXTO"],
+      "invariant": "Dynamic Python test modules using dataclass/type resolution must be registered in sys.modules before exec_module. Harness failures cannot be attributed to product code."
+    },
+    {
+      "id": "GF-013",
+      "family": "STALE_FRONTIER_PROJECTION_REPLAYS_COMPLETED_WORK",
+      "origin_scenes": ["PROGRAM"],
+      "invariant": "A zero-context successor must reconcile live Git/CI/Drive/Event Bus before executing a frontier. Active frontier state must identify the evidence head, current wave and exact next action; stale projection text cannot override live durable truth."
+    },
+    {
+      "id": "GF-014",
+      "family": "FOREGROUND_MOTION_LAUNDERED_AS_CAMERA",
+      "origin_scenes": ["S04_CIENTIFICAMENTE", "S11_UI_LIST", "S14_AUDIO_VISUAL_TEXTO"],
+      "invariant": "Foreground/object/group movement cannot grant global camera authority unless common/background source-pixel motion independently supports a global frame transform."
+    },
+    {
+      "id": "GF-015",
+      "family": "LOW_TEXTURE_BACKGROUND_FLOW_FALSE_NEGATIVE_ON_GLOBAL_REFLOW",
+      "origin_scenes": ["S16_FACTOR_X"],
+      "invariant": "Low background optical flow is insufficient to prove global stasis in low-texture regions. Multi-entity common displacement and source-UI evidence must be considered before camera/reflow classification."
+    },
+    {
+      "id": "GF-016",
+      "family": "LOW_AMPLITUDE_BBOX_VARIATION_PROMOTED_WITHOUT_PIXEL_FLOW_CORROBORATION",
+      "origin_scenes": ["S04_CIENTIFICAMENTE", "S11_UI_LIST", "S14_AUDIO_VISUAL_TEXTO", "S16_FACTOR_X"],
+      "invariant": "Low-amplitude bbox variation remains a candidate until source-pixel evidence corroborates it. Directional pixel-flow corroboration grants visible local-motion proxy only, never original easing, transform or camera causality."
+    },
+    {
+      "id": "GF-017",
+      "family": "TOTAL_Z_ORDER_INVENTED_FROM_FLATTENED_SOURCE",
+      "origin_scenes": ["S04_CIENTIFICAMENTE", "S11_UI_LIST", "S14_AUDIO_VISUAL_TEXTO", "S16_FACTOR_X"],
+      "invariant": "Depth authority is an acyclic partial order. Unsupported pairs remain first-class UNKNOWN relations; topological convenience may not create unobserved pairwise z-order authority."
+    }
+  ]
+}
