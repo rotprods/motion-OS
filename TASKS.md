@@ -71,14 +71,22 @@
 - [x] Deterministic 20D coarse router + exact 1024D rerank.
 - [x] Reuse AVE dependency/community graph as explicitly structural payload metadata.
 - [x] `/graphify` semantic-neighbor materialization and `/cos-graph-engine` retrieval surface.
+- [x] `graphify-v4`: Qdrant-side `cos20` prefetch → exact semantic rerank with no 1024D vector transfer to Python.
 - [x] Deterministic synthetic routing benchmark and unit/contract suite.
-- [ ] Run bootstrap on target Mac host with Ollama + Qdrant and require `doctor.ok=true`.
-- [ ] Fully index current `rotprods/ave` + `rotprods/motion-OS` commits and record chunk/point counts.
+- [x] Physical clean-runner Ollama + Qdrant + real BGE-M3 smoke; `doctor.ok=true`, live query and live benchmark PASS.
+- [x] Exact-head `Merge Safe` proof for `a1b69658b2a5032dfc298bdf6062bb686209a1ee`.
+- [x] Define and freeze 25 labeled real cross-repo queries; guard known stale architecture paths by test.
+- [x] Add fail-closed `scripts/qualify_semantic_corpus.sh` for target Mac/local execution.
+- [ ] Run the full dual-repo qualification against current AVE + verified MOTION head on an allocated runner/Mac.
+- [ ] Record final AVE + MOTION chunk/point counts.
 - [ ] Graphify the complete indexed corpus and record cross-repo edge statistics.
-- [ ] Execute live latency/throughput benchmark on target host.
-- [ ] Build >=25 labeled real cross-repo queries and report Recall@10/MRR/NDCG.
+- [ ] Report real-corpus Recall@10/MRR/NDCG against the frozen 25-query benchmark.
+- [ ] Create, hash and retain the portable Qdrant full-corpus snapshot.
 - [ ] Use the indexed corpus to close `reference retrieval → Visual DNA → style synthesis → rendered comparison`.
-- [ ] MERGE_SAFE clean-runner proof before canonical promotion.
+- [ ] Promote PR #128 only after the full-corpus gates above pass; physical smoke alone is insufficient.
+
+### Current external blocker
+- AVE private Actions jobs are currently terminating before any step starts, including the repository's pre-existing CI. Treat this as `RUNNER_UNAVAILABLE / CAUSE_UNRESOLVED`, not a test failure. The local/Mac qualification runner is the operational escape hatch and preserves all thresholds.
 
 ## P2 — operations
 - [ ] Protect `main` / private-repo hardening when a settings-write path is available.
