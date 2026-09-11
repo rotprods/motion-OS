@@ -57,6 +57,39 @@ def test_exact_and_structural_authority_are_not_conflated():
     assert s14_audio["structural_template"]["state"] == "QUALIFIED"
 
 
+def test_w2_projection_binds_exact_qualified_evidence_and_preserves_scene_limits():
+    m = matrix()
+    w2 = m["generated_from"]["t08_w2"]
+    assert w2 == {
+        "qualification_head": "80d8926f49873dabc64cc381e22806fc92740194",
+        "workflow_run": 34600058526,
+        "artifact_id": 10263503237,
+        "artifact_digest": "sha256:d9994c23d4915273d41ac14ffed1452bc696abae69c4cb1d8815398695633a78",
+        "drive_artifact_id": "11P40ZMe2khhyHOKep3vGh3Q9Xe86u-Ro",
+        "drive_evidence_summary_id": "1CCGajR2_ysAm6jqVh8HSbRMkTymywJK7",
+        "drive_qualification_id": "1rlNiPy70UzTVm-EzIlozRwgpXUkRJtQ7",
+    }
+
+    s04 = m["scenes"]["S04_CIENTIFICAMENTE"]["dimensions"]
+    assert s04["camera"]["reconstruct_exact"]["state"] == "PARTIAL"
+    assert s04["camera"]["structural_template"]["state"] == "PARTIAL"
+    assert any("subject-precomp" in x for x in s04["camera"]["reconstruct_exact"]["blocked_aspects"])
+    assert s04["depth"]["structural_template"]["state"] == "PARTIAL"
+
+    for scene_id in ("S11_UI_LIST", "S14_AUDIO_VISUAL_TEXTO", "S16_FACTOR_X"):
+        dims = m["scenes"][scene_id]["dimensions"]
+        assert dims["camera"]["reconstruct_exact"]["state"] == "PARTIAL"
+        assert dims["camera"]["structural_template"]["state"] == "QUALIFIED"
+        assert dims["camera"]["structural_template"]["blocked_aspects"] == []
+        assert dims["depth"]["reconstruct_exact"]["state"] == "PARTIAL"
+        assert dims["depth"]["structural_template"]["state"] == "PARTIAL"
+
+    assert m["aggregate"]["reconstruct_exact"]["camera"] == "PARTIAL_ACROSS_ALL_GOLDENS"
+    assert m["aggregate"]["reconstruct_exact"]["depth"] == "PARTIAL_ACROSS_ALL_GOLDENS"
+    assert m["aggregate"]["structural_template"]["camera"] == "MIXED_QUALIFIED_PARTIAL_S04_CAUSAL_LIMIT"
+    assert m["aggregate"]["structural_template"]["depth"] == "PARTIAL_ACROSS_ALL_GOLDENS"
+
+
 def test_visible_layout_success_does_not_promote_full_9d():
     m = matrix()
     assert m["promotion"]["full_9d_fidelity_validated"] is False
