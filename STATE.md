@@ -9,7 +9,7 @@
 - CI Python 3.12: PASS.
 - Repo Health: PASS.
 - Security Baseline: PASS.
-- Phase 08 AVE × MOTION semantic knowledge plane: **IMPLEMENTED ON CANDIDATE BRANCH; NOT YET LIVE-VERIFIED OR CANONICAL**.
+- Phase 08 AVE × MOTION semantic knowledge plane: **IMPLEMENTED + PHYSICAL CLEAN-RUNNER SMOKE VERIFIED ON PR #128; FULL DUAL-REPO CORPUS NOT YET QUALIFIED OR CANONICAL**.
 
 ## Product state
 - Phase: v0.9.1 creative convergence + generalization validation.
@@ -36,7 +36,12 @@
 - Native semantic vector: local Ollama `bge-m3` 1024D.
 - Derived `cos20`: deterministic 20D coarse routing vector; exact 1024D rerank determines final semantic ranking.
 - AVE `GRAPH/graph.json` and `communities.json` are reused as repository-owned structural metadata rather than replaced or reinterpreted as semantic truth.
-- Live host bootstrap, full AVE+MOTION indexing, graphify, real-corpus labeled retrieval evaluation and MERGE_SAFE remain promotion gates.
+- Exact head `a1b69658b2a5032dfc298bdf6062bb686209a1ee`: `Merge Safe` PASS + physical `Semantic Live Smoke` PASS with real `ollama/ollama:0.33.2`, `bge-m3` 1024D and `qdrant/qdrant:v1.19.0`.
+- Latest clean-runner physical smoke observed end-to-end search p50 104.633 ms / p95 117.014 ms and Ollama batch-4 p50 264.509 ms / p95 264.812 ms. These are smoke-runner measurements, not full-corpus SLOs.
+- `graphify-v4-qdrant-prefetch-rerank` performs `cos20` prefetch + exact semantic rerank inside Qdrant and transfers no 1024D vectors back to Python during graphification.
+- 25-query real-corpus benchmark ground truth is frozen and stale architecture labels are guarded by tests. AVE stale authority docs discovered during archaeology are excluded from the AVE semantic corpus until repaired.
+- Full AVE + MOTION indexing, complete cross-repo graphify, labeled Recall@10/MRR/NDCG and portable Qdrant snapshot remain the promotion gate.
+- AVE private GitHub Actions currently fails before any job step begins; this is recorded as runner unavailable / cause unresolved, not as a semantic-plane test failure. `scripts/qualify_semantic_corpus.sh` is the fail-closed local/Mac execution path.
 
 ## Persistence
 - GitHub = software truth.
