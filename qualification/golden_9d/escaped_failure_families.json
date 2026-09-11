@@ -73,6 +73,36 @@
       "family": "DYNAMIC_MODULE_EXECUTION_WITHOUT_IMPORT_SYSTEM_REGISTRATION",
       "origin_scenes": ["S14_AUDIO_VISUAL_TEXTO"],
       "invariant": "Dynamic Python test modules using dataclass/type resolution must be registered in sys.modules before exec_module. Harness failures cannot be attributed to product code."
+    },
+    {
+      "id": "GF-013",
+      "family": "STALE_FRONTIER_PROJECTION_REPLAYS_COMPLETED_WORK",
+      "origin_scenes": ["PROGRAM"],
+      "invariant": "A zero-context successor must reconcile live Git/CI/Drive/Event Bus before executing a frontier. Active frontier state must identify the evidence head, current wave and exact next action; stale projection text cannot override live durable truth."
+    },
+    {
+      "id": "GF-014",
+      "family": "FOREGROUND_MOTION_LAUNDERED_AS_CAMERA",
+      "origin_scenes": ["S04_CIENTIFICAMENTE", "S11_UI_LIST", "S14_AUDIO_VISUAL_TEXTO"],
+      "invariant": "Foreground/object/group movement cannot grant global camera authority unless common/background source-pixel motion independently supports a global frame transform."
+    },
+    {
+      "id": "GF-015",
+      "family": "LOW_TEXTURE_BACKGROUND_FLOW_FALSE_NEGATIVE_ON_GLOBAL_REFLOW",
+      "origin_scenes": ["S16_FACTOR_X"],
+      "invariant": "Low background optical flow is insufficient to prove global stasis in low-texture regions. Multi-entity common displacement and source-UI evidence must be considered before camera/reflow classification."
+    },
+    {
+      "id": "GF-016",
+      "family": "LOW_AMPLITUDE_BBOX_VARIATION_PROMOTED_WITHOUT_PIXEL_FLOW_CORROBORATION",
+      "origin_scenes": ["S04_CIENTIFICAMENTE", "S11_UI_LIST", "S14_AUDIO_VISUAL_TEXTO", "S16_FACTOR_X"],
+      "invariant": "Low-amplitude bbox variation remains a candidate until source-pixel evidence corroborates it. Directional pixel-flow corroboration grants visible local-motion proxy only, never original easing, transform or camera causality."
+    },
+    {
+      "id": "GF-017",
+      "family": "TOTAL_Z_ORDER_INVENTED_FROM_FLATTENED_SOURCE",
+      "origin_scenes": ["S04_CIENTIFICAMENTE", "S11_UI_LIST", "S14_AUDIO_VISUAL_TEXTO", "S16_FACTOR_X"],
+      "invariant": "Depth authority is an acyclic partial order. Unsupported pairs remain first-class UNKNOWN relations; topological convenience may not create unobserved pairwise z-order authority."
     }
   ]
 }
