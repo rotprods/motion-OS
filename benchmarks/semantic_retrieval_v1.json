@@ -152,11 +152,12 @@
       ]
     },
     {
-      "id": "ave-canonical-ops",
-      "query": "Where are AVE's canonical operating and agent instructions defined?",
+      "id": "ave-project-state",
+      "query": "Where are AVE's current project goal, operational status and module state graph documented?",
       "expected": [
-        {"repo": "rotprods/ave", "path_glob": "CANON.md"},
-        {"repo": "rotprods/ave", "path_glob": "AGENTS.md"}
+        {"repo": "rotprods/ave", "path_glob": "GOAL-STATE.md"},
+        {"repo": "rotprods/ave", "path_glob": "STATUS.md"},
+        {"repo": "rotprods/ave", "path_glob": "STATE_GRAPH.md"}
       ]
     },
     {
