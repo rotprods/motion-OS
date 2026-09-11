@@ -15,24 +15,24 @@
       "query": "Where is Motion's Visual DNA extraction pipeline that converts reference video evidence into structured visual features?",
       "expected": [
         {"repo": "rotprods/motion-OS", "path_glob": "src/extraction/**"},
-        {"repo": "rotprods/motion-OS", "path_glob": "src/visual_dna/**"}
+        {"repo": "rotprods/motion-OS", "path_glob": "config/visual_dna_taxonomy.yaml"}
       ]
     },
     {
       "id": "motion-motionstyle-normalization",
       "query": "Where is MotionStyle2JSON normalized and compiled into executable motion scene contracts?",
       "expected": [
-        {"repo": "rotprods/motion-OS", "path_glob": "src/extraction/normalize.py"},
-        {"repo": "rotprods/motion-OS", "path_glob": "src/extraction/compilers.py"}
+        {"repo": "rotprods/motion-OS", "path_glob": "src/normalization/motionstyle.py"},
+        {"repo": "rotprods/motion-OS", "path_glob": "src/compilers/remotion.py"}
       ]
     },
     {
       "id": "motion-style-signature",
-      "query": "Where are StyleSignatures represented, persisted, and retrieved for reference style reuse?",
+      "query": "Where are StyleSignatures represented, persisted, retrieved, and converted into reference-conditioning evidence for style reuse?",
       "expected": [
         {"repo": "rotprods/motion-OS", "path_glob": "src/knowledge/style_signature.py"},
         {"repo": "rotprods/motion-OS", "path_glob": "src/knowledge/style_store.py"},
-        {"repo": "rotprods/motion-OS", "path_glob": "src/knowledge/reference_store.py"}
+        {"repo": "rotprods/motion-OS", "path_glob": "src/core/reference_conditioning.py"}
       ]
     },
     {
@@ -77,15 +77,16 @@
       "query": "Where are the schemas and traceability contracts for extracted visual evidence and Visual DNA?",
       "expected": [
         {"repo": "rotprods/motion-OS", "path_glob": "schemas/**"},
-        {"repo": "rotprods/motion-OS", "path_glob": "tests/*visual*dna*"}
+        {"repo": "rotprods/motion-OS", "path_glob": "tests/test_phase04_contracts.py"}
       ]
     },
     {
       "id": "motion-phase04-superwave",
-      "query": "Where is the Phase 04 Visual DNA superwave orchestration and reference-analysis execution entrypoint?",
+      "query": "Where is the Phase 04 Visual DNA reference-analysis execution entrypoint and corpus orchestration?",
       "expected": [
-        {"repo": "rotprods/motion-OS", "path_glob": "scripts/run_phase04_visual_dna_superwave.py"},
-        {"repo": "rotprods/motion-OS", "path_glob": "plans/*phase*04*"}
+        {"repo": "rotprods/motion-OS", "path_glob": "scripts/analyze_video.py"},
+        {"repo": "rotprods/motion-OS", "path_glob": "scripts/analyze_corpus.py"},
+        {"repo": "rotprods/motion-OS", "path_glob": "plans/phase_04_visual_dna_extraction_and_style_compiler.md"}
       ]
     },
     {
@@ -159,10 +160,11 @@
     },
     {
       "id": "cross-reference-to-render",
-      "query": "Trace the system from reference retrieval and Visual DNA extraction into executable rendering across Motion and AVE.",
+      "query": "Trace the system from reference analysis and Visual DNA extraction through MotionStyle normalization and Remotion compilation into executable rendering across Motion and AVE.",
       "expected": [
         {"repo": "rotprods/motion-OS", "path_glob": "src/extraction/**"},
-        {"repo": "rotprods/motion-OS", "path_glob": "src/visual_dna/**"},
+        {"repo": "rotprods/motion-OS", "path_glob": "src/normalization/motionstyle.py"},
+        {"repo": "rotprods/motion-OS", "path_glob": "src/compilers/remotion.py"},
         {"repo": "rotprods/ave", "path_glob": "core/render.js"},
         {"repo": "rotprods/ave", "path_glob": "render/**"}
       ]
