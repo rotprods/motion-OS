@@ -58,6 +58,7 @@ def test_ground_truth_contains_no_known_stale_architecture_paths() -> None:
         "src/knowledge/reference_store.py",
         "scripts/run_phase04_visual_dna_superwave.py",
         "hooks/**",
+        "CANON.md",
     }
     found = sorted(path for path in stale if path in dataset_text)
     assert not found, "known stale benchmark labels reintroduced: " + ", ".join(found)
