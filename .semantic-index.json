@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "repo_id": "rotprods/motion-OS",
+  "include": ["*", "**/*"],
+  "exclude": [
+    "qdrant_storage/**",
+    ".qdrant/**",
+    "runtime/remotion/node_modules/**",
+    "runtime/remotion/.next/**"
+  ],
+  "max_file_bytes": 1572864,
+  "store_text": true,
+  "chunk": {
+    "target_chars": 1600,
+    "max_chars": 2200,
+    "overlap_chars": 240
+  }
+}

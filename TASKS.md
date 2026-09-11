@@ -63,6 +63,32 @@
 - [ ] Persist corpus StyleSignatures and evaluate retrieval quality.
 - [ ] Compile + **actually render** >=3 analyzed references through Remotion production runtime.
 
+## P1 — Phase 08 semantic knowledge plane
+- [x] Source-aware deterministic chunking with repo/commit/path/line/hash provenance.
+- [x] Secret-path exclusion + common inline credential redaction.
+- [x] Local Ollama `bge-m3` 1024D embedding contract with fail-closed dimension probe.
+- [x] Versioned Qdrant named-vector contract: `semantic` 1024D + `cos20` 20D.
+- [x] Deterministic 20D coarse router + exact 1024D rerank.
+- [x] Reuse AVE dependency/community graph as explicitly structural payload metadata.
+- [x] `/graphify` semantic-neighbor materialization and `/cos-graph-engine` retrieval surface.
+- [x] `graphify-v4`: Qdrant-side `cos20` prefetch → exact semantic rerank with no 1024D vector transfer to Python.
+- [x] Deterministic synthetic routing benchmark and unit/contract suite.
+- [x] Physical clean-runner Ollama + Qdrant + real BGE-M3 smoke; `doctor.ok=true`, live query and live benchmark PASS.
+- [x] Exact-head `Merge Safe` proof for `a1b69658b2a5032dfc298bdf6062bb686209a1ee`.
+- [x] Define and freeze 25 labeled real cross-repo queries; guard known stale architecture paths by test.
+- [x] Add fail-closed `scripts/qualify_semantic_corpus.sh` for target Mac/local execution.
+- [ ] Run the full dual-repo qualification against current AVE + verified MOTION head on an allocated runner/Mac.
+- [ ] Record final AVE + MOTION chunk/point counts.
+- [ ] Graphify the complete indexed corpus and record cross-repo edge statistics.
+- [ ] Report real-corpus Recall@10/MRR/NDCG against the frozen 25-query benchmark.
+- [ ] Create, hash and retain the portable Qdrant full-corpus snapshot.
+- [ ] Use the indexed corpus to close `reference retrieval → Visual DNA → style synthesis → rendered comparison`.
+- [ ] Promote PR #128 only after the full-corpus gates above pass; physical smoke alone is insufficient.
+
+### Current external blocker
+- [x] Root cause identified: the account-level GitHub Actions included usage and configured Actions budget are exhausted for the current billing period, preventing private-repository runner allocation. This explains the no-step AVE failures and is not a semantic-plane test failure.
+- [ ] Restore private Actions capacity by changing the account Actions budget/capacity, or run the fail-closed local/Mac qualification path. Do not lower semantic quality thresholds to bypass the infrastructure gate.
+
 ## P2 — operations
 - [ ] Protect `main` / private-repo hardening when a settings-write path is available.
 - [ ] Fully automate connector-backed session-close.
