@@ -1,0 +1,20 @@
+{
+  "affected_paths": [
+    ".semantic-index.json",
+    "docs/SEMANTIC_CI_REPAIR_2026-09-12.md",
+    "src/semantic_index/evaluation.py"
+  ],
+  "agent_id": "motion://agent/ci-remediation-motion-20260912",
+  "authority": "EXECUTED",
+  "branch": "fix/semantic-evaluation-integrity-20260912",
+  "checks": {},
+  "commit_sha": "92524aa622ebc6fcf0b77b7ba0e91fd0d852ec03",
+  "correlation_id": "motion://work/semantic-evaluation-integrity-20260912",
+  "event_id": "20260912T173430885615Z-motion-agent-ci-remediation-motion-20260912-6e118430",
+  "event_type": "work.blocked",
+  "metadata": {},
+  "pr_number": 128,
+  "project": "MOTION.OS",
+  "summary": "Session motion://session/ci-remediation-motion-20260912: evaluation/corpus integrity repair locally verified (18 targeted; 325 full quick). Full-corpus retrieval remains below frozen quality gates and requires physical requalification; owner PR128 unchanged. Structured checkpoint docs/SEMANTIC_CI_REPAIR_2026-09-12.md. Isolated branch scope released.",
+  "timestamp": "2026-09-12T17:34:30.885615Z"
+}

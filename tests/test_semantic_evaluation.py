@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 from src.semantic_index.core import SearchHit
-from src.semantic_index.evaluation import evaluate_dataset, load_dataset, score_case
+from src.semantic_index.evaluation import EvaluationCase, ExpectedTarget, evaluate_dataset, load_dataset, score_case
 
 
 def _hit(point_id: str, repo: str, path: str, score: float) -> SearchHit:
@@ -21,7 +21,7 @@ class FakePlane:
         return list(self.by_query[query])[:limit]
 
 
-def test_score_case_deduplicates_chunks_by_file_before_ranking() -> None:
+def test_score_case_deduplicates_chunks_by_file_before_ranking(tmp_path: Path) -> None:
     dataset = {
         "name": "dedupe",
         "k": 3,
@@ -37,7 +37,7 @@ def test_score_case_deduplicates_chunks_by_file_before_ranking() -> None:
             }
         ]
     }
-    case = load_dataset(_write_dataset(dataset)).cases[0]
+    case = load_dataset(_write_dataset(dataset, tmp_path)).cases[0]
     result = score_case(
         case,
         [
@@ -54,8 +54,8 @@ def test_score_case_deduplicates_chunks_by_file_before_ranking() -> None:
     assert result["reciprocal_rank"] == 1.0
 
 
-def _write_dataset(payload: dict) -> Path:
-    path = Path(__file__).with_name("_tmp_semantic_eval.json")
+def _write_dataset(payload: dict, directory: Path) -> Path:
+    path = directory / "semantic_eval.json"
     path.write_text(json.dumps(payload), encoding="utf-8")
     return path
 
@@ -118,3 +118,42 @@ def test_dataset_rejects_duplicate_case_ids(tmp_path: Path) -> None:
         assert "duplicate" in str(exc)
     else:
         raise AssertionError("duplicate ids must fail closed")
+
+
+def test_ndcg_does_not_reward_repeated_files_in_one_target_group() -> None:
+    case = EvaluationCase("glob", "find docs", (ExpectedTarget("repo/a", "docs/**"),))
+    hits = [
+        _hit("1", "repo/a", "docs/a.md", 0.9),
+        _hit("2", "repo/a", "docs/b.md", 0.8),
+        _hit("3", "repo/a", "docs/c.md", 0.7),
+    ]
+    result = score_case(case, hits, k=3)
+    assert result["ndcg_at_k"] == 1.0
+    assert result["covered_targets"] == 1
+    assert [row["new_target_indices"] for row in result["ranked_files"]] == [[0], [], []]
+
+
+def test_repeated_target_does_not_hide_a_delayed_second_target() -> None:
+    case = EvaluationCase("two", "find code and docs", (
+        ExpectedTarget("repo/a", "docs/**"), ExpectedTarget("repo/a", "src/**"),
+    ))
+    result = score_case(case, [
+        _hit("1", "repo/a", "docs/a.md", 0.9),
+        _hit("2", "repo/a", "docs/b.md", 0.8),
+        _hit("3", "repo/a", "src/code.py", 0.7),
+    ], k=3)
+    assert result["ndcg_at_k"] == 0.919721
+    assert result["recall_at_k"] == 1.0
+
+
+def test_overlapping_target_globs_cannot_inflate_ndcg() -> None:
+    case = EvaluationCase("overlap", "find code", (
+        ExpectedTarget("repo/a", "src/**"), ExpectedTarget("repo/a", "src/a.py"),
+    ))
+    result = score_case(case, [
+        _hit("1", "repo/a", "src/a.py", 0.9),
+        _hit("2", "repo/a", "src/b.py", 0.8),
+        _hit("3", "repo/a", "src/c.py", 0.7),
+    ], k=3)
+    assert 0.0 <= result["ndcg_at_k"] <= 1.0
+    assert result["recall_at_k"] == 1.0
