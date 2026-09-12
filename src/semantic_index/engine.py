@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Sequence
 
-from .clients import OllamaClient, QdrantClient, SemanticServiceError
+from .clients import OllamaClient, QdrantClient, SemanticServiceError, validate_semantic_vector
 from .core import COS_LEVELS, Chunk, DeterministicJLProjector, RepoManifest, SearchHit, SemanticConfig, batched, chunk_repository, cosine, l2_normalize
 from .structural import load_structural_context
 
@@ -96,14 +96,10 @@ class SemanticKnowledgePlane:
         self.qdrant.delete_stale(repo_id, run_id)
         return {"repo": repo_id, "commit": chunks[0].commit, "index_run": run_id, "chunks": len(chunks), "upserted": upserted, "collection": self.config.qdrant_collection, "semantic_dims": self.config.semantic_dims, "cos_route_dims": self.config.cos_dims, "embedding_model": self.config.ollama_model}
 
-    @staticmethod
-    def _extract_named_vector(point: dict[str, Any], name: str) -> list[float] | None:
+    def _extract_named_vector(self, point: dict[str, Any], name: str) -> list[float]:
         vectors = point.get("vector") or point.get("vectors")
-        if isinstance(vectors, dict):
-            vector = vectors.get(name)
-            if isinstance(vector, list):
-                return [float(value) for value in vector]
-        return None
+        vector = vectors.get(name) if isinstance(vectors, dict) else None
+        return validate_semantic_vector(vector, self.config.semantic_dims)
 
     def search(self, query: str, *, limit: int = 10, repo_ids: Sequence[str] | None = None, route_multiplier: int | None = None) -> list[SearchHit]:
         if not query.strip():
@@ -116,7 +112,7 @@ class SemanticKnowledgePlane:
         for candidate in candidates:
             semantic = self._extract_named_vector(candidate, "semantic")
             route_score = float(candidate.get("score", 0.0))
-            semantic_score = cosine(query_semantic, semantic) if semantic is not None else route_score
+            semantic_score = cosine(query_semantic, semantic)
             hits.append(SearchHit(point_id=str(candidate.get("id")), semantic_score=semantic_score, route_score=route_score, payload=dict(candidate.get("payload") or {})))
         hits.sort(key=lambda hit: (hit.semantic_score, hit.route_score), reverse=True)
         return hits[:limit]

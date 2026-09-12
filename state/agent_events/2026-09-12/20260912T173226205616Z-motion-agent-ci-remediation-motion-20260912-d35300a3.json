@@ -1,0 +1,21 @@
+{
+  "affected_paths": [
+    ".semantic-index.json",
+    "src/semantic_index/evaluation.py",
+    "tests/test_semantic_dataset_ground_truth.py",
+    "tests/test_semantic_evaluation.py"
+  ],
+  "agent_id": "motion://agent/ci-remediation-motion-20260912",
+  "authority": "PROPOSED",
+  "branch": "fix/semantic-evaluation-integrity-20260912",
+  "checks": {},
+  "commit_sha": "92524aa622ebc6fcf0b77b7ba0e91fd0d852ec03",
+  "correlation_id": "motion://work/semantic-evaluation-integrity-20260912",
+  "event_id": "20260912T173226205616Z-motion-agent-ci-remediation-motion-20260912-d35300a3",
+  "event_type": "work.started",
+  "metadata": {},
+  "pr_number": 128,
+  "project": "MOTION.OS",
+  "summary": "Session motion://session/ci-remediation-motion-20260912 starts isolated stacked repair from PR128 head 92524aa622ebc6fcf0b77b7ba0e91fd0d852ec03. Scope: evaluation metric integrity, benchmark corpus exclusion, regressions and checkpoint only. Original PR branch remains untouched; canonical bus through comment 5634673734 inspected. Quality failure remains open and thresholds frozen.",
+  "timestamp": "2026-09-12T17:32:26.205616Z"
+}
