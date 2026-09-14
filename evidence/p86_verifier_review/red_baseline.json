@@ -1,0 +1,61 @@
+{
+  "base_commit": "45cf9c43740996abf399861cbb22ed779abb5ead",
+  "source_git_blob": "05a11c7e2128f2f07e66ea2582a37933b27f192f",
+  "results": [
+    {
+      "id": "write_permission_comment",
+      "blocking_count": 0,
+      "unsafe_pass": true
+    },
+    {
+      "id": "quoted_write_permission",
+      "blocking_count": 0,
+      "unsafe_pass": true
+    },
+    {
+      "id": "inline_privileged_trigger",
+      "blocking_count": 0,
+      "unsafe_pass": true
+    },
+    {
+      "id": "quoted_unpinned_action",
+      "blocking_count": 0,
+      "unsafe_pass": true
+    },
+    {
+      "id": "credentials_comment_impersonation",
+      "blocking_count": 0,
+      "unsafe_pass": true
+    },
+    {
+      "id": "named_step_borrows_credentials",
+      "blocking_count": 0,
+      "unsafe_pass": true
+    },
+    {
+      "id": "step_timeout_impersonates_job",
+      "blocking_count": 0,
+      "unsafe_pass": true
+    },
+    {
+      "id": "dynamic_continue_on_error",
+      "blocking_count": 1,
+      "unsafe_pass": false
+    },
+    {
+      "id": "invalid_empty_workflow",
+      "blocking_count": 0,
+      "unsafe_pass": true
+    },
+    {
+      "id": "predictable_tmp_symlink_overwrites_other_file",
+      "unsafe_pass": true,
+      "exitcode": 0
+    },
+    {
+      "id": "unreadable_input_preserves_old_pass",
+      "unsafe_pass": true,
+      "exitcode": 1
+    }
+  ]
+}

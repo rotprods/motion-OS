@@ -1,0 +1,21 @@
+{
+  "affected_paths": [
+    ".github/workflows/python-frozen-product-gauntlet.yml",
+    ".github/workflows/workflow-security.yml",
+    "scripts/workflow_security_gate.py",
+    "tests/test_workflow_security_boundaries.py"
+  ],
+  "agent_id": "motion://agent/chatgpt/cos-graph-engineV2-workflow-security",
+  "authority": "EXECUTED",
+  "branch": "feat/p8-6-workflow-supply-chain-hardening-20260909",
+  "checks": {},
+  "commit_sha": "45cf9c43740996abf399861cbb22ed779abb5ead",
+  "correlation_id": "motion://work/p8.6-workflow-supply-chain-hardening",
+  "event_id": "p86-verifier-review-20260914-started",
+  "event_type": "work.started",
+  "metadata": {},
+  "pr_number": 162,
+  "project": "MOTION.OS",
+  "summary": "Continuation of Bus39 claim 5671406324. Original exact policy blob 05a11c7e2128f2f07e66ea2582a37933b27f192f accepted eight unsafe policy fixtures; isolated real CLI also overwrote a predictable temporary symlink target and preserved stale PASS after invalid UTF8. Controlled reproductions only, not a production compromise. Scope is verifier repair and E2E trigger coverage; all promotion/provider authority remains false.",
+  "timestamp": "2026-09-14T22:18:24.170077Z"
+}
