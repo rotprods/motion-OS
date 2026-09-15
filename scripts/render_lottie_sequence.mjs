@@ -7,9 +7,9 @@ import {fileURLToPath} from 'node:url';
 
 const ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const TOOL_ROOT=path.join(ROOT,'runtime','heterogeneous-tools');
-const toolRequire=createRequire(path.join(TOOL_ROOT,'package.json'));
-const hyperframesEntry=toolRequire.resolve('hyperframes');
-const hyperframesRequire=createRequire(hyperframesEntry);
+const hyperframesPackage=path.join(TOOL_ROOT,'node_modules','hyperframes','package.json');
+if(!fs.existsSync(hyperframesPackage)) throw new Error('hyperframes package missing from installed heterogeneous toolchain');
+const hyperframesRequire=createRequire(hyperframesPackage);
 const puppeteer=hyperframesRequire('puppeteer-core');
 const puppeteerEntry=hyperframesRequire.resolve('puppeteer-core');
 const lock=JSON.parse(fs.readFileSync(path.join(TOOL_ROOT,'package-lock.json'),'utf8'));
