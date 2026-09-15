@@ -10,7 +10,7 @@ import math
 import sqlite3
 
 from .render_guard import RenderIntent, RenderState, SpendPolicy
-from .transactional_store import SQLiteTransactionalRenderStore
+from .transactional_store import Lease, SQLiteTransactionalRenderStore
 
 
 @dataclass(frozen=True, slots=True)
@@ -59,6 +59,32 @@ class SQLitePaidRenderAuthorityStore(SQLiteTransactionalRenderStore):
             conn.execute(
                 "CREATE INDEX IF NOT EXISTS idx_spend_reservations_active ON spend_reservations(active)"
             )
+
+    @staticmethod
+    def _stable_identity(intent: RenderIntent) -> tuple[object, ...]:
+        return (
+            intent.intent_id,
+            intent.content_id,
+            intent.profile_id,
+            intent.script_hash,
+            intent.estimated_credits,
+        )
+
+    def put_intent(self, intent: RenderIntent, lease: Lease) -> None:
+        """Persist state without allowing identity drift; terminal states free capacity.
+
+        `intent_id` is a content/profile/script-derived identity. Reusing it with changed
+        stable fields would make the row and append-only event payload disagree. The
+        paid authority store rejects that mutation before the parent store writes it.
+        Terminal transitions automatically release only the matching retry generation's
+        concurrency reservation so later reconciliation cannot leak capacity forever.
+        """
+        existing = self.get_intent(intent.intent_id)
+        if existing is not None and self._stable_identity(existing) != self._stable_identity(intent):
+            raise RuntimeError("render intent stable identity changed")
+        super().put_intent(intent, lease)
+        if intent.state in {RenderState.COMPLETED, RenderState.FAILED_FINAL}:
+            self.release_terminal_concurrency(intent)
 
     @staticmethod
     def _finite_nonnegative(value: object, name: str) -> float:
@@ -184,6 +210,20 @@ class SQLitePaidRenderAuthorityStore(SQLiteTransactionalRenderStore):
                     "UPDATE spend_reservations SET active=0,released_at=? WHERE reservation_id=?",
                     (released_at, reservation.reservation_id),
                 )
+            conn.execute("COMMIT")
+
+    def release_terminal_concurrency(self, intent: RenderIntent) -> None:
+        if not isinstance(intent, RenderIntent) or intent.state not in {RenderState.COMPLETED, RenderState.FAILED_FINAL}:
+            raise ValueError("terminal concurrency release requires terminal RenderIntent")
+        retry_count = self._nonnegative_int(intent.retry_count, "retry_count")
+        released_at = datetime.now(timezone.utc).isoformat()
+        with self._connect() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+            conn.execute(
+                "UPDATE spend_reservations SET active=0,released_at=? "
+                "WHERE intent_id=? AND retry_count=? AND active=1",
+                (released_at, intent.intent_id, retry_count),
+            )
             conn.execute("COMMIT")
 
     def spent_for_day(self, spend_day: str | None = None) -> float:

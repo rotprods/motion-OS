@@ -1,7 +1,9 @@
+from dataclasses import replace
+
 import pytest
 
 from src.avatar.provider_submission import SubmissionBlocked, submit_paid_render
-from src.avatar.render_guard import SpendPolicy, authorize_render
+from src.avatar.render_guard import RenderState, SpendPolicy, authorize_render
 from src.avatar.spend_reservation import SQLitePaidRenderAuthorityStore
 
 
@@ -129,6 +131,39 @@ def test_terminal_provider_result_releases_concurrency_but_keeps_daily_spend_con
     assert pending.calls == 1
     assert store.active_spend_reservation_count() == 1
     assert store.spent_for_day() == pytest.approx(7.0)
+
+
+def test_later_terminal_reconciliation_releases_capacity_automatically(tmp_path):
+    store = SQLitePaidRenderAuthorityStore(tmp_path / "later-terminal.sqlite")
+    policy = SpendPolicy(10.0, 100.0, 1)
+    intent = authorized("CNT_LATER", "script later", 3.0, policy)
+    persist(store, intent, "seed")
+    outcome = submit(store, intent, "script later", Provider(status="pending"), policy, "worker")
+    assert outcome.intent.state == RenderState.ACKNOWLEDGED
+    assert store.active_spend_reservation_count() == 1
+
+    completed = replace(outcome.intent, state=RenderState.COMPLETED)
+    persist(store, completed, "reconciler")
+    assert store.get_intent(intent.intent_id) == completed
+    assert store.active_spend_reservation_count() == 0
+    assert store.spent_for_day() == pytest.approx(3.0)
+
+
+def test_paid_authority_store_rejects_stable_identity_drift_before_event_write(tmp_path):
+    store = SQLitePaidRenderAuthorityStore(tmp_path / "identity.sqlite")
+    policy = SpendPolicy(10.0, 100.0, 1)
+    intent = authorized("CNT_ID", "script id", 2.0, policy)
+    persist(store, intent, "seed")
+    before_events = store.event_count(intent.intent_id)
+    forged = replace(intent, content_id="CNT_OTHER")
+    lease = store.acquire_lease(intent.intent_id, "forger")
+    try:
+        with pytest.raises(RuntimeError, match="stable identity"):
+            store.put_intent(forged, lease)
+    finally:
+        store.release_lease(lease)
+    assert store.get_intent(intent.intent_id) == intent
+    assert store.event_count(intent.intent_id) == before_events
 
 
 def test_same_submission_generation_cannot_reserve_spend_twice(tmp_path):
