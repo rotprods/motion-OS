@@ -45,6 +45,8 @@ jobs:
           npm ci --ignore-scripts --no-audit --fund=false
           node - <<'NODE'
           const fs=require('fs');
+          const path=require('path');
+          const {createRequire}=require('module');
           const lock=JSON.parse(fs.readFileSync('package-lock.json','utf8'));
           const hf=lock.packages['node_modules/hyperframes'];
           const lottie=lock.packages['node_modules/lottie-web'];
@@ -52,8 +54,12 @@ jobs:
           if(!hf || hf.version!=='0.8.17') throw new Error('hyperframes version mismatch');
           if(!lottie || lottie.version!=='5.13.0') throw new Error('lottie version mismatch');
           if(!puppeteer || !puppeteer.version) throw new Error('hyperframes puppeteer-core resolution missing');
-          const resolved=require.resolve('puppeteer-core',{paths:[require.resolve('hyperframes')]});
-          if(!resolved) throw new Error('puppeteer-core is not resolvable from hyperframes');
+          const rootPkg=path.resolve('node_modules/puppeteer-core/package.json');
+          const nestedBase=path.resolve('node_modules/hyperframes/package.json');
+          const resolver=fs.existsSync(rootPkg) ? createRequire(path.resolve('package.json')) : createRequire(nestedBase);
+          const resolved=resolver.resolve('puppeteer-core');
+          const moduleValue=resolver('puppeteer-core');
+          if(!resolved || !moduleValue?.launch) throw new Error('puppeteer-core installed module is not usable');
           console.log(JSON.stringify({hyperframes:hf.version,lottie:lottie.version,puppeteer_core:puppeteer.version,puppeteer_entry:resolved}));
           NODE
       - name: Audit candidate dependency graph
