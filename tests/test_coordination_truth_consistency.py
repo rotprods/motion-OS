@@ -1,6 +1,7 @@
 import pytest
 
 from src.coordination.truth_consistency import (
+    MISSING_LIVE_AUTHORITY,
     TruthClaim,
     compile_truth_consistency,
     require_truth_consistency,
@@ -18,6 +19,34 @@ def test_live_github_overrides_stale_current_lifecycle_claims():
     assert not report.ok
     assert report.stale_surfaces == ("ACTIVE_AGENTS.yaml", "project_state.json")
     assert {c.key for c in report.conflicts} == {"main:sha", "pr:44"}
+
+
+def test_current_lifecycle_claim_without_live_authority_fails_closed():
+    report = compile_truth_consistency(
+        live_github={},
+        claims=[TruthClaim("machine-view", "ci:green", True)],
+    )
+    assert not report.ok
+    assert report.stale_surfaces == ("machine-view",)
+    assert len(report.conflicts) == 1
+    conflict = report.conflicts[0]
+    assert conflict.key == "ci:green"
+    assert conflict.authoritative_value == MISSING_LIVE_AUTHORITY
+    assert conflict.conflicting_value == "true"
+    with pytest.raises(RuntimeError, match="MISSING_LIVE_AUTHORITY"):
+        require_truth_consistency(
+            live_github={},
+            claims=[TruthClaim("machine-view", "ci:green", True)],
+        )
+
+
+def test_non_lifecycle_claim_requires_a_dedicated_authority_adapter_not_github():
+    report = compile_truth_consistency(
+        live_github={},
+        claims=[TruthClaim("release-plane", "release:authority", "NONE")],
+    )
+    assert report.ok
+    assert report.conflicts == ()
 
 
 def test_historical_claims_are_preserved_without_becoming_current_conflicts():

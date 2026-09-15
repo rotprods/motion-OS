@@ -40,6 +40,14 @@ def test_lottie_renderer_resolves_puppeteer_from_installed_hyperframes_context()
     assert "hyperframesRequire.resolve('puppeteer-core')" in text
 
 
+def test_lottie_file_server_uses_path_aware_containment_not_prefix_matching():
+    text = LOTTIE_RENDERER.read_text(encoding="utf-8")
+    assert "path.relative(source,p)" in text
+    assert "path.isAbsolute(contained)" in text
+    assert "contained.startsWith(`..${path.sep}`)" in text
+    assert "p.startsWith(source)" not in text
+
+
 def test_exact_head_gate_is_bounded_and_fail_closed():
     text = EXACT_HEAD_GATE.read_text(encoding="utf-8")
     assert 'ALLOWED_EVENTS = {"pull_request", "merge_group"}' in text

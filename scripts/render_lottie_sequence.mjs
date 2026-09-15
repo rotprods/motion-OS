@@ -20,7 +20,7 @@ const frames=path.join(source,'frames');
 fs.rmSync(frames,{recursive:true,force:true}); fs.mkdirSync(frames,{recursive:true});
 const chrome=process.env.CHROME_BIN; if(!chrome) throw new Error('CHROME_BIN missing');
 const mime={'.html':'text/html','.js':'application/javascript','.json':'application/json','.png':'image/png'};
-const server=http.createServer((req,res)=>{const raw=new URL(req.url,'http://127.0.0.1').pathname; const rel=raw==='/'?'index.html':raw.slice(1); const p=path.resolve(source,rel); if(!p.startsWith(source)){res.writeHead(403);res.end();return;} if(!fs.existsSync(p)){res.writeHead(rel==='favicon.ico'?204:404);res.end();return;} res.writeHead(200,{'content-type':mime[path.extname(p)]||'application/octet-stream','cache-control':'no-store'});fs.createReadStream(p).pipe(res);});
+const server=http.createServer((req,res)=>{const raw=new URL(req.url,'http://127.0.0.1').pathname; const rel=raw==='/'?'index.html':raw.slice(1); const p=path.resolve(source,rel); const contained=path.relative(source,p); if(contained==='..'||contained.startsWith(`..${path.sep}`)||path.isAbsolute(contained)){res.writeHead(403);res.end();return;} if(!fs.existsSync(p)){res.writeHead(rel==='favicon.ico'?204:404);res.end();return;} res.writeHead(200,{'content-type':mime[path.extname(p)]||'application/octet-stream','cache-control':'no-store'});fs.createReadStream(p).pipe(res);});
 await new Promise(r=>server.listen(0,'127.0.0.1',r)); const port=server.address().port;
 let browser; const errors=[];
 try{

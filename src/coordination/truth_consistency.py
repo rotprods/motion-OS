@@ -38,6 +38,7 @@ class TruthConsistencyReport:
 
 
 LIVE_PREFIXES = ("main:", "pr:", "branch:", "commit:", "ci:")
+MISSING_LIVE_AUTHORITY = "<MISSING_LIVE_AUTHORITY>"
 
 
 def _normalized(value: Any) -> str:
@@ -60,9 +61,9 @@ def compile_truth_consistency(
     """Compare current-state claims against live executable lifecycle authority.
 
     Historical claims (`current=False`) remain evidence but never conflict with current
-    truth. Only GitHub lifecycle keys are accepted as live executable facts here; other
-    capability/release truth must be supplied by a dedicated authority adapter rather
-    than smuggled through this gate.
+    truth. A current GitHub-lifecycle claim is never allowed to become current authority
+    when the corresponding live fact is absent: missing live authority is an explicit
+    conflict, not an implicit pass. Other authority domains require their own adapter.
     """
     authoritative: dict[str, str] = {}
     for key, value in live_github.items():
@@ -75,10 +76,21 @@ def compile_truth_consistency(
     for claim in claims:
         if not claim.current:
             continue
+        if not claim.key.startswith(LIVE_PREFIXES):
+            continue
+        actual = _normalized(claim.value)
         if claim.key not in authoritative:
+            conflicts.append(
+                TruthConflict(
+                    key=claim.key,
+                    authoritative_value=MISSING_LIVE_AUTHORITY,
+                    conflicting_surface=claim.surface,
+                    conflicting_value=actual,
+                )
+            )
+            stale.add(claim.surface)
             continue
         expected = authoritative[claim.key]
-        actual = _normalized(claim.value)
         if actual != expected:
             conflicts.append(
                 TruthConflict(
