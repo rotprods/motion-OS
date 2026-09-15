@@ -8,8 +8,7 @@ on:
 
 permissions:
   contents: read
-  # Required only to read exact-head workflow conclusions for the fail-closed heterogeneous proof.
-  actions: read
+  actions: read  # Required to read exact-head workflow conclusions for the fail-closed heterogeneous proof.
 
 concurrency:
   group: merge-safe-${{ github.event.pull_request.number || github.ref }}
