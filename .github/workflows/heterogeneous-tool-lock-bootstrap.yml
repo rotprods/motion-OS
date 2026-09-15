@@ -48,11 +48,13 @@ jobs:
           const lock=JSON.parse(fs.readFileSync('package-lock.json','utf8'));
           const hf=lock.packages['node_modules/hyperframes'];
           const lottie=lock.packages['node_modules/lottie-web'];
-          const nested=lock.packages['node_modules/hyperframes/node_modules/puppeteer-core'];
+          const puppeteer=lock.packages['node_modules/hyperframes/node_modules/puppeteer-core'] || lock.packages['node_modules/puppeteer-core'];
           if(!hf || hf.version!=='0.8.17') throw new Error('hyperframes version mismatch');
           if(!lottie || lottie.version!=='5.13.0') throw new Error('lottie version mismatch');
-          if(!nested) throw new Error('hyperframes puppeteer-core missing');
-          console.log(JSON.stringify({hyperframes:hf.version,lottie:lottie.version,puppeteer_core:nested.version}));
+          if(!puppeteer || !puppeteer.version) throw new Error('hyperframes puppeteer-core resolution missing');
+          const resolved=require.resolve('puppeteer-core',{paths:[require.resolve('hyperframes')]});
+          if(!resolved) throw new Error('puppeteer-core is not resolvable from hyperframes');
+          console.log(JSON.stringify({hyperframes:hf.version,lottie:lottie.version,puppeteer_core:puppeteer.version,puppeteer_entry:resolved}));
           NODE
       - name: Audit candidate dependency graph
         working-directory: runtime/heterogeneous-tools
