@@ -1,0 +1,108 @@
+{
+  "schema_version": "1.1",
+  "evidence_id": "p7-security-critical-path-integration-2026-08-31",
+  "project": "MOTION.OS",
+  "completion_task": "P7-T01",
+  "branch": "feat/p7-security-critical-path-v1",
+  "stack_base": {
+    "branch": "feat/p4-real-master-authority-v1",
+    "sha": "8aed8f220b0ef818ac4f0d603bd080e3d85fe6e0",
+    "pr": 119
+  },
+  "live_main": {
+    "sha": "d4e628a1aef0cd382c3c2f1ea327a8ff70c41bd9",
+    "protected": false,
+    "required_status_check_enforcement": "off"
+  },
+  "promotion_barrier": {
+    "issue": 48,
+    "state": "OPEN",
+    "main_promotion_allowed": false
+  },
+  "source_lineage": [
+    {"pr":70,"head":"ceac784c9f00d560370f5d70c5666ce6072bf48f","capability":"static security gate"},
+    {"pr":71,"head":"02dc29768978e1d5dc2e2e356fc1c763e2556518","capability":"TTS semantic integrity"},
+    {"pr":73,"head":"36fd6c1dcf8a4212edeb022196b3b9bd6e3d2e8c","capability":"claim verification authority"},
+    {"pr":76,"head":"558c64cca94571c45b28dd3c8dded7423e5f42ee","capability":"provider telemetry trust and URL boundary"},
+    {"pr":100,"head":"27cd2a84e49b5c88630fa13c19891c5eec64e74b","capability":"spend and retry authority","supersedes":74},
+    {"pr":101,"head":"75a4b6ef4c5c79cf8d6c4dc95cbaa099ea694e4c","capability":"paid provider submission boundary"},
+    {"pr":106,"head":"473b9d9216315d97e0b62ceec74b8e435a912161","capability":"durable request evidence"},
+    {"pr":102,"head":"c8f11b801d1293508fb8aa5e3e84029ca43afd15","capability":"main lineage sentinel"},
+    {"pr":103,"head":"af88f74c94402a90f157c9d21e563f66071c20ac","capability":"local main push guard"}
+  ],
+  "supersession": {
+    "pr_74": "CLOSED_UNMERGED_STALE",
+    "replacement": 100,
+    "policy": "Never import authority from superseded exact heads when a live reconciled successor exists."
+  },
+  "integrated_security_invariants": [
+    "security profile executes deterministic static source/secret gate before dependency audit",
+    "protected TTS numeric claims preserve semantic class and value instead of digit coincidence",
+    "claim verification is explicit evidence-bound authority and is never inferred from evidence strength",
+    "provider telemetry rejects malformed/non-public asset URLs, nonfinite duration and secret-bearing failures",
+    "paid authorization rejects truthiness spoofing, nonfinite budgets, stale retry authority and capacity drift",
+    "SUBMITTED plus exact canonical request SHA/byte evidence persist atomically before any paid provider I/O",
+    "provider timeout after possible acceptance forces reconciliation and never permits duplicate spend",
+    "raw provider request bodies are excluded from durable submission evidence",
+    "main direct/untraceable commits fail visible through lineage verification when the workflow is promoted",
+    "installed local pre-push hook rejects any update/create/delete targeting refs/heads/main"
+  ],
+  "cross_pr_gap_closed": {
+    "from_pr_101": "request_sha256 was computed but not durable at paid-provider boundary",
+    "from_pr_106": "atomic store method existed but provider boundary did not invoke it",
+    "integrated_resolution": "submit_paid_render now requires put_submitted_with_evidence and atomically records SUBMITTED + request SHA/size before provider.submit",
+    "provider_io_before_evidence_allowed": false
+  },
+  "first_clean_runner_qualification": {
+    "qualified_branch_head": "a53a6d7258f7249c302bed36c4409c5fa70ad96a",
+    "synthetic_merge_sha": "87f364fa21bbdd3f69702e0272173a457bbdbb1f",
+    "pr": 120,
+    "merge_safe_run": 33414853935,
+    "merge_safe": "PASS",
+    "python_312_quick": {
+      "status": "PASS",
+      "pytest": "517 passed / 1 skipped",
+      "warnings": 5,
+      "repo_health": "PASS",
+      "immutable_agent_events": 12
+    },
+    "python_311_compatibility": "PASS",
+    "static_security": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "dependency_audit": {
+      "status": "PASS",
+      "known_vulnerabilities": 0,
+      "note": "local editable motion-os package is not published on PyPI and is reported by pip-audit as non-auditable by index identity"
+    },
+    "physical_analysis": "PASS",
+    "physical_remotion_runtime": "PASS",
+    "artifacts": [
+      {"id":9766586492,"name":"merge-safe-quick-evidence","sha256":"e869b598594e564a4cbf80c0bd1c8f6daeca63ef1213be36f11a4ba593ebb14e"},
+      {"id":9766608366,"name":"merge-safe-remotion-evidence","sha256":"e8276b8cbb3f171b72e5044488b60b6bd4e126e1e42491383389e59928f3eefc"}
+    ],
+    "authority": "VERIFIED_SYNTHETIC_MERGE_CANDIDATE_FOR_QUALIFIED_HEAD"
+  },
+  "authority_boundaries": {
+    "real_paid_provider_call_executed": false,
+    "real_provider_spend_authority": false,
+    "github_main_native_protection": "BLOCKED_EXTERNAL_ADMIN_CONTROL_UNAPPLIED",
+    "lineage_workflow_executed_on_main": false,
+    "dns_rebinding_resistance_beyond_literal_host_validation": "NOT_CLAIMED",
+    "release_authority": false
+  },
+  "final_persistence_rule": {
+    "this_evidence_update_changes_branch_head": true,
+    "required_next_gate": "rerun exact synthetic-merge CI on the new persistence-only head",
+    "final_head_authority_source": "derive from live PR #120 exact-head workflow status; GitHub live truth overrides this persisted projection"
+  },
+  "qualification": {
+    "security_critical_path_code_and_tests": "VERIFIED_ON_a53a6d7258f7249c302bed36c4409c5fa70ad96a",
+    "final_persistence_head_ci": "PENDING",
+    "native_main_protection": "BLOCKED_EXTERNAL",
+    "real_paid_provider_e2e": "NOT_EXECUTED"
+  },
+  "authority": "VERIFIED_SOURCE_HEAD_PENDING_FINAL_PERSISTENCE_RERUN_NOT_PROMOTED",
+  "project_done": false
+}

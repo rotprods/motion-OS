@@ -1,0 +1,40 @@
+{
+  "event_id": "evt_chatgpt_p7_security_integration_20260831T183100+0200",
+  "event_type": "work.checkpoint",
+  "timestamp": "2026-08-31T18:31:00+02:00",
+  "agent_id": "agent:openai:gpt-5.6-sol:p7-security",
+  "project": "MOTION.OS",
+  "branch": "feat/p7-security-critical-path-v1",
+  "commit_sha": null,
+  "pr_number": null,
+  "summary": "Reconciled the live P7 security critical path onto the P4 stack using current exact donor heads. Stale PR74 is replaced by PR100. The key PR101/PR106 evidence gap is closed in the integration candidate: the paid-provider boundary now requires the atomic SUBMITTED plus request-evidence store transition before external I/O. Native main protection and real paid-provider execution remain explicitly unqualified.",
+  "affected_paths": [
+    "scripts/security_static.py",
+    "scripts/local_verify.py",
+    "src/content/tts_integrity.py",
+    "src/content/source_security.py",
+    "src/avatar/heygen_adapter.py",
+    "src/avatar/render_guard.py",
+    "src/avatar/provider_submission.py",
+    "src/avatar/transactional_store.py",
+    "scripts/main_lineage_sentinel.py",
+    "scripts/pre_push_ref_guard.py",
+    "tests/test_p7_paid_submission_evidence_integration.py",
+    "evidence/p7_security_critical_path_integration_2026-08-31.json",
+    "state/p7_security_critical_path.json"
+  ],
+  "checks": {
+    "live_main_reconciled": "PASS:d4e628a1aef0cd382c3c2f1ea327a8ff70c41bd9",
+    "issue_48_barrier": "OPEN_NO_PROMOTION",
+    "pr74_supersession": "PASS:PR100",
+    "provider_submission_evidence_gap": "INTEGRATED_PENDING_CI",
+    "native_main_protection": "BLOCKED_EXTERNAL"
+  },
+  "authority": "IMPLEMENTED",
+  "correlation_id": "motion://completion/P7/security-critical-path",
+  "metadata": {
+    "stack_base": "8aed8f220b0ef818ac4f0d603bd080e3d85fe6e0",
+    "source_pr_count": 9,
+    "release_authority": false
+  }
+}
