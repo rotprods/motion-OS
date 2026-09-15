@@ -57,14 +57,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          printf '%s  runtime/heterogeneous-tools/package.json\n' 'f1027ead04e3a81312e3d91ac9099ef9a189178db8f6b77ffab33a2ac9099bb8' | sha256sum --check --strict
-          printf '%s  runtime/heterogeneous-tools/package-lock.json\n' '7d82c7a07cab172f01948e4444af3b2e151d54d9a12f9ebdc177fdda0fa66334' | sha256sum --check --strict
+          printf '%s  runtime/heterogeneous-tools/package.json\n' 'b81982198d78cbca24d937c1acbf91d629c89f242b5d38952958f29a91a518fd' | sha256sum --check --strict
+          printf '%s  runtime/heterogeneous-tools/package-lock.json\n' '3f7f0cb629b1edaa9dc043f2ebd36cc4e3933b7d65585105f0ef3d4716e6baa3' | sha256sum --check --strict
       - name: Install heterogeneous tools from exact lock only
         shell: bash
         run: |
           set -euo pipefail
           npm ci --prefix runtime/heterogeneous-tools --ignore-scripts --no-audit --fund=false
-          printf '%s  runtime/heterogeneous-tools/package-lock.json\n' '7d82c7a07cab172f01948e4444af3b2e151d54d9a12f9ebdc177fdda0fa66334' | sha256sum --check --strict
+          printf '%s  runtime/heterogeneous-tools/package-lock.json\n' '3f7f0cb629b1edaa9dc043f2ebd36cc4e3933b7d65585105f0ef3d4716e6baa3' | sha256sum --check --strict
       - name: Audit locked heterogeneous tool dependencies
         run: npm audit --prefix runtime/heterogeneous-tools --audit-level=high --omit=dev
       - name: Contract and frame-authority regressions
@@ -98,11 +98,14 @@ jobs:
           import hashlib, json
           root=Path('runtime/heterogeneous-tools')
           lock=json.loads((root/'package-lock.json').read_text())
+          expected={'hyperframes':'0.8.17','lottie-web':'5.13.0','puppeteer-core':'25.11.0'}
           packages={}
-          for name in ('hyperframes','lottie-web','puppeteer-core'):
-              entry=lock['packages'][f'node_modules/{name}']
+          for name,version in expected.items():
+              entry=lock['packages'].get(f'node_modules/{name}')
+              if not entry or entry.get('version') != version:
+                  raise SystemExit(f'locked package mismatch: {name}')
               packages[name]={'version':entry['version'],'resolved':entry.get('resolved'),'integrity':entry.get('integrity')}
-          payload={'schema':'motion-os.heterogeneous-toolchain/v1','package_json_sha256':hashlib.sha256((root/'package.json').read_bytes()).hexdigest(),'package_lock_sha256':hashlib.sha256((root/'package-lock.json').read_bytes()).hexdigest(),'packages':packages}
+          payload={'schema':'motion-os.heterogeneous-toolchain/v2','package_json_sha256':hashlib.sha256((root/'package.json').read_bytes()).hexdigest(),'package_lock_sha256':hashlib.sha256((root/'package-lock.json').read_bytes()).hexdigest(),'packages':packages}
           Path('.artifacts').mkdir(exist_ok=True)
           Path('.artifacts/heterogeneous-toolchain.json').write_text(json.dumps(payload,indent=2,sort_keys=True)+'\n')
           PY
