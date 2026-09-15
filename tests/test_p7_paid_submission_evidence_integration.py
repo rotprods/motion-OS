@@ -8,7 +8,7 @@ import pytest
 
 from src.avatar.provider_submission import SubmissionBlocked, submit_paid_render
 from src.avatar.render_guard import RenderState, SpendPolicy, authorize_render
-from src.avatar.transactional_store import SQLiteTransactionalRenderStore
+from src.avatar.spend_reservation import SQLitePaidRenderAuthorityStore
 
 
 POLICY = SpendPolicy(10.0, 100.0, 2, max_retries=1)
@@ -40,7 +40,7 @@ def _request():
     }
 
 
-def _persist(store: SQLiteTransactionalRenderStore, intent) -> None:
+def _persist(store: SQLitePaidRenderAuthorityStore, intent) -> None:
     lease = store.acquire_lease(intent.intent_id, "seed")
     try:
         store.put_intent(intent, lease)
@@ -79,8 +79,8 @@ def _submit(store, intent, provider):
     )
 
 
-def test_request_evidence_is_durable_before_paid_provider_io(tmp_path):
-    store = SQLiteTransactionalRenderStore(tmp_path / "authority.sqlite")
+def test_request_evidence_and_spend_reservation_are_durable_before_paid_provider_io(tmp_path):
+    store = SQLitePaidRenderAuthorityStore(tmp_path / "authority.sqlite")
     intent = _authorized()
     _persist(store, intent)
 
@@ -97,6 +97,9 @@ def test_request_evidence_is_durable_before_paid_provider_io(tmp_path):
         assert evidence.request_bytes == len(canonical)
         assert evidence.provider_id == "heygen"
         assert evidence.callback_id == intent.intent_id
+        assert store.spend_reservation_count() == 1
+        assert store.active_spend_reservation_count() == 1
+        assert store.spent_for_day() == pytest.approx(2.0)
         observed["evidence_id"] = evidence.evidence_id
 
     provider = Provider(before_return=prove_pre_io_durability)
@@ -108,9 +111,9 @@ def test_request_evidence_is_durable_before_paid_provider_io(tmp_path):
     assert observed["evidence_id"].startswith("SUBEV_")
 
 
-def test_timeout_keeps_request_evidence_and_never_persists_raw_request(tmp_path):
+def test_timeout_keeps_request_evidence_spend_reservation_and_never_persists_raw_request(tmp_path):
     db = tmp_path / "authority.sqlite"
-    store = SQLiteTransactionalRenderStore(db)
+    store = SQLitePaidRenderAuthorityStore(db)
     intent = _authorized()
     _persist(store, intent)
     provider = Provider(exc=TimeoutError("untrusted upstream failure detail"))
@@ -119,6 +122,8 @@ def test_timeout_keeps_request_evidence_and_never_persists_raw_request(tmp_path)
     assert outcome.intent.state == RenderState.RECONCILE_REQUIRED
     assert outcome.failure_type == "TimeoutError"
     assert store.submission_evidence_count(intent.intent_id) == 1
+    assert store.spend_reservation_count() == 1
+    assert store.active_spend_reservation_count() == 1
 
     with sqlite3.connect(db) as conn:
         payloads = [row[0] for row in conn.execute(
@@ -161,15 +166,17 @@ def test_legacy_store_without_atomic_evidence_boundary_is_rejected_before_provid
 
 
 def test_reconciliation_after_first_submit_cannot_create_second_spend_generation(tmp_path):
-    store = SQLiteTransactionalRenderStore(tmp_path / "authority.sqlite")
+    store = SQLitePaidRenderAuthorityStore(tmp_path / "authority.sqlite")
     intent = _authorized()
     _persist(store, intent)
     first = Provider()
     _submit(store, intent, first)
     assert store.submission_evidence_count(intent.intent_id) == 1
+    assert store.spend_reservation_count() == 1
 
     second = Provider(result={"video_id": "vid_second", "status": "pending"})
     with pytest.raises(SubmissionBlocked, match="requires reconciliation"):
         _submit(store, intent, second)
     assert second.calls == []
     assert store.submission_evidence_count(intent.intent_id) == 1
+    assert store.spend_reservation_count() == 1

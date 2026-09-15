@@ -1,6 +1,6 @@
 from src.avatar.provider_submission import submit_paid_render
 from src.avatar.render_guard import RenderState, SpendPolicy, authorize_render
-from src.avatar.transactional_store import SQLiteTransactionalRenderStore
+from src.avatar.spend_reservation import SQLitePaidRenderAuthorityStore
 
 
 POLICY = SpendPolicy(10.0, 100.0, 2, max_retries=1)
@@ -62,7 +62,7 @@ def test_control_or_whitespace_bearing_provider_job_ids_never_persist_as_authori
         "vid_\x00spoof",
     ]
     for index, poisoned in enumerate(poisoned_ids):
-        store = SQLiteTransactionalRenderStore(tmp_path / f"poisoned-{index}.db")
+        store = SQLitePaidRenderAuthorityStore(tmp_path / f"poisoned-{index}.db")
         intent = _authorized()
         _persist(store, intent)
         provider = PoisonedProvider(poisoned)
@@ -85,3 +85,4 @@ def test_control_or_whitespace_bearing_provider_job_ids_never_persist_as_authori
         assert persisted is not None
         assert persisted.state == RenderState.RECONCILE_REQUIRED
         assert persisted.provider_job_id is None
+        assert store.spend_reservation_count() == 1

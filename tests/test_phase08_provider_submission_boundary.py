@@ -14,7 +14,7 @@ from src.avatar.render_guard import (
     authorize_render,
     next_retry,
 )
-from src.avatar.transactional_store import SQLiteTransactionalRenderStore
+from src.avatar.spend_reservation import SQLitePaidRenderAuthorityStore
 
 
 POLICY = SpendPolicy(10.0, 100.0, 2, max_retries=1)
@@ -48,7 +48,7 @@ def _request(**extra):
     return payload
 
 
-def _persist(store: SQLiteTransactionalRenderStore, intent: RenderIntent, owner: str = "seed") -> None:
+def _persist(store: SQLitePaidRenderAuthorityStore, intent: RenderIntent, owner: str = "seed") -> None:
     lease = store.acquire_lease(intent.intent_id, owner)
     try:
         store.put_intent(intent, lease)
@@ -88,7 +88,7 @@ def _submit(store, intent, provider, *, spent_today=0.0, concurrent_renders=0, r
 
 
 def test_initial_submission_persists_submitted_before_provider_call_then_acknowledges(tmp_path):
-    store = SQLiteTransactionalRenderStore(tmp_path / "renders.db")
+    store = SQLitePaidRenderAuthorityStore(tmp_path / "renders.db")
     intent = _authorized()
     _persist(store, intent)
 
@@ -97,6 +97,8 @@ def test_initial_submission_persists_submitted_before_provider_call_then_acknowl
         assert current is not None
         assert current.state == RenderState.SUBMITTED
         assert current.provider_job_id is None
+        assert store.spend_reservation_count() == 1
+        assert store.active_spend_reservation_count() == 1
 
     provider = FakeProvider(before_return=assert_durable_submitted)
     outcome = _submit(store, intent, provider)
@@ -109,10 +111,11 @@ def test_initial_submission_persists_submitted_before_provider_call_then_acknowl
     assert provider.calls[0]["callbackId"] == intent.intent_id
     assert store.get_intent(intent.intent_id) == outcome.intent
     assert store.event_count(intent.intent_id) == 3  # AUTHORIZED -> SUBMITTED -> ACKNOWLEDGED
+    assert store.spent_for_day() == pytest.approx(2.0)
 
 
 def test_initial_submit_rechecks_live_budget_and_capacity_before_provider_call(tmp_path):
-    store = SQLiteTransactionalRenderStore(tmp_path / "renders.db")
+    store = SQLitePaidRenderAuthorityStore(tmp_path / "renders.db")
     intent = _authorized(credits=8.0)
     _persist(store, intent)
 
@@ -129,7 +132,7 @@ def test_initial_submit_rechecks_live_budget_and_capacity_before_provider_call(t
 
 
 def test_provider_timeout_after_durable_submitted_forces_reconciliation_and_hides_message(tmp_path):
-    store = SQLiteTransactionalRenderStore(tmp_path / "renders.db")
+    store = SQLitePaidRenderAuthorityStore(tmp_path / "renders.db")
     intent = _authorized()
     _persist(store, intent)
     provider = FakeProvider(exc=TimeoutError("token=sk-super-secret-provider-payload"))
@@ -139,6 +142,7 @@ def test_provider_timeout_after_durable_submitted_forces_reconciliation_and_hide
     assert outcome.failure_type == "TimeoutError"
     assert "super-secret" not in repr(outcome)
     assert store.get_intent(intent.intent_id).state == RenderState.RECONCILE_REQUIRED
+    assert store.active_spend_reservation_count() == 1
 
     with pytest.raises(SubmissionBlocked, match="requires reconciliation"):
         _submit(store, intent, provider)
@@ -146,7 +150,7 @@ def test_provider_timeout_after_durable_submitted_forces_reconciliation_and_hide
 
 
 def test_job_id_without_status_is_reconcile_required_not_acknowledged(tmp_path):
-    store = SQLiteTransactionalRenderStore(tmp_path / "renders.db")
+    store = SQLitePaidRenderAuthorityStore(tmp_path / "renders.db")
     intent = _authorized()
     _persist(store, intent)
     provider = FakeProvider(result={"video_id": "vid_uncertain"})
@@ -159,7 +163,7 @@ def test_job_id_without_status_is_reconcile_required_not_acknowledged(tmp_path):
 
 def test_missing_or_malformed_job_identity_is_reconcile_required(tmp_path):
     for result in ({"status": "pending"}, {"video_id": "", "status": "pending"}, "not-a-mapping"):
-        store = SQLiteTransactionalRenderStore(tmp_path / f"renders-{hash(str(result))}.db")
+        store = SQLitePaidRenderAuthorityStore(tmp_path / f"renders-{hash(str(result))}.db")
         intent = _authorized()
         _persist(store, intent)
         provider = FakeProvider(result=result)
@@ -169,7 +173,7 @@ def test_missing_or_malformed_job_identity_is_reconcile_required(tmp_path):
 
 
 def test_duplicate_submission_after_acknowledgement_never_calls_provider_again(tmp_path):
-    store = SQLiteTransactionalRenderStore(tmp_path / "renders.db")
+    store = SQLitePaidRenderAuthorityStore(tmp_path / "renders.db")
     intent = _authorized()
     _persist(store, intent)
     first_provider = FakeProvider()
@@ -179,10 +183,11 @@ def test_duplicate_submission_after_acknowledgement_never_calls_provider_again(t
     with pytest.raises(SubmissionBlocked, match="requires reconciliation"):
         _submit(store, intent, second_provider)
     assert second_provider.calls == []
+    assert store.spend_reservation_count() == 1
 
 
 def test_retry_must_be_exact_transition_and_rechecks_live_budget(tmp_path):
-    store = SQLiteTransactionalRenderStore(tmp_path / "renders.db")
+    store = SQLitePaidRenderAuthorityStore(tmp_path / "renders.db")
     original = _authorized(credits=8.0)
     failed = replace(original, state=RenderState.FAILED_RETRYABLE)
     _persist(store, failed)
@@ -203,10 +208,11 @@ def test_retry_must_be_exact_transition_and_rechecks_live_budget(tmp_path):
     outcome = _submit(store, retried, provider, spent_today=10.0)
     assert outcome.intent.state == RenderState.ACKNOWLEDGED
     assert outcome.intent.provider_job_id == "vid_retry"
+    assert store.spent_for_day() == pytest.approx(8.0)
 
 
 def test_fresh_reauthorization_cannot_bypass_persisted_retry_generation(tmp_path):
-    store = SQLiteTransactionalRenderStore(tmp_path / "renders.db")
+    store = SQLitePaidRenderAuthorityStore(tmp_path / "renders.db")
     original = _authorized()
     failed = replace(original, state=RenderState.FAILED_RETRYABLE)
     _persist(store, failed)
@@ -219,7 +225,7 @@ def test_fresh_reauthorization_cannot_bypass_persisted_retry_generation(tmp_path
 
 
 def test_request_identity_callback_provider_and_finite_json_fail_before_provider_call(tmp_path):
-    store = SQLiteTransactionalRenderStore(tmp_path / "renders.db")
+    store = SQLitePaidRenderAuthorityStore(tmp_path / "renders.db")
     intent = _authorized()
     _persist(store, intent)
     provider = FakeProvider()
@@ -241,7 +247,7 @@ def test_request_identity_callback_provider_and_finite_json_fail_before_provider
 
 
 def test_missing_durable_authorization_or_malformed_port_blocks_before_provider_call(tmp_path):
-    store = SQLiteTransactionalRenderStore(tmp_path / "renders.db")
+    store = SQLitePaidRenderAuthorityStore(tmp_path / "renders.db")
     intent = _authorized()
     provider = FakeProvider()
 
@@ -257,7 +263,7 @@ def test_missing_durable_authorization_or_malformed_port_blocks_before_provider_
 
 
 def test_concurrent_reconciler_wins_and_stale_provider_return_cannot_overwrite(tmp_path):
-    store = SQLiteTransactionalRenderStore(tmp_path / "renders.db")
+    store = SQLitePaidRenderAuthorityStore(tmp_path / "renders.db")
     intent = _authorized()
     _persist(store, intent)
 
@@ -280,10 +286,11 @@ def test_concurrent_reconciler_wins_and_stale_provider_return_cannot_overwrite(t
     current = store.get_intent(intent.intent_id)
     assert current.state == RenderState.RUNNING
     assert current.provider_job_id == "vid_external"
+    assert store.active_spend_reservation_count() == 1
 
 
 def test_unknown_provider_status_with_job_id_stays_reconcile_required(tmp_path):
-    store = SQLiteTransactionalRenderStore(tmp_path / "renders.db")
+    store = SQLitePaidRenderAuthorityStore(tmp_path / "renders.db")
     intent = _authorized()
     _persist(store, intent)
     provider = FakeProvider(result={"video_id": "vid_1", "status": "teleported"})

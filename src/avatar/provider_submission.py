@@ -30,7 +30,7 @@ class PaidVideoProviderPort(Protocol):
 
 
 class EvidenceBoundRenderStore(RenderStateStore, Protocol):
-    """Render authority store that atomically binds SUBMITTED to request evidence."""
+    """Render authority store that binds spend, SUBMITTED state and request evidence."""
 
     def put_submitted_with_evidence(
         self,
@@ -43,6 +43,17 @@ class EvidenceBoundRenderStore(RenderStateStore, Protocol):
         callback_id: str,
         request_bytes: int,
     ) -> Any: ...
+
+    def reserve_spend(
+        self,
+        intent: RenderIntent,
+        *,
+        policy: SpendPolicy,
+        observed_spent_today: float,
+        observed_concurrent_renders: int,
+    ) -> Any: ...
+
+    def release_spend_concurrency(self, reservation: Any) -> None: ...
 
 
 class SubmissionBlocked(RuntimeError):
@@ -140,6 +151,8 @@ def _validate_port_and_store(provider: object, store: object) -> tuple[str, Any]
         "get_intent",
         "put_intent",
         "put_submitted_with_evidence",
+        "reserve_spend",
+        "release_spend_concurrency",
     ):
         if not callable(getattr(store, method, None)):
             raise SubmissionBlocked(f"render state store missing callable {method}")
@@ -202,8 +215,13 @@ def submit_paid_render(
     """Submit exactly one paid render through a durable fail-closed boundary.
 
     State transition:
-      AUTHORIZED/FAILED_RETRYABLE -> atomic durable SUBMITTED+request evidence ->
-      provider call -> ACKNOWLEDGED/RUNNING/COMPLETED or RECONCILE_REQUIRED.
+      AUTHORIZED/FAILED_RETRYABLE -> durable global spend/capacity reservation ->
+      atomic durable SUBMITTED+request evidence -> provider call ->
+      ACKNOWLEDGED/RUNNING/COMPLETED or RECONCILE_REQUIRED.
+
+    Global spend/capacity authority is store-backed, not a caller snapshot. The caller
+    values are conservative external floors only; different intents serialize through
+    the durable reservation ledger so two stale snapshots cannot overspend together.
 
     Any exception after the atomic durable write is treated as an unknown provider
     outcome. The exception *type* may be returned for diagnostics, but raw provider
@@ -223,19 +241,17 @@ def submit_paid_render(
     request_blob = _canonical_request_bytes(payload)
     request_sha = hashlib.sha256(request_blob).hexdigest()
 
-    # Phase 1: lock, verify exact current authority, then atomically persist both
-    # the one-way SUBMITTED transition and the exact canonical request hash/size.
-    # No paid provider I/O may happen before this transaction commits.
+    # Phase 1: lock exact intent authority, verify the current transition, reserve
+    # global spend/capacity transactionally, then persist SUBMITTED + request evidence.
+    # No paid provider I/O may happen before all three durable barriers commit.
     lease = store.acquire_lease(intent.intent_id, owner_id, ttl_s=float(lease_ttl_s))
+    spend_reservation: Any = None
     try:
         persisted = store.get_intent(intent.intent_id)
         if persisted is None:
             raise SubmissionBlocked("render intent must be durably authorized before provider submission")
 
         if persisted.state == RenderState.AUTHORIZED:
-            # Re-run the pure authorization calculation against *current* spend and
-            # capacity immediately before the paid call. This is not new authority;
-            # it proves the persisted authorization is still valid at submit time.
             try:
                 live_equivalent = authorize_render(
                     content_id=intent.content_id,
@@ -264,6 +280,16 @@ def submit_paid_render(
         else:
             raise SubmissionBlocked(f"render intent state {persisted.state.value} requires reconciliation before submit")
 
+        try:
+            spend_reservation = store.reserve_spend(
+                intent,
+                policy=policy,
+                observed_spent_today=spent_today,
+                observed_concurrent_renders=concurrent_renders,
+            )
+        except (TypeError, ValueError, RuntimeError) as exc:
+            raise SubmissionBlocked("atomic spend/capacity reservation failed before provider submit") from exc
+
         submitted = RenderIntent(**{**intent.__dict__, "state": RenderState.SUBMITTED, "provider_job_id": None})
         store.put_submitted_with_evidence(
             submitted,
@@ -277,9 +303,8 @@ def submit_paid_render(
     finally:
         store.release_lease(lease)
 
-    # Phase 2: external capability. SUBMITTED + request evidence are already durable,
-    # so a process death or ambiguous timeout cannot fall back to AUTHORIZED or lose
-    # the exact request identity that may have consumed provider spend.
+    # Phase 2: external capability. SUBMITTED + request evidence + spend reservation
+    # are already durable, so a process death or ambiguous timeout cannot restore spend.
     try:
         raw_result = provider_submit(payload)
     except Exception as exc:
@@ -322,6 +347,11 @@ def submit_paid_render(
         owner_id=owner_id,
         ttl_s=float(lease_ttl_s),
     )
+    if desired.state in {RenderState.COMPLETED, RenderState.FAILED_FINAL}:
+        try:
+            store.release_spend_concurrency(spend_reservation)
+        except (TypeError, ValueError, RuntimeError) as exc:
+            raise SubmissionConflict("terminal provider state persisted but spend concurrency release failed") from exc
     return SubmissionOutcome(
         intent=desired,
         provider_id=provider_id,
