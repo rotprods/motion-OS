@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  # Required only to read exact-head workflow conclusions for the fail-closed heterogeneous proof.
   actions: read
 
 concurrency:
