@@ -21,6 +21,19 @@ CONTAINER_HASH_MISMATCH = "CONTAINER_HASH_MISMATCH"
 MASTER_HASH_MISMATCH = "MASTER_HASH_MISMATCH"
 MASTER_SIZE_MISMATCH = "MASTER_SIZE_MISMATCH"
 INVALID_CONTAINER = "INVALID_CONTAINER"
+RECOVERY_LIMIT_EXCEEDED = "RECOVERY_LIMIT_EXCEEDED"
+
+# Availability/security ceilings for already-materialized recovery candidates.
+# They are deliberately generous for production video masters while preventing
+# unbounded hashing/decompression and high-ratio ZIP bomb payloads.
+MAX_RECOVERY_CONTAINER_BYTES = 16 * 1024 * 1024 * 1024
+MAX_RECOVERY_MEMBER_BYTES = 8 * 1024 * 1024 * 1024
+MAX_RECOVERY_COMPRESSION_RATIO = 200.0
+MAX_RECOVERY_ZIP_ENTRIES = 10_000
+
+
+class RecoveryLimitExceeded(ValueError):
+    """A recovery candidate exceeded a bounded resource-safety contract."""
 
 
 @dataclass(frozen=True)
@@ -128,29 +141,102 @@ def _validate_zip_member(member: str) -> None:
         raise ValueError("unsafe_container_member")
 
 
-def sha256_path(path: Path) -> tuple[str, int]:
+def sha256_path(
+    path: Path,
+    *,
+    max_bytes: int = MAX_RECOVERY_CONTAINER_BYTES,
+) -> tuple[str, int]:
+    if max_bytes <= 0:
+        raise ValueError("max_bytes must be positive")
+    declared_size = path.stat().st_size
+    if declared_size > max_bytes:
+        raise RecoveryLimitExceeded(
+            f"container_bytes_exceeded:limit={max_bytes}:declared={declared_size}"
+        )
+
     digest = hashlib.sha256()
     size = 0
     with path.open("rb") as handle:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(chunk)
             size += len(chunk)
+            if size > max_bytes:
+                raise RecoveryLimitExceeded(
+                    f"container_bytes_exceeded:limit={max_bytes}:observed={size}"
+                )
+            digest.update(chunk)
     return digest.hexdigest(), size
 
 
-def sha256_zip_member(path: Path, member: str) -> tuple[str, int]:
+def sha256_zip_member(
+    path: Path,
+    member: str,
+    *,
+    max_member_bytes: int = MAX_RECOVERY_MEMBER_BYTES,
+    max_compression_ratio: float = MAX_RECOVERY_COMPRESSION_RATIO,
+    max_zip_entries: int = MAX_RECOVERY_ZIP_ENTRIES,
+) -> tuple[str, int]:
     _validate_zip_member(member)
+    if max_member_bytes <= 0 or max_compression_ratio <= 0 or max_zip_entries <= 0:
+        raise ValueError("recovery ZIP limits must be positive")
+
     digest = hashlib.sha256()
     size = 0
     with zipfile.ZipFile(path, "r") as archive:
+        infos = archive.infolist()
+        if len(infos) > max_zip_entries:
+            raise RecoveryLimitExceeded(
+                f"zip_entry_count_exceeded:limit={max_zip_entries}:observed={len(infos)}"
+            )
+
         info = archive.getinfo(member)
         if info.is_dir():
             raise ValueError("container_member_is_directory")
+        if info.flag_bits & 0x1:
+            raise ValueError("encrypted_container_member")
+        if info.file_size > max_member_bytes:
+            raise RecoveryLimitExceeded(
+                f"container_member_bytes_exceeded:limit={max_member_bytes}:declared={info.file_size}"
+            )
+
+        if info.file_size:
+            if info.compress_size <= 0:
+                raise RecoveryLimitExceeded("container_member_compression_ratio_exceeded:infinite")
+            ratio = info.file_size / info.compress_size
+            if ratio > max_compression_ratio:
+                raise RecoveryLimitExceeded(
+                    "container_member_compression_ratio_exceeded:"
+                    f"limit={max_compression_ratio}:observed={ratio:.3f}"
+                )
+
         with archive.open(info, "r") as handle:
             for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-                digest.update(chunk)
                 size += len(chunk)
+                if size > max_member_bytes:
+                    raise RecoveryLimitExceeded(
+                        f"container_member_bytes_exceeded:limit={max_member_bytes}:observed={size}"
+                    )
+                digest.update(chunk)
     return digest.hexdigest(), size
+
+
+def _limit_result(
+    contract: RecoveryContract,
+    *,
+    container_sha: str | None,
+    evidence: list[str],
+    exc: RecoveryLimitExceeded,
+) -> RecoveryResult:
+    return RecoveryResult(
+        contract.identity.identity_id,
+        contract.candidate.candidate_id,
+        RECOVERY_LIMIT_EXCEEDED,
+        "NONE",
+        None,
+        None,
+        container_sha,
+        (str(exc),),
+        tuple(evidence),
+    )
 
 
 def verify_recovery(contract: RecoveryContract, materialized_path: Path) -> RecoveryResult:
@@ -160,6 +246,8 @@ def verify_recovery(contract: RecoveryContract, materialized_path: Path) -> Reco
     duration, naming, or provenance alone. Authoritative recovery requires an exact
     expected media SHA-256. Container hashes are independently verified when the
     candidate is a durable bundle such as a CI artifact ZIP mirrored to Drive.
+    Materialized candidates are bounded before/during hashing and ZIP members are
+    bounded by declared size, entry count, and compression ratio before decompression.
     """
     contract.validate()
     identity = contract.identity
@@ -185,6 +273,13 @@ def verify_recovery(contract: RecoveryContract, materialized_path: Path) -> Reco
 
     try:
         container_sha, container_bytes = sha256_path(materialized_path)
+    except RecoveryLimitExceeded as exc:
+        return _limit_result(
+            contract,
+            container_sha=None,
+            evidence=evidence,
+            exc=exc,
+        )
     except OSError as exc:
         return RecoveryResult(
             identity.identity_id,
@@ -232,6 +327,13 @@ def verify_recovery(contract: RecoveryContract, materialized_path: Path) -> Reco
                 candidate.container_member,
             )
             evidence.append(f"container_member:{candidate.container_member}")
+    except RecoveryLimitExceeded as exc:
+        return _limit_result(
+            contract,
+            container_sha=container_sha,
+            evidence=evidence,
+            exc=exc,
+        )
     except (OSError, ValueError, KeyError, zipfile.BadZipFile) as exc:
         return RecoveryResult(
             identity.identity_id,
