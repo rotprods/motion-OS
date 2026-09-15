@@ -7,7 +7,6 @@ import json
 
 ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE = ROOT / "evidence" / "p4_rc06_real_master_recovery_2026-08-31.json"
-STATE = ROOT / "state" / "p4_real_master_authority.json"
 
 
 def canonical_sha(payload: dict) -> str:
@@ -38,18 +37,18 @@ def test_p4_recovery_contract_hash_is_deterministically_bound():
     assert canonical_sha(payload) == contract["contract_sha256"]
 
 
-def test_p4_fails_closed_on_unrecoverable_rc09e_and_missing_provider():
+def test_p4_fails_closed_on_unrecoverable_rc09e_and_missing_provider_without_importing_stale_state_snapshot():
     evidence = json.loads(EVIDENCE.read_text(encoding="utf-8"))
-    state = json.loads(STATE.read_text(encoding="utf-8"))
 
+    # The immutable recovery evidence is authoritative for this historical claim.
+    # Do not require or revive state/p4_real_master_authority.json: that file is a
+    # mutable point-in-time projection and would become stale truth in the current
+    # convergence candidate.
     assert evidence["historical_truth"]["selected_master"] == "RC09E"
     assert evidence["historical_truth"]["selected_master_status"] == "UNRECOVERABLE_EXACT_IDENTITY_UNKNOWN"
     assert evidence["multimodal_authority"]["authority"] == "NONE"
     assert evidence["gates"]["real_full_video_provider_run_bound_to_same_sha"] is False
     assert evidence["gates"]["p4_complete"] is False
-    assert state["creative_master_selection"]["recovery_authority"] is False
-    assert state["multimodal_provider"]["authoritative"] is False
-    assert state["gates"]["project_done"] is False
 
 
 def test_p3_mirror_is_not_allowed_to_masquerade_as_creative_master():
