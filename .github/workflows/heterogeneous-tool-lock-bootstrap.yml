@@ -1,0 +1,47 @@
+name: Heterogeneous Tool Lock Bootstrap
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'runtime/heterogeneous-tools/package.json'
+      - '.github/workflows/heterogeneous-tool-lock-bootstrap.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: heterogeneous-tool-lock-bootstrap-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  generate-lock:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22.23.2'
+      - name: Generate lock only; do not mutate repository
+        working-directory: runtime/heterogeneous-tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --version
+          npm --version
+          npm install --package-lock-only --ignore-scripts --no-audit --fund=false
+          test -s package-lock.json
+          sha256sum package.json package-lock.json > lock-sha256.txt
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: heterogeneous-tool-lock-candidate
+          path: |
+            runtime/heterogeneous-tools/package.json
+            runtime/heterogeneous-tools/package-lock.json
+            runtime/heterogeneous-tools/lock-sha256.txt
+          if-no-files-found: error
+          retention-days: 7
