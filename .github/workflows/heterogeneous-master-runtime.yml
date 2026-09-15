@@ -3,20 +3,7 @@ name: Heterogeneous Master Runtime
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
-    paths:
-      - 'src/renderers/assembly.py'
-      - 'src/renderers/color_policy.py'
-      - 'src/compilers/hyperframes.py'
-      - 'src/compilers/lottie.py'
-      - 'scripts/build_heterogeneous_master_sources.py'
-      - 'scripts/render_lottie_sequence.mjs'
-      - 'scripts/assemble_heterogeneous_master.py'
-      - 'runtime/heterogeneous-tools/package.json'
-      - 'runtime/heterogeneous-tools/package-lock.json'
-      - 'integration/heterogeneous_master/**'
-      - 'tests/test_phase08_heterogeneous_color_semantics.py'
-      - 'tests/test_phase08_visual_frame_authority.py'
-      - '.github/workflows/heterogeneous-master-runtime.yml'
+  merge_group:
   workflow_dispatch:
 
 permissions:
