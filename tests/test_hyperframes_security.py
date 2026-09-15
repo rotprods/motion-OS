@@ -9,7 +9,7 @@ from src.graph.editing_graph import TypedEditingGraph
 from src.graph.model import Edge
 
 
-def test_inline_hyperframes_spec_cannot_break_out_of_script_context():
+def test_hyperframes_project_keeps_graph_data_out_of_executable_script_and_remote_cdns():
     payload = "</script><script>globalThis.__PWNED__=true</script>"
     spec = HyperFramesSpec(
         width=640,
@@ -38,8 +38,10 @@ def test_inline_hyperframes_spec_cannot_break_out_of_script_context():
     files = emit_hyperframes_project(spec)
     assert payload not in files["index.html"]
     assert payload not in files["motion.js"]
-    assert "\\u003c/script\\u003e" in files["motion.js"]
     assert payload in files["motion-spec.json"]
+    assert "https://cdn.jsdelivr.net" not in files["index.html"]
+    assert "import gsap from 'gsap'" in files["motion.js"]
+    assert "./motion-spec.json" in files["motion.js"]
 
 
 def _graph_with_channels(channels):

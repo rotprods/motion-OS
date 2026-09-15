@@ -67,13 +67,6 @@ def _safe_ease(value: object, event_id: str) -> str:
     return value
 
 
-def _script_json(value: object) -> str:
-    """Serialize data for an inline script without permitting HTML parser breakout."""
-    raw=json.dumps(value,sort_keys=True,separators=(",",":"),ensure_ascii=False,allow_nan=False)
-    return (raw.replace("&","\\u0026").replace("<","\\u003c").replace(">","\\u003e")
-            .replace("\u2028","\\u2028").replace("\u2029","\\u2029"))
-
-
 def compile_editing_graph_to_hyperframes(graph, *, width=1080, height=1920, fps=30) -> HyperFramesSpec:
     scenes=[]; timeline=[]; provenance=set(); max_end=0
     for n in graph.nodes:
@@ -104,18 +97,17 @@ def compile_editing_graph_to_hyperframes(graph, *, width=1080, height=1920, fps=
 
 def emit_hyperframes_project(spec: HyperFramesSpec) -> dict[str,str]:
     if spec.width <= 0 or spec.height <= 0 or spec.fps <= 0 or spec.duration_ms <= 0: raise ValueError("HyperFrames spec requires positive width/height/fps/duration")
-    data=json.dumps(spec.to_dict(),indent=2,ensure_ascii=False,allow_nan=False); compact=_script_json(spec.to_dict()); duration_s=spec.duration_ms/1000
-    js=f"""'use strict';
-const spec={compact};
+    data=json.dumps(spec.to_dict(),indent=2,ensure_ascii=False,allow_nan=False); duration_s=spec.duration_ms/1000
+    html=f"""<!doctype html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><style>html,body{{margin:0;width:100%;height:100%;overflow:hidden;background:#090909}}[data-composition-id=\"motion-os-master\"]{{position:relative;width:{spec.width}px;height:{spec.height}px;overflow:hidden;background:#090909;color:#f5f5f0;font-family:Arial,sans-serif}}.layer{{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;box-sizing:border-box}}.layer-label{{font-size:max(20px,5vw);font-weight:700;letter-spacing:.04em;text-transform:uppercase}}</style></head><body><div id=\"motion-os-root\" data-composition-id=\"motion-os-master\" data-start=\"0\" data-duration=\"{duration_s:.6f}\" data-track-index=\"0\" data-width=\"{spec.width}\" data-height=\"{spec.height}\"></div><script type=\"module\" src=\"./motion.js\"></script></body></html>"""
+    js="""import gsap from 'gsap';
+import spec from './motion-spec.json' with {type:'json'};
 const root=document.querySelector('#motion-os-root');
 if(!root) throw new Error('motion-os root composition missing');
-if(!window.gsap) throw new Error('GSAP runtime missing');
-for(const scene of spec.scenes){{for(const layer of scene.layers){{const el=document.createElement('div');el.id=layer.id;el.className='layer';el.dataset.sceneId=scene.id;el.style.zIndex=String(layer.z);const label=document.createElement('div');label.className='layer-label';label.textContent=String((layer.data&&layer.data.text)||layer.id);el.appendChild(label);root.appendChild(el);}}}}
-window.__timelines=window.__timelines||{{}}; const tl=window.gsap.timeline({{paused:true}});
-for(const event of spec.timeline){{const target='#'+CSS.escape(event.target);const vars={{duration:event.durationMs/1000,ease:event.ease,...event.channels}};tl.to(target,vars,event.atMs/1000);}}
-window.__timelines['motion-os-master']=tl;window.__MOTION_OS__={{spec,timeline:tl,seekMs:(ms)=>tl.time(ms/1000,false)}};
+for(const scene of spec.scenes){for(const layer of scene.layers){const el=document.createElement('div');el.id=layer.id;el.className='layer';el.dataset.sceneId=scene.id;el.style.zIndex=String(layer.z);const label=document.createElement('div');label.className='layer-label';label.textContent=String((layer.data&&layer.data.text)||layer.id);el.appendChild(label);root.appendChild(el);}}
+window.__timelines=window.__timelines||{}; const tl=gsap.timeline({paused:true});
+for(const event of spec.timeline){const target='#'+CSS.escape(event.target);const vars={duration:event.durationMs/1000,ease:event.ease,...event.channels};tl.to(target,vars,event.atMs/1000);}
+window.__timelines['motion-os-master']=tl;window.__MOTION_OS__={spec,timeline:tl,seekMs:(ms)=>tl.time(ms/1000,false)};
 """
-    html=f"""<!doctype html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><style>html,body{{margin:0;width:100%;height:100%;overflow:hidden;background:#090909}}[data-composition-id=\"motion-os-master\"]{{position:relative;width:{spec.width}px;height:{spec.height}px;overflow:hidden;background:#090909;color:#f5f5f0;font-family:Arial,sans-serif}}.layer{{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;box-sizing:border-box}}.layer-label{{font-size:max(20px,5vw);font-weight:700;letter-spacing:.04em;text-transform:uppercase}}</style><script src=\"https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js\"></script></head><body><div id=\"motion-os-root\" data-composition-id=\"motion-os-master\" data-start=\"0\" data-duration=\"{duration_s:.6f}\" data-track-index=\"0\" data-width=\"{spec.width}\" data-height=\"{spec.height}\"></div><script>{js}</script></body></html>"""
     return {"index.html":html,"motion.js":js,"motion-spec.json":data+"\n"}
 
 
