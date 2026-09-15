@@ -105,7 +105,7 @@ jobs:
             .artifacts/${{ matrix.lock_name }}.regeneration.json
             .artifacts/${{ matrix.lock_name }}.diff
             .artifacts/pylock.*-generated.toml
-          if-no-files-found: warn
+          if-no-files-found: error
           include-hidden-files: true
           retention-days: 7
 
@@ -126,6 +126,8 @@ jobs:
             environment: analysis
           - python: '3.12.14'
             environment: security
+    env:
+      CI_ENVIRONMENT: ${{ matrix.environment }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -135,17 +137,27 @@ jobs:
           python-version: ${{ matrix.python }}
           cache: pip
       - name: Create first clean environment
-        run: python scripts/python_ci_env.py create --environment '${{ matrix.environment }}' --venv '.venv-ci/${{ matrix.environment }}-1' --json-out '.artifacts/${{ matrix.environment }}-1.json'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/python_ci_env.py create \
+            --environment "$CI_ENVIRONMENT" \
+            --venv ".venv-ci/${CI_ENVIRONMENT}-1" \
+            --json-out ".artifacts/${CI_ENVIRONMENT}-1.json"
       - name: Create second clean environment
-        run: python scripts/python_ci_env.py create --environment '${{ matrix.environment }}' --venv '.venv-ci/${{ matrix.environment }}-2' --json-out '.artifacts/${{ matrix.environment }}-2.json'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/python_ci_env.py create \
+            --environment "$CI_ENVIRONMENT" \
+            --venv ".venv-ci/${CI_ENVIRONMENT}-2" \
+            --json-out ".artifacts/${CI_ENVIRONMENT}-2.json"
       - name: Require identical inventories
-        env:
-          ENVIRONMENT: ${{ matrix.environment }}
         run: |
           python - <<'PY'
           from pathlib import Path
           import json, os
-          name = os.environ['ENVIRONMENT']
+          name = os.environ['CI_ENVIRONMENT']
           a = json.loads(Path(f'.artifacts/{name}-1.json').read_text())
           b = json.loads(Path(f'.artifacts/{name}-2.json').read_text())
           if a.get('status') != 'PASS' or b.get('status') != 'PASS':
@@ -157,7 +169,10 @@ jobs:
           print(json.dumps({'status':'PASS','environment':name,'inventory_sha256':a['inventory_sha256']}, sort_keys=True))
           PY
       - name: Run canonical environment regression tests
-        run: '.venv-ci/${{ matrix.environment }}-1/bin/python -m pytest -q tests/test_python_ci_env.py'
+        shell: bash
+        run: |
+          set -euo pipefail
+          ".venv-ci/${CI_ENVIRONMENT}-1/bin/python" -m pytest -q tests/test_python_ci_env.py
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:

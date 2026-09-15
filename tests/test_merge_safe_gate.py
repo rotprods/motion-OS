@@ -256,7 +256,8 @@ def test_actual_workflow_shell_preserves_verdict_and_exit(case, tmp_path):
     import shutil
     import textwrap
     gate = WORKFLOW.read_text().split("\n  merge-safe:\n", 1)[1]
-    shell = textwrap.dedent(gate.split("        run: |\n", 1)[1].split("\n      - uses:", 1)[0])
+    verdict_step = gate.split("\n      - name: Require every applicable gate to pass\n", 1)[1]
+    shell = textwrap.dedent(verdict_step.split("        run: |\n", 1)[1].split("\n      - uses:", 1)[0])
     (tmp_path / "scripts").mkdir()
     shutil.copyfile(SCRIPT, tmp_path / "scripts/merge_safe_gate.py")
     needs = sample(full=case != "valid_selective")

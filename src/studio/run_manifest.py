@@ -180,6 +180,7 @@ def build_product_run_manifest(
         raise ProductRunManifestError("physical runtime transition lineage differs from Studio runtime spec")
 
     qa_summary = {
+        "decision": "PASS",
         "technical_runtime_gate": "PASS",
         "creative_authority": evidence.get("creative_authority", "none"),
         "temporal_critic_authority": evidence.get("temporal_critic_authority", "none"),
