@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: merge-safe-${{ github.event.pull_request.number || github.ref }}
@@ -202,11 +203,26 @@ jobs:
     if: always()
     needs: [classify, quick, compat311, analysis, remotion, security]
     runs-on: ubuntu-24.04
-    timeout-minutes: 2
+    timeout-minutes: 6
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
+      - name: Require exact-head heterogeneous physical proof
+        if: github.event_name != 'workflow_dispatch'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          TARGET_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          TARGET_EVENT: ${{ github.event_name }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/require_exact_head_workflow.py \
+            --workflow heterogeneous-master-runtime.yml \
+            --head "$TARGET_HEAD_SHA" \
+            --event "$TARGET_EVENT" \
+            --timeout-seconds 240 \
+            --poll-seconds 5
       - name: Require every applicable gate to pass
         env:
           MERGE_SAFE_NEEDS_JSON: ${{ toJSON(needs) }}
