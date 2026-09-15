@@ -9,7 +9,13 @@ from src.content.content_factory import Beat, cognitive_load_warnings, preflight
 from src.content.performance_learning import (
     EvidenceStage, LearningHypothesis, approve_promoted_rule, promote_hypothesis,
 )
-from src.content.source_security import normalize_claim, scan_untrusted_source, source_pack, validate_claim_lineage
+from src.content.source_security import (
+    SOURCE_SECURITY_ENVELOPE_SCHEMA,
+    build_source_security_envelope,
+    normalize_claim,
+    scan_untrusted_source,
+    validate_claim_lineage,
+)
 from src.content.tts_integrity import tts_integrity_errors
 
 
@@ -26,10 +32,16 @@ def test_source_prompt_injection_is_data_and_secret_quarantines():
     risk = scan_untrusted_source(text)
     assert risk.prompt_injection_hits
     assert risk.secret_hits
-    pack = source_pack(text, "https://example.com")
-    assert pack["trust_class"] == "UNTRUSTED_SOURCE_DATA"
-    assert pack["quarantined"] is True
-    assert "REDACTED_SECRET" in pack["redacted_text"]
+    envelope = build_source_security_envelope(text, "https://example.com")
+    assert envelope["schema"] == SOURCE_SECURITY_ENVELOPE_SCHEMA
+    assert envelope["trust_class"] == "UNTRUSTED_SOURCE_DATA"
+    assert envelope["quarantined"] is True
+    assert "REDACTED_SECRET" in envelope["redacted_text"]
+
+
+def test_source_security_envelope_requires_source_ref():
+    with pytest.raises(ValueError, match="source_ref required"):
+        build_source_security_envelope("untrusted", "   ")
 
 
 def test_factual_beat_requires_known_supported_claim():
