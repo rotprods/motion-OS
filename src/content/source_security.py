@@ -39,6 +39,13 @@ def _validate_verification_attestation(
     verified_at: str | None,
     verification_evidence: tuple[str, ...],
 ) -> None:
+    """Validate legacy evidence-attestation fields without granting truth authority.
+
+    The field names predate the explicit authority boundary. Their shape can prove only
+    that a caller supplied timestamped evidence references; it cannot prove those
+    references were independently checked. `verification_state` therefore never returns
+    VERIFIED from these fields alone.
+    """
     if verified_at is None:
         if verification_evidence:
             raise ValueError("verification_evidence requires verified_at")
@@ -70,11 +77,14 @@ class NormalizedClaim:
 
     @property
     def verification_state(self) -> str:
-        return "VERIFIED" if self.verified_at is not None and self.verification_evidence else "UNVERIFIED"
+        if self.verified_at is not None and self.verification_evidence:
+            return "EVIDENCE_ATTESTED_UNVERIFIED"
+        return "UNVERIFIED"
 
     def to_dict(self) -> dict[str, Any]:
         payload = asdict(self)
         payload["verification_state"] = self.verification_state
+        payload["verification_authority"] = "NONE"
         return payload
 
 

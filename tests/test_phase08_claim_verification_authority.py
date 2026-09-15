@@ -14,9 +14,10 @@ def test_normalization_never_fabricates_verification_timestamp():
         assert claim.verification_evidence == ()
         assert claim.verification_state == "UNVERIFIED"
         assert claim.to_dict()["verification_state"] == "UNVERIFIED"
+        assert claim.to_dict()["verification_authority"] == "NONE"
 
 
-def test_verified_claim_requires_timestamp_and_evidence_as_one_attestation():
+def test_evidence_attestation_requires_timestamp_and_evidence_as_one_unit():
     with pytest.raises(ValueError, match="verified_at requires verification_evidence"):
         normalize_claim(
             proposition="Dato",
@@ -33,7 +34,7 @@ def test_verified_claim_requires_timestamp_and_evidence_as_one_attestation():
         )
 
 
-def test_direct_dataclass_construction_cannot_bypass_verification_invariant():
+def test_direct_dataclass_construction_cannot_bypass_attestation_invariant():
     with pytest.raises(ValueError, match="verified_at requires verification_evidence"):
         NormalizedClaim(
             claim_id="CLM_FAKE",
@@ -44,19 +45,21 @@ def test_direct_dataclass_construction_cannot_bypass_verification_invariant():
         )
 
 
-def test_verified_claim_exposes_evidence_bound_state():
+def test_shape_only_evidence_attestation_never_claims_verified_authority():
     claim = normalize_claim(
-        proposition="Dato verificado",
+        proposition="Dato con evidencia declarada",
         source_ref="https://example.com",
         evidence_strength="DIRECT",
         verified_at="2026-08-28T12:00:00+00:00",
         verification_evidence=("source-snapshot:sha256:abc123", "review:run-7"),
     )
-    assert claim.verification_state == "VERIFIED"
+    assert claim.verification_state == "EVIDENCE_ATTESTED_UNVERIFIED"
     payload = claim.to_dict()
     assert payload["verified_at"] == "2026-08-28T12:00:00+00:00"
     assert payload["verification_evidence"] == ("source-snapshot:sha256:abc123", "review:run-7")
-    assert payload["verification_state"] == "VERIFIED"
+    assert payload["verification_state"] == "EVIDENCE_ATTESTED_UNVERIFIED"
+    assert payload["verification_authority"] == "NONE"
+    assert payload["verification_state"] != "VERIFIED"
 
 
 def test_verification_timestamp_must_be_parseable_and_timezone_aware():
@@ -82,22 +85,22 @@ def test_blank_verification_evidence_fails_closed():
         )
 
 
-def test_claim_identity_does_not_depend_on_authority_promotion():
+def test_claim_identity_does_not_depend_on_attestation_metadata():
     base = normalize_claim(
         proposition="Mismo claim",
         source_ref="https://example.com/source",
         evidence_strength="DIRECT",
     )
-    verified = normalize_claim(
+    attested = normalize_claim(
         proposition="Mismo claim",
         source_ref="https://example.com/source",
         evidence_strength="DIRECT",
         verified_at="2026-08-28T12:00:00Z",
         verification_evidence=("snapshot:sha256:abc",),
     )
-    assert base.claim_id == verified.claim_id
+    assert base.claim_id == attested.claim_id
     assert base.verification_state == "UNVERIFIED"
-    assert verified.verification_state == "VERIFIED"
+    assert attested.verification_state == "EVIDENCE_ATTESTED_UNVERIFIED"
 
 
 def test_source_pack_preserves_explicit_unverified_state():
@@ -108,4 +111,5 @@ def test_source_pack_preserves_explicit_unverified_state():
     )
     pack = source_pack("contenido", "https://example.com/source", claims=(claim,))
     assert pack["claims"][0]["verification_state"] == "UNVERIFIED"
+    assert pack["claims"][0]["verification_authority"] == "NONE"
     assert pack["claims"][0]["verified_at"] is None

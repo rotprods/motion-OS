@@ -43,6 +43,30 @@ def _assigned_layer_ids(render_manifest: Mapping[str, Any]) -> set[str]:
     return assigned
 
 
+def _render_manifest_hash_valid(render_manifest: object) -> bool:
+    if not isinstance(render_manifest, Mapping):
+        return False
+    declared = render_manifest.get("manifest_hash")
+    if not _valid_hex(declared, _HEX64_RE):
+        return False
+    payload = dict(render_manifest)
+    payload.pop("manifest_hash", None)
+    try:
+        canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()
+    except (TypeError, ValueError):
+        return False
+    observed = hashlib.sha256(canonical).hexdigest()
+    return observed == str(declared).lower()
+
+
+def _qa_summary_passed(qa_summary: object) -> bool:
+    return bool(
+        isinstance(qa_summary, Mapping)
+        and qa_summary
+        and qa_summary.get("decision") == "PASS"
+    )
+
+
 def inspect_project(graph: Any, *, render_manifest: dict[str, Any] | None = None) -> dict[str, Any]:
     kinds = Counter(node.kind for node in graph.nodes)
     layers = [node for node in graph.nodes if node.kind == "Layer"]
@@ -66,6 +90,9 @@ def inspect_project(graph: Any, *, render_manifest: dict[str, Any] | None = None
         raise ValueError("render_manifest must be an object or null")
     else:
         assigned = _assigned_layer_ids(render_manifest)
+        unknown = sorted(assigned - layer_ids)
+        if unknown:
+            raise ValueError(f"render assignments reference unknown layer IDs: {unknown}")
         unresolved = sorted(layer_ids - assigned)
 
     scenes = sorted(
@@ -117,13 +144,15 @@ def recovery_manifest(
         else None
     )
     normalized_artifacts = sorted(artifact_refs or [])
+    qa_present = isinstance(qa_summary, Mapping) and bool(qa_summary)
     requirements = {
         "graph_hash_present": _valid_hex(snapshot["graph_hash"], _HEX64_RE),
         "git_sha_valid": _valid_hex(git_sha, _HEX40_RE),
         "asset_manifest_hash_valid": _valid_hex(asset_manifest_hash, _HEX64_RE),
         "render_manifest_present": snapshot["render_manifest_present"],
-        "render_manifest_hash_valid": _valid_hex(render_manifest_hash, _HEX64_RE),
-        "qa_summary_present": isinstance(qa_summary, Mapping) and bool(qa_summary),
+        "render_manifest_hash_valid": _render_manifest_hash_valid(render_manifest),
+        "qa_summary_present": qa_present,
+        "qa_summary_passed": _qa_summary_passed(qa_summary),
         "artifact_refs_present": _artifact_refs_valid(artifact_refs),
         "no_unresolved_layers": not snapshot["unresolved_layers"],
         "no_provenance_gaps": not snapshot["provenance_gaps"],
