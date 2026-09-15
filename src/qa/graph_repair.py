@@ -46,14 +46,37 @@ def plan_repair_candidates(graph, defect_id:str, *, strategies=("minimal","struc
     return out
 
 def attach_repair_candidates(graph, candidates:list[RepairCandidateSpec]) -> list[str]:
+    """Attach repair candidates while preserving defect lineage and mutation truth.
+
+    ``DERIVED_FROM`` records which defect caused the candidate to exist. ``MUTATES``
+    records only the actual graph nodes named by RepairMutation. Missing defects,
+    missing mutation targets, and mutation-free candidates fail closed before any
+    candidate node is written.
+    """
     ids=[]
+    existing={n.id for n in graph.nodes}
     for c in candidates:
+        if c.defect_id not in existing:
+            raise ValueError(f"repair defect target missing: {c.defect_id}")
+        if not c.mutations:
+            raise ValueError(f"repair candidate has no mutations: {c.candidate_id}")
+
+        mutation_targets=tuple(sorted({m.target_node_id for m in c.mutations}))
+        missing=[target for target in mutation_targets if target not in existing]
+        if missing:
+            raise ValueError(f"repair mutation target missing: {missing}")
+        if c.candidate_id in existing:
+            raise ValueError(f"repair candidate identity collision: {c.candidate_id}")
+
         graph.add_node(graph.typed_node(c.candidate_id,"RepairCandidate",data={
             "defect_id":c.defect_id,"strategy":c.strategy,
             "mutations":[asdict(m) for m in c.mutations],
             "affected_nodes":list(c.affected_nodes),"regression_protected":list(c.regression_protected),
         },authority="inferred",provenance_refs=[c.defect_id]))
-        graph.add_edge(Edge(c.candidate_id,c.defect_id,"MUTATES",{"id":f"e_{c.candidate_id}_defect"}))
+        graph.add_edge(Edge(c.candidate_id,c.defect_id,"DERIVED_FROM",{"id":f"e_{c.candidate_id}_defect"}))
+        for target in mutation_targets:
+            graph.add_edge(Edge(c.candidate_id,target,"MUTATES",{"id":f"e_{c.candidate_id}_mutates_{target}"}))
+        existing.add(c.candidate_id)
         ids.append(c.candidate_id)
     return ids
 
