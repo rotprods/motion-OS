@@ -12,9 +12,13 @@ from src.qa.master_recovery import (
     IDENTITY_UNQUALIFIED,
     MASTER_HASH_MISMATCH,
     RECOVERED_EXACT,
+    RECOVERY_LIMIT_EXCEEDED,
     MasterIdentity,
     RecoveryCandidate,
     RecoveryContract,
+    RecoveryLimitExceeded,
+    sha256_path,
+    sha256_zip_member,
     verify_recovery,
 )
 
@@ -146,3 +150,54 @@ def test_zip_member_path_traversal_is_rejected():
     )
     with pytest.raises(ValueError, match="unsafe_container_member"):
         contract.validate()
+
+
+def test_container_hashing_limit_is_enforced_before_streaming(tmp_path: Path):
+    path = tmp_path / "oversized.bin"
+    path.write_bytes(b"x" * 64)
+    with pytest.raises(RecoveryLimitExceeded, match="container_bytes_exceeded"):
+        sha256_path(path, max_bytes=32)
+
+
+def test_member_size_limit_is_enforced_before_streaming(tmp_path: Path):
+    bundle = tmp_path / "oversized-member.zip"
+    with zipfile.ZipFile(bundle, "w", compression=zipfile.ZIP_STORED) as archive:
+        archive.writestr("master.mp4", b"x" * 64)
+    with pytest.raises(RecoveryLimitExceeded, match="container_member_bytes_exceeded"):
+        sha256_zip_member(bundle, "master.mp4", max_member_bytes=32)
+
+
+def test_zip_entry_count_limit_is_enforced_before_member_streaming(tmp_path: Path):
+    bundle = tmp_path / "too-many-members.zip"
+    with zipfile.ZipFile(bundle, "w") as archive:
+        archive.writestr("master.mp4", b"master")
+        archive.writestr("one.json", b"{}")
+        archive.writestr("two.json", b"{}")
+    with pytest.raises(RecoveryLimitExceeded, match="zip_entry_count_exceeded"):
+        sha256_zip_member(bundle, "master.mp4", max_zip_entries=2)
+
+
+def test_high_ratio_zip_member_is_rejected_before_decompression(tmp_path: Path):
+    master = b"\0" * (1024 * 1024)
+    bundle = tmp_path / "zip-bomb-shape.zip"
+    with zipfile.ZipFile(bundle, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        archive.writestr("master.mp4", master)
+
+    result = verify_recovery(
+        RecoveryContract(
+            MasterIdentity("master", digest(master), len(master)),
+            RecoveryCandidate(
+                "compressed",
+                "local_file",
+                "local:zip-bomb-shape",
+                container_member="master.mp4",
+            ),
+        ),
+        bundle,
+    )
+
+    assert result.status == RECOVERY_LIMIT_EXCEEDED
+    assert result.authority == "NONE"
+    assert result.observed_sha256 is None
+    assert result.observed_container_sha256 == digest(bundle.read_bytes())
+    assert result.errors[0].startswith("container_member_compression_ratio_exceeded:")

@@ -1,0 +1,33 @@
+{
+  "affected_paths": [
+    "src/qa/master_recovery.py",
+    "tests/test_master_recovery_boundaries.py"
+  ],
+  "agent_id": "motion://agent/chatgpt/recovery-review",
+  "authority": "EXECUTED",
+  "branch": "hardening/p8-6-recovery-zip-bounds-20260915",
+  "checks": {
+    "full_local_profile": "BLOCKED_NO_FULL_CHECKOUT",
+    "local_python311_312_runtime": "NOT_RUN_UNAVAILABLE",
+    "local_recovery_tests": "PASS_67",
+    "mutation_probes": "PASS_5_KILLED",
+    "remote_exact_head": "NOT_RUN_PRE_PUSH"
+  },
+  "commit_sha": "653f3e4b0754d81909539dbeb9ed1dce88e15a51",
+  "correlation_id": "motion-gauntlet-20260915T195532Z-1084b5e9",
+  "event_id": "recovery-review-1084b5e9-started",
+  "event_type": "work.started",
+  "metadata": {
+    "chat_id": "no expuesto",
+    "claim_comment_id": 5687239678,
+    "reviewed_base_head": "653f3e4b0754d81909539dbeb9ed1dce88e15a51",
+    "run_id_origin": "locally_generated",
+    "session_id": "no expuesto",
+    "source_sha256": "66146e39f6ea45bbfdf585a46d0160e4d7ea5d4f8d9f93780a57579fd577b88d",
+    "tests_sha256": "995541d18fb3ba3ab9185139207a26f3756445f857bd8c3530e1d6cb7faec317"
+  },
+  "pr_number": 165,
+  "project": "MOTION.OS",
+  "summary": "Resume existing PR165 workstream after Bus39 CLAIM 5687239678. Exact-source scoped mirror; full clone blocked by DNS. Review uncovered P1 container/member revision splicing on both frozen PR162 and PR165; no production compromise claimed. Prior only-independent-review blocker statement superseded on issue164.",
+  "timestamp": "2026-09-15T20:09:09.221901Z"
+}

@@ -22,6 +22,7 @@ SECRET_PATTERNS = (
     r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----",
 )
 EMAIL_RE = re.compile(r"(?<![\w.+-])[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}(?![\w.-])", re.I)
+SOURCE_SECURITY_ENVELOPE_SCHEMA = "motion-os.source-security-envelope/v1"
 
 
 @dataclass(frozen=True)
@@ -156,9 +157,22 @@ def validate_claim_lineage(manifest: dict[str, Any]) -> list[str]:
     return errors
 
 
-def source_pack(raw_text: str, source_ref: str, claims: Iterable[NormalizedClaim] = ()) -> dict[str, Any]:
+def build_source_security_envelope(
+    raw_text: str,
+    source_ref: str,
+    claims: Iterable[NormalizedClaim] = (),
+) -> dict[str, Any]:
+    """Build the untrusted-source security envelope.
+
+    This is intentionally *not* the canonical SourcePack defined by
+    `schemas/source_pack.schema.json`. It records quarantine/redaction and claim
+    evidence state before content intelligence constructs a canonical SourcePack.
+    """
+    if not source_ref.strip():
+        raise ValueError("source_ref required")
     risk = scan_untrusted_source(raw_text)
     return {
+        "schema": SOURCE_SECURITY_ENVELOPE_SCHEMA,
         "source_ref": source_ref,
         "trust_class": "UNTRUSTED_SOURCE_DATA",
         "content_fingerprint": content_fingerprint(raw_text),

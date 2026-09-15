@@ -1,6 +1,10 @@
 import pytest
 
-from src.content.source_security import NormalizedClaim, normalize_claim, source_pack
+from src.content.source_security import (
+    NormalizedClaim,
+    build_source_security_envelope,
+    normalize_claim,
+)
 
 
 def test_normalization_never_fabricates_verification_timestamp():
@@ -103,13 +107,17 @@ def test_claim_identity_does_not_depend_on_attestation_metadata():
     assert attested.verification_state == "EVIDENCE_ATTESTED_UNVERIFIED"
 
 
-def test_source_pack_preserves_explicit_unverified_state():
+def test_source_security_envelope_preserves_explicit_unverified_state():
     claim = normalize_claim(
         proposition="Dato",
         source_ref="https://example.com/source",
         evidence_strength="HIGH_CONFIDENCE",
     )
-    pack = source_pack("contenido", "https://example.com/source", claims=(claim,))
-    assert pack["claims"][0]["verification_state"] == "UNVERIFIED"
-    assert pack["claims"][0]["verification_authority"] == "NONE"
-    assert pack["claims"][0]["verified_at"] is None
+    envelope = build_source_security_envelope(
+        "contenido",
+        "https://example.com/source",
+        claims=(claim,),
+    )
+    assert envelope["claims"][0]["verification_state"] == "UNVERIFIED"
+    assert envelope["claims"][0]["verification_authority"] == "NONE"
+    assert envelope["claims"][0]["verified_at"] is None
