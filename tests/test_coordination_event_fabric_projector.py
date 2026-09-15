@@ -3,6 +3,7 @@ import pytest
 from src.coordination.event_fabric_projector import (
     CanonicalEventFabricProjector,
     EventFabricProjectionError,
+    RuntimeObservation,
     runtime_observation_from_stored,
     surface_event_from_mapping,
 )
@@ -142,6 +143,46 @@ def test_runtime_watermark_cannot_be_behind_observed_runtime_sequence():
             runtime_watermark=0,
             surface_events=[],
             runtime_observations=[runtime],
+        )
+
+
+def test_full_surface_qualification_rejects_incomplete_runtime_watermark_coverage():
+    store = InMemoryReferenceEventStore()
+    runtime = runtime_observation_from_stored(store.append(_runtime_event()))
+    shared = _bootstrap_event()
+    with pytest.raises(EventFabricProjectionError, match="completely cover watermark"):
+        CanonicalEventFabricProjector().project(
+            live_main_sha=MAIN,
+            runtime_watermark=2,
+            surface_events=[
+                surface_event_from_mapping(Surface.GITHUB_BOOTSTRAP, shared),
+                surface_event_from_mapping(Surface.REPO_EVENT, shared),
+            ],
+            runtime_observations=[runtime],
+            require_all_surfaces=True,
+        )
+
+
+def test_duplicate_runtime_sequence_identity_fails_closed():
+    runtime_event = SurfaceEvent.create(
+        Surface.RUNTIME_EVENTSTORE,
+        "runtime-a",
+        {"event_id": "runtime-a", "event_type": "CHECKPOINT"},
+    )
+    other_event = SurfaceEvent.create(
+        Surface.RUNTIME_EVENTSTORE,
+        "runtime-b",
+        {"event_id": "runtime-b", "event_type": "CHECKPOINT"},
+    )
+    with pytest.raises(EventFabricProjectionError, match="duplicate runtime event sequence_id"):
+        CanonicalEventFabricProjector().project(
+            live_main_sha=MAIN,
+            runtime_watermark=1,
+            surface_events=[],
+            runtime_observations=[
+                RuntimeObservation(runtime_event, 1),
+                RuntimeObservation(other_event, 1),
+            ],
         )
 
 

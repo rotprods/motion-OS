@@ -114,6 +114,30 @@ class CanonicalEventFabricProjector:
                 "runtime surface events require RuntimeObservation sequence evidence"
             )
 
+        runtime_sequence_ids = [item.sequence_id for item in runtime_observations]
+        if len(runtime_sequence_ids) != len(set(runtime_sequence_ids)):
+            raise EventFabricProjectionError("duplicate runtime event sequence_id")
+        if runtime_sequence_ids and max(runtime_sequence_ids) > runtime_watermark:
+            raise EventFabricProjectionError(
+                "runtime watermark is behind observed runtime event sequence"
+            )
+        if require_all_surfaces and runtime_watermark > 0:
+            ordered_sequences = sorted(runtime_sequence_ids)
+            complete = bool(
+                ordered_sequences
+                and ordered_sequences[0] == 1
+                and ordered_sequences[-1] == runtime_watermark
+                and len(ordered_sequences) == runtime_watermark
+                and all(
+                    right == left + 1
+                    for left, right in zip(ordered_sequences, ordered_sequences[1:])
+                )
+            )
+            if not complete:
+                raise EventFabricProjectionError(
+                    "runtime observations do not completely cover watermark sequence"
+                )
+
         observed = list(external_events)
         observed.extend(item.event for item in runtime_observations)
         observed_tuple = tuple(observed)
@@ -123,13 +147,6 @@ class CanonicalEventFabricProjector:
             if missing:
                 names = ",".join(sorted(item.value for item in missing))
                 raise EventFabricProjectionError(f"missing required event surfaces: {names}")
-
-        if runtime_observations:
-            max_runtime_sequence = max(item.sequence_id for item in runtime_observations)
-            if runtime_watermark < max_runtime_sequence:
-                raise EventFabricProjectionError(
-                    "runtime watermark is behind observed runtime event sequence"
-                )
 
         deduped = deduplicate_surface_events(observed_tuple)
 
