@@ -8,7 +8,13 @@ import {fileURLToPath} from 'node:url';
 const ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const TOOL_ROOT=path.join(ROOT,'runtime','heterogeneous-tools');
 const toolRequire=createRequire(path.join(TOOL_ROOT,'package.json'));
-const puppeteer=toolRequire('puppeteer-core');
+const hyperframesEntry=toolRequire.resolve('hyperframes');
+const hyperframesRequire=createRequire(hyperframesEntry);
+const puppeteer=hyperframesRequire('puppeteer-core');
+const puppeteerEntry=hyperframesRequire.resolve('puppeteer-core');
+const lock=JSON.parse(fs.readFileSync(path.join(TOOL_ROOT,'package-lock.json'),'utf8'));
+const puppeteerLock=lock.packages['node_modules/hyperframes/node_modules/puppeteer-core'] || lock.packages['node_modules/puppeteer-core'];
+if(!puppeteerLock?.version) throw new Error('puppeteer-core missing from heterogeneous tool lock');
 const source=path.join(ROOT,'runtime','lottie');
 const frames=path.join(source,'frames');
 fs.rmSync(frames,{recursive:true,force:true}); fs.mkdirSync(frames,{recursive:true});
@@ -30,6 +36,6 @@ try{
     hashes.push(crypto.createHash('sha256').update(fs.readFileSync(out)).digest('hex'));
   }
   if(errors.length) throw new Error(errors.join('|')); if(new Set(hashes).size<10) throw new Error('insufficient-frame-diversity');
-  const evidence={schema:'motion-os.lottie-sequence/v2',player:'lottie-web@5.13.0',transport:'puppeteer-core@24.16.0',tool_lock_sha256:crypto.createHash('sha256').update(fs.readFileSync(path.join(TOOL_ROOT,'package-lock.json'))).digest('hex'),frame_count:90,width:640,height:360,unique_frame_hashes:new Set(hashes).size,frame_hashes:{first:hashes[0],mid:hashes[45],last:hashes[89]},browser_errors:errors,authority:'PHYSICALLY_EXECUTED'};
+  const evidence={schema:'motion-os.lottie-sequence/v3',player:'lottie-web@5.13.0',transport:`puppeteer-core@${puppeteerLock.version}`,puppeteer_entry:path.relative(ROOT,puppeteerEntry),tool_lock_sha256:crypto.createHash('sha256').update(fs.readFileSync(path.join(TOOL_ROOT,'package-lock.json'))).digest('hex'),frame_count:90,width:640,height:360,unique_frame_hashes:new Set(hashes).size,frame_hashes:{first:hashes[0],mid:hashes[45],last:hashes[89]},browser_errors:errors,authority:'PHYSICALLY_EXECUTED'};
   fs.writeFileSync(path.join(source,'sequence_evidence.json'),JSON.stringify(evidence,null,2)+'\n'); console.log(JSON.stringify(evidence,null,2));
 } finally {if(browser) await browser.close(); server.close();}
