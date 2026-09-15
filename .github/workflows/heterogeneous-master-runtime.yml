@@ -1,0 +1,143 @@
+name: Heterogeneous Master Runtime
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'src/renderers/assembly.py'
+      - 'src/renderers/color_policy.py'
+      - 'src/compilers/hyperframes.py'
+      - 'src/compilers/lottie.py'
+      - 'scripts/build_heterogeneous_master_sources.py'
+      - 'scripts/render_lottie_sequence.mjs'
+      - 'scripts/assemble_heterogeneous_master.py'
+      - 'runtime/heterogeneous-tools/package.json'
+      - 'runtime/heterogeneous-tools/package-lock.json'
+      - 'integration/heterogeneous_master/**'
+      - 'tests/test_phase08_heterogeneous_color_semantics.py'
+      - 'tests/test_phase08_visual_frame_authority.py'
+      - '.github/workflows/heterogeneous-master-runtime.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: heterogeneous-master-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  physical-master:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12.14'
+          cache: pip
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22.23.2'
+          cache: npm
+          cache-dependency-path: runtime/heterogeneous-tools/package-lock.json
+      - name: Install physical media runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends ffmpeg
+          ffmpeg -version | head -n 1
+      - name: Build frozen Python analysis environment
+        run: python scripts/python_ci_env.py create --environment analysis --json-out .artifacts/heterogeneous-python-environment.json
+      - name: Verify exact heterogeneous tool lock before install
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf '%s  runtime/heterogeneous-tools/package.json\n' 'f1027ead04e3a81312e3d91ac9099ef9a189178db8f6b77ffab33a2ac9099bb8' | sha256sum --check --strict
+          printf '%s  runtime/heterogeneous-tools/package-lock.json\n' '7d82c7a07cab172f01948e4444af3b2e151d54d9a12f9ebdc177fdda0fa66334' | sha256sum --check --strict
+      - name: Install heterogeneous tools from exact lock only
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci --prefix runtime/heterogeneous-tools --ignore-scripts --no-audit --fund=false
+          printf '%s  runtime/heterogeneous-tools/package-lock.json\n' '7d82c7a07cab172f01948e4444af3b2e151d54d9a12f9ebdc177fdda0fa66334' | sha256sum --check --strict
+      - name: Audit locked heterogeneous tool dependencies
+        run: npm audit --prefix runtime/heterogeneous-tools --audit-level=high --omit=dev
+      - name: Contract and frame-authority regressions
+        run: |
+          .venv-ci/analysis/bin/python -m pytest -q \
+            tests/test_phase05_render_stack.py \
+            tests/test_phase08_master_audio_mux.py \
+            tests/test_phase08_heterogeneous_color_semantics.py \
+            tests/test_phase08_visual_frame_authority.py
+      - name: Build deterministic HyperFrames and Lottie sources
+        run: .venv-ci/analysis/bin/python scripts/build_heterogeneous_master_sources.py
+      - name: Render physical HyperFrames base from locked CLI
+        working-directory: runtime/hyperframes
+        shell: bash
+        run: |
+          set -euo pipefail
+          HF_CLI="$GITHUB_WORKSPACE/runtime/heterogeneous-tools/node_modules/.bin/hyperframes"
+          test -x "$HF_CLI"
+          "$HF_CLI" telemetry disable
+          "$HF_CLI" lint --json
+          mkdir -p out
+          "$HF_CLI" render --output out/runtime-local.mp4 --fps 30 --quality standard --strict
+          test -s out/runtime-local.mp4
+      - name: Bind exact official Lottie player from locked node_modules
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp runtime/heterogeneous-tools/node_modules/lottie-web/build/player/lottie.min.js runtime/lottie/lottie.min.js
+          .venv-ci/analysis/bin/python - <<'PY'
+          from pathlib import Path
+          import hashlib, json
+          root=Path('runtime/heterogeneous-tools')
+          lock=json.loads((root/'package-lock.json').read_text())
+          packages={}
+          for name in ('hyperframes','lottie-web','puppeteer-core'):
+              entry=lock['packages'][f'node_modules/{name}']
+              packages[name]={'version':entry['version'],'resolved':entry.get('resolved'),'integrity':entry.get('integrity')}
+          payload={'schema':'motion-os.heterogeneous-toolchain/v1','package_json_sha256':hashlib.sha256((root/'package.json').read_bytes()).hexdigest(),'package_lock_sha256':hashlib.sha256((root/'package-lock.json').read_bytes()).hexdigest(),'packages':packages}
+          Path('.artifacts').mkdir(exist_ok=True)
+          Path('.artifacts/heterogeneous-toolchain.json').write_text(json.dumps(payload,indent=2,sort_keys=True)+'\n')
+          PY
+      - name: Locate clean-runner Chrome
+        shell: bash
+        run: |
+          set -euo pipefail
+          CHROME="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || true)"
+          test -n "$CHROME"
+          echo "CHROME_BIN=$CHROME" >> "$GITHUB_ENV"
+          "$CHROME" --version
+      - name: Render 90 transparent frames through locked lottie-web
+        run: node scripts/render_lottie_sequence.mjs
+      - name: Encode alpha-preserving Lottie overlay
+        shell: bash
+        run: |
+          set -euo pipefail
+          ffmpeg -v error -y -framerate 30 -i runtime/lottie/frames/frame-%03d.png -c:v qtrle -pix_fmt argb runtime/lottie/overlay-argb.mov
+          ffprobe -v error -select_streams v:0 -show_entries stream=pix_fmt,nb_frames,width,height,r_frame_rate -of json runtime/lottie/overlay-argb.mov
+      - name: Assemble and verify counted-frame heterogeneous master
+        run: .venv-ci/analysis/bin/python scripts/assemble_heterogeneous_master.py
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: heterogeneous-master-proof
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 14
+          path: |
+            .artifacts/heterogeneous-python-environment.json
+            .artifacts/heterogeneous-toolchain.json
+            .artifacts/heterogeneous-master/**
+            runtime/heterogeneous-tools/package.json
+            runtime/heterogeneous-tools/package-lock.json
+            runtime/hyperframes/compiler_evidence.json
+            runtime/hyperframes/out/runtime-local.mp4
+            runtime/lottie/compiler_evidence.json
+            runtime/lottie/sequence_evidence.json
+            runtime/lottie/overlay-argb.mov

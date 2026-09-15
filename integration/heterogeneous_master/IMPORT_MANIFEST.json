@@ -1,0 +1,24 @@
+{
+  "schema_version":"1.0.0",
+  "imports":[
+    {"path":"src/renderers/assembly.py","blob":"62eb3381f7e219d1b55dd180d24710b300605bba","source_pr":61},
+    {"path":"tests/test_phase08_master_audio_mux.py","blob":"fb6986384c6f9ffeb37dc1d20b2b26626acb3d5a","source_pr":61},
+    {"path":"src/compilers/hyperframes.py","blob":"7b4547a76e6f39d6685542f0c76b29fc10e98d75","source_pr":62},
+    {"path":"scripts/build_hyperframes_runtime_fixture.py","blob":"cd67428f0edf21d92b7bf9435c01f7a0ce80deb0","source_pr":62},
+    {"path":"scripts/verify_hyperframes_render.py","blob":"7e299c521856004a1c143ad2e1288f7caa1e87c9","source_pr":62},
+    {"path":"tests/test_hyperframes_runtime_contract.py","blob":"e8f2917b6c19ee81203c19131ecd1393f21eddc1","source_pr":62},
+    {"path":"src/renderers/runtime_verifier.py","blob":"e1ebe6c73c4223383230a0ecee73ab4ed0c2ef6d","source_pr":63},
+    {"path":"scripts/verify_semantic_alpha_composite.py","blob":"22a8fe112004b1bbe45ebc205477183ef5286bc2","source_pr":63},
+    {"path":"tests/test_phase08_alpha_runtime.py","blob":"173ff64d0f74acd21567101d0dd668919fed3a33","source_pr":63},
+    {"path":"tests/test_semantic_alpha_composite.py","blob":"bbcf7453c9790683d365dfbe880a509968c5e63f","source_pr":63},
+    {"path":"src/compilers/lottie.py","blob":"0ef13d08df83b7904bfd78bd8023d12af7fa8383","source_pr":66},
+    {"path":"scripts/build_lottie_runtime_fixture.py","blob":"f01b469567b90765273321c0a442a58660d3499c","source_pr":66},
+    {"path":"scripts/verify_lottie_player.mjs","blob":"af92cee5d640086f38e52eb443d671389530f807","source_pr":66},
+    {"path":"scripts/verify_lottie_player.py","blob":"9c750a183dd90a0d2ad074cda6be8645345d7f61","source_pr":66},
+    {"path":"tests/test_phase08_lottie_runtime.py","blob":"9700dfdf08092886be568862c31bae8daf1c1882","source_pr":66},
+    {"path":"src/renderers/color_policy.py","blob":"521a35309113deaa43966d936e36220a80ef9210","source_pr":69},
+    {"path":"scripts/verify_color_normalization.py","blob":"d90e759d9e308450ccfb2eb9b1df443d525245f5","source_pr":69},
+    {"path":"tests/test_phase08_color_policy.py","blob":"dedee20746d0fbbaf71517e8adc8d039bce946b4","source_pr":69}
+  ],
+  "rule":"Each imported path must match its declared Git blob exactly before integration authority is granted."
+}
