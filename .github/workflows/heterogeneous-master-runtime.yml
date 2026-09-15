@@ -23,7 +23,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: heterogeneous-master-${{ github.event.pull_request.number || github.ref }}
+  group: heterogeneous-master-${{ github.event.pull_request.head.sha || github.sha }}
   cancel-in-progress: true
 
 jobs:
