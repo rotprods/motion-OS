@@ -9,6 +9,7 @@ from src.qa.creative_tournament import (
     creative_review_from_provider_payload,
     run_tournament,
 )
+from src.qa.provider_authority import ProviderAuthorityClaim
 from src.qa.release_manifest import ReleaseManifestError, build_release_manifest
 from src.qa.temporal_multimodal import (
     build_temporal_evidence,
@@ -19,6 +20,53 @@ from src.qa.temporal_multimodal import (
 
 def digest(text: str) -> str:
     return hashlib.sha256(text.encode()).hexdigest()
+
+
+class FixtureAuthorityVerifier:
+    verifier_id = "fixture-independent-verifier"
+
+    def __init__(self, accepted: set[ProviderAuthorityClaim]):
+        self.accepted = frozenset(accepted)
+
+    def verify(self, claim: ProviderAuthorityClaim) -> bool:
+        return claim in self.accepted
+
+
+class RejectingAuthorityVerifier:
+    verifier_id = "fixture-rejecting-verifier"
+
+    def verify(self, claim: ProviderAuthorityClaim) -> bool:
+        return False
+
+
+def verifier_for(*candidates: CreativeCandidate) -> FixtureAuthorityVerifier:
+    claims: set[ProviderAuthorityClaim] = set()
+    for item in candidates:
+        assert item.temporal.provider_run_id is not None
+        assert item.temporal.provider_attestation_id is not None
+        assert item.creative.provider_run_id is not None
+        assert item.creative.provider_attestation_id is not None
+        claims.add(
+            ProviderAuthorityClaim(
+                purpose="temporal_multimodal",
+                provider=item.temporal.provider,
+                provider_run_id=item.temporal.provider_run_id,
+                media_sha256=item.media_sha256,
+                full_video_scope=True,
+                provider_attestation_id=item.temporal.provider_attestation_id,
+            )
+        )
+        claims.add(
+            ProviderAuthorityClaim(
+                purpose="creative_review",
+                provider=item.creative.provider,
+                provider_run_id=item.creative.provider_run_id,
+                media_sha256=item.media_sha256,
+                full_video_scope=True,
+                provider_attestation_id=item.creative.provider_attestation_id,
+            )
+        )
+    return FixtureAuthorityVerifier(claims)
 
 
 def candidate(
@@ -80,11 +128,21 @@ def candidate(
     return CreativeCandidate(candidate_id, media_sha, critique, creative)
 
 
+def test_provider_declared_authority_cannot_mint_release_manifest_without_independent_verifier():
+    item = candidate("self-asserted")
+    result = run_tournament([item])
+    assert result.release_candidate_id == item.candidate_id
+    with pytest.raises(ReleaseManifestError, match="independent provider authority verifier required"):
+        build_release_manifest(result, [item])
+    with pytest.raises(ReleaseManifestError, match="not independently verified"):
+        build_release_manifest(result, [item], authority_verifier=RejectingAuthorityVerifier())
+
+
 def test_release_manifest_binds_temporal_and_creative_attestation_authority():
     a = candidate("a")
     b = candidate("b", creative_score=9.1)
     result = run_tournament([b, a])
-    manifest = build_release_manifest(result, [a, b])
+    manifest = build_release_manifest(result, [a, b], authority_verifier=verifier_for(a, b))
     winner = a if manifest.candidate_id == "a" else b
     assert manifest.media_sha256 == winner.media_sha256
     assert manifest.temporal_evidence_hash == winner.temporal.evidence_hash
@@ -92,11 +150,15 @@ def test_release_manifest_binds_temporal_and_creative_attestation_authority():
     assert manifest.temporal_provider_run_id == winner.temporal.provider_run_id
     assert manifest.temporal_provider_attestation_id == winner.temporal.provider_attestation_id
     assert manifest.temporal_full_video_scope is True
+    assert manifest.temporal_authority_verifier_id == "fixture-independent-verifier"
+    assert len(manifest.temporal_authority_receipt_sha256) == 64
     assert manifest.creative_evidence_hash == winner.creative.content_hash()
     assert manifest.creative_provider == winner.creative.provider
     assert manifest.creative_provider_run_id == winner.creative.provider_run_id
     assert manifest.creative_provider_attestation_id == winner.creative.provider_attestation_id
     assert manifest.creative_full_video_scope is True
+    assert manifest.creative_authority_verifier_id == "fixture-independent-verifier"
+    assert len(manifest.creative_authority_receipt_sha256) == 64
     assert len(manifest.manifest_sha256) == 64
 
 
@@ -104,7 +166,10 @@ def test_manifest_is_deterministic_when_candidate_input_order_changes():
     a = candidate("a")
     b = candidate("b", creative_score=9.1)
     result = run_tournament([a, b])
-    assert build_release_manifest(result, [a, b]) == build_release_manifest(result, [b, a])
+    verifier = verifier_for(a, b)
+    assert build_release_manifest(result, [a, b], authority_verifier=verifier) == build_release_manifest(
+        result, [b, a], authority_verifier=verifier
+    )
 
 
 def test_no_release_candidate_fails_closed():
@@ -165,7 +230,7 @@ def test_tampered_ranking_fails_closed():
 
 def test_manifest_hash_changes_when_temporal_evidence_or_run_changes():
     a1 = candidate("a")
-    m1 = build_release_manifest(run_tournament([a1]), [a1])
+    m1 = build_release_manifest(run_tournament([a1]), [a1], authority_verifier=verifier_for(a1))
     media_sha = digest("a")
     indices = uniform_sample_indices(90, target_samples=8)
     evidence2 = build_temporal_evidence(
@@ -194,19 +259,21 @@ def test_manifest_hash_changes_when_temporal_evidence_or_run_changes():
         },
     )
     a2 = CreativeCandidate("a", media_sha, critique2, a1.creative)
-    m2 = build_release_manifest(run_tournament([a2]), [a2])
+    m2 = build_release_manifest(run_tournament([a2]), [a2], authority_verifier=verifier_for(a2))
     assert m1.temporal_evidence_hash != m2.temporal_evidence_hash
     assert m1.temporal_provider_run_id != m2.temporal_provider_run_id
     assert m1.temporal_provider_attestation_id != m2.temporal_provider_attestation_id
+    assert m1.temporal_authority_receipt_sha256 != m2.temporal_authority_receipt_sha256
     assert m1.manifest_sha256 != m2.manifest_sha256
 
 
 def test_manifest_hash_changes_when_creative_evidence_run_changes():
     a1 = candidate("a", creative_run="creative:a:1")
     a2 = candidate("a", creative_run="creative:a:2")
-    m1 = build_release_manifest(run_tournament([a1]), [a1])
-    m2 = build_release_manifest(run_tournament([a2]), [a2])
+    m1 = build_release_manifest(run_tournament([a1]), [a1], authority_verifier=verifier_for(a1))
+    m2 = build_release_manifest(run_tournament([a2]), [a2], authority_verifier=verifier_for(a2))
     assert m1.creative_evidence_hash != m2.creative_evidence_hash
     assert m1.creative_provider_run_id != m2.creative_provider_run_id
     assert m1.creative_provider_attestation_id != m2.creative_provider_attestation_id
+    assert m1.creative_authority_receipt_sha256 != m2.creative_authority_receipt_sha256
     assert m1.manifest_sha256 != m2.manifest_sha256
