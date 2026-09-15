@@ -3,7 +3,7 @@ from dataclasses import replace
 import pytest
 
 from src.avatar.provider_submission import SubmissionBlocked, submit_paid_render
-from src.avatar.render_guard import RenderState, SpendPolicy, authorize_render
+from src.avatar.render_guard import RenderState, SpendPolicy, authorize_render, next_retry
 from src.avatar.spend_reservation import SQLitePaidRenderAuthorityStore
 
 
@@ -147,6 +147,32 @@ def test_later_terminal_reconciliation_releases_capacity_automatically(tmp_path)
     assert store.get_intent(intent.intent_id) == completed
     assert store.active_spend_reservation_count() == 0
     assert store.spent_for_day() == pytest.approx(3.0)
+
+
+def test_retryable_generation_releases_capacity_so_retry_can_reserve_new_generation(tmp_path):
+    store = SQLitePaidRenderAuthorityStore(tmp_path / "retryable.sqlite")
+    policy = SpendPolicy(10.0, 100.0, 1, max_retries=1)
+    intent = authorized("CNT_RETRY", "script retry", 3.0, policy)
+    persist(store, intent, "seed")
+    store.reserve_spend(
+        intent,
+        policy=policy,
+        observed_spent_today=0.0,
+        observed_concurrent_renders=0,
+    )
+    assert store.active_spend_reservation_count() == 1
+
+    failed = replace(intent, state=RenderState.FAILED_RETRYABLE)
+    persist(store, failed, "failure-classifier")
+    assert store.active_spend_reservation_count() == 0
+
+    retried = next_retry(failed, policy)
+    provider = Provider(job_id="vid-retry", status="pending")
+    outcome = submit(store, retried, "script retry", provider, policy, "retry-worker")
+    assert provider.calls == 1
+    assert outcome.intent.state == RenderState.ACKNOWLEDGED
+    assert store.active_spend_reservation_count() == 1
+    assert store.spent_for_day() == pytest.approx(6.0)
 
 
 def test_paid_authority_store_rejects_stable_identity_drift_before_event_write(tmp_path):

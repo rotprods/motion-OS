@@ -31,9 +31,16 @@ class SQLitePaidRenderAuthorityStore(SQLiteTransactionalRenderStore):
     sharing this SQLite authority. The ledger is deliberately conservative: a reserved
     submission generation continues to count toward the daily budget even if a later
     local step fails, because a crash/ambiguous boundary must never create permission to
-    spend the same budget again. Active concurrency is released only after a terminal
-    provider state is durably persisted.
+    spend the same budget again. Active concurrency is released only after durable state
+    proves the provider generation is no longer active (completed, final-failed, or
+    explicitly safe-to-retry).
     """
+
+    _NONACTIVE_STATES = frozenset({
+        RenderState.COMPLETED,
+        RenderState.FAILED_FINAL,
+        RenderState.FAILED_RETRYABLE,
+    })
 
     def _init_db(self) -> None:
         super()._init_db()
@@ -71,20 +78,21 @@ class SQLitePaidRenderAuthorityStore(SQLiteTransactionalRenderStore):
         )
 
     def put_intent(self, intent: RenderIntent, lease: Lease) -> None:
-        """Persist state without allowing identity drift; terminal states free capacity.
+        """Persist state without allowing identity drift; non-active states free capacity.
 
         `intent_id` is a content/profile/script-derived identity. Reusing it with changed
         stable fields would make the row and append-only event payload disagree. The
         paid authority store rejects that mutation before the parent store writes it.
-        Terminal transitions automatically release only the matching retry generation's
-        concurrency reservation so later reconciliation cannot leak capacity forever.
+        A FAILED_RETRYABLE generation is explicitly safe to retry and therefore cannot
+        continue occupying a provider concurrency slot; ambiguous outcomes remain in
+        RECONCILE_REQUIRED and deliberately keep their reservation active.
         """
         existing = self.get_intent(intent.intent_id)
         if existing is not None and self._stable_identity(existing) != self._stable_identity(intent):
             raise RuntimeError("render intent stable identity changed")
         super().put_intent(intent, lease)
-        if intent.state in {RenderState.COMPLETED, RenderState.FAILED_FINAL}:
-            self.release_terminal_concurrency(intent)
+        if intent.state in self._NONACTIVE_STATES:
+            self.release_inactive_concurrency(intent)
 
     @staticmethod
     def _finite_nonnegative(value: object, name: str) -> float:
@@ -212,9 +220,9 @@ class SQLitePaidRenderAuthorityStore(SQLiteTransactionalRenderStore):
                 )
             conn.execute("COMMIT")
 
-    def release_terminal_concurrency(self, intent: RenderIntent) -> None:
-        if not isinstance(intent, RenderIntent) or intent.state not in {RenderState.COMPLETED, RenderState.FAILED_FINAL}:
-            raise ValueError("terminal concurrency release requires terminal RenderIntent")
+    def release_inactive_concurrency(self, intent: RenderIntent) -> None:
+        if not isinstance(intent, RenderIntent) or intent.state not in self._NONACTIVE_STATES:
+            raise ValueError("concurrency release requires a non-active RenderIntent state")
         retry_count = self._nonnegative_int(intent.retry_count, "retry_count")
         released_at = datetime.now(timezone.utc).isoformat()
         with self._connect() as conn:
