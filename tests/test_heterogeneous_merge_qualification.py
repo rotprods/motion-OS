@@ -17,7 +17,7 @@ def test_merge_safe_requires_exact_head_heterogeneous_success():
     assert 'TARGET_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}' in gate
     assert 'TARGET_EVENT: ${{ github.event_name }}' in gate
     assert "actions: read" in text
-    assert "Required only to read exact-head workflow conclusions" in text
+    assert "Required to read exact-head workflow conclusions" in text
 
 
 def test_heterogeneous_proof_runs_for_every_merge_candidate():
