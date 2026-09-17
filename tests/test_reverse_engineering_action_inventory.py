@@ -30,6 +30,10 @@ def inventory():
     }
 
 
+def metrics(values):
+    return {"frames":[{"frame": frame, "mad": value, "flow_p90": value} for frame, value in enumerate(values)]}
+
+
 def test_inventory_validates_and_frame_lookup():
     value = inventory()
     validate_action_inventory(value)
@@ -84,18 +88,51 @@ def test_detect_peaks_and_gauntlet_coverage():
     values = [0, 1, 5, 1, 0, 0, 2, 9, 2, 0]
     peaks = detect_local_peaks(values, percentile=70, min_separation=2)
     assert 2 in peaks and 7 in peaks
-    metrics = {"frames":[{"mad":v,"flow_p90":v} for v in values]}
-    report = gauntlet_coverage_from_frame_metrics(inventory(), metrics)
+    report = gauntlet_coverage_from_frame_metrics(inventory(), metrics(values))
     assert report["observable_action_closed"]
     assert report["mad_p90_coverage"] == 1.0
     assert report["deep_unexplained_frames"] == []
+    assert report["frame_metric_identity"] == "explicit_contiguous_zero_based"
 
 
 def test_unmapped_peak_is_visible_failure():
     value = inventory()
     value["actions"][1]["start_frame"] = 6
-    metrics = {"frames":[{"mad":0,"flow_p90":0} for _ in range(10)]}
-    metrics["frames"][5] = {"mad":10,"flow_p90":10}
-    report = gauntlet_coverage_from_frame_metrics(value, metrics)
+    values = [0] * 10
+    values[5] = 10
+    report = gauntlet_coverage_from_frame_metrics(value, metrics(values))
     assert not report["observable_action_closed"]
     assert 5 in report["uncovered_mad_frames"]
+
+
+def test_frame_metric_reorder_duplicate_truncation_and_nonfinite_poison_fail_closed():
+    value = inventory()
+
+    reordered = metrics([0] * 10)
+    reordered["frames"][4]["frame"], reordered["frames"][5]["frame"] = 5, 4
+    with pytest.raises(ActionInventoryError, match="identity/order mismatch"):
+        gauntlet_coverage_from_frame_metrics(value, reordered)
+
+    duplicated = metrics([0] * 10)
+    duplicated["frames"][5]["frame"] = 4
+    with pytest.raises(ActionInventoryError, match="identity/order mismatch"):
+        gauntlet_coverage_from_frame_metrics(value, duplicated)
+
+    truncated = metrics([0] * 9)
+    with pytest.raises(ActionInventoryError, match="coverage mismatch"):
+        gauntlet_coverage_from_frame_metrics(value, truncated)
+
+    poisoned = metrics([0] * 10)
+    poisoned["frames"][5]["mad"] = float("nan")
+    with pytest.raises(ActionInventoryError, match="finite non-negative"):
+        gauntlet_coverage_from_frame_metrics(value, poisoned)
+
+
+def test_confidence_and_peak_metric_domains_fail_closed():
+    value = inventory()
+    value["actions"][0]["confidence"] = 1.1
+    with pytest.raises(ActionInventoryError, match="confidence"):
+        validate_action_inventory(value)
+
+    with pytest.raises(ActionInventoryError, match="finite non-negative"):
+        detect_local_peaks([0.0, float("inf"), 0.0])
