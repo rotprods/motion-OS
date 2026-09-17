@@ -1,0 +1,250 @@
+{
+  "schema_version": "motion-os.promotion-graph/v1",
+  "observed_at": "2026-09-17T20:31:00Z",
+  "authority": "DERIVED_PLANNING_PROJECTION_NOT_PROMOTION_AUTHORITY",
+  "live_truth": {
+    "main_sha": "d4e628a1aef0cd382c3c2f1ea327a8ff70c41bd9",
+    "main_protected": false,
+    "issue_48": "OPEN",
+    "issue_39": "OPEN",
+    "promotion_authorized": false
+  },
+  "principles": [
+    "open PRs are a dependency/value graph, not a merge checklist",
+    "historical green CI never substitutes exact-current-candidate qualification",
+    "later repairs invalidate earlier promotion evidence until incorporated and requalified",
+    "donor value already preserved in a successor must not be reimplemented",
+    "merge serially only after exact synthetic-merge and post-merge main verification"
+  ],
+  "candidate_families": {
+    "product_recovery_security": {
+      "current_tip": "PR165@577bde43665d8f290dd5613ad24624417b549b00",
+      "base_convergence_tip": "PR162@4c7f5079e134682754cfc7161f958a8d41129669",
+      "status": "TERMINAL_CANDIDATE_INCOMPLETE",
+      "already_preserved_donor_value": [
+        "PR59 graph-QA run identity and truthful repair-target semantics",
+        "PR58 cross-surface event convergence / irreversible preflight / truth consistency / cold recovery",
+        "PR119 exact-master recovery + provider-bound QA contracts",
+        "PR120 + PR122 paid-provider/spend/retry/evidence/telemetry and numeric-host SSRF hardening",
+        "PR118 + PR123 heterogeneous-renderer and counted-frame authority"
+      ],
+      "missing_or_unresolved_unique_value": [
+        "PR57 SkillRuntime executor-failure trace semantics are absent from PR162/PR165",
+        "PR56 canonical-truth validation code has unique invariants; mutable historical state snapshots must not be transplanted blindly"
+      ],
+      "next_candidate": "successor branch from PR165 head incorporating only verified unique donor semantics from PR56/PR57, followed by exact-head tri-review and full gates"
+    },
+    "semantic_knowledge": {
+      "line": ["PR128@92524aa622ebc6fcf0b77b7ba0e91fd0d852ec03", "PR163@1362e61ba5d30de64d62129523670b2905ee961b"],
+      "status": "BLOCKED_EMPIRICAL",
+      "next_gate": "physical full-corpus reindex -> graphify -> evaluate against frozen gates; unit tests alone cannot promote"
+    },
+    "reverse_engineering": {
+      "core": "PR64@2e26e311e506b6aaaa32f827e1579ddaa1e3ea58",
+      "qualification": "PR157@1cf19b912e9bf32cdbecc1360f709bf08ce615cd",
+      "golden_dependencies": [
+        "PR96@8ec35a259399d7b196b40627d782315a019e65e2",
+        "PR107@988e91893cb498f720b9c2656b3d6d85f2d56300",
+        "PR124@12592bd8f8149767fafcb0ad0aa6036250ce540c",
+        "PR125@8e6fcb79d0d7958c0f023f128297059c97a7e674"
+      ],
+      "historical_donor": "PR129@c57cdc1f96d387f31097e367cfc3e93f35527533",
+      "status": "CORE_CANDIDATE_PLUS_INCOMPLETE_QUALIFICATION",
+      "next_gate": "keep T08 qualification separate from product authority; review whether PR64 core should enter a later combined promotion candidate without waiting for false full-9D claims"
+    }
+  },
+  "nodes": [
+    {
+      "pr": 56,
+      "head_sha": "a244cc06c02e77e23d550d26cdf5af330012ad5d",
+      "promotion_class": "DONOR_ONLY",
+      "disposition": "UNIQUE_VALUE_FOUND_NOT_YET_PORTED_TO_CURRENT_TERMINAL_TIP",
+      "unique_value": [
+        "validate_canonical_truth wired into repo_health",
+        "canonical-truth/full-impact change classification",
+        "authority/read-model consistency regressions"
+      ],
+      "exclusions": [
+        "historical mutable STATE/TASKS/HANDOFF/project_state snapshots must not be copied as current truth"
+      ]
+    },
+    {
+      "pr": 57,
+      "head_sha": "f1da72e45f2bb58cb651eb12747617075809cd8e",
+      "promotion_class": "DONOR_ONLY",
+      "disposition": "UNIQUE_VALUE_FOUND_NOT_YET_PORTED_TO_CURRENT_TERMINAL_TIP",
+      "unique_value": [
+        "executor exceptions become FAILED SkillExecutionRecord",
+        "strict mode raises SkillExecutionError carrying persistable partial trace",
+        "non-strict mode leaves downstream invocations BLOCKED by normal dependency semantics",
+        "graph Run status becomes FAILED when trace contains FAILED record",
+        "persistent error evidence stores exception type, not raw secret-bearing message"
+      ],
+      "proof_of_absence_in_162": "src/skills/runtime.py at PR162 remains blob 35748e00... without SkillExecutionError/FAILED executor handling; PR57 blob is 58dd6a93..."
+    },
+    {
+      "pr": 58,
+      "head_sha": "dd9faebcda994bd74f28e52cd9d74f8bcc5da0ef",
+      "promotion_class": "DONOR_ONLY",
+      "disposition": "DONOR_PORT_COMPLETED_IN_PR162",
+      "value_destination_evidence": "PR162@d7759a1ff6c59bc7c41104da0120cd86d102b4cf"
+    },
+    {
+      "pr": 59,
+      "head_sha": "683344b4a0f9d3e9956f39018095d1dbe6a0221f",
+      "promotion_class": "DONOR_ONLY",
+      "disposition": "DONOR_PORT_COMPLETED_IN_PR162",
+      "value_destination_evidence": "PR162@8bdd266d6f85c888d408dc23c6ce8504e4dba3d7"
+    },
+    {
+      "pr": 64,
+      "head_sha": "2e26e311e506b6aaaa32f827e1579ddaa1e3ea58",
+      "promotion_class": "TERMINAL_CANDIDATE",
+      "disposition": "INDEPENDENT_REVERSE_ENGINEERING_CORE_CANDIDATE",
+      "blockers": ["Issue #48 OPEN", "combined-current-main review/gates not yet executed"]
+    },
+    {
+      "pr": 96,
+      "head_sha": "8ec35a259399d7b196b40627d782315a019e65e2",
+      "promotion_class": "QUALIFICATION_ONLY",
+      "qualifies": "PR64 / S04"
+    },
+    {
+      "pr": 107,
+      "head_sha": "988e91893cb498f720b9c2656b3d6d85f2d56300",
+      "promotion_class": "QUALIFICATION_ONLY",
+      "qualifies": "PR64 / S11"
+    },
+    {
+      "pr": 124,
+      "head_sha": "12592bd8f8149767fafcb0ad0aa6036250ce540c",
+      "promotion_class": "QUALIFICATION_ONLY",
+      "qualifies": "PR64 / S14"
+    },
+    {
+      "pr": 125,
+      "head_sha": "8e6fcb79d0d7958c0f023f128297059c97a7e674",
+      "promotion_class": "QUALIFICATION_ONLY",
+      "qualifies": "PR64 / S16"
+    },
+    {
+      "pr": 129,
+      "head_sha": "c57cdc1f96d387f31097e367cfc3e93f35527533",
+      "promotion_class": "DONOR_ONLY",
+      "disposition": "HISTORICAL_T08_DONOR_READ_ONLY_PER_PR157"
+    },
+    {
+      "pr": 157,
+      "head_sha": "1cf19b912e9bf32cdbecc1360f709bf08ce615cd",
+      "promotion_class": "QUALIFICATION_ONLY",
+      "disposition": "ACTIVE_T08_LINE_BLOCKED_BEFORE_FULL_9D_GENERALIZATION",
+      "blockers": ["W2+ incomplete", "cross-renderer parity/generalization incomplete", "Issue #48 OPEN"]
+    },
+    {
+      "pr": 128,
+      "head_sha": "92524aa622ebc6fcf0b77b7ba0e91fd0d852ec03",
+      "promotion_class": "STACK_ANCESTOR",
+      "disposition": "SEMANTIC_LINE_BASE_REQUIRES_PR163_REPAIR"
+    },
+    {
+      "pr": 163,
+      "head_sha": "1362e61ba5d30de64d62129523670b2905ee961b",
+      "promotion_class": "BLOCKED_EMPIRICAL",
+      "disposition": "REPAIRS_PR128_EVALUATION_INTEGRITY_BUT_REAL_RETRIEVAL_QUALITY_UNQUALIFIED",
+      "repairs": [128]
+    },
+    {
+      "pr": 130,
+      "head_sha": "9a7b7435d6b884785c41a7e21212581f0dd80c1d",
+      "promotion_class": "STACK_ANCESTOR",
+      "contained_by": 162
+    },
+    {"pr": 131, "head_sha": "909591e61fc0691d9ef1328180d374507fea4441", "promotion_class": "STACK_ANCESTOR", "contained_by": 162},
+    {"pr": 132, "head_sha": "cd1414bcbb58112e9fe5171613f98ba36ec43d2b", "promotion_class": "STACK_ANCESTOR", "contained_by": 162},
+    {"pr": 133, "head_sha": "9fd56cbf8f0b4cf0335f4983b6980ca6ea0384a2", "promotion_class": "STACK_ANCESTOR", "contained_by": 162},
+    {"pr": 134, "head_sha": "ecb2187b09d933bbf8720d4d6727433d4e7956fa", "promotion_class": "STACK_ANCESTOR", "contained_by": 162},
+    {"pr": 135, "head_sha": "5cc07346b2e4199eccaef3543e52e2ef18b08668", "promotion_class": "STACK_ANCESTOR", "contained_by": 162},
+    {"pr": 136, "head_sha": "8946f34ede9ab96a16f330d5a8304111dc668037", "promotion_class": "STACK_ANCESTOR", "contained_by": 162},
+    {"pr": 137, "head_sha": "4c1aa1c4813318778558abb06769881c13199b3b", "promotion_class": "STACK_ANCESTOR", "contained_by": 145},
+    {"pr": 141, "head_sha": "9d3c5becc2ef420515fb5a3bdd50125c208c1fea", "promotion_class": "STACK_ANCESTOR", "contained_by": 143},
+    {"pr": 143, "head_sha": "2d3bf35f11dc77bec4fb953c13ff2af43a5200e7", "promotion_class": "STACK_ANCESTOR", "contained_by": 145},
+    {"pr": 145, "head_sha": "85e22a4f2864123c18d0329b86fbe255764e23f9", "promotion_class": "STACK_ANCESTOR", "contained_by": 162},
+    {"pr": 147, "head_sha": "46353e351d06d8ccd79fbdf25b2d4eb05c590636", "promotion_class": "STACK_ANCESTOR", "contained_by": 162},
+    {"pr": 149, "head_sha": "bd11ebab94e45dece9f1c9fece2b7e3ab41fbffb", "promotion_class": "STACK_ANCESTOR", "contained_by": 162},
+    {"pr": 151, "head_sha": "c404b2ec1f2da5557a6b99b58acdba572bdf9197", "promotion_class": "STACK_ANCESTOR", "contained_by": 162},
+    {"pr": 153, "head_sha": "501edf4e1ff585c9a4fa4fb1ba5c67fab69fd738", "promotion_class": "STACK_ANCESTOR", "contained_by": 162},
+    {
+      "pr": 162,
+      "head_sha": "4c7f5079e134682754cfc7161f958a8d41129669",
+      "promotion_class": "STACK_ANCESTOR",
+      "contained_by": 165,
+      "notes": [
+        "includes the Sept-15 donor-port convergence history: c8fbfbcf is an ancestor and PR162 is 40 commits ahead of it",
+        "old green evidence cannot override P1 RECOVERY-REVISION-SPLICE later reproduced by PR165"
+      ]
+    },
+    {
+      "pr": 165,
+      "head_sha": "577bde43665d8f290dd5613ad24624417b549b00",
+      "promotion_class": "TERMINAL_CANDIDATE",
+      "disposition": "CURRENT_PRODUCT_RECOVERY_SECURITY_TIP_BUT_NOT_FINAL_CONVERGENCE",
+      "repairs": [162],
+      "exact_relation": "4 commits ahead of PR162 head",
+      "blockers": [
+        "PR57 unique SkillRuntime failure-trace semantics missing",
+        "PR56 canonical-truth validation invariants need compatibility port review without stale mutable snapshots",
+        "independent final tri-review not complete",
+        "Issue #48 OPEN",
+        "main branch protection disabled"
+      ]
+    },
+    {
+      "pr": 166,
+      "head_sha_at_wave_start": "c27f746be421ef46c501a2a747d219ed8376fc60",
+      "promotion_class": "QUALIFICATION_ONLY",
+      "disposition": "OPERATING_LAW_AND_CONVERGENCE_EVIDENCE_BRANCH_NO_PRODUCT_AUTHORITY"
+    }
+  ],
+  "relations": [
+    {"from": 165, "to": 162, "kind": "REPAIRS_AND_EXTENDS"},
+    {"from": 162, "to": 59, "kind": "PRESERVES_DONOR_VALUE"},
+    {"from": 162, "to": 58, "kind": "PRESERVES_DONOR_VALUE"},
+    {"from": 162, "to": 119, "kind": "PRESERVES_DONOR_VALUE"},
+    {"from": 162, "to": 120, "kind": "PRESERVES_DONOR_VALUE"},
+    {"from": 162, "to": 122, "kind": "PRESERVES_DONOR_VALUE"},
+    {"from": 57, "to": 165, "kind": "UNIQUE_DONOR_VALUE_REQUIRED_FOR_SUCCESSOR_CANDIDATE"},
+    {"from": 56, "to": 165, "kind": "PARTIAL_DONOR_REVIEW_REQUIRED_FOR_SUCCESSOR_CANDIDATE"},
+    {"from": 163, "to": 128, "kind": "REPAIRS"},
+    {"from": 157, "to": 64, "kind": "QUALIFIES"},
+    {"from": 96, "to": 64, "kind": "GOLDEN_QUALIFICATION"},
+    {"from": 107, "to": 64, "kind": "GOLDEN_QUALIFICATION"},
+    {"from": 124, "to": 64, "kind": "GOLDEN_QUALIFICATION"},
+    {"from": 125, "to": 64, "kind": "GOLDEN_QUALIFICATION"},
+    {"from": 129, "to": 157, "kind": "HISTORICAL_DONOR_ONLY"}
+  ],
+  "first_convergence_candidate": {
+    "base": "PR165@577bde43665d8f290dd5613ad24624417b549b00",
+    "strategy": "create a successor convergence candidate, do not mutate donor histories",
+    "required_delta_before_review": [
+      "port PR57 SkillRuntime failure-trace behavior + focused regressions",
+      "review/port only PR56 canonical-truth validation code/invariants that remain compatible; explicitly exclude stale state/read-model snapshots",
+      "no new architecture and no re-port of #58/#59/#119/#120/#122 already preserved in PR162 ancestry"
+    ],
+    "then": [
+      "/codereview exact head",
+      "/securityreview exact head",
+      "/QAreview exact head",
+      "local_verify merge",
+      "all applicable exact-head clean-runner gates",
+      "synthetic merge against current protected main",
+      "serial promotion only after Issue #48 release"
+    ]
+  },
+  "hard_blockers": [
+    "main.protected=false",
+    "Issue #48 remains OPEN",
+    "no candidate may inherit promotion authority from stale historical CI",
+    "semantic line remains empirically unqualified",
+    "T08 full 9D/generalization remains incomplete"
+  ]
+}
