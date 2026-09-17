@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from typing import Any, Mapping
 
 
@@ -25,7 +26,7 @@ def _total_frames(pack: Mapping[str, Any]) -> int:
         numeric = float(raw)
     except (TypeError, ValueError) as exc:
         raise FrameTimelineError("decoded_frame_count must be a positive integer") from exc
-    if not numeric.is_integer():
+    if not math.isfinite(numeric) or not numeric.is_integer():
         raise FrameTimelineError("decoded_frame_count must be a positive integer")
     total = int(numeric)
     if total <= 0:
@@ -34,9 +35,15 @@ def _total_frames(pack: Mapping[str, Any]) -> int:
 
 
 def _fps(pack: Mapping[str, Any]) -> float:
-    value = float(pack.get("video_meta", {}).get("fps", 0.0))
-    if value <= 0:
-        raise FrameTimelineError("fps must be positive")
+    raw = pack.get("video_meta", {}).get("fps", 0.0)
+    if isinstance(raw, bool):
+        raise FrameTimelineError("fps must be a finite positive number")
+    try:
+        value = float(raw)
+    except (TypeError, ValueError) as exc:
+        raise FrameTimelineError("fps must be a finite positive number") from exc
+    if not math.isfinite(value) or value <= 0:
+        raise FrameTimelineError("fps must be a finite positive number")
     return value
 
 
