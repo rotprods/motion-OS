@@ -104,16 +104,57 @@ class SemanticKnowledgePlane:
     def search(self, query: str, *, limit: int = 10, repo_ids: Sequence[str] | None = None, route_multiplier: int | None = None) -> list[SearchHit]:
         if not query.strip():
             raise ValueError("query must not be empty")
+        if limit < 1:
+            raise ValueError("limit must be >= 1")
         query_semantic = l2_normalize(self.ollama.embed([query])[0])
         query_route = self.projector.project(query_semantic)
         multiplier = route_multiplier or self.config.route_multiplier
-        candidates = self.qdrant.query(query_route, using="cos20", limit=max(limit * multiplier, 32), repo_ids=repo_ids, with_vectors=["semantic"])
+        candidate_limit = max(limit * multiplier, 32)
+
+        # The low-dimensional COS route is useful for broad routing, but it must
+        # not be an irreversible recall bottleneck. Union it with a native
+        # semantic candidate set before exact 1024D reranking. This preserves
+        # the COS route signal while guaranteeing that strong native-semantic
+        # candidates cannot disappear solely because of 20D projection loss.
+        route_candidates = self.qdrant.query(
+            query_route,
+            using="cos20",
+            limit=candidate_limit,
+            repo_ids=repo_ids,
+            with_vectors=["semantic"],
+        )
+        semantic_candidates = self.qdrant.query(
+            query_semantic,
+            using="semantic",
+            limit=max(limit * 4, 32),
+            repo_ids=repo_ids,
+            with_vectors=["semantic"],
+        )
+
+        route_scores: dict[str, float] = {}
+        candidates_by_id: dict[str, dict[str, Any]] = {}
+        for candidate in route_candidates:
+            point_id = str(candidate.get("id"))
+            route_scores[point_id] = float(candidate.get("score", 0.0))
+            candidates_by_id[point_id] = candidate
+        for candidate in semantic_candidates:
+            point_id = str(candidate.get("id"))
+            # Prefer the native-semantic response payload/vector for duplicate
+            # IDs while retaining the independent route score as a tie-breaker.
+            candidates_by_id[point_id] = candidate
+
         hits: list[SearchHit] = []
-        for candidate in candidates:
+        for point_id, candidate in candidates_by_id.items():
             semantic = self._extract_named_vector(candidate, "semantic")
-            route_score = float(candidate.get("score", 0.0))
             semantic_score = cosine(query_semantic, semantic)
-            hits.append(SearchHit(point_id=str(candidate.get("id")), semantic_score=semantic_score, route_score=route_score, payload=dict(candidate.get("payload") or {})))
+            hits.append(
+                SearchHit(
+                    point_id=point_id,
+                    semantic_score=semantic_score,
+                    route_score=route_scores.get(point_id, 0.0),
+                    payload=dict(candidate.get("payload") or {}),
+                )
+            )
         hits.sort(key=lambda hit: (hit.semantic_score, hit.route_score), reverse=True)
         return hits[:limit]
 
@@ -199,4 +240,4 @@ class SemanticKnowledgePlane:
 
     def cos_graph_engine(self, query: str, *, limit: int = 10, repo_ids: Sequence[str] | None = None) -> dict[str, Any]:
         hits = self.search(query, limit=limit, repo_ids=repo_ids)
-        return {"query": query, "collection": self.config.qdrant_collection, "pipeline": ["Ollama bge-m3 1024D embedding", "deterministic cos20 routing projection", "Qdrant cos20 candidate retrieval", "exact 1024D cosine rerank", "provenance-preserving GraphRAG result"], "cos_20_levels": list(COS_LEVELS), "active_retrieval_levels": ["L8", "L9", "L10", "L11", "L12"], "hits": [asdict(hit) for hit in hits]}
+        return {"query": query, "collection": self.config.qdrant_collection, "pipeline": ["Ollama bge-m3 1024D embedding", "deterministic cos20 routing projection", "Qdrant cos20 + native semantic candidate union", "exact 1024D cosine rerank", "provenance-preserving GraphRAG result"], "cos_20_levels": list(COS_LEVELS), "active_retrieval_levels": ["L8", "L9", "L10", "L11", "L12"], "hits": [asdict(hit) for hit in hits]}
