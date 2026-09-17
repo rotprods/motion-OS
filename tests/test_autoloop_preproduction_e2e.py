@@ -87,6 +87,16 @@ def closure_state():
     }
 
 
+def verifier_receipt(result_hash):
+    return {
+        'implementer_id': 'motion://agent/implementer/preprod',
+        'verifier_id': 'motion://agent/verifier/preprod',
+        'verified_result_hash': result_hash,
+        'evidence_hash': canonical_hash({'verifier': 'independent', 'result_hash': result_hash}),
+        'decision': 'PASS',
+    }
+
+
 def test_preproduction_tick_selects_safe_work_not_blocked_irreversible_work():
     wave = compile_next_wave(live_state(), POLICY)
     assert wave['decision'] == 'EXECUTE'
@@ -126,8 +136,9 @@ def test_outer_gauntlet_progresses_then_verifies():
             'verifier_reason': 'all freshness/replay invariants pass',
             'measurable_progress': 1.0,
         },
-    ])
+    ], verifier_receipt=verifier_receipt(second_hash))
     assert final['state'] == 'VERIFIED'
+    assert final['verifier_receipt']['verified_result_hash'] == second_hash
 
 
 def test_closure_packet_is_sealed_and_future_prompt_is_data_safe():
