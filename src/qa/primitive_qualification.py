@@ -16,6 +16,18 @@ class PrimitiveQualificationError(ValueError):
 QUALIFICATION_STATES = {"UNQUALIFIED", "CONTRACT_VERIFIED", "PHYSICALLY_VERIFIED", "QUARANTINED"}
 
 
+def _require_nonempty_text(value: object, field: str) -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise PrimitiveQualificationError(f"{field} must be a non-empty string")
+    return value.strip()
+
+
+def _require_nonnegative_int(value: object, field: str) -> int:
+    if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+        raise PrimitiveQualificationError(f"{field} must be a non-negative integer")
+    return value
+
+
 @dataclass(frozen=True)
 class LegacyAggregateClaim:
     source_ref: str
@@ -24,12 +36,12 @@ class LegacyAggregateClaim:
     quarantined_count: int
 
     def __post_init__(self) -> None:
-        if min(self.registered_count, self.verified_count, self.quarantined_count) < 0:
-            raise PrimitiveQualificationError("legacy aggregate counts must be non-negative")
-        if self.verified_count + self.quarantined_count != self.registered_count:
+        _require_nonempty_text(self.source_ref, "source_ref")
+        registered = _require_nonnegative_int(self.registered_count, "registered_count")
+        verified = _require_nonnegative_int(self.verified_count, "verified_count")
+        quarantined = _require_nonnegative_int(self.quarantined_count, "quarantined_count")
+        if verified + quarantined != registered:
             raise PrimitiveQualificationError("legacy verified + quarantined must equal registered count")
-        if not self.source_ref:
-            raise PrimitiveQualificationError("legacy aggregate requires source_ref")
 
 
 @dataclass(frozen=True)
@@ -57,31 +69,41 @@ class PrimitiveEvidence:
     assertions: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
-        if not self.evidence_id or not self.primitive_id or not self.renderer or not self.fixture_id or not self.test_run_id:
-            raise PrimitiveQualificationError("evidence identity fields must be non-empty")
+        for field in ("evidence_id", "primitive_id", "renderer", "fixture_id", "test_run_id"):
+            _require_nonempty_text(getattr(self, field), field)
         if self.evidence_kind not in {"CONTRACT", "PHYSICAL_RENDER"}:
             raise PrimitiveQualificationError("unsupported evidence_kind")
+        if type(self.passed) is not bool:
+            raise PrimitiveQualificationError("passed must be a JSON boolean")
         _require_sha(self.fixture_sha256, "fixture_sha256")
-        if not self.assertions:
-            raise PrimitiveQualificationError("evidence requires explicit assertions/findings")
-        if self.evidence_kind == "PHYSICAL_RENDER":
-            supplied_timing = any(value is not None for value in (self.frame_count, self.fps, self.visual_duration_ms))
-            if self.passed:
-                if not self.artifact_sha256:
-                    raise PrimitiveQualificationError("passing physical render evidence requires artifact_sha256")
-                if not supplied_timing:
-                    raise PrimitiveQualificationError("passing physical render evidence requires timing evidence")
-            if self.artifact_sha256 is not None:
-                _require_sha(self.artifact_sha256, "artifact_sha256")
-            if supplied_timing:
-                if self.frame_count is None or self.frame_count <= 0 or self.fps is None or not math.isfinite(self.fps) or self.fps <= 0:
-                    raise PrimitiveQualificationError("physical timing evidence requires positive frame_count/fps")
-                if self.visual_duration_ms is None or self.visual_duration_ms <= 0:
-                    raise PrimitiveQualificationError("physical timing evidence requires visual_duration_ms")
-                expected_ms = self.frame_count / self.fps * 1000.0
-                tolerance_ms = max(1000.0 / self.fps, 1.0)
-                if abs(expected_ms - self.visual_duration_ms) > tolerance_ms:
-                    raise PrimitiveQualificationError("visual duration must agree with frame_count/fps authority")
+        if not isinstance(self.assertions, tuple) or not self.assertions:
+            raise PrimitiveQualificationError("evidence requires a non-empty tuple of explicit assertions/findings")
+        for assertion in self.assertions:
+            _require_nonempty_text(assertion, "assertion")
+
+        supplied_timing = any(value is not None for value in (self.frame_count, self.fps, self.visual_duration_ms))
+        if self.evidence_kind == "CONTRACT":
+            if self.artifact_sha256 is not None or supplied_timing:
+                raise PrimitiveQualificationError("CONTRACT evidence cannot carry physical artifact/timing authority")
+            return
+
+        if self.passed and not self.artifact_sha256:
+            raise PrimitiveQualificationError("passing physical render evidence requires artifact_sha256")
+        if self.passed and not supplied_timing:
+            raise PrimitiveQualificationError("passing physical render evidence requires timing evidence")
+        if self.artifact_sha256 is not None:
+            _require_sha(self.artifact_sha256, "artifact_sha256")
+        if supplied_timing:
+            if isinstance(self.frame_count, bool) or not isinstance(self.frame_count, int) or self.frame_count <= 0:
+                raise PrimitiveQualificationError("physical timing evidence requires positive integer frame_count")
+            if isinstance(self.fps, bool) or not isinstance(self.fps, (int, float)) or not math.isfinite(float(self.fps)) or float(self.fps) <= 0:
+                raise PrimitiveQualificationError("physical timing evidence requires finite positive fps")
+            if isinstance(self.visual_duration_ms, bool) or not isinstance(self.visual_duration_ms, int) or self.visual_duration_ms <= 0:
+                raise PrimitiveQualificationError("physical timing evidence requires positive integer visual_duration_ms")
+            expected_ms = self.frame_count / float(self.fps) * 1000.0
+            tolerance_ms = max(1000.0 / float(self.fps), 1.0)
+            if abs(expected_ms - self.visual_duration_ms) > tolerance_ms:
+                raise PrimitiveQualificationError("visual duration must agree with frame_count/fps authority")
 
     def content_hash(self) -> str:
         payload = {
@@ -102,9 +124,14 @@ class PrimitiveEvidence:
         return hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
-def _require_sha(value: str, field: str) -> None:
-    if len(value) != 64 or any(c not in "0123456789abcdef" for c in value.lower()):
-        raise PrimitiveQualificationError(f"{field} must be a 64-character hex digest")
+def _require_sha(value: object, field: str) -> None:
+    if (
+        not isinstance(value, str)
+        or len(value) != 64
+        or value != value.lower()
+        or any(c not in "0123456789abcdef" for c in value)
+    ):
+        raise PrimitiveQualificationError(f"{field} must be a 64-character lowercase hex digest")
 
 
 def build_fixture_matrix(registry: Iterable[Primitive] | None = None) -> tuple[PrimitiveFixtureCase, ...]:
@@ -138,6 +165,8 @@ class PrimitiveQualificationLedger:
             self.add(item)
 
     def add(self, item: PrimitiveEvidence) -> None:
+        if not isinstance(item, PrimitiveEvidence):
+            raise PrimitiveQualificationError("ledger accepts only validated PrimitiveEvidence")
         primitive = self._by_id.get(item.primitive_id)
         if primitive is None:
             raise PrimitiveQualificationError(f"unknown primitive_id: {item.primitive_id}")
@@ -162,12 +191,11 @@ class PrimitiveQualificationLedger:
         if primitive is None or renderer not in primitive.renderer_support:
             raise PrimitiveQualificationError("unknown primitive/renderer pair")
         items = [e for e in self._evidence.values() if e.primitive_id == primitive_id and e.renderer == renderer]
-        # Without explicit supersession/revision semantics, any active failing evidence must win over a pass.
-        if any(not e.passed for e in items):
+        if any(e.passed is False for e in items):
             return "QUARANTINED"
-        if any(e.evidence_kind == "PHYSICAL_RENDER" and e.passed for e in items):
+        if any(e.evidence_kind == "PHYSICAL_RENDER" and e.passed is True for e in items):
             return "PHYSICALLY_VERIFIED"
-        if any(e.evidence_kind == "CONTRACT" and e.passed for e in items):
+        if any(e.evidence_kind == "CONTRACT" and e.passed is True for e in items):
             return "CONTRACT_VERIFIED"
         return "UNQUALIFIED"
 
