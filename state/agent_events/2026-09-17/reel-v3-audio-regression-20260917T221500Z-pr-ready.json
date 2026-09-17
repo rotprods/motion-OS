@@ -1,0 +1,31 @@
+{
+  "event_id": "evt_reel_v3_audio_regression_20260917T221500Z_pr_ready",
+  "event_type": "work.checkpoint",
+  "timestamp": "2026-09-17T22:15:00Z",
+  "agent_id": "chatgpt-gpt5.6-sol",
+  "project": "MOTION.OS",
+  "branch": "fix/p08-master-audio-postrender-integrity-v2",
+  "commit_sha": "ed83dcc7c2d2ad3d0737e397f5ebd0fe4fcaa08b",
+  "pr_number": null,
+  "summary": "Audio-loss regression successor candidate is ready to open as DRAFT: current-main port of #61 plus post-render byte-level audio verification. Scoped tests pass; full repo and Merge Safe remain pending.",
+  "affected_paths": [
+    "src/renderers/assembly.py",
+    "src/renderers/master_audio_integrity.py",
+    "tests/test_phase08_master_audio_mux.py",
+    "tests/test_phase08_post_render_audio_integrity.py",
+    "docs/REEL_V3_AUDIO_REGRESSION_2026-09-17.md"
+  ],
+  "checks": {
+    "scoped_py_compile": "PASS",
+    "scoped_pytest": "9 passed",
+    "full_repository": "NOT_RUN",
+    "merge_safe": "NOT_RUN"
+  },
+  "authority": "IMPLEMENTED",
+  "correlation_id": "reel-v3-audio-regression-20260917",
+  "metadata": {
+    "promotion_authorized": false,
+    "merge_authorized": false,
+    "issue_48": "OPEN"
+  }
+}
