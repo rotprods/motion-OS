@@ -45,7 +45,12 @@ def _nonempty_id(value: object, *, name: str) -> str:
 
 
 def _validated_unique_ids(values: Iterable[str], *, name: str) -> tuple[str, ...]:
-    items = tuple(_nonempty_id(item, name=name) for item in values)
+    if isinstance(values, (str, bytes, bytearray, dict)):
+        raise ValueError(f"{name}s must be a collection of IDs, not a scalar or mapping")
+    try:
+        items = tuple(_nonempty_id(item, name=name) for item in values)
+    except TypeError as exc:
+        raise ValueError(f"{name}s must be an iterable of IDs") from exc
     if len(items) != len(set(items)):
         raise ValueError(f"{name}s must be unique")
     return items
@@ -100,6 +105,10 @@ class LearningHypothesis:
         _nonempty_id(self.statement, name="statement")
         if not isinstance(self.stage, EvidenceStage):
             raise ValueError("stage must be an EvidenceStage")
+        if not isinstance(self.supporting_content_ids, tuple):
+            raise ValueError("supporting_content_ids must be a tuple of IDs")
+        if not isinstance(self.promotion_approval_evidence, tuple):
+            raise ValueError("promotion_approval_evidence must be a tuple of IDs")
         ids = _validated_unique_ids(self.supporting_content_ids, name="supporting_content_id")
         if self.stage in {EvidenceStage.CONTROLLED_TEST, EvidenceStage.PROMOTED_RULE}:
             if len(ids) < 4:
