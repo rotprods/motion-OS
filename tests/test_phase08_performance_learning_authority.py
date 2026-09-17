@@ -84,6 +84,32 @@ def test_authority_evidence_container_type_confusion_fails_closed():
         )
 
 
+def test_direct_constructor_cannot_fabricate_progressed_evidence_stages():
+    for stage in (EvidenceStage.CANDIDATE_HYPOTHESIS, EvidenceStage.REPEATED_PATTERN):
+        with pytest.raises(ValueError, match="validated transition"):
+            LearningHypothesis("H1", "hypothesis", stage, _ids(4))
+
+
+def test_direct_constructor_cannot_fabricate_valid_shaped_authority_states():
+    with pytest.raises(ValueError, match="validated transition"):
+        LearningHypothesis(
+            "H1",
+            "hypothesis",
+            EvidenceStage.CONTROLLED_TEST,
+            _ids(4),
+            controlled_test_id="ct-forged",
+        )
+    with pytest.raises(ValueError, match="validated transition"):
+        LearningHypothesis(
+            "H1",
+            "hypothesis",
+            EvidenceStage.PROMOTED_RULE,
+            _ids(4),
+            controlled_test_id="ct-forged",
+            promotion_approval_evidence=("approval:forged",),
+        )
+
+
 def test_controlled_test_cannot_bypass_repeated_pattern_or_exist_without_test_id():
     h = LearningHypothesis("H1", "hypothesis", EvidenceStage.OBSERVED_CORRELATION, ("a",), controlled_test_id="ct-1")
     with pytest.raises(ValueError, match="cannot bypass"):
@@ -121,6 +147,8 @@ def test_evidence_bound_path_can_reach_controlled_test_but_not_rule_automaticall
     assert promoted.stage == EvidenceStage.PROMOTED_RULE
     assert promoted.controlled_test_id == "ct-1"
     assert promoted.promotion_approval_evidence == ("approval:human-review-42",)
+    with pytest.raises(ValueError, match="terminal"):
+        promote_hypothesis(promoted, independent_examples=len(evidence))
 
 
 def test_direct_constructor_cannot_bypass_controlled_or_promoted_authority_requirements():
