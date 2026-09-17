@@ -80,6 +80,9 @@ class BenchmarkBriefEvidence:
     quality_score: float | None = None
     findings: tuple[str, ...] = ()
     assertions: tuple[str, ...] = ()
+    producer_id: str | None = None
+    reviewer_id: str | None = None
+    review_evidence_sha256: str | None = None
 
     def __post_init__(self) -> None:
         for name, value in (("evidence_id", self.evidence_id), ("brief_id", self.brief_id), ("style_family", self.style_family), ("test_run_id", self.test_run_id)):
@@ -106,8 +109,15 @@ class BenchmarkBriefEvidence:
                 raise BenchmarkEvidenceError("PASS requires quality_score")
             if not self.assertions:
                 raise BenchmarkEvidenceError("PASS requires explicit assertions")
+            producer = _require_actor(self.producer_id, "producer_id")
+            reviewer = _require_actor(self.reviewer_id, "reviewer_id")
+            if producer == reviewer:
+                raise BenchmarkEvidenceError("PASS requires reviewer independent from producer")
+            _require_sha(self.review_evidence_sha256, "review_evidence_sha256")
         if self.status in {BriefStatus.FAIL, BriefStatus.BLOCKED} and not self.findings:
             raise BenchmarkEvidenceError("non-PASS evidence requires findings")
+        if self.status is not BriefStatus.PASS and self.review_evidence_sha256 is not None:
+            _require_sha(self.review_evidence_sha256, "review_evidence_sha256")
 
     def content_hash(self) -> str:
         return _hash({
@@ -121,6 +131,9 @@ class BenchmarkBriefEvidence:
             "quality_score": self.quality_score,
             "findings": list(self.findings),
             "assertions": list(self.assertions),
+            "producer_id": self.producer_id,
+            "reviewer_id": self.reviewer_id,
+            "review_evidence_sha256": self.review_evidence_sha256,
         })
 
 
@@ -188,7 +201,7 @@ class BenchmarkLedger:
 
         Without an exact suite manifest this function is observational only: APSR/GSR can be
         inspected, but `authoritative` is always False. Product authority requires binding the
-        evidence to an explicit suite of brief IDs, style mapping and brief hashes.
+        evidence to an explicit suite and each PASS to independent producer/reviewer evidence.
         """
         if suite is not None and not isinstance(suite, BenchmarkSuiteManifest):
             raise BenchmarkEvidenceError("suite must be BenchmarkSuiteManifest")
@@ -322,9 +335,23 @@ class BenchmarkLedger:
         )
 
 
-def _require_sha(value: str, field_name: str) -> None:
-    if not isinstance(value, str) or len(value) != 64 or any(c not in "0123456789abcdef" for c in value.lower()):
-        raise BenchmarkEvidenceError(f"{field_name} must be a 64-character SHA256 hex digest")
+def _require_actor(value: object, field_name: str) -> str:
+    if not isinstance(value, str) or not value.strip() or len(value) > 240:
+        raise BenchmarkEvidenceError(f"{field_name} must be bounded non-empty text")
+    normalized = value.strip()
+    if any(ord(ch) < 32 or ord(ch) == 127 for ch in normalized):
+        raise BenchmarkEvidenceError(f"{field_name} contains unsafe control characters")
+    return normalized
+
+
+def _require_sha(value: object, field_name: str) -> None:
+    if (
+        not isinstance(value, str)
+        or len(value) != 64
+        or value != value.lower()
+        or any(c not in "0123456789abcdef" for c in value)
+    ):
+        raise BenchmarkEvidenceError(f"{field_name} must be a 64-character lowercase SHA256 hex digest")
 
 
 def _require_text_tuple(value: tuple[str, ...], field_name: str) -> None:
