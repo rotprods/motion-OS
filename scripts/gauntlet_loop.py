@@ -13,6 +13,7 @@ class GauntletError(ValueError):
 
 
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+VERIFIER_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._/:+@-]{0,255}$")
 
 
 @dataclass(frozen=True)
@@ -34,12 +35,17 @@ class Attempt:
         strategy = str(raw.get("strategy", "")).strip()
         if not strategy:
             raise GauntletError("attempt strategy is required")
+        if len(strategy) > 1024 or any(ord(ch) < 32 or ord(ch) == 127 for ch in strategy):
+            raise GauntletError("attempt strategy is oversized or contains control characters")
         result_hash = str(raw.get("result_hash", ""))
         if not SHA256_RE.fullmatch(result_hash):
             raise GauntletError("attempt result_hash must be lowercase sha256")
         verifier_complete = raw.get("verifier_complete", False)
         if type(verifier_complete) is not bool:
             raise GauntletError("verifier_complete must be a JSON boolean")
+        verifier_reason = str(raw.get("verifier_reason", "")).strip()
+        if len(verifier_reason) > 4096 or any(ord(ch) < 32 and ch not in "\t\n\r" for ch in verifier_reason):
+            raise GauntletError("verifier_reason is oversized or contains unsafe control characters")
         progress_raw = raw.get("measurable_progress", 0.0)
         if isinstance(progress_raw, bool) or not isinstance(progress_raw, (int, float)):
             raise GauntletError("measurable_progress must be numeric")
@@ -51,7 +57,7 @@ class Attempt:
             strategy=strategy,
             result_hash=result_hash,
             verifier_complete=verifier_complete,
-            verifier_reason=str(raw.get("verifier_reason", "")).strip(),
+            verifier_reason=verifier_reason,
             measurable_progress=measurable_progress,
         )
 
@@ -61,12 +67,50 @@ def canonical_hash(value: Any) -> str:
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
+def _verifier_id(raw: object, field: str) -> str:
+    value = str(raw).strip()
+    if not VERIFIER_ID_RE.fullmatch(value):
+        raise GauntletError(f"{field} must be a canonical verifier identity")
+    return value
+
+
+def _verify_independent_receipt(receipt: object, *, expected_result_hash: str) -> dict[str, str]:
+    if not isinstance(receipt, dict):
+        raise GauntletError("independent verifier receipt required for VERIFIED state")
+    allowed = {"implementer_id", "verifier_id", "verified_result_hash", "evidence_hash", "decision"}
+    unknown = set(receipt) - allowed
+    if unknown:
+        raise GauntletError(f"verifier receipt contains unknown fields: {sorted(unknown)}")
+    implementer_id = _verifier_id(receipt.get("implementer_id"), "implementer_id")
+    verifier_id = _verifier_id(receipt.get("verifier_id"), "verifier_id")
+    if verifier_id == implementer_id:
+        raise GauntletError("independent verifier must differ from implementer")
+    verified_result_hash = str(receipt.get("verified_result_hash", ""))
+    evidence_hash = str(receipt.get("evidence_hash", ""))
+    if not SHA256_RE.fullmatch(verified_result_hash):
+        raise GauntletError("verified_result_hash must be lowercase sha256")
+    if verified_result_hash != expected_result_hash:
+        raise GauntletError("verifier receipt is bound to a different result_hash")
+    if not SHA256_RE.fullmatch(evidence_hash):
+        raise GauntletError("verifier evidence_hash must be lowercase sha256")
+    if receipt.get("decision") != "PASS":
+        raise GauntletError("verifier receipt decision must be PASS")
+    return {
+        "implementer_id": implementer_id,
+        "verifier_id": verifier_id,
+        "verified_result_hash": verified_result_hash,
+        "evidence_hash": evidence_hash,
+        "decision": "PASS",
+    }
+
+
 def evaluate_gauntlet(
     attempts: list[dict[str, Any]],
     *,
     max_attempts: int = 3,
     min_progress_delta: float = 0.01,
     kill_switch: bool = False,
+    verifier_receipt: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     if isinstance(max_attempts, bool) or not isinstance(max_attempts, int) or max_attempts < 1:
         raise GauntletError("max_attempts must be a positive integer")
@@ -93,12 +137,17 @@ def evaluate_gauntlet(
 
     latest = parsed[-1]
     if latest.verifier_complete:
+        receipt = _verify_independent_receipt(verifier_receipt, expected_result_hash=latest.result_hash)
         return {
             "state": "VERIFIED",
             "reason": latest.verifier_reason or "VERIFIER_COMPLETE",
             "attempts": len(parsed),
             "result_hash": latest.result_hash,
+            "verifier_receipt": receipt,
         }
+
+    if verifier_receipt is not None:
+        raise GauntletError("verifier receipt is only valid for a completed verifier decision")
 
     if len(parsed) >= max_attempts:
         return {
