@@ -18,16 +18,68 @@ def attempt(i, strategy, result_hash, complete=False, reason="not done", progres
     }
 
 
+def receipt(result_hash, *, implementer="motion://agent/implementer/1", verifier="motion://agent/verifier/1"):
+    return {
+        "implementer_id": implementer,
+        "verifier_id": verifier,
+        "verified_result_hash": result_hash,
+        "evidence_hash": h("e"),
+        "decision": "PASS",
+    }
+
+
 def test_empty_history_requests_first_iteration():
     result = evaluate_gauntlet([])
     assert result["state"] == "ITERATE"
     assert result["remaining_attempts"] == 3
 
 
-def test_verifier_completion_is_terminal_verified():
-    result = evaluate_gauntlet([attempt(1, "fix-a", h("a"), True, "all gates pass", 1.0)])
+def test_verifier_completion_is_terminal_verified_only_with_independent_receipt():
+    result_hash = h("a")
+    result = evaluate_gauntlet(
+        [attempt(1, "fix-a", result_hash, True, "all gates pass", 1.0)],
+        verifier_receipt=receipt(result_hash),
+    )
     assert result["state"] == "VERIFIED"
-    assert result["result_hash"] == h("a")
+    assert result["result_hash"] == result_hash
+    assert result["verifier_receipt"]["verifier_id"] == "motion://agent/verifier/1"
+
+
+def test_completion_without_independent_receipt_cannot_self_certify():
+    with pytest.raises(GauntletError, match="independent verifier receipt"):
+        evaluate_gauntlet([attempt(1, "fix-a", h("a"), True, "self says pass", 1.0)])
+
+
+def test_same_actor_cannot_implement_and_verify():
+    result_hash = h("a")
+    with pytest.raises(GauntletError, match="must differ"):
+        evaluate_gauntlet(
+            [attempt(1, "fix-a", result_hash, True, "pass", 1.0)],
+            verifier_receipt=receipt(result_hash, implementer="motion://agent/same/1", verifier="motion://agent/same/1"),
+        )
+
+
+def test_verifier_receipt_must_bind_exact_result_hash_and_pass_decision():
+    with pytest.raises(GauntletError, match="different result_hash"):
+        evaluate_gauntlet(
+            [attempt(1, "fix-a", h("a"), True, "pass", 1.0)],
+            verifier_receipt=receipt(h("b")),
+        )
+    bad = receipt(h("a"))
+    bad["decision"] = "COMMENT"
+    with pytest.raises(GauntletError, match="decision must be PASS"):
+        evaluate_gauntlet(
+            [attempt(1, "fix-a", h("a"), True, "pass", 1.0)],
+            verifier_receipt=bad,
+        )
+
+
+def test_receipt_on_incomplete_attempt_is_rejected():
+    with pytest.raises(GauntletError, match="only valid"):
+        evaluate_gauntlet(
+            [attempt(1, "fix-a", h("a"), False, "not done", 0.5)],
+            verifier_receipt=receipt(h("a")),
+        )
 
 
 def test_same_strategy_same_result_detects_stuck_loop():
