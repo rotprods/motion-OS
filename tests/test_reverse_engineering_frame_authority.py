@@ -71,15 +71,26 @@ def test_duration_derived_estimate_cannot_authorize_reconstruct_exact():
 
 
 def test_decoded_frame_count_must_be_positive_integer_not_boolean():
-    for invalid in (True, 0, -1, 3.5, "3.5"):
+    for invalid in (True, 0, -1, 3.5, "3.5", float("nan"), float("inf")):
         pack = copy.deepcopy(_pack())
         pack["video_meta"]["decoded_frame_count"] = invalid
         with pytest.raises(FrameTimelineError):
             compile_frame_timeline(pack, _motionstyle())
 
 
+def test_fps_must_be_finite_positive_and_cannot_collapse_frame_time_authority():
+    for invalid in (True, 0, -1, "nan", float("nan"), float("inf"), -float("inf")):
+        pack = copy.deepcopy(_pack())
+        pack["video_meta"]["fps"] = invalid
+        with pytest.raises(FrameTimelineError, match="fps must be a finite positive number"):
+            compile_frame_timeline(pack, _motionstyle())
+        with pytest.raises(FrameTimelineError, match="fps must be a finite positive number"):
+            compile_editing_template(pack, _motionstyle(), replication_mode="STRUCTURAL_TEMPLATE")
+
+
 def test_valid_decoded_frame_authority_is_exposed_per_frame():
     timeline = compile_frame_timeline(_pack(), _motionstyle())
     assert len(timeline) == 3
+    assert [row["at_ms"] for row in timeline] == [0, 33, 67]
     assert all(row["authority"]["frame_index"] == "measured_decode" for row in timeline)
     assert all(row["authority"]["frame_count"] == "decoded_frame_count" for row in timeline)
