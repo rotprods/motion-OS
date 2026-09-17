@@ -48,10 +48,38 @@ def test_micro_motion_cannot_self_promote():
         mod.compile_camera_depth(data)
 
 
+def test_micro_motion_counts_reject_bool_negative_and_unknown_classes():
+    data = load()
+    scene = data["scenes"]["S04_CIENTIFICAMENTE"]["micro_motion"]
+    scene["classes"]["CORROBORATED_DIRECTIONAL_PIXEL_FLOW"] = True
+    with pytest.raises(ValueError, match="non-negative integer"):
+        mod.compile_camera_depth(data)
+
+    data = load()
+    scene = data["scenes"]["S04_CIENTIFICAMENTE"]["micro_motion"]
+    scene["classes"]["CORROBORATED_DIRECTIONAL_PIXEL_FLOW"] = -1
+    with pytest.raises(ValueError, match="non-negative integer"):
+        mod.compile_camera_depth(data)
+
+    data = load()
+    scene = data["scenes"]["S04_CIENTIFICAMENTE"]["micro_motion"]
+    scene["classes"]["INVENTED_AUTHORITY"] = 0
+    with pytest.raises(ValueError, match="unknown micro-motion class"):
+        mod.compile_camera_depth(data)
+
+
 def test_static_camera_claim_requires_static_background_common_vector():
     data = load()
     data["scenes"]["S14_AUDIO_VISUAL_TEXTO"]["flow_summary"]["background_abs_vector_median"] = 0.8
     with pytest.raises(ValueError, match="static camera/canvas claim contradicts"):
+        mod.compile_camera_depth(data)
+
+
+@pytest.mark.parametrize("poison", [float("nan"), float("inf"), -0.01, True])
+def test_camera_flow_rejects_nonfinite_negative_and_boolean_vectors(poison):
+    data = load()
+    data["scenes"]["S14_AUDIO_VISUAL_TEXTO"]["flow_summary"]["background_abs_vector_median"] = poison
+    with pytest.raises(ValueError, match="finite non-negative"):
         mod.compile_camera_depth(data)
 
 
@@ -92,6 +120,21 @@ def test_unknown_depth_relation_cannot_be_silently_ordered():
         mod.compile_camera_depth(data)
 
 
+def test_duplicate_or_self_unknown_depth_relations_are_rejected():
+    data = load()
+    depth = data["scenes"]["S16_FACTOR_X"]["depth"]
+    first = depth["unknown_relations"][0]
+    depth["unknown_relations"].append({"pair": list(reversed(first["pair"])), "reason": "duplicate"})
+    with pytest.raises(ValueError, match="duplicate UNKNOWN"):
+        mod.compile_camera_depth(data)
+
+    data = load()
+    depth = data["scenes"]["S16_FACTOR_X"]["depth"]
+    depth["unknown_relations"].append({"pair": ["SAME", "SAME"], "reason": "invalid"})
+    with pytest.raises(ValueError, match="self relation"):
+        mod.compile_camera_depth(data)
+
+
 def test_exact_source_sha_and_live_scene_heads_are_pinned():
     data = load()
     assert data["source_video"]["sha256"] == mod.CANONICAL_SOURCE_SHA
@@ -104,8 +147,20 @@ def test_exact_source_sha_and_live_scene_heads_are_pinned():
     }
 
 
+def test_durable_evidence_digest_must_be_real_lowercase_sha256():
+    data = load()
+    data["full_evidence"]["optical_flow_baseline"]["sha256"] = "z" * 64
+    with pytest.raises(ValueError, match="SHA-256"):
+        mod.compile_camera_depth(data)
+
+    data = load()
+    data["full_evidence"]["optical_flow_baseline"]["sha256"] = "A" * 64
+    with pytest.raises(ValueError, match="SHA-256"):
+        mod.compile_camera_depth(data)
+
+
 def test_scene_evidence_cannot_hide_missing_depth_reason():
     data = load()
     data["scenes"]["S11_UI_LIST"]["depth"]["unknown_relations"][0]["reason"] = ""
-    with pytest.raises(ValueError, match="invalid UNKNOWN depth relation"):
+    with pytest.raises(ValueError, match="unknown_reason"):
         mod.compile_camera_depth(data)
