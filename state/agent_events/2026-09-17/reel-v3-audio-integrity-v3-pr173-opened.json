@@ -1,0 +1,31 @@
+{
+  "event_id": "evt_reel_v3_audio_integrity_v3_pr173_opened_20260917T221108Z",
+  "event_type": "pr.opened",
+  "timestamp": "2026-09-17T22:11:08Z",
+  "agent_id": "chatgpt-gpt5.6-sol",
+  "project": "MOTION.OS",
+  "branch": "fix/p08-master-audio-postrender-integrity-v3",
+  "commit_sha": "c3449fe625cf1e55230d4c13ff88a57086ea29f9",
+  "pr_number": 173,
+  "summary": "Opened draft PR #173 for the clean current-main audio-integrity successor. Scoped tests pass; full repository and Merge Safe remain pending; Issue #48 still blocks promotion.",
+  "affected_paths": [
+    "src/renderers/assembly.py",
+    "src/renderers/master_audio_integrity.py",
+    "tests/test_phase08_master_audio_mux.py",
+    "tests/test_phase08_post_render_audio_integrity.py",
+    "docs/REEL_V3_AUDIO_REGRESSION_2026-09-17.md"
+  ],
+  "checks": {
+    "scoped_py_compile": "PASS",
+    "scoped_pytest": "9 passed",
+    "full_repository": "NOT_RUN",
+    "merge_safe": "NOT_RUN"
+  },
+  "authority": "IMPLEMENTED",
+  "correlation_id": "reel-v3-audio-regression-20260917-v3",
+  "metadata": {
+    "promotion_authorized": false,
+    "merge_authorized": false,
+    "issue_48": "OPEN"
+  }
+}
