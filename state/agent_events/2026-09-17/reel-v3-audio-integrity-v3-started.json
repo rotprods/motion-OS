@@ -1,0 +1,28 @@
+{
+  "event_id": "evt_reel_v3_audio_integrity_v3_started_20260917T223000Z",
+  "event_type": "work.started",
+  "timestamp": "2026-09-17T22:30:00Z",
+  "agent_id": "chatgpt-gpt5.6-sol",
+  "project": "MOTION.OS",
+  "branch": "fix/p08-master-audio-postrender-integrity-v3",
+  "commit_sha": "d4e628a1aef0cd382c3c2f1ea327a8ff70c41bd9",
+  "pr_number": null,
+  "summary": "Clean successor branch for the real Reel audio-loss regression: port PR #61 master-audio mux invariants to current main and add final-byte post-render audio integrity verification without the noisy experimental v2 branch history.",
+  "affected_paths": [
+    "src/renderers/assembly.py",
+    "src/renderers/master_audio_integrity.py",
+    "tests/test_phase08_master_audio_mux.py",
+    "tests/test_phase08_post_render_audio_integrity.py",
+    "docs/REEL_V3_AUDIO_REGRESSION_2026-09-17.md"
+  ],
+  "checks": {
+    "issue_48": "OPEN",
+    "donor_pr_61": "OPEN_UNMERGED"
+  },
+  "authority": "PROPOSED",
+  "correlation_id": "reel-v3-audio-regression-20260917-v3",
+  "metadata": {
+    "promotion_authorized": false,
+    "merge_authorized": false
+  }
+}
