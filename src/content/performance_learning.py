@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, asdict
+from dataclasses import InitVar, asdict, dataclass
 from enum import Enum
 from numbers import Real
 from statistics import mean
@@ -14,6 +14,11 @@ class EvidenceStage(str, Enum):
     REPEATED_PATTERN = "REPEATED_PATTERN"
     CONTROLLED_TEST = "CONTROLLED_TEST"
     PROMOTED_RULE = "PROMOTED_RULE"
+
+
+# Public construction is intentionally limited to the initial evidence stage.
+# Higher-authority stages must be reached through the validated transition APIs.
+_AUTHORITY_TRANSITION_TOKEN = object()
 
 
 def _nonnegative_int(value: object, *, name: str) -> int:
@@ -99,8 +104,9 @@ class LearningHypothesis:
     confounders: tuple[str, ...] = ()
     controlled_test_id: str | None = None
     promotion_approval_evidence: tuple[str, ...] = ()
+    _transition_token: InitVar[object | None] = None
 
-    def __post_init__(self) -> None:
+    def __post_init__(self, _transition_token: object | None) -> None:
         _nonempty_id(self.hypothesis_id, name="hypothesis_id")
         _nonempty_id(self.statement, name="statement")
         if not isinstance(self.stage, EvidenceStage):
@@ -120,6 +126,8 @@ class LearningHypothesis:
                 raise ValueError("PROMOTED_RULE requires promotion_approval_evidence")
         elif approval:
             raise ValueError("promotion_approval_evidence is valid only for PROMOTED_RULE")
+        if self.stage != EvidenceStage.OBSERVED_CORRELATION and _transition_token is not _AUTHORITY_TRANSITION_TOKEN:
+            raise ValueError("higher evidence stages require a validated transition")
 
     def to_dict(self) -> dict[str, Any]:
         data = asdict(self)
@@ -161,6 +169,8 @@ def promote_hypothesis(hypothesis: LearningHypothesis, *, independent_examples: 
                        controlled_test_passed: bool = False) -> LearningHypothesis:
     if not isinstance(hypothesis, LearningHypothesis):
         raise TypeError("hypothesis must be a LearningHypothesis")
+    if hypothesis.stage == EvidenceStage.PROMOTED_RULE:
+        raise ValueError("PROMOTED_RULE is terminal and cannot be promoted again")
     examples = _nonnegative_int(independent_examples, name="independent_examples")
     evidence_count = len(set(hypothesis.supporting_content_ids))
     if examples != evidence_count:
@@ -187,6 +197,7 @@ def promote_hypothesis(hypothesis: LearningHypothesis, *, independent_examples: 
         confounders=hypothesis.confounders,
         controlled_test_id=hypothesis.controlled_test_id,
         promotion_approval_evidence=(),
+        _transition_token=_AUTHORITY_TRANSITION_TOKEN,
     )
 
 
@@ -212,6 +223,7 @@ def approve_promoted_rule(
         confounders=hypothesis.confounders,
         controlled_test_id=hypothesis.controlled_test_id,
         promotion_approval_evidence=evidence,
+        _transition_token=_AUTHORITY_TRANSITION_TOKEN,
     )
 
 
