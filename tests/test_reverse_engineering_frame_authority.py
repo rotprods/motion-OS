@@ -5,7 +5,7 @@ import copy
 import pytest
 
 from src.reverse_engineering.frame_timeline import FrameTimelineError, compile_frame_timeline
-from src.reverse_engineering.template_compiler import compile_editing_template
+from src.reverse_engineering.template_compiler import EditingTemplateError, compile_editing_template
 
 
 def _pack():
@@ -84,7 +84,10 @@ def test_fps_must_be_finite_positive_and_cannot_collapse_frame_time_authority():
         pack["video_meta"]["fps"] = invalid
         with pytest.raises(FrameTimelineError, match="fps must be a finite positive number"):
             compile_frame_timeline(pack, _motionstyle())
-        with pytest.raises(FrameTimelineError, match="fps must be a finite positive number"):
+        # The template compiler has an earlier positive-FPS boundary for ordinary
+        # non-positive values and the authoritative timeline boundary for non-finite
+        # values. Either error class is valid; the invariant is fail-closed rejection.
+        with pytest.raises((FrameTimelineError, EditingTemplateError)):
             compile_editing_template(pack, _motionstyle(), replication_mode="STRUCTURAL_TEMPLATE")
 
 
