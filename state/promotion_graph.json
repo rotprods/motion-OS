@@ -1,6 +1,6 @@
 {
-  "schema_version": "motion-os.promotion-graph/v1.4",
-  "observed_at": "2026-09-17T21:50:30Z",
+  "schema_version": "motion-os.promotion-graph/v1.5",
+  "observed_at": "2026-09-17T22:05:00Z",
   "authority": "DERIVED_PLANNING_PROJECTION_NOT_PROMOTION_AUTHORITY",
   "live_truth": {
     "main_sha": "d4e628a1aef0cd382c3c2f1ea327a8ff70c41bd9",
@@ -14,6 +14,7 @@
     "A donor already preserved in a successor is not merged again.",
     "Qualification-only work cannot launder empirical or creative authority into product authority.",
     "Historical green CI is authority only for that exact old head.",
+    "Any semantic mutation invalidates prior exact-head CI and review receipts for promotion.",
     "A moving stacked base invalidates stale review targeting; converge to an exact self-contained combined head before final review.",
     "Ponytail law: transplant the smallest verified semantic delta and reject duplicate architecture."
   ],
@@ -23,36 +24,35 @@
       "PR165@577bde43665d8f290dd5613ad24624417b549b00",
       "PR167@81477a0c1a76b09a885c239d3ffa78d14588a026",
       "PR169@e2b22068b00d1cf90c5924c84bcbfc3e0f43c87b",
-      "PR170@2100c9ee347d6737ddea9679001385807792716a"
+      "PR170@7a9bee1722b30850ebda8e4c3f58ed6e589c238a"
     ],
     "product_checkpoint": "PR169@e2b22068b00d1cf90c5924c84bcbfc3e0f43c87b",
-    "current_combined_terminal_candidate": "PR170@2100c9ee347d6737ddea9679001385807792716a",
-    "candidate_status": "FROZEN_SELF_CONTAINED_EXACT_HEAD_GREEN_AWAITING_INDEPENDENT_REVIEW_NOT_PROMOTED",
-    "concurrency_reconciliation": {
-      "event": "PR169 advanced while PR170 was qualifying",
-      "old_pr170_head": "a3183f0833a6e09f8efc515714fc1d9ac04d128d",
-      "advanced_pr169_head": "e2b22068b00d1cf90c5924c84bcbfc3e0f43c87b",
-      "github_signed_combined_commit": "2100c9ee347d6737ddea9679001385807792716a",
-      "resolution": "fast-forward PR170 branch to the exact signed combined commit, invalidate stale review targets, rerun all gates"
-    },
-    "performance_learning_red_green_history": [
-      {
-        "head": "c5235525bb24204103dd40298059de292f223d35",
-        "ci": "GREEN",
-        "review": "P1:EVIDENCE_CONTAINER_TYPE_CONFUSION@5241402535",
-        "promotion_effect": "INVALIDATED"
-      },
-      {
-        "head": "ae5f07d516c4c517208aed613976bc7928614d10",
-        "repair": "reject malformed evidence containers",
-        "promotion_effect": "SUPERSEDED_BY_FURTHER_P1_REPAIR"
-      },
-      {
-        "head": "e2b22068b00d1cf90c5924c84bcbfc3e0f43c87b",
-        "repair": "block direct construction of higher evidence stages and require validated transition APIs",
-        "status": "PRESERVED_AS_PARENT_OF_PR170"
-      }
+    "current_combined_terminal_candidate": "PR170@7a9bee1722b30850ebda8e4c3f58ed6e589c238a",
+    "candidate_status": "FROZEN_SELF_CONTAINED_EXACT_HEAD_GREEN_AWAITING_GENUINELY_INDEPENDENT_REVIEW_NOT_PROMOTED",
+    "stale_candidates": [
+      "PR170@a3183f0833a6e09f8efc515714fc1d9ac04d128d",
+      "PR170@2100c9ee347d6737ddea9679001385807792716a"
     ],
+    "red_green_history": [
+      "P1:EVIDENCE_CONTAINER_TYPE_CONFUSION repaired in PR169",
+      "P1:AUTHORITY_STAGE_DIRECT_CONSTRUCTOR_BYPASS repaired in PR169",
+      "P1:NON_FINITE_TIMEBASE_AUTHORITY repaired in PR170",
+      "P1:STALE_SUCCESS_COMPLETION_AUTHORITY repaired in PR170",
+      "P1:DERIVED_CHOREOGRAPHY_AUTHORITY_LAUNDERING repaired in PR170",
+      "P1:FRAME_METRIC_IDENTITY_ALIGNMENT_BYPASS repaired in PR170"
+    ],
+    "exact_head_evidence": {
+      "merge_safe": "SUCCESS:35279754888",
+      "heterogeneous_master": "SUCCESS:35279754875",
+      "python_312_local_contract": "SUCCESS",
+      "python_311_compatibility": "SUCCESS",
+      "dependency_security_and_npm_audit": "SUCCESS",
+      "physical_analysis": "SUCCESS",
+      "physical_remotion": "SUCCESS",
+      "same_actor_tri_review": "5241905441:NO_KNOWN_UNRESOLVED_P0_P1_NOT_INDEPENDENT_APPROVAL"
+    },
+    "independent_review_gate": "Issue172:[PROMOTION REVIEW] PR #170 combined exact-head independent authority — 7a9bee17",
+    "independent_review_status": "ABSENT_CURRENT_REVIEWS_ARE_SAME_ACTOR_OR_STALE",
     "preserved_unique_donors": {
       "PR57": "PR167 SkillRuntime durable FAILED trace semantics",
       "PR77": "PR169 evidence-bound performance-learning semantics",
@@ -61,83 +61,115 @@
       "PR119": "PR162 exact-master/provider-QA donor port",
       "PR120_PR122": "PR162 paid-provider/spend/security donor convergence",
       "PR118_PR123": "later PR162 heterogeneous/count-frame ancestry",
-      "PR64": "bounded reverse-engineering product core preserved in PR170"
+      "PR64": "bounded reverse-engineering product core preserved and hardened in PR170"
     },
     "not_included_by_design": {
-      "PR56": "historical canonical-truth invariant donor; executable semantics superseded and stale RC09E snapshots excluded",
+      "PR56": "historical canonical-truth invariant donor; executable semantics superseded",
       "PR67": "qualification-only primitive ledger; empirical 135-case authority incomplete",
       "PR68": "separate self-driving control-plane line; activation intentionally disabled",
       "PR75": "benchmark/mechanical qualification only; creative/style authority blocked",
       "PR91": "architecture donor; no measured bottleneck justifies wholesale promotion",
       "PR121": "command-registry pointer blocked on external/unpromoted registry authority",
-      "PR128_PR163": "separate semantic lane blocked on physical corpus qualification",
+      "PR128_PR163": "separate semantic lane under full physical corpus requalification",
       "PR157": "separate qualification-only 9D line; full fidelity/generalization incomplete"
     },
     "remaining_blockers": [
-      "independent exact-head review of PR170 via Issue #172",
+      "genuinely independent exact-head review of PR170 via Issue #172",
       "Issue #48 OPEN",
       "main.protected=false",
-      "no synthetic merge against eventual current protected main"
+      "no synthetic merge against eventual current protected main",
+      "serial post-merge verification not yet executable"
     ]
   },
   "reverse_engineering_lane": {
     "historical_core_donor": "PR64@2e26e311e506b6aaaa32f827e1579ddaa1e3ea58",
     "core_promotion_class": "DONOR_ONLY_PRODUCT_CORE_PRESERVED_IN_PR170",
-    "current_product_candidate": "PR170@2100c9ee347d6737ddea9679001385807792716a",
-    "exact_head_evidence": {
-      "merge_safe": "SUCCESS:35278466678",
-      "merge_safe_aggregate": "SUCCESS",
-      "python_312_local_contract": "SUCCESS",
-      "python_311_compatibility": "SUCCESS",
-      "dependency_security_and_npm_audit": "SUCCESS",
-      "physical_analysis": "SUCCESS:REAL_MP4_TO_REVERSE_ENGINEERING_BUNDLE",
-      "physical_remotion": "SUCCESS",
-      "heterogeneous_master": "SUCCESS:35278466815",
-      "same_agent_tri_review": "5241807483:NO_KNOWN_UNRESOLVED_P0_P1_NOT_INDEPENDENT_APPROVAL"
-    },
+    "current_product_candidate": "PR170@7a9bee1722b30850ebda8e4c3f58ed6e589c238a",
     "repairs_during_convergence": [
       "clean-checkout reverse-engineering CLI repo-root bootstrap",
       "finite/positive FPS and decoded-frame authority validation",
       "failed rerun invalidates stale completion manifest; completion publication atomic",
-      "staged frame-count resolution prevents eager duration-times-fps fallback evaluation"
+      "staged frame-count resolution prevents eager duration-times-fps fallback evaluation",
+      "derived choreography cannot inherit measured authority",
+      "frame-metric gauntlet requires exact contiguous physical frame identity and finite measurements"
     ],
-    "independent_review_gate": "Issue172:[PROMOTION REVIEW] PR #170 combined exact-head independent authority — 2100c9ee",
     "golden_qualification": ["PR96", "PR107", "PR124", "PR125"],
-    "active_qualification": "PR157@1cf19b912e9bf32cdbecc1360f709bf08ce615cd",
-    "historical_donors": {
-      "PR92": "superseded architecture/claims",
-      "PR105": "historical S04 donor; active T08 uses PR96",
-      "PR126": "false frontier: actual diff only lifecycle event",
-      "PR129": "read-only older T08 donor"
+    "active_qualification": "PR157@58f54a2abe38d8d631b5216f952b5c1f7198cb53",
+    "active_qualification_evidence": {
+      "merge_safe": "SUCCESS:35278136296",
+      "golden_9d_camera_depth": "SUCCESS:35278136465",
+      "golden_9d_motion_kinematics": "SUCCESS:35278136510",
+      "tri_review": "5241776443:NO_KNOWN_P0_P1_QUALIFICATION_ONLY"
     },
     "qualification_status": "BLOCKED_EMPIRICAL_FULL_9D_AND_GENERALIZATION_INCOMPLETE",
-    "authority_ceiling": "PR170 proves product-core compatibility/execution only; it does not grant FULL_9D_FIDELITY_VALIDATED, CANONICAL_TEMPLATE, original AE internals or creative approval"
+    "authority_ceiling": "PR170 proves product-core compatibility/execution only; PR157 does not grant FULL_9D_FIDELITY_VALIDATED, CANONICAL_TEMPLATE, original AE internals or creative approval"
   },
   "semantic_lane": {
     "base": "PR128@92524aa622ebc6fcf0b77b7ba0e91fd0d852ec03",
-    "repair": "PR163@1362e61ba5d30de64d62129523670b2905ee961b",
-    "promotion_class": "BLOCKED_EMPIRICAL",
-    "required_next": "full dual-repo corpus reindex -> graphify -> frozen benchmark evaluate -> latency/throughput -> portable snapshot"
+    "repair": "PR163@b323456740f5fbdf9f209c5196933ba233f00e07",
+    "promotion_class": "PHYSICAL_CORPUS_REQUALIFICATION_IN_PROGRESS",
+    "red_finding": "COS20_ROUTE_WAS_AN_IRREVERSIBLE_RECALL_BOTTLENECK_BEFORE_EXACT_1024D_RERANK",
+    "repair_summary": "union native 1024D semantic candidates with cos20 route candidates before exact semantic rerank; thresholds unchanged",
+    "exact_head_evidence": {
+      "merge_safe": "SUCCESS:35277682741",
+      "semantic_live_smoke": "SUCCESS:35277682868",
+      "semantic_full_motion_qualification": "IN_PROGRESS:35277682704"
+    },
+    "prior_real_corpus_failure": {
+      "hit_at_10": 0.9,
+      "mean_recall": 0.733333,
+      "mrr": 0.6,
+      "ndcg_at_10": 0.588686
+    }
+  },
+  "control_plane_lane": {
+    "candidate": "PR68@a12447bcc76dcde5cf3627c60fbefdc3ac56d8fe",
+    "promotion_class": "SEPARATE_CONTROL_PLANE_DRAFT_ACTIVATION_DISABLED",
+    "red_finding": "P1:GAUNTLET_SELF_CERTIFICATION_BYPASS",
+    "repair_summary": "VERIFIED requires independent evidence-bound verifier receipt with implementer != verifier and exact result/evidence hash binding",
+    "exact_head_evidence": {
+      "merge_safe": "SUCCESS:35278534074",
+      "coordination_contracts": "SUCCESS:35278534063",
+      "tri_review": "5241834269:NO_KNOWN_P0_P1_NOT_ACTIVATION_APPROVAL"
+    },
+    "nonblocking_followup": "bound trusted scoring metric magnitudes to prevent priority skew among already-eligible tasks"
   },
   "qualification_lanes": {
-    "PR67": "QUALIFICATION_ONLY_BLOCKED_EMPIRICAL",
-    "PR75": "QUALIFICATION_ONLY_BLOCKED_EMPIRICAL",
+    "PR67": "QUALIFICATION_ONLY_BLOCKED_EMPIRICAL_135_PRIMITIVE_RENDERER_CASES_NOT_PHYSICALLY_PROVEN",
+    "PR75": "QUALIFICATION_ONLY_MECHANICAL_SMOKE_GREEN_CREATIVE_STYLE_AUTHORITY_BLOCKED",
     "PR96": "QUALIFICATION_ONLY_S04",
     "PR107": "QUALIFICATION_ONLY_S11",
     "PR124": "QUALIFICATION_ONLY_S14",
     "PR125": "QUALIFICATION_ONLY_S16",
-    "PR157": "QUALIFICATION_ONLY_ACTIVE_T08_BLOCKED_EMPIRICAL"
+    "PR157": "QUALIFICATION_ONLY_EXACT_HEAD_GREEN_FULL_9D_STILL_INCOMPLETE"
   },
-  "control_and_docs_lanes": {
-    "PR52": "HISTORICAL_SUPERSEDED_AUDIT",
-    "PR68": "TERMINAL_CANDIDATE_SEPARATE_CONTROL_PLANE_BLOCKED_ACTIVATION",
-    "PR91": "DONOR_ONLY_ARCHITECTURE",
-    "PR94": "HISTORICAL_SUPERSEDED_PLANNING",
-    "PR113": "HISTORICAL_SUPERSEDED_HANDOFF",
-    "PR115": "HISTORICAL_SUPERSEDED_HANDOFF",
-    "PR121": "DONOR_ONLY_BLOCKED_EXTERNAL",
-    "PR127": "DONOR_ONLY_PARTIALLY_PRESERVED: root continuity pointer ported to PR166",
-    "PR166": "DOCS_CONVERGENCE_CANDIDATE_NO_PRODUCT_AUTHORITY"
+  "docs_convergence_lane": {
+    "candidate": "PR166",
+    "promotion_class": "DOCS_CONVERGENCE_NO_PRODUCT_AUTHORITY",
+    "recovered_closed_unmerged_value": {
+      "source_pr": 49,
+      "classification": "DONOR_EVIDENCE_VALIDATED_AND_PRESERVED_IN_PR166",
+      "events": [
+        "20260827T131600000000Z-chatgpt-pr44-merged",
+        "20260827T131601000000Z-chatgpt-main-verified-phase07",
+        "20260827T131602000000Z-chatgpt-phase07-work-completed"
+      ],
+      "corroboration": "GitHub PR44 merged at 080dfd5c16bc06100edd716eadc770530dc47af2"
+    }
+  },
+  "closed_unmerged_classification": {
+    "6": "SUPERSEDED_BY_PR10",
+    "34": "SUPERSEDED_BY_PR42_SELECTIVE_VALUE_PRESERVED",
+    "35": "SELECTIVELY_PROMOTED_NO_WHOLESALE_MERGE",
+    "40": "SUPERSEDED_BY_PR44",
+    "49": "DONOR_EVIDENCE_VALIDATED_PRESERVED_IN_PR166",
+    "50": "SUPERSEDED",
+    "53": "SUPERSEDED_BY_PR58",
+    "60": "OLDER_QA_REPAIR_SUPERSEDED",
+    "72": "SECURITY_GOVERNANCE_DONOR_SUPERSEDED_BY_STRONGER_SPLIT_GATES",
+    "74": "SUPERSEDED_BY_PR100",
+    "90": "SUPERSEDED_BY_PR91",
+    "114": "STALE_HANDOFF_SUPERSEDED_BY_NEWER_CONTINUITY"
   },
   "open_pr_classification": {
     "52": "HISTORICAL_SUPERSEDED",
@@ -152,14 +184,14 @@
     "65": "DONOR_ONLY_PRESERVED_VIA_119_TO_162",
     "66": "DONOR_ONLY_PRESERVED_VIA_118_TO_162",
     "67": "QUALIFICATION_ONLY_BLOCKED_EMPIRICAL",
-    "68": "TERMINAL_CANDIDATE_SEPARATE_CONTROL_PLANE",
+    "68": "TERMINAL_CANDIDATE_SEPARATE_CONTROL_PLANE_EXACT_HEAD_GREEN",
     "69": "DONOR_ONLY_PRESERVED_VIA_118_TO_162",
     "70": "DONOR_ONLY_PRESERVED_VIA_120_TO_162",
     "71": "DONOR_ONLY_PRESERVED_VIA_120_TO_162",
     "73": "DONOR_ONLY_PRESERVED_VIA_120_TO_162",
-    "75": "QUALIFICATION_ONLY_BLOCKED_EMPIRICAL",
+    "75": "QUALIFICATION_ONLY_BLOCKED_CREATIVE_STYLE_AUTHORITY",
     "76": "DONOR_ONLY_PRESERVED_VIA_120_TO_162",
-    "77": "DONOR_ONLY_PRESERVED_IN_169",
+    "77": "DONOR_ONLY_PRESERVED_IN_169_AND_INHERITED_BY_170",
     "91": "DONOR_ONLY_ARCHITECTURE",
     "92": "HISTORICAL_SUPERSEDED",
     "94": "HISTORICAL_SUPERSEDED_PLANNING",
@@ -202,20 +234,20 @@
     "149": "STACK_ANCESTOR",
     "151": "STACK_ANCESTOR",
     "153": "STACK_ANCESTOR",
-    "157": "QUALIFICATION_ONLY_BLOCKED_EMPIRICAL",
+    "157": "QUALIFICATION_ONLY_EXACT_HEAD_GREEN_FULL_9D_INCOMPLETE",
     "162": "STACK_ANCESTOR",
-    "163": "BLOCKED_EMPIRICAL_REPAIR_LINE",
+    "163": "SEMANTIC_REPAIR_LINE_PHYSICAL_REQUALIFICATION_IN_PROGRESS",
     "165": "STACK_ANCESTOR",
     "166": "DOCS_CONVERGENCE_CANDIDATE",
     "167": "STACKED_CONVERGENCE_CHECKPOINT",
     "169": "STACKED_PRODUCT_CHECKPOINT_PRESERVED_AS_PARENT_IN_170",
-    "170": "CURRENT_COMBINED_TERMINAL_CANDIDATE_FROZEN_AWAITING_INDEPENDENT_REVIEW"
+    "170": "CURRENT_COMBINED_TERMINAL_CANDIDATE_EXACT_HEAD_GREEN_AWAITING_INDEPENDENT_REVIEW"
   },
   "current_decision": {
-    "product_candidate": "PR170@2100c9ee347d6737ddea9679001385807792716a",
+    "product_candidate": "PR170@7a9bee1722b30850ebda8e4c3f58ed6e589c238a",
     "do_not_merge": true,
     "product_and_reverse_engineering_lanes": "CONVERGED_TO_SELF_CONTAINED_EXACT_HEAD",
-    "next_gate": "independent exact-head review via Issue #172; do not mutate PR170 head while review is pending",
-    "global_after_review": "still no merge until Issue #48 release, native main protection, and current protected-main synthetic/merge-group proof"
+    "next_gate": "genuinely independent exact-head review via Issue #172; do not mutate PR170 while that review is pending",
+    "global_after_review": "still no merge until Issue #48 release, native main protection, current protected-main synthetic/merge-group proof and serial post-merge verification"
   }
 }
