@@ -1,0 +1,33 @@
+{
+  "event_id": "20260917T204500000000Z-chatgpt-product-convergence-work-started",
+  "event_type": "work.started",
+  "timestamp": "2026-09-17T20:45:00Z",
+  "agent_id": "motion://agent/chatgpt/product-convergence",
+  "project": "MOTION.OS",
+  "branch": "convergence/p8-product-recovery-20260917",
+  "commit_sha": "577bde43665d8f290dd5613ad24624417b549b00",
+  "pr_number": null,
+  "summary": "Started bounded successor convergence candidate from PR165 exact head. First mutation is limited to preserving PR57 SkillRuntime executor-failure trace semantics; PR56 truth invariants remain read-only review until compatibility is proven. No merge/release/provider/spend authority.",
+  "affected_paths": [
+    "src/skills/runtime.py",
+    "tests/test_phase05_skill_runtime.py",
+    "state/agent_events/2026-09-17/"
+  ],
+  "checks": {
+    "base_is_pr165_exact_head": "PASS",
+    "donor_pr57_unique_value_confirmed": "PASS",
+    "scope_isolated": "PASS",
+    "promotion_barrier_respected": "PASS"
+  },
+  "authority": "PROPOSED",
+  "correlation_id": "motion-product-convergence-pr165-pr57-20260917",
+  "metadata": {
+    "project_id": "motion://project/motion-os",
+    "session_id": "motion://session/chatgpt/product-convergence/20260917T2245+0200",
+    "workstream_id": "motion://workstream/product-convergence-p8",
+    "base_sha": "577bde43665d8f290dd5613ad24624417b549b00",
+    "donor_pr": 57,
+    "donor_sha": "f1da72e45f2bb58cb651eb12747617075809cd8e",
+    "promotion_effect": "NONE"
+  }
+}
