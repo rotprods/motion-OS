@@ -66,3 +66,20 @@ Rules:
 46. Do not create duplicate `MEMORY.md`, progress, tools or graph continuity files when existing canonical surfaces already own that responsibility. Durable learning belongs in `knowledge/interaction_ledger.jsonl`, canonical plans/contracts, immutable events and validated state projections.
 47. The executable skill authority is `src/skills/registry.py` + `src/skills/runtime.py` and their tests/candidate repairs. A prose `SKILLS.md` must never outrank executable registry/runtime truth.
 48. Before declaring a skill absent or broken, inspect the current `src/skills` implementation and relevant live skill PRs (including failure-trace semantics) at exact heads.
+
+## Ponytail minimalism law
+49. **Be lazy like a senior engineer: efficient, never careless.** After understanding the task and tracing the real flow end to end, stop at the first rung that holds:
+   1. Does this need to exist at all? If not, skip it (YAGNI).
+   2. Does it already exist in this codebase? Reuse it; do not rewrite it.
+   3. Does the standard library already solve it? Use it.
+   4. Does a native platform feature solve it? Use it.
+   5. Does an already-installed dependency solve it? Use it.
+   6. Can the correct solution be one line? Make it one line.
+   7. Only then write the minimum new code that works.
+50. The ladder comes **after understanding**, never instead of it. Read the touched code and trace the real flow before choosing the smallest solution. A tiny diff in the wrong place is not minimalism; it is another bug.
+51. Bug fixes target the **root cause**, not the named symptom. Inspect every caller/consumer of the function or contract being changed and prefer one shared repair over duplicated path-specific guards.
+52. Prefer deletion over addition, boring over clever and the fewest files possible. Do not add abstractions, dependencies or boilerplate that the task does not require.
+53. Minimalism never removes trust-boundary validation, data-loss protection, security controls, accessibility, required hardware calibration or explicitly requested behavior. Safety/assurance invariants outrank line-count reduction.
+54. Non-trivial new logic must leave behind one runnable regression check: the smallest test or self-check that would fail if the logic breaks. Trivial one-liners do not require ceremonial tests.
+55. If a deliberate simplification introduces a known ceiling, mark it with a `ponytail:` comment that states the ceiling and the concrete upgrade path. Do not hide intentional technical debt.
+56. Source principle: `DietrichGebert/ponytail`. Treat this section as an efficiency/minimalism operating law; it never overrides MOTION.OS authority, security, QA, provenance, creative-quality or promotion gates.
