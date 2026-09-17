@@ -56,6 +56,34 @@ def test_duplicate_supporting_ids_cannot_inflate_evidence_count():
         LearningHypothesis("H1", "hypothesis", EvidenceStage.OBSERVED_CORRELATION, ("a", "a", "b", "b"))
 
 
+def test_authority_evidence_container_type_confusion_fails_closed():
+    with pytest.raises(ValueError, match="supporting_content_ids must be a tuple"):
+        LearningHypothesis(
+            "H1",
+            "hypothesis",
+            EvidenceStage.CONTROLLED_TEST,
+            "abcd",  # type: ignore[arg-type]
+            controlled_test_id="ct-1",
+        )
+    with pytest.raises(ValueError, match="supporting_content_ids must be a tuple"):
+        LearningHypothesis(
+            "H1",
+            "hypothesis",
+            EvidenceStage.CONTROLLED_TEST,
+            ["a", "b", "c", "d"],  # type: ignore[arg-type]
+            controlled_test_id="ct-1",
+        )
+    with pytest.raises(ValueError, match="promotion_approval_evidence must be a tuple"):
+        LearningHypothesis(
+            "H1",
+            "hypothesis",
+            EvidenceStage.PROMOTED_RULE,
+            _ids(4),
+            controlled_test_id="ct-1",
+            promotion_approval_evidence="approval",  # type: ignore[arg-type]
+        )
+
+
 def test_controlled_test_cannot_bypass_repeated_pattern_or_exist_without_test_id():
     h = LearningHypothesis("H1", "hypothesis", EvidenceStage.OBSERVED_CORRELATION, ("a",), controlled_test_id="ct-1")
     with pytest.raises(ValueError, match="cannot bypass"):
@@ -83,6 +111,8 @@ def test_evidence_bound_path_can_reach_controlled_test_but_not_rule_automaticall
         approve_promoted_rule(tested, explicit_approval="true")
     with pytest.raises(ValueError, match="approval_evidence"):
         approve_promoted_rule(tested, explicit_approval=True)
+    with pytest.raises(ValueError, match="collection of IDs"):
+        approve_promoted_rule(tested, explicit_approval=True, approval_evidence="abcd")
     promoted = approve_promoted_rule(
         tested,
         explicit_approval=True,
