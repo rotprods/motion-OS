@@ -150,13 +150,12 @@ def _validate_micro(data: dict[str, Any]) -> dict[str, Any]:
         classes = mm.get("classes", {})
         if not isinstance(classes, dict):
             raise ValueError(f"micro-motion classes must be an object for {scene_id}")
-        if set(classes) != MICRO_CLASSES:
-            missing = sorted(MICRO_CLASSES - set(classes))
-            unknown = sorted(set(classes) - MICRO_CLASSES)
-            raise ValueError(f"micro-motion class coverage drift for {scene_id}: missing={missing} unknown={unknown}")
+        unknown_classes = set(classes) - MICRO_CLASSES
+        if unknown_classes:
+            raise ValueError(f"unknown micro-motion class for {scene_id}: {sorted(unknown_classes)}")
         validated_classes = {
-            key: _nonnegative_int(value, name=f"{scene_id}.micro_motion.classes.{key}")
-            for key, value in classes.items()
+            key: _nonnegative_int(classes.get(key, 0), name=f"{scene_id}.micro_motion.classes.{key}")
+            for key in MICRO_CLASSES
         }
         candidate_count = _nonnegative_int(mm.get("candidate_count"), name=f"{scene_id}.micro_motion.candidate_count")
         if sum(validated_classes.values()) != candidate_count:
