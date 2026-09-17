@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 import sys
+from tempfile import NamedTemporaryFile
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -22,6 +24,30 @@ MODE_MAP = {
     "structural": "STRUCTURAL_TEMPLATE",
     "style": "STYLE_TRANSFER",
 }
+
+
+def _write_json_atomic(path: Path, value: object) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload = json.dumps(value, indent=2, ensure_ascii=False, allow_nan=False) + "\n"
+    temporary: Path | None = None
+    try:
+        with NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            dir=path.parent,
+            prefix=f".{path.name}.",
+            suffix=".tmp",
+            delete=False,
+        ) as handle:
+            handle.write(payload)
+            handle.flush()
+            os.fsync(handle.fileno())
+            temporary = Path(handle.name)
+        os.replace(temporary, path)
+        temporary = None
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
 
 
 def main() -> int:
@@ -43,6 +69,10 @@ def main() -> int:
 
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
+    manifest_path = out / "reverse_engineering_manifest.json"
+    # A failed new invocation must never leave a prior successful completion receipt looking current.
+    manifest_path.unlink(missing_ok=True)
+
     analysis_dir = out / "analysis"
     cfg = AnalysisConfig(
         shot_threshold=args.shot_threshold,
@@ -90,10 +120,9 @@ def main() -> int:
         },
         "warnings": template["evidence"]["warnings"] + template["qa"]["warnings"],
     }
-    (out / "reverse_engineering_manifest.json").write_text(
-        json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8"
-    )
-    print(json.dumps(manifest, indent=2, ensure_ascii=False))
+    # Manifest publication is the completion marker and happens only after every referenced artifact exists.
+    _write_json_atomic(manifest_path, manifest)
+    print(json.dumps(manifest, indent=2, ensure_ascii=False, allow_nan=False))
     return 0
 
 
