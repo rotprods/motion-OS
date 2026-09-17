@@ -44,7 +44,7 @@ class Attempt:
         if type(verifier_complete) is not bool:
             raise GauntletError("verifier_complete must be a JSON boolean")
         verifier_reason = str(raw.get("verifier_reason", "")).strip()
-        if len(verifier_reason) > 4096 or any(ord(ch) < 32 and ch not in "\t\n\r" for ch in verifier_reason):
+        if len(verifier_reason) > 4096 or any((ord(ch) < 32 and ch not in "\t\n\r") or ord(ch) == 127 for ch in verifier_reason):
             raise GauntletError("verifier_reason is oversized or contains unsafe control characters")
         progress_raw = raw.get("measurable_progress", 0.0)
         if isinstance(progress_raw, bool) or not isinstance(progress_raw, (int, float)):
@@ -68,7 +68,9 @@ def canonical_hash(value: Any) -> str:
 
 
 def _verifier_id(raw: object, field: str) -> str:
-    value = str(raw).strip()
+    if not isinstance(raw, str):
+        raise GauntletError(f"{field} must be a canonical verifier identity string")
+    value = raw.strip()
     if not VERIFIER_ID_RE.fullmatch(value):
         raise GauntletError(f"{field} must be a canonical verifier identity")
     return value
@@ -85,13 +87,13 @@ def _verify_independent_receipt(receipt: object, *, expected_result_hash: str) -
     verifier_id = _verifier_id(receipt.get("verifier_id"), "verifier_id")
     if verifier_id == implementer_id:
         raise GauntletError("independent verifier must differ from implementer")
-    verified_result_hash = str(receipt.get("verified_result_hash", ""))
-    evidence_hash = str(receipt.get("evidence_hash", ""))
-    if not SHA256_RE.fullmatch(verified_result_hash):
+    verified_result_hash = receipt.get("verified_result_hash")
+    evidence_hash = receipt.get("evidence_hash")
+    if not isinstance(verified_result_hash, str) or not SHA256_RE.fullmatch(verified_result_hash):
         raise GauntletError("verified_result_hash must be lowercase sha256")
     if verified_result_hash != expected_result_hash:
         raise GauntletError("verifier receipt is bound to a different result_hash")
-    if not SHA256_RE.fullmatch(evidence_hash):
+    if not isinstance(evidence_hash, str) or not SHA256_RE.fullmatch(evidence_hash):
         raise GauntletError("verifier evidence_hash must be lowercase sha256")
     if receipt.get("decision") != "PASS":
         raise GauntletError("verifier receipt decision must be PASS")
