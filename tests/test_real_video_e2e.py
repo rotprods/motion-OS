@@ -2,6 +2,7 @@ from pathlib import Path
 import json
 import shutil
 import subprocess
+import sys
 
 import pytest
 from PIL import Image, ImageDraw
@@ -37,6 +38,26 @@ def _make_fixture(tmp_path: Path, fps: int = 30) -> tuple[Path, GroundTruth]:
     )
 
 
+def _run_reverse_engineering(video: Path, out: Path) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [
+            sys.executable,
+            "scripts/reverse_engineer_video.py",
+            str(video),
+            "--out", str(out),
+            "--mode", "structural",
+            "--analysis-width", "320",
+            "--ocr-every", "30",
+            "--flow-stride", "4",
+        ],
+        cwd=Path(__file__).resolve().parents[1],
+        text=True,
+        capture_output=True,
+        timeout=180,
+        check=False,
+    )
+
+
 def test_real_mp4_to_remotion_pipeline(tmp_path: Path):
     video, truth = _make_fixture(tmp_path)
     out = tmp_path / "analysis"
@@ -57,3 +78,38 @@ def test_real_mp4_to_remotion_pipeline(tmp_path: Path):
     assert manifest["authority"]["pixels"] == "measured"
     assert manifest["authority"]["style"] == "inferred_evidence_bound"
     assert manifest["counts"]["decoded_frames"] == 90
+
+
+def test_real_mp4_reverse_engineering_cli_emits_valid_structural_bundle(tmp_path: Path):
+    video, truth = _make_fixture(tmp_path)
+    out = tmp_path / "reverse-engineering"
+    completed = _run_reverse_engineering(video, out)
+    assert completed.returncode == 0, completed.stderr or completed.stdout
+
+    manifest = json.loads((out / "reverse_engineering_manifest.json").read_text())
+    template = json.loads((out / "editing_template.json").read_text())
+    timeline = json.loads((out / "frame_timeline.json").read_text())
+
+    assert manifest["replication_mode"] == "STRUCTURAL_TEMPLATE"
+    assert manifest["frame_count"] == truth.total_frames == 90
+    assert manifest["frame_coverage"] == 1.0
+    assert manifest["authority"]["template_generalization"] == "IMPLEMENTED_NOT_EMPIRICALLY_QUALIFIED"
+    assert template["frame_contract"]["coverage"] == "every_decoded_frame"
+    assert template["frame_contract"]["total_frames"] == 90
+    assert template["qa"]["literal_copy_leakage"] is False
+    assert [row["frame"] for row in timeline] == list(range(90))
+    assert all(row["authority"]["frame_count"] == "decoded_frame_count" for row in timeline)
+
+
+def test_failed_rerun_invalidates_prior_reverse_engineering_completion_manifest(tmp_path: Path):
+    video, _ = _make_fixture(tmp_path)
+    out = tmp_path / "reverse-engineering"
+    first = _run_reverse_engineering(video, out)
+    assert first.returncode == 0, first.stderr or first.stdout
+    manifest_path = out / "reverse_engineering_manifest.json"
+    assert manifest_path.exists()
+
+    missing_video = tmp_path / "does-not-exist.mp4"
+    second = _run_reverse_engineering(missing_video, out)
+    assert second.returncode != 0
+    assert not manifest_path.exists(), "failed rerun must not leave prior successful completion authority visible"
