@@ -38,16 +38,37 @@ def _source_meta(pack: Mapping[str, Any]) -> dict[str, Any]:
     source_sha = str(meta.get("source_sha256", ""))
     if len(source_sha) != 64:
         raise EditingTemplateError("FeaturePack must carry a 64-character source_sha256")
-    fps = float(meta.get("fps", 0.0))
-    if fps <= 0:
-        raise EditingTemplateError("FeaturePack fps must be positive")
+
+    raw_fps = meta.get("fps", 0.0)
+    if isinstance(raw_fps, bool):
+        raise EditingTemplateError("FeaturePack fps must be finite and positive")
+    try:
+        fps = float(raw_fps)
+    except (TypeError, ValueError) as exc:
+        raise EditingTemplateError("FeaturePack fps must be finite and positive") from exc
+    if not math.isfinite(fps) or fps <= 0:
+        raise EditingTemplateError("FeaturePack fps must be finite and positive")
+
     resolution = dict(meta.get("resolution", {}))
     if int(resolution.get("w", 0)) <= 0 or int(resolution.get("h", 0)) <= 0:
         raise EditingTemplateError("FeaturePack resolution must be positive")
+
     duration_ms = int(meta.get("duration_ms", 0))
-    total_frames = int(meta.get("decoded_frame_count", meta.get("frame_count", round(duration_ms * fps / 1000.0))))
-    if total_frames <= 0:
-        raise EditingTemplateError("FeaturePack frame count must be positive")
+    frame_raw = meta.get("decoded_frame_count")
+    if frame_raw is None:
+        frame_raw = meta.get("frame_count")
+    if frame_raw is None:
+        frame_raw = round(duration_ms * fps / 1000.0)
+    if isinstance(frame_raw, bool):
+        raise EditingTemplateError("FeaturePack frame count must be a positive integer")
+    try:
+        frame_numeric = float(frame_raw)
+    except (TypeError, ValueError) as exc:
+        raise EditingTemplateError("FeaturePack frame count must be a positive integer") from exc
+    if not math.isfinite(frame_numeric) or not frame_numeric.is_integer() or frame_numeric <= 0:
+        raise EditingTemplateError("FeaturePack frame count must be a positive integer")
+    total_frames = int(frame_numeric)
+
     return {
         "sha256": source_sha,
         "duration_ms": duration_ms,
