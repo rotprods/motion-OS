@@ -1,6 +1,6 @@
 {
-  "schema_version": "motion-os.promotion-graph/v1.1",
-  "observed_at": "2026-09-17T20:46:00Z",
+  "schema_version": "motion-os.promotion-graph/v1.2",
+  "observed_at": "2026-09-17T21:02:00Z",
   "authority": "DERIVED_PLANNING_PROJECTION_NOT_PROMOTION_AUTHORITY",
   "live_truth": {
     "main_sha": "d4e628a1aef0cd382c3c2f1ea327a8ff70c41bd9",
@@ -9,118 +9,183 @@
     "issue_39": "OPEN",
     "promotion_authorized": false
   },
-  "product_recovery_security": {
-    "ancestry": [
-      "PR130", "PR131", "PR132", "PR133", "PR134", "PR135", "PR136",
-      "PR137", "PR141", "PR143", "PR145", "PR147", "PR149", "PR151", "PR153", "PR162", "PR165", "PR167"
-    ],
-    "convergence_history": {
-      "pr162_head": "4c7f5079e134682754cfc7161f958a8d41129669",
-      "pr165_head": "577bde43665d8f290dd5613ad24624417b549b00",
-      "pr167_head": "81477a0c1a76b09a885c239d3ffa78d14588a026",
-      "facts": [
-        "PR162 is 40 commits ahead of Sept-15 donor-port checkpoint c8fbfbcfd3ad698c590d3a1511c0cde3dd103480",
-        "PR165 is exactly 4 commits ahead of PR162 and repairs reproduced P1 RECOVERY-REVISION-SPLICE",
-        "PR167 is the first bounded successor convergence candidate on PR165"
-      ]
+  "rules": [
+    "Open PRs are a dependency/value graph, not a merge checklist.",
+    "A donor already preserved in a successor is not merged again.",
+    "A qualification-only line cannot launder empirical or creative authority into product authority.",
+    "Historical green CI is evidence for that head only; final promotion requires the final exact successor and synthetic merge.",
+    "Ponytail law: reuse/transplant the smallest verified semantic delta; do not recreate or merge obsolete architecture wholesale."
+  ],
+  "product_recovery_security_lane": {
+    "base_stack_tip": "PR165@577bde43665d8f290dd5613ad24624417b549b00",
+    "skill_failure_checkpoint": "PR167@81477a0c1a76b09a885c239d3ffa78d14588a026",
+    "current_successor": "PR169@c5235525bb24204103dd40298059de292f223d35",
+    "pr167_exact_head_evidence": {
+      "merge_safe": "SUCCESS:35272336817",
+      "heterogeneous_master": "SUCCESS:35272336742",
+      "same_agent_review": "5241241992:NO_KNOWN_P0_P1_NOT_INDEPENDENT_APPROVAL"
     },
-    "donor_value_already_preserved_before_pr167": [
-      {"pr": 59, "value_destination": "PR162@8bdd266d6f85c888d408dc23c6ce8504e4dba3d7", "status": "DONOR_PORT_COMPLETED"},
-      {"pr": 58, "value_destination": "PR162@d7759a1ff6c59bc7c41104da0120cd86d102b4cf", "status": "DONOR_PORT_COMPLETED"},
-      {"pr": 119, "value_destination": "PR162@27ac6076cda5c5959b99409a07a28a50028cff29", "status": "DONOR_PORT_COMPLETED"},
-      {"pr": 120, "value_destination": "PR162@c8fbfbcfd3ad698c590d3a1511c0cde3dd103480", "status": "DONOR_PORT_COMPLETED"},
-      {"pr": 122, "value_destination": "PR162@c8fbfbcfd3ad698c590d3a1511c0cde3dd103480", "status": "DONOR_PORT_COMPLETED"},
-      {"prs": [118, 123], "status": "PRESERVED_IN_LATER_PR162_ANCESTRY", "evidence": "current PR162 contains heterogeneous-master workflow/runtime plus counted-frame authority after c8fb checkpoint"}
-    ],
-    "new_pr167_delta": {
-      "source_donor": "PR57@f1da72e45f2bb58cb651eb12747617075809cd8e",
-      "status": "DONOR_PORT_COMPLETED_ON_PR167",
-      "files": ["src/skills/runtime.py", "tests/test_phase05_skill_runtime.py"],
-      "preserved_invariants": [
-        "executor exceptions emit durable FAILED records",
-        "strict failures carry persistable partial trace",
-        "non-strict dependents become BLOCKED",
-        "persistent trace stores exception type rather than raw secret-bearing message",
-        "graph Run status is FAILED when the trace contains a FAILED record"
+    "pr169_delta": {
+      "donor": "PR77@15eb497029159a1c7d885749845baf302c3f8d81",
+      "historical_donor_merge_safe": "SUCCESS:33266617645",
+      "files": [
+        "src/content/performance_learning.py",
+        "tests/test_phase06_adversarial_hardening.py",
+        "tests/test_phase08_performance_learning_authority.py"
       ],
-      "exact_head_ci": {
-        "merge_safe_run": 35272336817,
-        "merge_safe": "SUCCESS",
-        "heterogeneous_master_run": 35272336742,
-        "heterogeneous_master": "SUCCESS"
-      },
-      "same_agent_tri_review": {
-        "review_id": 5241241992,
-        "code_review": "NO_KNOWN_P0_P1_IN_TOUCHED_DELTA",
-        "security_review": "NO_KNOWN_P0_P1_IN_TOUCHED_DELTA",
-        "qa_review": "PASS_ON_EXECUTED_EXACT_HEAD_GATES",
-        "independent_approval": false
-      }
-    },
-    "pr56_disposition": {
-      "pr": 56,
-      "head": "a244cc06c02e77e23d550d26cdf5af330012ad5d",
-      "promotion_class": "DONOR_ONLY",
-      "status": "NO_DIRECT_PORT_REQUIRED_IN_PR167",
-      "reason": [
-        "current change-impact classifier already explicitly reconciles PR56 authority paths and forces high-risk state/contract changes through full gates",
-        "current Event Fabric supplies newer live-GitHub truth-consistency semantics",
-        "current release-manifest contract binds candidate/media/provider/run/attestation more strongly than PR56 historical semantic-review release_readiness",
-        "PR56 mutable RC09E STATE/TASKS/HANDOFF/project_state snapshots are historical and must not be transplanted as current truth"
+      "invariants": [
+        "performance metrics reject negative/bool/nonfinite/impossible values",
+        "performance attribution binds exact manifest/performance content_id",
+        "independent_examples equals unique supporting evidence IDs",
+        "controlled-test authority cannot bypass repeated-pattern evidence and requires controlled_test_id",
+        "PROMOTED_RULE requires literal explicit approval plus evidence",
+        "duration metrics reject nonfinite values and zero normalized denominator"
       ],
-      "retained_future_value": "use PR56 cross-surface read-model consistency intent during post-promotion canonical-state reconciliation, not as pre-promotion snapshot authority"
+      "current_ci": "RUNNING_AT_OBSERVATION"
     },
-    "current_candidate": {
-      "pr": 167,
-      "head": "81477a0c1a76b09a885c239d3ffa78d14588a026",
-      "base": "PR165@577bde43665d8f290dd5613ad24624417b549b00",
-      "promotion_class": "TERMINAL_CANDIDATE",
-      "status": "EXACT_HEAD_GATES_GREEN_NOT_PROMOTABLE",
-      "remaining_blockers": [
-        "independent promotion review still required",
-        "Issue #48 remains OPEN",
-        "main.protected=false",
-        "synthetic merge against eventual current protected main not yet qualified"
-      ]
+    "donor_value_preserved_before_pr169": {
+      "PR57": "PR167",
+      "PR58": "PR162 donor port d7759a1ff6c59bc7c41104da0120cd86d102b4cf",
+      "PR59": "PR162 donor port 8bdd266d6f85c888d408dc23c6ce8504e4dba3d7",
+      "PR61_PR62_PR63_PR66_PR69_PR95": "PR118 heterogeneous renderer lineage, later preserved in PR162 ancestry",
+      "PR65": "imported by PR119, then preserved in PR162",
+      "PR70_PR71_PR73_PR76_PR100_PR101_PR102_PR103_PR106": "integrated by PR120, then preserved in PR162 donor convergence",
+      "PR104": "integrated by PR133 and carried through terminal product stack",
+      "PR119": "PR162 donor port 27ac6076cda5c5959b99409a07a28a50028cff29",
+      "PR120_PR122": "PR162 donor port c8fbfbcfd3ad698c590d3a1511c0cde3dd103480",
+      "PR123": "counted-frame authority present in later PR162 ancestry",
+      "PR130_PR131_PR132_PR133_PR134_PR135_PR136_PR137_PR141_PR143_PR145_PR147_PR149_PR151_PR153_PR162_PR165_PR167": "stack ancestry/checkpoints leading to PR169"
+    },
+    "not_included_by_design": {
+      "PR56": "historical canonical-truth donor; current Event Fabric/release contracts supersede executable semantics and stale RC09E snapshots must not be transplanted",
+      "PR67": "qualification-only primitive ledger; physical 135-case authority still incomplete",
+      "PR68": "separate self-driving control-plane candidate; activation intentionally disabled and not required for product convergence",
+      "PR75": "benchmark authority/physical smoke only; creative/style empirical authority explicitly blocked",
+      "PR91": "architecture/compiler donor; no measured bottleneck justifies wholesale promotion",
+      "PR121": "command-registry pointer depends on external unpromoted shared registry authority",
+      "PR128_PR163": "separate semantic knowledge lane, blocked on physical full-corpus retrieval qualification",
+      "PR64_PR157": "separate reverse-engineering/professional-edit lane"
     }
   },
-  "semantic_knowledge": {
+  "reverse_engineering_lane": {
+    "core": "PR64@2e26e311e506b6aaaa32f827e1579ddaa1e3ea58",
+    "promotion_class": "TERMINAL_CANDIDATE_SEPARATE_LANE",
+    "golden_qualification": ["PR96", "PR107", "PR124", "PR125"],
+    "historical_donors": {
+      "PR92": "architecture/claims superseded after later reconciliation found executable gap",
+      "PR105": "diverged S04 qualification donor; active T08 uses PR96 exact scene authority",
+      "PR126": "historical false-frontier: actual changed-file set is only work.started event despite implementation claims",
+      "PR129": "read-only older T08 donor per PR157"
+    },
+    "active_qualification": "PR157@1cf19b912e9bf32cdbecc1360f709bf08ce615cd",
+    "qualification_status": "BLOCKED_EMPIRICAL_FULL_9D_AND_GENERALIZATION_INCOMPLETE"
+  },
+  "semantic_lane": {
     "base": "PR128@92524aa622ebc6fcf0b77b7ba0e91fd0d852ec03",
     "repair": "PR163@1362e61ba5d30de64d62129523670b2905ee961b",
     "promotion_class": "BLOCKED_EMPIRICAL",
-    "next_gate": "physical full-corpus reindex -> graphify -> evaluate against frozen retrieval-quality thresholds"
+    "required_next": "full dual-repo corpus reindex -> graphify -> frozen benchmark evaluate -> latency/throughput -> portable snapshot"
   },
-  "reverse_engineering": {
-    "core": "PR64@2e26e311e506b6aaaa32f827e1579ddaa1e3ea58",
-    "golden_qualification_prs": [96, 107, 124, 125],
-    "active_9d": "PR157@1cf19b912e9bf32cdbecc1360f709bf08ce615cd",
-    "historical_t08_donor": "PR129@c57cdc1f96d387f31097e367cfc3e93f35527533",
-    "core_promotion_class": "TERMINAL_CANDIDATE_SEPARATE_LANE",
-    "qualification_class": "QUALIFICATION_ONLY_BLOCKED_EMPIRICAL"
+  "qualification_lanes": {
+    "PR67": "QUALIFICATION_ONLY_BLOCKED_EMPIRICAL",
+    "PR75": "QUALIFICATION_ONLY_BLOCKED_EMPIRICAL",
+    "PR96": "QUALIFICATION_ONLY_S04",
+    "PR107": "QUALIFICATION_ONLY_S11",
+    "PR124": "QUALIFICATION_ONLY_S14",
+    "PR125": "QUALIFICATION_ONLY_S16",
+    "PR157": "QUALIFICATION_ONLY_ACTIVE_T08_BLOCKED_EMPIRICAL"
   },
-  "promotion_classes": {
-    "PR56": "DONOR_ONLY",
-    "PR57": "DONOR_ONLY_PRESERVED_IN_PR167",
-    "PR58": "DONOR_ONLY_PRESERVED_IN_PR162",
-    "PR59": "DONOR_ONLY_PRESERVED_IN_PR162",
-    "PR64": "TERMINAL_CANDIDATE",
-    "PR96": "QUALIFICATION_ONLY",
-    "PR107": "QUALIFICATION_ONLY",
-    "PR124": "QUALIFICATION_ONLY",
-    "PR125": "QUALIFICATION_ONLY",
-    "PR128": "STACK_ANCESTOR",
-    "PR129": "DONOR_ONLY",
-    "PR157": "QUALIFICATION_ONLY",
-    "PR163": "BLOCKED_EMPIRICAL",
-    "PR162": "STACK_ANCESTOR",
-    "PR165": "STACK_ANCESTOR_REPAIRED_BY_SUCCESSOR",
-    "PR167": "TERMINAL_CANDIDATE"
+  "control_and_docs_lanes": {
+    "PR52": "HISTORICAL_DONOR_ONLY_PHASE08_AUDIT; superseded operationally by Issue48/PR58/current convergence plan",
+    "PR68": "TERMINAL_CANDIDATE_SEPARATE_CONTROL_PLANE_BLOCKED_ACTIVATION",
+    "PR91": "DONOR_ONLY_ARCHITECTURE_NOT_CURRENT_PRODUCT_AUTHORITY",
+    "PR94": "HISTORICAL_PLANNING_DONOR; Issue93 + current convergence plan are newer control surfaces",
+    "PR113": "HISTORICAL_SUPERSEDED_HANDOFF",
+    "PR115": "HISTORICAL_SUPERSEDED_HANDOFF",
+    "PR121": "DONOR_ONLY_BLOCKED_EXTERNAL_COMMAND_REGISTRY_AUTHORITY",
+    "PR127": "DONOR_ONLY_PARTIALLY_PRESERVED: broken root PROJECT_CONTINUITY_MASTER pointer ported to PR166; broader recovery packet overlaps current Event Fabric/cold-recovery capabilities",
+    "PR166": "DOCS_CONVERGENCE_CANDIDATE: AGENTS/learning/masterplan/promotion graph/continuity pointer; no product authority"
   },
-  "hard_blockers": [
-    "main.protected=false",
-    "Issue #48 remains OPEN",
-    "independent exact-head promotion review for PR167 missing",
-    "no promotion authority may be inherited from stale historical CI"
-  ],
-  "next_action": "Do not add another feature wave. Obtain independent exact-head review of PR167 and, separately, continue Wave-1 classification for the remaining open PR set. No merge while Issue #48 is open or main remains unprotected."
+  "open_pr_classification": {
+    "52":"HISTORICAL_SUPERSEDED",
+    "56":"DONOR_ONLY",
+    "57":"DONOR_ONLY_PRESERVED_IN_167",
+    "58":"DONOR_ONLY_PRESERVED_IN_162",
+    "59":"DONOR_ONLY_PRESERVED_IN_162",
+    "61":"DONOR_ONLY_PRESERVED_VIA_118_TO_162",
+    "62":"DONOR_ONLY_PRESERVED_VIA_118_TO_162",
+    "63":"DONOR_ONLY_PRESERVED_VIA_118_TO_162",
+    "64":"TERMINAL_CANDIDATE_SEPARATE_LANE",
+    "65":"DONOR_ONLY_PRESERVED_VIA_119_TO_162",
+    "66":"DONOR_ONLY_PRESERVED_VIA_118_TO_162",
+    "67":"QUALIFICATION_ONLY_BLOCKED_EMPIRICAL",
+    "68":"TERMINAL_CANDIDATE_SEPARATE_CONTROL_PLANE",
+    "69":"DONOR_ONLY_PRESERVED_VIA_118_TO_162",
+    "70":"DONOR_ONLY_PRESERVED_VIA_120_TO_162",
+    "71":"DONOR_ONLY_PRESERVED_VIA_120_TO_162",
+    "73":"DONOR_ONLY_PRESERVED_VIA_120_TO_162",
+    "75":"QUALIFICATION_ONLY_BLOCKED_EMPIRICAL",
+    "76":"DONOR_ONLY_PRESERVED_VIA_120_TO_162",
+    "77":"DONOR_ONLY_PRESERVED_IN_169",
+    "91":"DONOR_ONLY_ARCHITECTURE",
+    "92":"HISTORICAL_SUPERSEDED",
+    "94":"HISTORICAL_SUPERSEDED_PLANNING",
+    "95":"DONOR_ONLY_PRESERVED_VIA_118_TO_162",
+    "96":"QUALIFICATION_ONLY",
+    "100":"DONOR_ONLY_PRESERVED_VIA_120_TO_162",
+    "101":"DONOR_ONLY_PRESERVED_VIA_120_TO_162",
+    "102":"DONOR_ONLY_PRESERVED_VIA_120_OR_133_TO_162",
+    "103":"DONOR_ONLY_PRESERVED_VIA_120_OR_132_TO_162",
+    "104":"DONOR_ONLY_PRESERVED_VIA_133_TO_162",
+    "105":"DONOR_ONLY_HISTORICAL_S04",
+    "106":"DONOR_ONLY_PRESERVED_VIA_120_TO_162",
+    "107":"QUALIFICATION_ONLY",
+    "113":"HISTORICAL_SUPERSEDED",
+    "115":"HISTORICAL_SUPERSEDED",
+    "118":"STACK_ANCESTOR_VALUE_PRESERVED_IN_162",
+    "119":"DONOR_ONLY_PRESERVED_IN_162",
+    "120":"DONOR_ONLY_PRESERVED_IN_162",
+    "121":"DONOR_ONLY_BLOCKED_EXTERNAL",
+    "122":"REPAIR_PRESERVED_IN_162",
+    "123":"REPAIR_PRESERVED_IN_162",
+    "124":"QUALIFICATION_ONLY",
+    "125":"QUALIFICATION_ONLY",
+    "126":"HISTORICAL_SUPERSEDED_FALSE_FRONTIER",
+    "127":"DONOR_ONLY_PARTIALLY_PRESERVED_IN_166",
+    "128":"STACK_ANCESTOR_BLOCKED_EMPIRICAL",
+    "129":"DONOR_ONLY_HISTORICAL_T08",
+    "130":"STACK_ANCESTOR",
+    "131":"STACK_ANCESTOR",
+    "132":"STACK_ANCESTOR",
+    "133":"STACK_ANCESTOR",
+    "134":"STACK_ANCESTOR",
+    "135":"STACK_ANCESTOR",
+    "136":"STACK_ANCESTOR",
+    "137":"STACK_ANCESTOR",
+    "141":"STACK_ANCESTOR",
+    "143":"STACK_ANCESTOR",
+    "145":"STACK_ANCESTOR",
+    "147":"STACK_ANCESTOR",
+    "149":"STACK_ANCESTOR",
+    "151":"STACK_ANCESTOR",
+    "153":"STACK_ANCESTOR",
+    "157":"QUALIFICATION_ONLY_BLOCKED_EMPIRICAL",
+    "162":"STACK_ANCESTOR",
+    "163":"BLOCKED_EMPIRICAL_REPAIR_LINE",
+    "165":"STACK_ANCESTOR",
+    "166":"DOCS_CONVERGENCE_CANDIDATE",
+    "167":"STACKED_CONVERGENCE_CHECKPOINT",
+    "169":"CURRENT_PRODUCT_TERMINAL_CANDIDATE_PENDING_EXACT_HEAD_GATES"
+  },
+  "current_decision": {
+    "product_candidate": "PR169@c5235525bb24204103dd40298059de292f223d35",
+    "do_not_merge": true,
+    "why": [
+      "exact-head CI still running at this observation",
+      "independent review must target final successor rather than PR167 checkpoint",
+      "Issue #48 remains OPEN",
+      "main.protected=false"
+    ],
+    "after_green_ci": "freeze PR169, run exact-head same-agent adversarial tri-review for defect discovery, then request independent review of the final SHA; no more donor ports unless new unique value is physically demonstrated"
+  }
 }
