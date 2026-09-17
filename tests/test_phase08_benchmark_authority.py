@@ -17,7 +17,16 @@ def sha(value: str) -> str:
     return hashlib.sha256(value.encode()).hexdigest()
 
 
-def passed(brief_id: str, style: str, *, score: float = 9.2, evidence_id: str | None = None, brief_hash: str | None = None) -> BenchmarkBriefEvidence:
+def passed(
+    brief_id: str,
+    style: str,
+    *,
+    score: float = 9.2,
+    evidence_id: str | None = None,
+    brief_hash: str | None = None,
+    producer_id: str = "motion://producer/render-worker-1",
+    reviewer_id: str = "motion://reviewer/creative-independent-1",
+) -> BenchmarkBriefEvidence:
     return BenchmarkBriefEvidence(
         evidence_id=evidence_id or f"ev-{brief_id}",
         brief_id=brief_id,
@@ -28,6 +37,9 @@ def passed(brief_id: str, style: str, *, score: float = 9.2, evidence_id: str | 
         status=BriefStatus.PASS,
         quality_score=score,
         assertions=("artifact_bound", "creative_gate_passed"),
+        producer_id=producer_id,
+        reviewer_id=reviewer_id,
+        review_evidence_sha256=sha(f"creative-review:{brief_id}:{reviewer_id}"),
     )
 
 
@@ -60,6 +72,24 @@ def test_pass_requires_artifact_score_and_assertions():
         BenchmarkBriefEvidence("e", "b", "s", sha("b"), sha("a"), "run", BriefStatus.PASS, None, (), ("ok",))
     with pytest.raises(BenchmarkEvidenceError, match="assertions"):
         BenchmarkBriefEvidence("e", "b", "s", sha("b"), sha("a"), "run", BriefStatus.PASS, 9.5)
+
+
+def test_pass_requires_independent_review_provenance():
+    with pytest.raises(BenchmarkEvidenceError, match="producer_id"):
+        BenchmarkBriefEvidence(
+            "e", "b", "s", sha("b"), sha("a"), "run", BriefStatus.PASS, 9.5,
+            assertions=("creative_gate_passed",),
+        )
+    with pytest.raises(BenchmarkEvidenceError, match="independent"):
+        passed("b", "s", producer_id="motion://actor/same", reviewer_id="motion://actor/same")
+    with pytest.raises(BenchmarkEvidenceError, match="review_evidence_sha256"):
+        BenchmarkBriefEvidence(
+            "e", "b", "s", sha("b"), sha("a"), "run", BriefStatus.PASS, 9.5,
+            assertions=("creative_gate_passed",),
+            producer_id="motion://producer/1",
+            reviewer_id="motion://reviewer/1",
+            review_evidence_sha256="forged",
+        )
 
 
 def test_string_status_cannot_bypass_pass_requirements():
@@ -105,7 +135,7 @@ def test_25_balanced_passes_without_suite_are_observational_only():
     assert "benchmark_suite_unbound" in metrics.blockers
 
 
-def test_exact_suite_bound_25x5_can_be_authoritative():
+def test_exact_suite_bound_25x5_can_be_authoritative_only_with_independent_review_receipts():
     ledger = BenchmarkLedger()
     suite = suite25()
     for case in suite.cases:
@@ -209,7 +239,13 @@ def test_two_distinct_revisions_for_same_brief_are_ambiguous_without_supersessio
     ledger = BenchmarkLedger()
     suite = BenchmarkSuiteManifest("one", (BenchmarkCaseSpec("b1", "style-a", sha("brief:b1")),))
     ledger.append(passed("b1", "style-a", evidence_id="rev1"))
-    ledger.append(BenchmarkBriefEvidence("rev2", "b1", "style-a", sha("brief:b1"), sha("artifact:b1:changed"), "run2", BriefStatus.PASS, 9.5, assertions=("artifact_bound",)))
+    ledger.append(BenchmarkBriefEvidence(
+        "rev2", "b1", "style-a", sha("brief:b1"), sha("artifact:b1:changed"), "run2",
+        BriefStatus.PASS, 9.5, assertions=("artifact_bound",),
+        producer_id="motion://producer/render-worker-2",
+        reviewer_id="motion://reviewer/creative-independent-2",
+        review_evidence_sha256=sha("creative-review:b1:rev2"),
+    ))
     metrics = ledger.metrics(suite=suite)
     assert metrics.authoritative is False
     assert metrics.passed_briefs == 0
