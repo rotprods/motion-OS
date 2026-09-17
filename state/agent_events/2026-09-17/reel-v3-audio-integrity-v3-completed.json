@@ -1,0 +1,32 @@
+{
+  "event_id": "evt_reel_v3_audio_integrity_v3_completed_20260917T223500Z",
+  "event_type": "work.completed",
+  "timestamp": "2026-09-17T22:35:00Z",
+  "agent_id": "chatgpt-gpt5.6-sol",
+  "project": "MOTION.OS",
+  "branch": "fix/p08-master-audio-postrender-integrity-v3",
+  "commit_sha": "eaad4f84206e62a9f8c78eb554f15c420d60059e",
+  "pr_number": null,
+  "summary": "Clean current-main successor implemented for the real Reel audio-loss regression: donor #61 mux invariants plus final-byte audio stream/duration/sample-rate/channel checks and optional decoded non-silence speech-window verification. Scoped exact changed-file mirror passes 9/9 tests.",
+  "affected_paths": [
+    "src/renderers/assembly.py",
+    "src/renderers/master_audio_integrity.py",
+    "tests/test_phase08_master_audio_mux.py",
+    "tests/test_phase08_post_render_audio_integrity.py",
+    "docs/REEL_V3_AUDIO_REGRESSION_2026-09-17.md"
+  ],
+  "checks": {
+    "scoped_py_compile": "PASS",
+    "scoped_pytest": "9 passed",
+    "full_repository": "NOT_RUN",
+    "merge_safe": "NOT_RUN",
+    "issue_48": "OPEN"
+  },
+  "authority": "IMPLEMENTED",
+  "correlation_id": "reel-v3-audio-regression-20260917-v3",
+  "metadata": {
+    "promotion_authorized": false,
+    "merge_authorized": false,
+    "donor_pr_61": "91bc6c8c121d84cad3a6e6a170b8c8cbe890f2ec"
+  }
+}
