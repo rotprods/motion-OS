@@ -1,0 +1,42 @@
+{
+  "event_id": "20260828T100100000000Z-chatgpt-hyperframes-runtime-work-completed",
+  "event_type": "work.completed",
+  "timestamp": "2026-08-28T10:01:00Z",
+  "agent_id": "motion://agent/chatgpt/hyperframes-runtime",
+  "project": "MOTION.OS",
+  "branch": "fix/hyperframes-runtime-proof-v2",
+  "commit_sha": "a82e07502a1cc55ce8abb154949534ad95fb6107",
+  "pr_number": 62,
+  "summary": "Implemented executable HyperFrames composition emission, deterministic fixture, pinned clean-runner lint/render chain, frame-count/fps physical verifier, artifact hashing and CLI telemetry disable. A prior code head physically rendered 90/90 frames successfully; final session-head clean-runner requalification remains required after immutable lifecycle events.",
+  "affected_paths": [
+    "src/compilers/hyperframes.py",
+    "runtime/hyperframes/",
+    "scripts/build_hyperframes_runtime_fixture.py",
+    "scripts/verify_hyperframes_render.py",
+    "tests/test_hyperframes_runtime_contract.py",
+    ".github/workflows/hyperframes-runtime.yml"
+  ],
+  "checks": {
+    "focused_contract_tests_previous_head": "PASS_12",
+    "hyperframes_lint_previous_head": "PASS",
+    "physical_render_previous_head": "PASS_90_OF_90_FRAMES",
+    "frame_authority_previous_head": "PASS_90_FRAMES_AT_30_FPS",
+    "artifact_sha256_previous_head": "941387e1062cdea15458d374015620b2a7f451c2cce6788b7c680fcd29e45baf",
+    "merge_safe_previous_head": "PASS",
+    "final_head_requalification": "PENDING"
+  },
+  "authority": "IMPLEMENTED",
+  "correlation_id": "issue2-hyperframes-runtime-v2",
+  "metadata": {
+    "project_id": "motion://project/motion-os",
+    "session_id": "motion://session/chatgpt/hyperframes-runtime/20260828T1153+0200",
+    "workstream_id": "motion://workstream/p0-hyperframes-physical-runtime",
+    "base_sha": "a8d7dbddaeb4ad9779df9883d3cf4e4f6ea4f29d",
+    "qualified_previous_head": "5382a60d4d32cf4182496d346355b9ad29d037d4",
+    "physical_run": 33161586779,
+    "artifact_id": 9681879616,
+    "visual_duration_authority": "frame_count/fps",
+    "creative_authority": "none",
+    "next_safe_action": "Require exact final branch-head HyperFrames Runtime and MERGE_SAFE success, then keep PR #62 unpromoted until Issue #39/#48 merge authority is explicitly released."
+  }
+}
