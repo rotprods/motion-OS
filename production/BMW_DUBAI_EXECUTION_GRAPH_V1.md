@@ -189,3 +189,103 @@ Score exact rendered output with timestamps/evidence:
 - OVERALL
 
 Do not call the film complete until the exact video has been inspected. Missing requested mechanisms and malformed mechanisms are logged separately.
+
+---
+
+## 10. EXECUTION RESULT — 2026-09-18
+
+### Seedance outcome
+
+Two paid-model submission strategies were attempted after successful preflight:
+
+1. **V1 technique-video + still fabric**
+   - job `964a7476-84e5-47eb-a160-0d78e7a13757`
+   - terminal status: `IP_DETECTED`
+   - no finished video promoted.
+
+2. **V2 original topology + still fabric only**
+   - job `42fd21e3-a1e3-4172-a2ee-a0505cd5954d`
+   - source technique video was removed;
+   - choreography was rewritten as an original Dubai-specific edit;
+   - terminal status: `IP_DETECTED`
+   - no finished video promoted.
+
+**Decision:** IP detection is treated as a terminal platform constraint for these attempts. Do not repeatedly resubmit, disguise, or otherwise attempt to bypass that control. The reference film remains forensic learning evidence only.
+
+### Deterministic V3
+
+A permitted deterministic master was rendered from the already-created BMW/Dubai still fabric with FFmpeg.
+
+Canonical media:
+`9f3a9784-c435-44fb-a16e-74a9daf07378`
+
+Measured:
+- 1080×1920
+- 30 fps
+- 450 frames
+- 15.000 s
+- H.264
+- AAC stereo
+- ~9.74 Mb/s
+- -15.7 LUFS integrated
+- -0.4 dBFS measured true peak
+
+Semantic critic `bb3b8587-d5a6-42ce-9060-7184abbc2ed9` recovered 12 functional scenes and explicitly recognized:
+- BMW M3 hero;
+- Dubai night / wet luxury road;
+- Burj Khalifa;
+- glass/reflection opening;
+- limestone/stone occlusion;
+- wireframe/chassis technical reveal;
+- taillight macro;
+- rear/diffuser;
+- wheel macro;
+- frontal product read;
+- final rear + Burj payoff.
+
+**V3 weakness:** the critic describes multiple shots as static. The still-reference fabric is coherent, but camera energy remains below the intended automotive standard.
+
+### V3.1 audio experiment
+
+Media `1ef0fbb3-d59b-47e5-919d-329d73ea6e06` is **REJECTED**.
+The attempted limiter/resample path measured +1.3 dBFS true peak after AAC and therefore is not a promotion candidate.
+
+### Motion V4 candidate
+
+V4 changes no hero/world authority. It modifies only the deterministic camera choreography:
+- nonlinear z-dolly;
+- lateral x tracking;
+- micro vertical drift;
+- impact-only temporal frame mixing;
+- controlled transition blur;
+- crisp READ settles;
+- longer final-payoff settle.
+
+Canonical V4 media:
+`a2a42737-5aaf-4203-8fee-7b9d25500913`
+
+Technical qualification:
+- 1080×1920
+- 30 fps
+- 450 frames
+- 15.000 s
+- H.264
+- AAC stereo 48 kHz
+- ~15.89 Mb/s
+- -16.4 LUFS integrated
+- -2.1 dBFS true peak
+
+Measured motion-energy delta vs V3:
+- median adjacent luma delta: **+4.97%**
+- trimmed-95 mean: **+11.09%**
+- P75: **+7.93%**
+- P90: **+4.77%**
+
+V4 semantic critic:
+`9cc59ecd-32fe-4491-aa3b-100cd19b41a4`
+
+Promotion state at this checkpoint:
+**TECHNICAL_VERIFIED / SEMANTIC_PENDING**.
+
+Do not promote V4 solely from motion-energy metrics. It must retain hero identity, world continuity, landmark geography, macro↔hero rhythm and final payoff under exact rendered-video semantic review.
+
