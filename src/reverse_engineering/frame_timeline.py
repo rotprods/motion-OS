@@ -37,6 +37,13 @@ def _finite_measurement(raw: object, *, name: str, nonnegative: bool = False) ->
     return value
 
 
+def _strict_available(mapping: Mapping[str, Any], *, name: str) -> bool:
+    raw = mapping.get("available", False)
+    if type(raw) is not bool:
+        raise FrameTimelineError(f"{name}.available must be a JSON boolean")
+    return raw
+
+
 def _validate_source_identity(pack: Mapping[str, Any]) -> None:
     raw = pack.get("video_meta", {}).get("source_sha256")
     if not isinstance(raw, str) or not SHA256_RE.fullmatch(raw):
@@ -130,7 +137,7 @@ def compile_frame_timeline(
 
     motion_by_frame: dict[int, dict[str, Any]] = {}
     motion_stats = feature_pack.get("motion_stats", {})
-    if isinstance(motion_stats, Mapping) and motion_stats.get("available"):
+    if isinstance(motion_stats, Mapping) and _strict_available(motion_stats, name="motion_stats"):
         tracks = motion_stats.get("tracks", [])
         if not isinstance(tracks, list):
             raise FrameTimelineError("motion_stats.tracks must be a list")
@@ -196,7 +203,7 @@ def compile_frame_timeline(
 
     audio_by_frame: dict[int, list[dict[str, Any]]] = {}
     audio = feature_pack.get("audio_stats", {})
-    if isinstance(audio, Mapping) and audio.get("available"):
+    if isinstance(audio, Mapping) and _strict_available(audio, name="audio_stats"):
         onsets = audio.get("onsets_ms", [])
         if not isinstance(onsets, list):
             raise FrameTimelineError("audio_stats.onsets_ms must be a list")
