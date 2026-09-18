@@ -7,12 +7,14 @@ from statistics import mean, median
 from typing import Any, Iterable, Mapping
 import json
 import math
+import re
 
 from .frame_timeline import compile_frame_timeline, validate_frame_timeline
 
 
 SCHEMA_VERSION = "1.0.0"
 REPLICATION_MODES = {"RECONSTRUCT_EXACT", "STRUCTURAL_TEMPLATE", "STYLE_TRANSFER"}
+SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 
 
 class EditingTemplateError(ValueError):
@@ -35,25 +37,49 @@ def _round(value: float, digits: int = 6) -> float:
 
 def _source_meta(pack: Mapping[str, Any]) -> dict[str, Any]:
     meta = pack.get("video_meta", {})
-    source_sha = str(meta.get("source_sha256", ""))
-    if len(source_sha) != 64:
-        raise EditingTemplateError("FeaturePack must carry a 64-character source_sha256")
-    fps = float(meta.get("fps", 0.0))
-    if fps <= 0:
-        raise EditingTemplateError("FeaturePack fps must be positive")
-    resolution = dict(meta.get("resolution", {}))
-    if int(resolution.get("w", 0)) <= 0 or int(resolution.get("h", 0)) <= 0:
-        raise EditingTemplateError("FeaturePack resolution must be positive")
-    duration_ms = int(meta.get("duration_ms", 0))
-    total_frames = int(meta.get("decoded_frame_count", meta.get("frame_count", round(duration_ms * fps / 1000.0))))
-    if total_frames <= 0:
-        raise EditingTemplateError("FeaturePack frame count must be positive")
+    if not isinstance(meta, Mapping):
+        raise EditingTemplateError("FeaturePack video_meta must be an object")
+
+    source_sha = meta.get("source_sha256")
+    if not isinstance(source_sha, str) or not SHA256_RE.fullmatch(source_sha):
+        raise EditingTemplateError("FeaturePack source_sha256 must be lowercase SHA-256")
+
+    fps_raw = meta.get("fps")
+    if isinstance(fps_raw, bool) or not isinstance(fps_raw, (int, float)):
+        raise EditingTemplateError("FeaturePack fps must be a finite positive number")
+    fps = float(fps_raw)
+    if not math.isfinite(fps) or fps <= 0:
+        raise EditingTemplateError("FeaturePack fps must be a finite positive number")
+
+    resolution = meta.get("resolution")
+    if not isinstance(resolution, Mapping):
+        raise EditingTemplateError("FeaturePack resolution must be an object")
+    width, height = resolution.get("w"), resolution.get("h")
+    if (
+        isinstance(width, bool) or isinstance(height, bool)
+        or not isinstance(width, int) or not isinstance(height, int)
+        or width <= 0 or height <= 0
+    ):
+        raise EditingTemplateError("FeaturePack resolution must contain positive integer w/h")
+
+    duration_raw = meta.get("duration_ms")
+    if isinstance(duration_raw, bool) or not isinstance(duration_raw, int) or duration_raw < 0:
+        raise EditingTemplateError("FeaturePack duration_ms must be a non-negative integer")
+    duration_ms = duration_raw
+
+    decoded_frames = meta.get("decoded_frame_count")
+    if isinstance(decoded_frames, bool) or not isinstance(decoded_frames, int) or decoded_frames <= 0:
+        raise EditingTemplateError(
+            "FeaturePack decoded_frame_count is required and must be a positive integer"
+        )
+    total_frames = decoded_frames
+
     return {
         "sha256": source_sha,
         "duration_ms": duration_ms,
         "fps": fps,
-        "resolution": {"w": int(resolution["w"]), "h": int(resolution["h"])},
-        "aspect_ratio": str(meta.get("aspect_ratio", f"{resolution['w']}:{resolution['h']}")),
+        "resolution": {"w": width, "h": height},
+        "aspect_ratio": str(meta.get("aspect_ratio", f"{width}:{height}")),
         "total_frames": total_frames,
     }
 
