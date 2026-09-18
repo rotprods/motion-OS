@@ -141,3 +141,14 @@ def test_bundle_writer_refuses_nonstandard_nan_json(tmp_path):
             {"template_id": "bad", "metric": float("nan")},
             [],
         )
+
+
+def test_editing_template_motion_grammar_cannot_retain_upstream_measured_authority():
+    style = motionstyle()
+    style["shots"][0]["micro_choreography"][0]["authority"] = "measured"
+    template, _ = compile_editing_template(
+        pack(),
+        style,
+        replication_mode="RECONSTRUCT_EXACT",
+    )
+    assert template["motion_grammar"]["micro_choreography"][0]["authority"] == "inferred"
