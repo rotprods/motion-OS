@@ -170,3 +170,55 @@ def test_speech_window_must_fit_inside_expected_master_duration():
             ffprobe_bin="ffprobe",
             runner=_runner([_audio()]),
         )
+
+
+@pytest.mark.parametrize(
+    "media_path",
+    [
+        "http://127.0.0.1/private.mp4",
+        "https://example.invalid/final.mp4",
+        "concat:one.mp4|two.mp4",
+        "pipe:0",
+        "data:text/plain,hello",
+        "-",
+        "bad\npath.mp4",
+    ],
+)
+def test_protocol_and_remote_media_inputs_are_rejected(media_path):
+    with pytest.raises(ValueError, match="media_path"):
+        verify_master_audio_integrity(
+            media_path,
+            expected_duration_s=2.0,
+            ffprobe_bin="ffprobe",
+            runner=_runner([_audio()]),
+        )
+
+
+def test_speech_window_count_is_bounded_before_subprocess_amplification():
+    windows=tuple((index * 0.01, 0.005) for index in range(65))
+    with pytest.raises(ValueError, match="bounded decode budget"):
+        verify_master_audio_integrity(
+            "final.mp4",
+            expected_duration_s=2.0,
+            speech_windows=windows,
+            ffprobe_bin="ffprobe",
+            runner=_runner([_audio()]),
+        )
+
+
+@pytest.mark.parametrize(
+    "windows",
+    [
+        ((0.5,0.4),(0.4,0.2)),
+        ((0.1,0.8),(0.5,0.2)),
+    ],
+)
+def test_speech_windows_must_be_ordered_and_non_overlapping(windows):
+    with pytest.raises(ValueError, match="ordered and non-overlapping"):
+        verify_master_audio_integrity(
+            "final.mp4",
+            expected_duration_s=2.0,
+            speech_windows=windows,
+            ffprobe_bin="ffprobe",
+            runner=_runner([_audio()]),
+        )
