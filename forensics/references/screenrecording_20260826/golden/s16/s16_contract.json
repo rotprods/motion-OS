@@ -1,0 +1,108 @@
+{
+  "schema_version": "motion-os.golden-s16-contract/v2",
+  "scene_id": "S16_FACTOR_X",
+  "source": {
+    "video_id": "screenrecording_2026-08-26_173251",
+    "sha256": "9b3076cb542e358386942a0fb6b160f1345564d4326738f9a340e2b5b38e199d",
+    "start_frame": 727,
+    "end_frame_exclusive": 819,
+    "frame_count": 92,
+    "fps": 30,
+    "width": 512,
+    "height": 1108
+  },
+  "drive_evidence": {
+    "reference_clip": "1EQou-i8diSc5U7rTZmms0o4QHgkCqARQ",
+    "mixed_audio_wav": "1a4Mu4UDYLD21RGCpy_3gBfQIm1LepUct",
+    "reference_frames_tar": "1TuPUGqpm2ZWCun3OYeO70zmuBdXoNw1I",
+    "contact_sheet": "1VgZgjj_ezMf7KF8bygjp1zur1TyAZEmJ",
+    "key_evidence_contact": "1SJ77u9dipzLnpK9Fl5m39BVgyQX2fhR8",
+    "source_manifest": "1w3vHpZkmBreMkgFA_th66-lM2F-t_ke1",
+    "measured_track_v1": "178eElG7KSsUILKpmIijqaiHiBLculKeO",
+    "camera_motion_report_v1": "1Dv4riRYmm_T_RKGUbziUzAuE671mhkZW",
+    "camera_motion_report_v2": "1UttMAqDNpGsMPvAe5l7iuinBtpG1PjUu",
+    "audio_transient_proxy": "1qYseSen7ZIbo1Khq2dewT8FFEM065_Gs"
+  },
+  "measured_summary": {
+    "column": {"first_reliable_local": 2, "first_source_frame": 729, "primary_settle_local": 23, "primary_settle_source_frame": 750, "late_y_px": 790, "authority": "MEASURED_TEMPLATE_MATCH_SCREEN_SPACE_BBOX"},
+    "question_mark": {"first_local": 9, "first_source_frame": 736, "pop_impact_local": 10, "primary_settle_local": 25, "late_y_px": 604, "authority": "MEASURED_RED_COMPONENT_SCREEN_SPACE_BBOX"},
+    "factor_x": {"first_local": 19, "first_source_frame": 746, "readable_impact_local": 23, "vertical_settle_local": 48, "calm_hold_start_local": 54, "late_y_px": 721, "authority": "MEASURED_RIGHT_X_ANCHOR_PLUS_STABLE_VISIBLE_LAYOUT_PROXY"},
+    "source_ui_reveal": {"first_local": 87, "first_source_frame": 814, "authority": "MEASURED_SOURCE_LOCK"}
+  },
+  "camera_phases": [
+    {
+      "local": [0,87],
+      "class": "STATIC_SOURCE_FRAMING_WITH_NATIVE_SUBJECT_MOTION",
+      "authority": "PHYSICALLY_MEASURED_OPTICAL_FLOW_PROXY",
+      "background_median_flow_px": 0.0014126511523500085,
+      "subject_median_flow_px": 0.23990628123283386,
+      "rule": "Do not synthesize editorial camera motion merely because the subject moves."
+    },
+    {
+      "local": [87,92],
+      "class": "GLOBAL_UPWARD_REFLOW_OR_VIEWPORT_SHIFT",
+      "authority": "PHYSICALLY_MEASURED_COMMON_OBJECT_SHIFT_PLUS_EVIDENCE_BOUND_CAUSATION",
+      "common_overlay_dy_px_per_frame": [-4,-4,-4,-4,-2],
+      "cumulative_common_dy_px": -18,
+      "simultaneous_reels_ui_reveal": true,
+      "cause": "UNKNOWN; Instagram/Reels viewport reflow is plausible, but an editorial exit reframe cannot be ruled out from flattened pixels alone.",
+      "template_policy": "SOURCE_LOCK_UNLESS_INDEPENDENTLY_PROVEN_EDITORIAL"
+    }
+  ],
+  "measurement_history": [
+    {
+      "id": "S16-MEAS-CORR-001",
+      "defect_family": "LOW_TEXTURE_BACKGROUND_FLOW_MISSED_GLOBAL_REFLOW",
+      "status": "SUPERSEDES_ONLY_CAMERA_CLASSIFICATION_NOT_RAW_EVIDENCE",
+      "change": "v1 camera-static claim is limited to local0..86; v2 adds local87..91 common upward reflow using foreground-track consensus and source UI coincidence.",
+      "preserves_v1": true
+    }
+  ],
+  "depth_partial_order": [
+    {"front": "COLUMN", "behind": "SUBJECT_PLATE", "authority": "MEASURED_VISIBLE_OCCLUSION"},
+    {"front": "QUESTION_MARK", "behind": "SUBJECT_PLATE", "authority": "MEASURED_VISIBLE_OCCLUSION"},
+    {"front": "FACTOR_X", "behind": "COLUMN", "authority": "MEASURED_VISIBLE_OVERLAP_DURING_ENTRY"},
+    {"front": "FACTOR_X", "behind": "QUESTION_MARK", "authority": "MEASURED_VISIBLE_OVERLAP_DURING_ENTRY"},
+    {"front": "SOURCE_UI", "behind": "EDITORIAL_COMPOSITE", "authority": "SOURCE_LOCK_VISIBLE_REVEAL", "valid_from_local": 87}
+  ],
+  "unresolved_depth_relation": {
+    "pair": ["COLUMN", "QUESTION_MARK"],
+    "authority": "UNKNOWN",
+    "reason": "Their stable source shapes largely meet/terminate without enough persistent overlap to prove a unique original z-order."
+  },
+  "actions": [
+    {"id":"S16-PHY-001","domain":"transition","target":"SCENE","verb":"hard_cut_to_extreme_close_subject","local":[0,0,1],"authority":"MEASURED_DECODE"},
+    {"id":"S16-PHY-002","domain":"depth","target":"COLUMN","verb":"foreground_rise","local":[2,5,23],"source_frames":[729,732,750],"authority":"MEASURED_SCREEN_SPACE_PLUS_EVIDENCE_BOUND_OPACITY","note":"Y/visible bbox physically tracked. Original opacity curve and 3D asset/project remain unknown."},
+    {"id":"S16-PHY-003","domain":"depth","target":"QUESTION_MARK","verb":"foreground_pop_then_rise","local":[9,10,25],"source_frames":[736,737,752],"authority":"MEASURED_SCREEN_SPACE_BBOX","note":"3D-looking red mark; exact source asset/model/material unknown."},
+    {"id":"S16-PHY-004","domain":"typography","target":"FACTOR_X","verb":"vertical_slide_plus_visibility_build","local":[19,23,54],"source_frames":[746,750,781],"authority":"MEASURED_VISIBLE_LAYOUT_PROXY","note":"Right-side X provides unoccluded Y/intensity anchor during entry. Exact font and true alpha curve remain unknown."},
+    {"id":"S16-PHY-005","domain":"retention","target":"PAYOFF_COMPOSITION","verb":"calm_hold","local":[54,54,87],"source_frames":[781,781,814],"authority":"MEASURED_EDITORIAL_STABILITY","note":"No new editorial layer is required during the hold; subject/voice continue natively. Do not add gratuitous orbit, bounce or infinite motion."},
+    {"id":"S16-PHY-006","domain":"source_lock","target":"REELS_UI","verb":"native_ui_reveal","local":[87,89,92],"source_frames":[814,816,819],"authority":"MEASURED_SOURCE_LOCK","template_policy":"EXCLUDE_FROM_STRUCTURAL_EDITING_DNA"},
+    {"id":"S16-PHY-007","domain":"source_lock_or_transition","target":"GLOBAL_COMPOSITE","verb":"upward_reflow","local":[87,89,92],"source_frames":[814,816,819],"authority":"MEASURED_COMMON_SHIFT_CAUSATION_UNKNOWN","template_policy":"EXCLUDE_UNLESS_PROVEN_EDITORIAL"}
+  ],
+  "audio_transient_proxies": [
+    {"local_frame":0.37,"authority":"MEASURED_MIXED_TRACK_TRANSIENT_PROXY","nearest_visual":"scene_cut"},
+    {"local_frame":4.64,"authority":"MEASURED_MIXED_TRACK_TRANSIENT_PROXY","nearest_visual":"column_entry"},
+    {"local_frame":9.73,"authority":"MEASURED_MIXED_TRACK_TRANSIENT_PROXY","nearest_visual":"question_pop"},
+    {"local_frame":14.44,"authority":"MEASURED_MIXED_TRACK_TRANSIENT_PROXY","nearest_visual":"question_column_settle"},
+    {"local_frame":20.95,"authority":"MEASURED_MIXED_TRACK_TRANSIENT_PROXY","nearest_visual":"factor_entry"},
+    {"local_frame":23.20,"authority":"MEASURED_MIXED_TRACK_TRANSIENT_PROXY","nearest_visual":"factor_readable_impact"},
+    {"local_frame":36.37,"authority":"MEASURED_MIXED_TRACK_TRANSIENT_PROXY","nearest_visual":"factor_motion_late"}
+  ],
+  "retention_grammar": {
+    "setup": "subject-only hard cut / low-entropy anchor",
+    "escalation": ["column foreground rise", "question-mark pop/rise", "Factor X vertical payoff"],
+    "payoff_hold_local": [54,87],
+    "payoff_hold_frames": 33,
+    "payoff_hold_seconds": 1.1,
+    "principle": "The low-motion hold is intentional contrast after dense prior scenes. Native subject motion and VO carry attention; extra editorial motion would reduce fidelity."
+  },
+  "renderer_contract": {
+    "after_effects": "Static subject/source precomp through local86; measured foreground column/question tracks and Factor X text above them; local87+ global reflow remains SOURCE_LOCK/UNKNOWN-cause rather than camera truth.",
+    "remotion": "Frame-driven measured foreground tracks; explicit partial z-order; no infinite motion during calm hold; source UI/global-reflow adapter isolated from structural-template mode.",
+    "hyperframes": "Static composition through payoff hold; frame-derived foreground transforms; source-lock viewport/UI behavior isolated from reusable editing DNA."
+  },
+  "source_locks": ["speaker pixels", "screen-recording/Reels UI", "exact column raster/3D asset", "exact question-mark asset", "source caption copy in RECONSTRUCT_EXACT", "local87+ UI/reflow unless independently proven editorial"],
+  "template_invariants": ["static framing through local86", "foreground metaphor rise", "symbolic punctuation reveal", "payoff title above foreground cluster", "deliberate calm hold after settle", "audio accents aligned to major payoff events"],
+  "unknowns": ["exact original column 3D/raster asset", "exact question-mark 3D/raster asset", "exact Factor X font/source text metrics", "original AE layer/precomp/Graph Editor/effect graph", "isolated audio stems and SFX identities", "exact opacity curves for faint entrances", "unique original COLUMN-vs-QUESTION z-order", "causal origin of local87+ global upward reflow"],
+  "authority": "MEASURED_SOURCE_BOUND_CONTRACT_NOT_FULL_FIDELITY"
+}
