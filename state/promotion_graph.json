@@ -1,6 +1,6 @@
 {
   "schema_version": "motion-os.promotion-graph/v1.6",
-  "observed_at": "2026-09-18T12:02:00Z",
+  "observed_at": "2026-09-18T12:12:00Z",
   "authority": "DERIVED_PLANNING_PROJECTION_NOT_PROMOTION_AUTHORITY",
   "live_truth": {
     "main_sha": "72674bca609196c25cc99e05f93ad170f22e28e4",
@@ -169,18 +169,78 @@
     }
   },
   "closed_unmerged_classification": {
-    "6": "SUPERSEDED_BY_PR10",
-    "34": "SUPERSEDED_BY_PR42_SELECTIVE_VALUE_PRESERVED",
-    "35": "SELECTIVELY_PROMOTED_NO_WHOLESALE_MERGE",
-    "40": "SUPERSEDED_BY_PR44",
-    "49": "DONOR_EVIDENCE_VALIDATED_AND_PRESERVED_IN_PR166",
-    "50": "SUPERSEDED",
-    "53": "SUPERSEDED_BY_PR58",
-    "60": "OLDER_QA_REPAIR_SUPERSEDED",
-    "72": "SECURITY_GOVERNANCE_DONOR_SUPERSEDED_BY_STRONGER_SPLIT_GATES",
-    "74": "SUPERSEDED_BY_PR100",
-    "90": "SUPERSEDED_BY_PR91",
-    "114": "STALE_HANDOFF_SUPERSEDED_BY_NEWER_CONTINUITY"
+    "6": {
+      "class": "HISTORICAL_SUPERSEDED",
+      "disposition": "DO_NOT_MERGE",
+      "successor": "PR10",
+      "evidence": "PR body explicitly marks #6 superseded by clean canonical bootstrap #10"
+    },
+    "34": {
+      "class": "HISTORICAL_SUPERSEDED",
+      "disposition": "DO_NOT_MERGE",
+      "successor": "PR42 -> main@e77b2aaf01e0c439306aa3374f8c8df6fea0afed",
+      "evidence": "closure comment records rebuilt current-main Remotion proof, green physical runtime, then squash merge"
+    },
+    "35": {
+      "class": "HISTORICAL_SUPERSEDED",
+      "disposition": "DO_NOT_MERGE",
+      "successor": "current main / later Studio-product integration",
+      "evidence": "closure audit proves real-analysis files already existed on main; historical branch diverged and CI was red"
+    },
+    "40": {
+      "class": "HISTORICAL_SUPERSEDED",
+      "disposition": "DO_NOT_MERGE",
+      "successor": "PR44 -> main@080dfd5c16bc06100edd716eadc770530dc47af2",
+      "evidence": "all unique coordination guarantees explicitly ported into #44; second kernel intentionally rejected"
+    },
+    "49": {
+      "class": "DONOR_EVIDENCE_VALIDATED",
+      "disposition": "PRESERVED_IN_PR166",
+      "successor": "PR166",
+      "evidence": "three immutable Phase07 lifecycle events corroborated against actual PR44 merge/main verification"
+    },
+    "50": {
+      "class": "HISTORICAL_SUPERSEDED",
+      "disposition": "DO_NOT_MERGE",
+      "successor": "current-main Event Fabric rebuild (#53 then #58)",
+      "evidence": "branch was stacked on pre-merge #44 and explicitly invalidated by the race"
+    },
+    "53": {
+      "class": "HISTORICAL_SUPERSEDED",
+      "disposition": "DO_NOT_MERGE",
+      "successor": "PR58 feat/session-native-event-fabric-v3",
+      "evidence": "REG-006 main advance invalidated exact-head proof; replacement rebuilt from newer main with truth-consistency hardening"
+    },
+    "60": {
+      "class": "DONOR_ONLY_SUPERSEDED",
+      "disposition": "DO_NOT_MERGE",
+      "successor": "PR59 -> preserved in product integration lineage",
+      "evidence": "full collision preflight + non-Run run_id alias protections explicitly transferred to #59"
+    },
+    "72": {
+      "class": "DONOR_ONLY_POLICY_SUPERSEDED",
+      "disposition": "DO_NOT_MERGE",
+      "successor": "current security_static + workflow_security_gate + local_verify + AGENTS/Issue7/Issue48 governance",
+      "evidence": "desired governance JSON was never admin proof; executable scanner/gate semantics are now stricter while native main protection remains an explicit external blocker"
+    },
+    "74": {
+      "class": "HISTORICAL_SUPERSEDED",
+      "disposition": "DO_NOT_MERGE",
+      "successor": "PR100 -> later product integration lineage",
+      "evidence": "closure found body/head authority drift; #100 rebuilt spend/retry contract from live main"
+    },
+    "90": {
+      "class": "HISTORICAL_SUPERSEDED",
+      "disposition": "DO_NOT_MERGE",
+      "successor": "PR91",
+      "evidence": "unique V2 hypergraph material explicitly transferred/normalized into #91"
+    },
+    "114": {
+      "class": "HISTORICAL_SUPERSEDED",
+      "disposition": "DO_NOT_MERGE",
+      "successor": "PR115",
+      "evidence": "live main advanced; #115 reapplied only still-needed HANDOFF delta, AGENTS mutation intentionally not retried"
+    }
   },
   "open_pr_classification": {
     "52": "HISTORICAL_SUPERSEDED",
@@ -262,5 +322,17 @@
     "next_gate": "finish exact-head PR170 CI then independent review via Issue #172; semantic lane continues independently",
     "live_main": "main@72674bca609196c25cc99e05f93ad170f22e28e4",
     "global_after_review": "no promotion until Issue #48 release, native main protection, fresh synthetic/merge-group proof against live main, and serial post-merge verification"
+  },
+  "closed_unmerged_summary": {
+    "observed_count": 12,
+    "unaccounted_valid_deltas": 0,
+    "merge_candidates": 0,
+    "validated_evidence_donors": [
+      "PR49"
+    ],
+    "policy_donors": [
+      "PR72"
+    ],
+    "rule": "Closed-unmerged history remains provenance; no branch is reopened unless its successor is disproven."
   }
 }
