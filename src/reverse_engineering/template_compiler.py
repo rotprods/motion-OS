@@ -490,6 +490,10 @@ def _motion_grammar(motionstyle: Mapping[str, Any], mode: str) -> dict[str, Any]
     for shot in motionstyle.get("shots", []):
         for raw in shot.get("micro_choreography", []):
             step = dict(raw)
+            # MotionStyle choreography is a derived interpretation even when an
+            # upstream payload claims stronger authority. Every EditingTemplate
+            # projection must preserve that ceiling consistently with frame_timeline.
+            step["authority"] = "inferred"
             if mode != "RECONSTRUCT_EXACT":
                 # Keep behavior/timing but prevent a source-specific layer name from becoming a hard dependency.
                 step["target"] = "TEMPLATE_TARGET"
