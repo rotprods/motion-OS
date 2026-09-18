@@ -620,8 +620,12 @@ def compile_editing_template(
     if mode not in REPLICATION_MODES:
         raise EditingTemplateError(f"unsupported replication mode: {replication_mode}")
 
-    source = _source_meta(feature_pack)
+    # Preserve the public compiler's historical frame-authority failure surface:
+    # source identity / decoded-frame defects are rejected by the authoritative
+    # timeline boundary before metadata/signature compilation. _source_meta()
+    # remains independently strict for public signature callers.
     frame_timeline = compile_frame_timeline(feature_pack, motionstyle)
+    source = _source_meta(feature_pack)
     validate_frame_timeline(frame_timeline, total_frames=source["total_frames"])
     signature = build_editing_signature(feature_pack, motionstyle)
     slots = _slots(feature_pack, mode)
