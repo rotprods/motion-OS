@@ -152,3 +152,16 @@ def test_editing_template_motion_grammar_cannot_retain_upstream_measured_authori
         replication_mode="RECONSTRUCT_EXACT",
     )
     assert template["motion_grammar"]["micro_choreography"][0]["authority"] == "inferred"
+
+
+@pytest.mark.parametrize("field", ["motion_stats", "audio_stats"])
+def test_truthy_string_available_cannot_spoof_measured_provider_authority(field):
+    data = pack()
+    data.setdefault("audio_stats", {"available": False})
+    data[field]["available"] = "false"
+    with pytest.raises((FrameTimelineError, EditingTemplateError), match="JSON boolean"):
+        compile_editing_template(
+            data,
+            motionstyle(),
+            replication_mode="RECONSTRUCT_EXACT",
+        )
