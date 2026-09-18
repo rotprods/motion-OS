@@ -135,7 +135,7 @@ def test_25_balanced_passes_without_suite_are_observational_only():
     assert "benchmark_suite_unbound" in metrics.blockers
 
 
-def test_exact_suite_bound_25x5_can_be_authoritative_only_with_independent_review_receipts():
+def test_exact_suite_bound_25x5_is_complete_candidate_but_not_locally_authoritative():
     ledger = BenchmarkLedger()
     suite = suite25()
     for case in suite.cases:
@@ -149,8 +149,8 @@ def test_exact_suite_bound_25x5_can_be_authoritative_only_with_independent_revie
     assert metrics.mean_quality == pytest.approx(9.2)
     assert metrics.minimum_quality == pytest.approx(9.2)
     assert all(count == 5 for _, count in metrics.style_pass_counts)
-    assert metrics.authoritative is True
-    assert metrics.blockers == ()
+    assert metrics.authoritative is False
+    assert metrics.blockers == ("external_review_authority_unbound",)
 
 
 def test_arbitrary_25_ids_cannot_satisfy_exact_suite():
@@ -276,3 +276,23 @@ def test_nonfinite_quality_fails_closed():
     for value in (float("nan"), float("inf"), float("-inf")):
         with pytest.raises(BenchmarkEvidenceError):
             passed("b1", "s", score=value)
+
+
+def test_forged_distinct_actor_ids_and_review_hash_cannot_mint_authority():
+    ledger = BenchmarkLedger()
+    suite = suite25()
+    for case in suite.cases:
+        ledger.append(
+            passed(
+                case.brief_id,
+                case.style_family,
+                brief_hash=case.brief_sha256,
+                producer_id=f"motion://caller/producer/{case.brief_id}",
+                reviewer_id=f"motion://caller/reviewer/{case.brief_id}",
+            )
+        )
+    metrics = ledger.metrics(suite=suite)
+    assert metrics.apsr == 1.0
+    assert metrics.gsr == 1.0
+    assert metrics.authoritative is False
+    assert "external_review_authority_unbound" in metrics.blockers
