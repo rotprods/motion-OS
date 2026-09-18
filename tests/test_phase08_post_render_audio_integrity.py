@@ -147,3 +147,26 @@ def test_silence_floor_cannot_be_weakened_outside_physical_policy(floor):
             ffprobe_bin="ffprobe",
             runner=_runner([_audio()]),
         )
+
+
+def test_duration_tolerance_cannot_be_weakened_beyond_bounded_policy():
+    with pytest.raises(ValueError, match="exceeds bounded integrity policy"):
+        verify_master_audio_integrity(
+            "final.mp4",
+            expected_duration_s=2.0,
+            duration_tolerance_s=1.0,
+            ffprobe_bin="ffprobe",
+            runner=_runner([_audio()]),
+        )
+
+
+def test_speech_window_must_fit_inside_expected_master_duration():
+    with pytest.raises(ValueError, match="exceeds expected master duration"):
+        verify_master_audio_integrity(
+            "final.mp4",
+            expected_duration_s=2.0,
+            duration_tolerance_s=1/30,
+            speech_windows=((1.9,0.5),),
+            ffprobe_bin="ffprobe",
+            runner=_runner([_audio()]),
+        )
