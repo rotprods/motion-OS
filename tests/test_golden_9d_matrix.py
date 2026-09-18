@@ -3,6 +3,8 @@ from __future__ import annotations
 import importlib.util
 import json
 import sys
+
+import pytest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -137,3 +139,19 @@ def test_escaped_failure_corpus_contains_cross_scene_oracle_projection_and_w2_ca
         "TOTAL_Z_ORDER_INVENTED_FROM_FLATTENED_SOURCE",
     }
     assert required.issubset(families)
+
+
+@pytest.mark.parametrize(
+    ("section", "field", "value"),
+    [
+        ("barriers", "issue_48_open", "false"),
+        ("promotion", "cross_renderer_parity_validated", "true"),
+        ("promotion", "empirically_generalized", 1),
+    ],
+)
+def test_promotion_authority_flags_require_literal_json_booleans(section, field, value):
+    module = load_compiler()
+    bad = json.loads(json.dumps(matrix()))
+    bad[section][field] = value
+    with pytest.raises(ValueError, match="JSON boolean"):
+        module.compile_readiness(bad)
