@@ -115,19 +115,48 @@ def sha256_file(path: str | Path) -> str:
     return h.hexdigest()
 
 
+_ALPHA_PIXEL_FORMAT_PREFIXES = (
+    'yuva',
+    'gbrap',
+    'rgba',
+    'bgra',
+    'argb',
+    'abgr',
+    'ya8',
+    'ya16',
+    'ayuv',
+)
+
+
+def pixel_format_has_alpha(pix_fmt: str | None) -> bool:
+    """Conservatively classify pixel formats with an explicit alpha plane/channel.
+
+    Unknown or palette formats are treated as non-authoritative for alpha instead
+    of guessing from codec/container metadata. This deliberately fails closed for
+    `expected_has_alpha=True` until a pixel format with explicit alpha is observed.
+    """
+    if not pix_fmt:
+        return False
+    normalized=str(pix_fmt).strip().lower()
+    return normalized.startswith(_ALPHA_PIXEL_FORMAT_PREFIXES)
+
+
 def probe_media(path: str | Path) -> dict[str, Any]:
     ffprobe = _which('ffprobe')
     if not ffprobe:
         raise RuntimeError('ffprobe unavailable')
     result = subprocess.run([
         ffprobe, '-v', 'error', '-select_streams', 'v:0',
-        '-show_entries', 'stream=codec_name,width,height,r_frame_rate,nb_frames:format=duration',
+        '-show_entries', 'stream=codec_name,pix_fmt,width,height,r_frame_rate,nb_frames:format=duration',
         '-of', 'json', str(path),
     ], capture_output=True, text=True, check=True)
     payload = json.loads(result.stdout)
     stream = payload['streams'][0]
+    pix_fmt=stream.get('pix_fmt')
     return {
         'codec': stream.get('codec_name'),
+        'pix_fmt': pix_fmt,
+        'has_alpha': pixel_format_has_alpha(pix_fmt),
         'width': int(stream['width']),
         'height': int(stream['height']),
         'fps': stream.get('r_frame_rate'),
@@ -146,6 +175,7 @@ def verify_render_artifact(
     expected_height: int,
     expected_fps: int,
     expected_duration_s: float,
+    expected_has_alpha: bool | None = None,
     duration_tolerance_s: float = 1 / 30,
 ) -> RuntimeEvidence:
     media = probe_media(path)
@@ -156,6 +186,8 @@ def verify_render_artifact(
         errors.append('fps_mismatch')
     if abs(media['duration_s'] - expected_duration_s) > duration_tolerance_s:
         errors.append('duration_mismatch')
+    if expected_has_alpha is not None and bool(media.get('has_alpha')) != expected_has_alpha:
+        errors.append('alpha_mismatch')
     authority = 'renderer_executed' if not errors else 'compiler_ready'
     return RuntimeEvidence(
         renderer=renderer,
@@ -163,7 +195,12 @@ def verify_render_artifact(
         available=not errors,
         executable=None,
         version=None,
-        probes={'artifact_integrity_errors': errors},
+        probes={
+            'artifact_integrity_errors': errors,
+            'expected_has_alpha': expected_has_alpha,
+            'observed_has_alpha': media.get('has_alpha'),
+            'observed_pix_fmt': media.get('pix_fmt'),
+        },
         artifact=media,
         reason=';'.join(errors) if errors else None,
     )
