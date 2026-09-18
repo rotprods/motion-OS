@@ -18,6 +18,7 @@ from src.renderers.assembly import (
     RenderArtifact,
     build_composite_plan,
     ffmpeg_assembly_argv,
+    verify_assembled_output_audio,
 )
 from src.renderers.color_policy import (
     ArtifactColorBinding,
@@ -296,11 +297,24 @@ def main() -> int:
     argv[-1:-1] = ["-pix_fmt", "yuv420p", *ffmpeg_output_color_args()]
     run(argv)
 
+    # Final encoded bytes, not FFmpeg intent, own master-audio authority.
+    # The synthetic 880 Hz master is continuous, so two separated decode windows
+    # exercise the same post-render PCM path that production speech windows use.
+    master_audio_integrity = verify_assembled_output_audio(
+        plan,
+        str(MASTER),
+        speech_windows=((0.25, 0.50), (2.25, 0.50)),
+    )
+    if master_audio_integrity is None:
+        raise RuntimeError("master audio integrity evidence missing for audio-bearing plan")
+
     meta = probe(MASTER)
     streams = meta.get("streams", [])
     video = [stream for stream in streams if stream.get("codec_type") == "video"]
     audio = [stream for stream in streams if stream.get("codec_type") == "audio"]
     errors: list[str] = []
+    if not master_audio_integrity.ok:
+        errors.extend(f"master_audio_integrity:{error}" for error in master_audio_integrity.errors)
     authoritative_frames: int | None = None
     if len(video) != 1:
         errors.append(f"video_stream_count:{len(video)}")
@@ -393,6 +407,7 @@ def main() -> int:
             "source": "ffprobe -count_frames / nb_read_frames with explicit nb_frames corroboration",
         },
         "mux_duration_seconds": duration,
+        "master_audio_integrity": master_audio_integrity.to_dict(),
         "overlay_visual_difference_mae": mean,
         "errors": errors,
         "ok": not errors,
