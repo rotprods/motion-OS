@@ -1,0 +1,22 @@
+{
+  "event_id": "20260918T122205Z-motion-agent-bmw-dubai-reference-director-pr176-opened",
+  "event_type": "pr.opened",
+  "timestamp": "2026-09-18T12:22:05Z",
+  "agent_id": "motion://agent/bmw-dubai-reference-director",
+  "project": "MOTION.OS",
+  "branch": "prod/bmw-dubai-reference-film",
+  "commit_sha": "4cabc023d8860a2dbebd71e7e9f480c4518a05e7",
+  "pr_number": 176,
+  "summary": "Opened PR #176 to persist the verified BMW Dubai V4 production graph, reference-fabric manifest and immutable agent lifecycle evidence; no binary media is committed.",
+  "affected_paths": [
+    "production/BMW_DUBAI_EXECUTION_GRAPH_V1.md",
+    "production/bmw_dubai_reference_fabric_v1.json",
+    "state/agent_events/2026-09-18/"
+  ],
+  "checks": {},
+  "authority": "IMPLEMENTED",
+  "correlation_id": "BMW-DUBAI-FILM-20260918",
+  "metadata": {
+    "pr_url": "https://github.com/rotprods/motion-OS/pull/176"
+  }
+}
