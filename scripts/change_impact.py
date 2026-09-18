@@ -11,9 +11,13 @@ PATTERNS: dict[str, tuple[str, ...]] = {
     "analysis": (
         r"^src/extraction/",
         r"^src/normalization/",
+        r"^src/reverse_engineering/",
         r"^tests/test_real_",
         r"^tests/test_style_signature_vector\.py$",
+        r"^tests/test_reverse_engineering_",
         r"^scripts/analyze_video\.py$",
+        r"^scripts/reverse_engineer_video\.py$",
+        r"^scripts/reverse_engineering_gauntlet\.py$",
         r"^pyproject\.toml$",
     ),
     "remotion": (
