@@ -45,10 +45,25 @@ def validate_artifacts(artifacts:list[RenderArtifact], *, width:int,height:int,f
     return errors
 
 
-def build_composite_plan(artifacts:list[RenderArtifact], *, width:int,height:int,fps:int,duration_ms:int,audio_path:str|None=None) -> dict[str,Any]:
+def build_composite_plan(
+    artifacts:list[RenderArtifact],
+    *,
+    width:int,
+    height:int,
+    fps:int,
+    duration_ms:int,
+    audio_path:str|None=None,
+    audio_sample_rate:int=48000,
+    audio_channels:int=2,
+) -> dict[str,Any]:
     errors=validate_artifacts(artifacts,width=width,height=height,fps=fps,duration_ms=duration_ms)
     if audio_path is not None and not str(audio_path).strip():
         errors.append("empty_master_audio_path")
+    if audio_path is not None:
+        if isinstance(audio_sample_rate, bool) or not isinstance(audio_sample_rate, int) or audio_sample_rate <= 0:
+            errors.append("invalid_master_audio_sample_rate")
+        if isinstance(audio_channels, bool) or not isinstance(audio_channels, int) or audio_channels <= 0:
+            errors.append("invalid_master_audio_channels")
     if errors: raise ValueError(";".join(errors))
     ordered=sorted(artifacts,key=lambda a:(a.z_index,a.artifact_id))
     plan={
@@ -60,6 +75,11 @@ def build_composite_plan(artifacts:list[RenderArtifact], *, width:int,height:int
       "z_order_policy":"ascending_z_index_then_artifact_id",
       "color_policy":"normalize_before_composite",
       "audio_policy":"single_master_audio_graph",
+      "audio_integrity_policy":"post_render_master_audio_required" if audio_path is not None else "explicit_silence",
+      "audio_contract":(
+          {"sample_rate":audio_sample_rate,"channels":audio_channels}
+          if audio_path is not None else None
+      ),
       "provenance_required":True,
     }
     plan["plan_hash"]=hashlib.sha256(json.dumps(plan,sort_keys=True,separators=(",",":")).encode()).hexdigest()
@@ -74,48 +94,146 @@ def final_video_label(plan:dict[str,Any]) -> str:
 
 
 def ffmpeg_filter_complex(plan:dict[str,Any], *, include_master_audio:bool=False) -> str:
+    """Build deterministic filters for plan-ordered FFmpeg inputs.
+
+    Render artifacts use local-zero timestamps. Each overlay is trimmed to its
+    declared region duration and shifted onto the global timeline before overlay.
+    The first artifact is the lowest-z full-timeline base validated by the plan.
+
+    Renderer-local audio is never selected here. When ``include_master_audio`` is
+    true, the one master AudioGraph input immediately after all video artifacts is
+    reset to t=0, padded if short, and trimmed to the exact global duration.
+    """
     artifacts=plan["artifacts"]
     if not artifacts:
         raise ValueError("composite plan has no artifacts")
+
     duration_s=plan["duration_ms"]/1000
     filters=[f"[0:v]trim=duration={duration_s:.3f},setpts=PTS-STARTPTS[base0]"]
     base="[base0]"
     for idx,a in enumerate(artifacts[1:], start=1):
-        label=f"v{idx}"; overlay_label=f"ov{idx}"
-        start=a["start_ms"]/1000; end=a["end_ms"]/1000
+        label=f"v{idx}"
+        overlay_label=f"ov{idx}"
+        start=a["start_ms"]/1000
+        end=a["end_ms"]/1000
         region_duration=(a["end_ms"]-a["start_ms"])/1000
-        filters.append(f"[{idx}:v]trim=duration={region_duration:.3f},setpts=PTS-STARTPTS+{start:.3f}/TB[{overlay_label}]")
-        filters.append(f"{base}[{overlay_label}]overlay=eof_action=pass:shortest=0:enable='between(t,{start:.3f},{end:.3f})'[{label}]")
+        filters.append(
+            f"[{idx}:v]trim=duration={region_duration:.3f},"
+            f"setpts=PTS-STARTPTS+{start:.3f}/TB[{overlay_label}]"
+        )
+        filters.append(
+            f"{base}[{overlay_label}]overlay=eof_action=pass:shortest=0:"
+            f"enable='between(t,{start:.3f},{end:.3f})'[{label}]"
+        )
         base=f"[{label}]"
+
     if include_master_audio:
-        if plan.get("audio_policy") != "single_master_audio_graph": raise ValueError("unsupported audio policy")
-        if not plan.get("audio_path"): raise ValueError("master audio requested without audio_path")
+        if plan.get("audio_policy") != "single_master_audio_graph":
+            raise ValueError("unsupported audio policy")
+        if not plan.get("audio_path"):
+            raise ValueError("master audio requested without audio_path")
         audio_input_index=len(artifacts)
-        filters.append(f"[{audio_input_index}:a:0]asetpts=PTS-STARTPTS,apad,atrim=duration={duration_s:.3f}[mastera]")
+        filters.append(
+            f"[{audio_input_index}:a:0]asetpts=PTS-STARTPTS,"
+            f"apad,atrim=duration={duration_s:.3f}[mastera]"
+        )
     return ";".join(filters)
 
 
-def ffmpeg_assembly_argv(plan:dict[str,Any], output_path:str, *, ffmpeg_bin:str="ffmpeg", video_codec:str="libx264", audio_codec:str="aac", overwrite:bool=False) -> list[str]:
+def ffmpeg_assembly_argv(
+    plan:dict[str,Any],
+    output_path:str,
+    *,
+    ffmpeg_bin:str="ffmpeg",
+    video_codec:str="libx264",
+    audio_codec:str="aac",
+    overwrite:bool=False,
+) -> list[str]:
+    """Return a no-shell FFmpeg argv for deterministic final assembly.
+
+    Only plan-ordered video streams are mapped into the visual composite. Audio
+    streams embedded in renderer artifacts are deliberately ignored; the optional
+    master audio file is the sole audio authority. The returned argv is intended
+    for ``subprocess.run(argv, shell=False)`` and never shell interpolation.
+    """
     artifacts=plan.get("artifacts") or []
-    if not artifacts: raise ValueError("composite plan has no artifacts")
-    if not str(output_path).strip(): raise ValueError("output_path must be non-empty")
-    if not str(ffmpeg_bin).strip(): raise ValueError("ffmpeg_bin must be non-empty")
-    if not str(video_codec).strip(): raise ValueError("video_codec must be non-empty")
+    if not artifacts:
+        raise ValueError("composite plan has no artifacts")
+    if not str(output_path).strip():
+        raise ValueError("output_path must be non-empty")
+    if not str(ffmpeg_bin).strip():
+        raise ValueError("ffmpeg_bin must be non-empty")
+    if not str(video_codec).strip():
+        raise ValueError("video_codec must be non-empty")
+
     args=[str(ffmpeg_bin), "-y" if overwrite else "-n"]
     for artifact in artifacts:
         path=str(artifact.get("path", ""))
-        if not path.strip(): raise ValueError(f"artifact input path missing: {artifact.get('artifact_id')}")
+        if not path.strip():
+            raise ValueError(f"artifact input path missing: {artifact.get('artifact_id')}")
         args.extend(["-i", path])
-    audio_path=plan.get("audio_path"); include_master_audio=audio_path is not None
+
+    audio_path=plan.get("audio_path")
+    include_master_audio=audio_path is not None
     if include_master_audio:
-        if plan.get("audio_policy") != "single_master_audio_graph": raise ValueError("unsupported audio policy")
-        if not str(audio_path).strip(): raise ValueError("master audio path must be non-empty")
-        if not str(audio_codec).strip(): raise ValueError("audio_codec must be non-empty")
+        if plan.get("audio_policy") != "single_master_audio_graph":
+            raise ValueError("unsupported audio policy")
+        if plan.get("audio_integrity_policy") != "post_render_master_audio_required":
+            raise ValueError("unsupported audio integrity policy")
+        if not str(audio_path).strip():
+            raise ValueError("master audio path must be non-empty")
+        if not str(audio_codec).strip():
+            raise ValueError("audio_codec must be non-empty")
         args.extend(["-i", str(audio_path)])
+
     filters=ffmpeg_filter_complex(plan, include_master_audio=include_master_audio)
     args.extend(["-filter_complex", filters, "-map", f"[{final_video_label(plan)}]"])
-    if include_master_audio: args.extend(["-map", "[mastera]", "-c:a", str(audio_codec)])
-    else: args.append("-an")
+    if include_master_audio:
+        args.extend(["-map", "[mastera]", "-c:a", str(audio_codec)])
+    else:
+        args.append("-an")
+
     duration_s=plan["duration_ms"]/1000
-    args.extend(["-c:v", str(video_codec), "-r", str(plan["fps"]), "-t", f"{duration_s:.3f}", str(output_path)])
+    args.extend([
+        "-c:v", str(video_codec),
+        "-r", str(plan["fps"]),
+        "-t", f"{duration_s:.3f}",
+        str(output_path),
+    ])
     return args
+
+
+def verify_assembled_output_audio(
+    plan:dict[str,Any],
+    output_path:str,
+    *,
+    speech_windows:tuple[tuple[float,float], ...]=(),
+):
+    """Fail-closed post-render audio verification for an assembled master.
+
+    A correct FFmpeg argv is not proof that the produced bytes contain the master
+    audio. The final file is therefore probed after mux/encode; optional speech
+    windows additionally prove decoded non-silent audio survived the render.
+    """
+    if plan.get("audio_path") is None:
+        return None
+    if plan.get("audio_integrity_policy") != "post_render_master_audio_required":
+        raise ValueError("unsupported audio integrity policy")
+    audio_contract=plan.get("audio_contract")
+    if not isinstance(audio_contract,dict):
+        raise ValueError("missing audio_contract")
+    sample_rate=audio_contract.get("sample_rate")
+    channels=audio_contract.get("channels")
+    if isinstance(sample_rate,bool) or not isinstance(sample_rate,int) or sample_rate <= 0:
+        raise ValueError("invalid audio_contract sample_rate")
+    if isinstance(channels,bool) or not isinstance(channels,int) or channels <= 0:
+        raise ValueError("invalid audio_contract channels")
+    from .master_audio_integrity import verify_master_audio_integrity
+    return verify_master_audio_integrity(
+        output_path,
+        expected_duration_s=plan["duration_ms"]/1000,
+        expected_sample_rate=sample_rate,
+        expected_channels=channels,
+        duration_tolerance_s=1/max(1, int(plan["fps"])),
+        speech_windows=speech_windows,
+    )

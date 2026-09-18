@@ -1,6 +1,6 @@
 import pytest
 
-from src.renderers.assembly import RenderArtifact, build_composite_plan, ffmpeg_assembly_argv
+from src.renderers.assembly import RenderArtifact, build_composite_plan, ffmpeg_assembly_argv, verify_assembled_output_audio
 
 
 def _plan(*, audio_path='master.wav'):
@@ -78,3 +78,48 @@ def test_empty_paths_and_invalid_audio_contract_fail_closed():
 
     with pytest.raises(ValueError,match='output_path must be non-empty'):
         ffmpeg_assembly_argv(_plan(),'   ')
+
+
+def test_audio_integrity_policy_tracks_master_presence():
+    assert _plan(audio_path='master.wav')['audio_integrity_policy'] == 'post_render_master_audio_required'
+    assert _plan(audio_path=None)['audio_integrity_policy'] == 'explicit_silence'
+
+
+def test_audio_contract_is_explicit_and_can_declare_mono_master(monkeypatch):
+    plan=build_composite_plan(
+        [RenderArtifact('base','remotion','base.mov',0,1000,1080,1920,30,False,('graph:base',),z_index=0)],
+        width=1080,height=1920,fps=30,duration_ms=1000,
+        audio_path='master.wav',audio_sample_rate=48000,audio_channels=1,
+    )
+    assert plan['audio_contract'] == {'sample_rate':48000,'channels':1}
+
+    captured={}
+    def fake_verify(path, **kwargs):
+        captured.update(kwargs)
+        return {'ok':True}
+
+    monkeypatch.setattr('src.renderers.master_audio_integrity.verify_master_audio_integrity', fake_verify)
+    result=verify_assembled_output_audio(plan,'out.mp4')
+    assert result == {'ok':True}
+    assert captured['expected_sample_rate'] == 48000
+    assert captured['expected_channels'] == 1
+
+
+@pytest.mark.parametrize(
+    ('sample_rate','channels'),
+    [(True,2),(48000,True),(0,2),(48000,0),(48000,1.5)],
+)
+def test_invalid_declared_master_audio_contract_fails_closed(sample_rate, channels):
+    with pytest.raises(ValueError, match='invalid_master_audio'):
+        build_composite_plan(
+            [RenderArtifact('base','remotion','base.mov',0,1000,1080,1920,30,False,('graph:base',))],
+            width=1080,height=1920,fps=30,duration_ms=1000,
+            audio_path='master.wav',audio_sample_rate=sample_rate,audio_channels=channels,
+        )
+
+
+def test_post_render_wrapper_requires_intact_audio_contract():
+    plan=_plan()
+    plan['audio_contract']={'sample_rate':48000,'channels':True}
+    with pytest.raises(ValueError,match='audio_contract channels'):
+        verify_assembled_output_audio(plan,'out.mp4')
