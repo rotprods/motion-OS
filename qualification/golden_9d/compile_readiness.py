@@ -11,6 +11,12 @@ MODES = ("reconstruct_exact", "structural_template")
 STATES = {"QUALIFIED", "PARTIAL", "BLOCKED", "UNKNOWN", "NOT_APPLICABLE"}
 
 
+def _strict_bool(value: object, *, name: str) -> bool:
+    if type(value) is not bool:
+        raise ValueError(f"{name} must be a JSON boolean")
+    return value
+
+
 def compile_readiness(matrix: dict) -> dict:
     if matrix.get("schema_version") != "motion-os.golden-9d-matrix/v1":
         raise ValueError("unsupported golden 9D matrix schema")
@@ -63,7 +69,22 @@ def compile_readiness(matrix: dict) -> dict:
             "all_9d_qualified": all_qualified,
         }
 
-    barrier = bool(matrix.get("barriers", {}).get("issue_48_open"))
+    barriers = matrix.get("barriers", {})
+    if not isinstance(barriers, dict):
+        raise ValueError("barriers must be an object")
+    barrier = _strict_bool(barriers.get("issue_48_open"), name="barriers.issue_48_open")
+
+    promotion = matrix.get("promotion", {})
+    if not isinstance(promotion, dict):
+        raise ValueError("promotion must be an object")
+    cross_renderer_parity = _strict_bool(
+        promotion.get("cross_renderer_parity_validated"),
+        name="promotion.cross_renderer_parity_validated",
+    )
+    empirically_generalized = _strict_bool(
+        promotion.get("empirically_generalized"),
+        name="promotion.empirically_generalized",
+    )
     return {
         "schema_version": "motion-os.golden-9d-readiness/v1",
         "authority": "DERIVED_FAIL_CLOSED_READ_MODEL",
@@ -75,8 +96,8 @@ def compile_readiness(matrix: dict) -> dict:
             "canonical_template_eligible": (
                 not barrier
                 and by_mode["structural_template"]["all_9d_qualified"]
-                and bool(matrix.get("promotion", {}).get("cross_renderer_parity_validated"))
-                and bool(matrix.get("promotion", {}).get("empirically_generalized"))
+                and cross_renderer_parity
+                and empirically_generalized
             ),
         },
         "law": "No weighted or averaged score grants authority. Every required dimension must independently pass and global barriers must be closed.",
