@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+from jsonschema import ValidationError
 
 from src.reverse_engineering.action_inventory import (
     ActionInventoryError,
@@ -44,14 +45,14 @@ def test_inventory_validates_and_frame_lookup():
 def test_action_outside_scene_fails_closed():
     value = inventory()
     value["actions"][0]["end_frame"] = 6
-    with pytest.raises(Exception):
+    with pytest.raises((ActionInventoryError, ValidationError)):
         validate_action_inventory(value)
 
 
 def test_missing_renderer_mapping_fails_closed():
     value = inventory()
     del value["actions"][0]["renderer_mapping"]["hyperframes"]
-    with pytest.raises(Exception):
+    with pytest.raises((ActionInventoryError, ValidationError)):
         validate_action_inventory(value)
 
 
@@ -70,7 +71,7 @@ def test_subevent_must_stay_inside_parent_window():
         "verb":"word_reveal", "target":"word", "parameters":{},
         "authority":"evidence_bound_inference", "confidence":0.8, "evidence_refs":["frame:4-8"]
     }]
-    with pytest.raises(Exception):
+    with pytest.raises((ActionInventoryError, ValidationError)):
         validate_action_inventory(value)
 
 
@@ -133,7 +134,7 @@ def test_confidence_and_peak_metric_domains_fail_closed():
     value["actions"][0]["confidence"] = 1.1
     # Either JSON Schema or the semantic validator may reject first; the contract
     # is fail-closed, not a specific implementation-layer exception class.
-    with pytest.raises(Exception):
+    with pytest.raises((ActionInventoryError, ValidationError)):
         validate_action_inventory(value)
 
     with pytest.raises(ActionInventoryError, match="finite non-negative"):

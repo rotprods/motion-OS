@@ -1,0 +1,147 @@
+name: Golden 9D Motion Kinematics
+
+on:
+  pull_request:
+    paths:
+      - 'qualification/golden_9d/**'
+      - 'schemas/golden_9d/**'
+      - 'tests/test_golden_9d_*.py'
+      - '.github/workflows/golden-9d-motion-kinematics.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compile-motion-kinematics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout T08 authority branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Checkout pinned S04 measured-track source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: rotprods/motion-OS
+          ref: 8ec35a259399d7b196b40627d782315a019e65e2
+          path: .golden_sources/s04
+          persist-credentials: false
+
+      - name: Checkout pinned S11 measured-track source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: rotprods/motion-OS
+          ref: 988e91893cb498f720b9c2656b3d6d85f2d56300
+          path: .golden_sources/s11
+          persist-credentials: false
+
+      - name: Checkout pinned S14 measured-track source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: rotprods/motion-OS
+          ref: 12592bd8f8149767fafcb0ad0aa6036250ce540c
+          path: .golden_sources/s14
+          persist-credentials: false
+
+      - name: Checkout pinned S16 measured-track source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: rotprods/motion-OS
+          ref: 8e6fcb79d0d7958c0f023f128297059c97a7e674
+          path: .golden_sources/s16
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e '.[dev]'
+
+      - name: Contract and adversarial tests
+        run: |
+          python -m pytest -q tests/test_golden_9d_matrix.py tests/test_golden_9d_motion_kinematics.py
+          python -m py_compile \
+            qualification/golden_9d/compile_readiness.py \
+            qualification/golden_9d/compile_motion_kinematics.py \
+            qualification/golden_9d/qualify_motion_kinematics.py
+
+      - name: Compile source-bound motion kinematics
+        run: |
+          mkdir -p .artifacts/golden_9d
+          python qualification/golden_9d/compile_motion_kinematics.py \
+            --manifest qualification/golden_9d/golden_motion_sources.json \
+            --root . \
+            --out .artifacts/golden_9d/motion_kinematics.json
+
+      - name: Qualify W1 motion authority
+        run: |
+          python qualification/golden_9d/qualify_motion_kinematics.py \
+            --kinematics .artifacts/golden_9d/motion_kinematics.json \
+            --out .artifacts/golden_9d/motion_dimension_qualification.json
+
+      - name: Verify four-scene eighteen-entity proof
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('.artifacts/golden_9d/motion_kinematics.json').read_text())
+          q=json.loads(Path('.artifacts/golden_9d/motion_dimension_qualification.json').read_text())
+          assert d['schema_version']=='motion-os.golden-motion-kinematics/v3'
+          assert d['authority']=='DERIVED_FROM_PINNED_SOURCE_BOUND_TRACKS'
+          assert len(d['scenes'])==4
+          count=sum(len(scene['entities']) for scene in d['scenes'].values())
+          assert count==18, count
+
+          s11=d['scenes']['S11_UI_LIST']['entities']
+          assert s11['pill']['motion_segments'][0]['dominant_transform_class'] in {'SCALE_OR_REVEAL_DOMINANT','MIXED_TRANSLATION_AND_SCALE'}
+          assert 'BBOX_SHAPE_CHANGE_CONFLATES_TRANSLATION_WITH_SCALE_OR_REVEAL' in s11['pill']['motion_segments'][0]['caveats']
+
+          s14=d['scenes']['S14_AUDIO_VISUAL_TEXTO']['entities']
+          assert any(e['boundary_clipped_sample_count']>0 for e in s14.values())
+          assert any(seg['curve_authority']=='VISIBLE_OUTPUT_CLIPPED_PROXY_NOT_HIDDEN_OBJECT_CURVE' for e in s14.values() for seg in e['motion_segments'])
+
+          s16=d['scenes']['S16_FACTOR_X']['entities']
+          assert s16['column']['clip_rect']==[0,0,512,1014]
+          assert s16['column']['boundary_clipped_sample_count']>0
+          assert all(e['structural_exclude_ranges']==[[87,91]] for e in s16.values())
+          assert all(e['structural_excluded_sample_count']>0 for e in s16.values())
+
+          assert q['w1_state']=='COMPLETE_WITH_RESIDUAL_MOTION_AUTHORITY_BLOCKERS'
+          assert q['cross_golden']['visible_bbox_kinematics']=='QUALIFIED_ACROSS_ALL_FOUR_AT_THEIR_PINNED_TRACK_RESOLUTION'
+          assert q['cross_golden']['reconstruct_exact_motion']=='PARTIAL'
+          assert q['cross_golden']['structural_template_motion']=='PARTIAL'
+          assert q['cross_golden']['original_easing_graph']=='BLOCKED'
+
+          Path('.artifacts/golden_9d/motion_kinematics_summary.json').write_text(json.dumps({
+            'scene_count':4,
+            'entity_count':count,
+            's11_pill_initial_transform_class':s11['pill']['motion_segments'][0]['dominant_transform_class'],
+            's14_entities_with_boundary_clipping':sorted(k for k,v in s14.items() if v['boundary_clipped_sample_count']>0),
+            's16_column_bottom_clipped_samples':s16['column']['boundary_clipped_sample_count'],
+            's16_structural_exclude_range':[87,91],
+            'curve_authority':d['curve_authority'],
+            'w1_state':q['w1_state'],
+            'motion_exact':q['cross_golden']['reconstruct_exact_motion'],
+            'motion_structural':q['cross_golden']['structural_template_motion'],
+          },indent=2)+'\n')
+          PY
+
+      - name: Upload W1 evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: golden-9d-motion-kinematics
+          if-no-files-found: error
+          path: |
+            .artifacts/golden_9d/motion_kinematics.json
+            .artifacts/golden_9d/motion_dimension_qualification.json
+            .artifacts/golden_9d/motion_kinematics_summary.json
+          retention-days: 14
