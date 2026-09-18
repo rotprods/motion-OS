@@ -13,7 +13,13 @@ class PrimitiveQualificationError(ValueError):
     pass
 
 
-QUALIFICATION_STATES = {"UNQUALIFIED", "CONTRACT_VERIFIED", "PHYSICALLY_VERIFIED", "QUARANTINED"}
+QUALIFICATION_STATES = {
+    "UNQUALIFIED",
+    "CONTRACT_VERIFIED",
+    "PHYSICAL_EVIDENCE_RECORDED",
+    "PHYSICALLY_VERIFIED",
+    "QUARANTINED",
+}
 
 
 def _require_nonempty_text(value: object, field: str) -> str:
@@ -194,7 +200,11 @@ class PrimitiveQualificationLedger:
         if any(e.passed is False for e in items):
             return "QUARANTINED"
         if any(e.evidence_kind == "PHYSICAL_RENDER" and e.passed is True for e in items):
-            return "PHYSICALLY_VERIFIED"
+            # A pure local ledger can prove that a physical-evidence record is
+            # structurally bound to fixture/artifact/timing fields, but those
+            # fields remain caller-provided data. External clean-runner/reviewer
+            # authority must promote this evidence before PHYSICALLY_VERIFIED.
+            return "PHYSICAL_EVIDENCE_RECORDED"
         if any(e.evidence_kind == "CONTRACT" and e.passed is True for e in items):
             return "CONTRACT_VERIFIED"
         return "UNQUALIFIED"
@@ -204,11 +214,11 @@ class PrimitiveQualificationLedger:
         if primitive is None:
             raise PrimitiveQualificationError(f"unknown primitive_id: {primitive_id}")
         states = [self.renderer_state(primitive_id, renderer) for renderer in primitive.renderer_support]
-        if states and all(state == "PHYSICALLY_VERIFIED" for state in states):
-            return "PHYSICALLY_VERIFIED"
+        if states and all(state == "PHYSICAL_EVIDENCE_RECORDED" for state in states):
+            return "PHYSICAL_EVIDENCE_RECORDED"
         if any(state == "QUARANTINED" for state in states):
             return "QUARANTINED"
-        if any(state in {"CONTRACT_VERIFIED", "PHYSICALLY_VERIFIED"} for state in states):
+        if any(state in {"CONTRACT_VERIFIED", "PHYSICAL_EVIDENCE_RECORDED", "PHYSICALLY_VERIFIED"} for state in states):
             return "CONTRACT_VERIFIED"
         return "UNQUALIFIED"
 
@@ -217,11 +227,15 @@ class PrimitiveQualificationLedger:
         counts = {state: sum(value == state for value in states.values()) for state in sorted(QUALIFICATION_STATES)}
         renderer_cases = {
             "total": len(self.matrix),
+            "physical_evidence_recorded": sum(self.renderer_state(c.primitive_id, c.renderer) == "PHYSICAL_EVIDENCE_RECORDED" for c in self.matrix),
             "physical_verified": sum(self.renderer_state(c.primitive_id, c.renderer) == "PHYSICALLY_VERIFIED" for c in self.matrix),
             "contract_verified": sum(self.renderer_state(c.primitive_id, c.renderer) == "CONTRACT_VERIFIED" for c in self.matrix),
             "quarantined": sum(self.renderer_state(c.primitive_id, c.renderer) == "QUARANTINED" for c in self.matrix),
         }
-        renderer_cases["unqualified"] = renderer_cases["total"] - sum(renderer_cases[key] for key in ("physical_verified", "contract_verified", "quarantined"))
+        renderer_cases["unqualified"] = renderer_cases["total"] - sum(
+            renderer_cases[key]
+            for key in ("physical_evidence_recorded", "physical_verified", "contract_verified", "quarantined")
+        )
         report = {
             "registered_primitives": len(self.registry),
             "primitive_states": states,
@@ -229,6 +243,11 @@ class PrimitiveQualificationLedger:
             "renderer_cases": renderer_cases,
             "evidence_count": len(self._evidence),
             "empirical_authority": counts["PHYSICALLY_VERIFIED"],
+            "authority_blockers": (
+                ["external_physical_authority_unbound"]
+                if counts.get("PHYSICAL_EVIDENCE_RECORDED", 0) or renderer_cases["physical_evidence_recorded"]
+                else []
+            ),
         }
         if legacy_claim:
             if legacy_claim.registered_count != len(self.registry):
