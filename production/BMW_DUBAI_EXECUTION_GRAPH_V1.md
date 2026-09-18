@@ -289,3 +289,99 @@ Promotion state at this checkpoint:
 
 Do not promote V4 solely from motion-energy metrics. It must retain hero identity, world continuity, landmark geography, macro↔hero rhythm and final payoff under exact rendered-video semantic review.
 
+---
+
+## 11. V4 FINAL QUALIFICATION / PROMOTION
+
+V4 semantic critic completed:
+
+`9cc59ecd-32fe-4491-aa3b-100cd19b41a4`
+
+Exact promoted media:
+
+`a2a42737-5aaf-4203-8fee-7b9d25500913`
+
+SHA-256:
+
+`8ed16281a1e2f80ad2fa22fc9725253a1af1a76be1b49b6bc19e13edd3586ba4`
+
+### Exact technical proof
+
+- 1080×1920
+- 30/1 fps
+- 450/450 decoded video frames
+- exactly 15.000 s
+- H.264 video
+- AAC stereo 48 kHz
+- 29,797,254 bytes
+- ~15.89 Mb/s
+- integrated loudness: -16.4 LUFS
+- measured true peak: -2.1 dBFS
+- full decode: PASS
+- black frames detected: 0
+- freezes >=0.5 s: 0
+- silences >=0.25 s: 0
+
+### Motion proof vs V3
+
+- median adjacent luma delta: +4.97%
+- trimmed-95 mean delta: +11.09%
+- P75: +7.93%
+- P90: +4.77%
+
+### Semantic proof from exact V4
+
+The critic explicitly identifies:
+1. glass/reflection opening in the night city;
+2. low-angle tracking with the car **driving forward**;
+3. **speed ramping** creating rapid movement;
+4. building/limestone foreground framing;
+5. front product read with Burj;
+6. registered chassis/wireframe technical state;
+7. taillight extreme close-up;
+8. low rear tracking with the car **accelerating**;
+9. wheel extreme close-up;
+10. frontal hero **driving toward camera** with city blur;
+11. side tracking;
+12. a second architecture-derived occlusion;
+13. final static rear payoff with Burj aligned behind the hero.
+
+This is the missing proof that V4 improved the V3 blocker instead of merely increasing frame deltas.
+
+### Evidence-bound scorecard
+
+| Gate | Score /10 | Evidence |
+|---|---:|---|
+| HERO_IDENTITY | 9.2 | deterministic same hero fabric; critic retains same performance sedan across views |
+| WORLD_CONTINUITY | 9.1 | same Dubai-night fabric and wet-road architecture across exact output |
+| BURJ_GEOGRAPHY | 8.8 | repeatedly recognized, with final aligned rear payoff |
+| PHOTOREALISM | 8.8 | critic reports metallic paint, wet asphalt, city lighting/reflections without malformed-scene warnings |
+| SHOT_DIVERSITY | 9.1 | glass, front, front-3/4, occlusion, wireframe, taillight, rear, wheel, final |
+| EDIT_DENSITY | 9.0 | 13 critic-resolved functional scenes in 15 s |
+| CAMERA_ENERGY | 8.5 | low tracking, acceleration, speed ramp and driving-toward-camera recognized |
+| CAUSAL_TRANSITIONS | 8.5 | physical glass, architecture occlusion, technical state and wheel anchor |
+| MASK/OCCLUSION | 8.0 | physical stone/glass states work; no full dynamic roto solve |
+| TRANSITION_DIVERSITY | 8.8 | multiple world-derived mechanisms; no generic glitch dependency |
+| SPEED_RAMP/RETIME | 8.6 | speed ramp explicitly detected by critic |
+| MACRO↔HERO_RHYTHM | 9.3 | taillight/wheel macros alternate with hero reads |
+| VFX_INTEGRATION | 8.6 | registered wireframe state integrated mid-film |
+| PHYSICS | 8.8 | deterministic image transforms avoid generative vehicle geometry drift |
+| ARTIFACT_CONTROL | 9.6 | decode/black/freeze/silence gates all pass |
+| SOUND_DESIGN | 8.7 | original synchronized electronic design; -16.4 LUFS / -2.1 dBFS true peak |
+| FINAL_HERO | 9.4 | final rear hero + centered Burj payoff explicitly recognized |
+| **OVERALL** | **8.87** | evidence-bound creative master score for this wave |
+
+### Promotion decision
+
+**V4 = CANONICAL CREATIVE MASTER FOR THE BMW DUBAI WAVE.**
+
+This does **not** mean Motion.OS v1.0 release criteria are satisfied globally.
+
+Remaining quality frontier is specific:
+- true scene-depth / 2.5D or 3D parallax rather than only image-plane camera transforms;
+- dynamic object-aware masks/roto;
+- stronger physically resolved camera trajectories inside each still-derived shot;
+- optional source-independent native video capture/generation only when permitted by the target engine.
+
+Do not reopen the Seedance IP-detected attempts as a workaround.
+
