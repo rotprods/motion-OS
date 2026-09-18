@@ -41,6 +41,17 @@ def _finite_positive_number(value: Any) -> float | None:
     return number
 
 
+def _positive_int_from_probe(value: object, *, name: str) -> int | None:
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value if value > 0 else None
+    if isinstance(value, str) and value.isascii() and value.isdigit():
+        parsed=int(value)
+        return parsed if parsed > 0 else None
+    return None
+
+
 def _run(runner: Runner, argv: list[str], *, timeout: int, text: bool):
     return runner(argv, capture_output=True, text=text, timeout=timeout, check=False)
 
@@ -122,6 +133,8 @@ def verify_master_audio_integrity(
     ):
         raise ValueError("silence_floor_dbfs must be finite")
     silence_floor_dbfs = float(silence_floor_dbfs)
+    if not -120.0 <= silence_floor_dbfs < 0.0:
+        raise ValueError("silence_floor_dbfs must be between -120 dBFS and 0 dBFS")
     if isinstance(timeout, bool) or not isinstance(timeout, int) or timeout < 1:
         raise ValueError("timeout must be a positive integer")
     if not isinstance(speech_windows, tuple):
@@ -172,16 +185,10 @@ def verify_master_audio_integrity(
         codec=stream.get("codec_name") if isinstance(stream.get("codec_name"),str) else None
         if not codec or not codec.strip():
             errors.append("missing_audio_codec")
-        try:
-            sample_rate=int(stream.get("sample_rate"))
-        except (TypeError,ValueError):
-            sample_rate=None
+        sample_rate=_positive_int_from_probe(stream.get("sample_rate"), name="sample_rate")
         if sample_rate != expected_sample_rate:
             errors.append(f"sample_rate_mismatch:{sample_rate}")
-        try:
-            channels=int(stream.get("channels"))
-        except (TypeError,ValueError):
-            channels=None
+        channels=_positive_int_from_probe(stream.get("channels"), name="channels")
         if channels != expected_channels:
             errors.append(f"channel_mismatch:{channels}")
         # Container duration is not proof of audio-stream duration. Falling
