@@ -47,6 +47,13 @@ def _round(value: float, digits: int = 6) -> float:
     return round(normalized, digits)
 
 
+def _strict_available(mapping: Mapping[str, Any], *, name: str) -> bool:
+    raw = mapping.get("available", False)
+    if type(raw) is not bool:
+        raise EditingTemplateError(f"{name}.available must be a JSON boolean")
+    return raw
+
+
 def _source_meta(pack: Mapping[str, Any]) -> dict[str, Any]:
     meta = pack.get("video_meta", {})
     if not isinstance(meta, Mapping):
@@ -125,6 +132,7 @@ def build_editing_signature(feature_pack: Mapping[str, Any], motionstyle: Mappin
     cv = math.sqrt(variance) / max(1.0, mean_ms)
 
     motion_stats = feature_pack.get("motion_stats", {})
+    motion_available = _strict_available(motion_stats, name="motion_stats") if isinstance(motion_stats, Mapping) else False
     motion_tracks = list(motion_stats.get("tracks", [])) if isinstance(motion_stats, Mapping) else []
     motion_values = [float(x.get("motion_median", 0.0)) for x in motion_tracks]
     camera_values = [float(x.get("camera_likelihood", 0.0)) for x in motion_tracks]
@@ -146,7 +154,7 @@ def build_editing_signature(feature_pack: Mapping[str, Any], motionstyle: Mappin
             occupancy.append(max(0.0, float(bbox[2]) * float(bbox[3])))
 
     audio = feature_pack.get("audio_stats", {})
-    audio_available = bool(isinstance(audio, Mapping) and audio.get("available"))
+    audio_available = _strict_available(audio, name="audio_stats") if isinstance(audio, Mapping) else False
     onsets = sorted(int(round(float(x))) for x in audio.get("onsets_ms", [])) if audio_available else []
     cut_times = [int(s.get("end_ms", 0)) for s in shots[:-1]]
     tolerance = 90
@@ -171,7 +179,7 @@ def build_editing_signature(feature_pack: Mapping[str, Any], motionstyle: Mappin
             "cadence_class": _cadence_class(median_ms),
         },
         "motion": {
-            "provider_available": bool(motion_stats.get("available")) if isinstance(motion_stats, Mapping) else False,
+            "provider_available": motion_available,
             "mean_motion_median": _round(mean(motion_values) if motion_values else 0.0),
             "peak_motion_median": _round(max(motion_values, default=0.0)),
             "mean_global_magnitude": _round(mean(global_values) if global_values else 0.0),
