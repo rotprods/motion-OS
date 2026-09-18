@@ -136,9 +136,9 @@ def test_outer_gauntlet_progresses_then_verifies():
             'verifier_reason': 'all freshness/replay invariants pass',
             'measurable_progress': 1.0,
         },
-    ], verifier_receipt=verifier_receipt(second_hash),
-       trusted_verifier_evidence_hashes=(verifier_receipt(second_hash)["evidence_hash"],))
-    assert final['state'] == 'VERIFIED'
+    ], verifier_receipt=verifier_receipt(second_hash))
+    assert final['state'] == 'VERIFIER_PASS_UNPROMOTED'
+    assert final['promotion_authority'] == 'NONE'
     assert final['verifier_receipt']['verified_result_hash'] == second_hash
 
 
