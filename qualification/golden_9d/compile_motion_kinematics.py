@@ -12,6 +12,39 @@ from typing import Any
 NUMBER = r"-?(?:\d+(?:\.\d+)?|\.\d+)"
 
 
+def _finite_positive(raw: object, *, name: str) -> float:
+    if isinstance(raw, bool) or not isinstance(raw, (int, float)):
+        raise ValueError(f"{name} must be a finite positive number")
+    value = float(raw)
+    if not math.isfinite(value) or value <= 0:
+        raise ValueError(f"{name} must be a finite positive number")
+    return value
+
+
+def _reject_json_constant(value: str):
+    raise ValueError(f"non-finite JSON constant is forbidden: {value}")
+
+
+def _safe_source_path(root: Path, checkout_dir: object, source_path: object) -> Path:
+    if not isinstance(checkout_dir, str) or not checkout_dir.strip():
+        raise ValueError("checkout_dir must be a non-empty relative path")
+    if not isinstance(source_path, str) or not source_path.strip():
+        raise ValueError("source path must be a non-empty relative path")
+    relative = Path(checkout_dir) / Path(source_path)
+    if relative.is_absolute() or ".." in relative.parts:
+        raise ValueError("source path must stay inside the qualification root")
+    root = root.resolve()
+    current = root
+    for part in relative.parts:
+        current = current / part
+        if current.is_symlink():
+            raise ValueError("source path may not traverse symlinks")
+    candidate = current.resolve()
+    if not candidate.is_relative_to(root) or not candidate.is_file():
+        raise ValueError("source path must resolve to a regular file inside the qualification root")
+    return candidate
+
+
 def _array_body(text: str, name: str) -> str:
     match = re.search(rf"const\s+{re.escape(name)}[^=]*=\s*\[(.*?)\];", text, re.S)
     if not match:
@@ -66,7 +99,7 @@ def interpolate_keyframes(rows: list[dict[str, float]]) -> list[dict[str, float]
 
 def parse_indexed_tuples(text: str, name: str, factor: bool = False) -> list[dict[str, float] | None]:
     body = _array_body(text, name)
-    raw = json.loads("[" + body + "]")
+    raw = json.loads("[" + body + "]", parse_constant=_reject_json_constant)
     rows: list[dict[str, float] | None] = []
     expected_width = 5 if factor else 4
     for frame, value in enumerate(raw):
@@ -227,6 +260,7 @@ def kinematics(
     projection_mode: str = "UNKNOWN",
     structural_exclude_ranges: list[list[int]] | None = None,
 ) -> dict[str, Any]:
+    fps = _finite_positive(fps, name="fps")
     exclusions = structural_exclude_ranges or []
     if clip_rect is None and canvas:
         clip_rect = [0.0, 0.0, float(canvas["width"]), float(canvas["height"])]
@@ -383,10 +417,19 @@ def compile_manifest(manifest: dict, root: Path) -> dict:
     if manifest.get("schema_version") != "motion-os.golden-motion-sources/v2":
         raise ValueError("unsupported motion source manifest")
     canvas = manifest.get("canvas")
+    scenes = manifest.get("scenes")
+    if not isinstance(scenes, dict) or not scenes:
+        raise ValueError("motion source manifest requires scene objects")
     scenes_out: dict[str, Any] = {}
-    for scene_id, spec in manifest["scenes"].items():
-        path = root / spec["checkout_dir"] / spec["path"]
-        text = path.read_text()
+    for scene_id, spec in scenes.items():
+        if not isinstance(spec, dict):
+            raise ValueError(f"scene spec must be an object: {scene_id}")
+        ref = spec.get("ref")
+        if not isinstance(ref, str) or not re.fullmatch(r"[0-9a-f]{40}", ref):
+            raise ValueError(f"scene ref must be an exact lowercase git SHA: {scene_id}")
+        fps = _finite_positive(spec.get("fps"), name=f"{scene_id}.fps")
+        path = _safe_source_path(root, spec.get("checkout_dir"), spec.get("path"))
+        text = path.read_text(encoding="utf-8")
         entities: dict[str, Any] = {}
         for entity, array_name in spec["entities"].items():
             if spec["format"] == "ts_keyframed_boxes":
@@ -397,7 +440,7 @@ def compile_manifest(manifest: dict, root: Path) -> dict:
                 raise ValueError(f"unsupported format: {spec['format']}")
             entities[entity] = kinematics(
                 rows,
-                float(spec["fps"]),
+                fps,
                 spec["authority"],
                 canvas=canvas,
                 clip_rect=spec.get("clip_rect"),
