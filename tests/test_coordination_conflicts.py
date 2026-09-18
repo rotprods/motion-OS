@@ -19,6 +19,25 @@ def test_same_semantic_contract_is_blocking_overlap_even_with_different_files():
     assert finding.blocked
 
 
+def test_same_adr_namespace_blocks_even_when_paths_are_disjoint():
+    finding = classify_conflict(
+        requested_scopes=["adr:008", "file:architecture/A.md"],
+        active_scopes=["adr:008", "file:architecture/B.md"],
+    )
+    assert finding.classification == ConflictClass.SEMANTIC_OVERLAP
+    assert finding.blocked
+    assert "adr:008<->adr:008" in finding.details
+
+
+def test_same_root_cause_blocks_duplicate_solution_workstreams():
+    finding = classify_conflict(
+        requested_scopes=["root-cause:qa-history-collision", "file:src/qa/a.py"],
+        active_scopes=["root-cause:qa-history-collision", "file:src/qa/b.py"],
+    )
+    assert finding.classification == ConflictClass.SEMANTIC_OVERLAP
+    assert finding.blocked
+
+
 def test_dependency_risk_detected_without_direct_overlap():
     finding = classify_conflict(
         requested_scopes=["contract:studio-entry"],
@@ -33,11 +52,22 @@ def test_authority_conflict_has_highest_precedence():
     finding = classify_conflict(
         requested_scopes=["file:src/a.py"],
         active_scopes=["file:src/b.py"],
-        requested_authority=["capability:render-authority"],
-        active_authority=["capability:render-authority"],
+        requested_authority=["authority:release"],
+        active_authority=["authority:release"],
     )
     assert finding.classification == ConflictClass.AUTHORITY_CONFLICT
     assert finding.blocked
+    assert finding.details == ("authority:release",)
+
+
+def test_authority_conflict_precedes_other_semantic_overlap():
+    finding = classify_conflict(
+        requested_scopes=["adr:008"],
+        active_scopes=["adr:008"],
+        requested_authority=["authority:release"],
+        active_authority=["authority:release"],
+    )
+    assert finding.classification == ConflictClass.AUTHORITY_CONFLICT
 
 
 def test_no_overlap_is_none():

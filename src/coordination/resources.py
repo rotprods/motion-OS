@@ -9,6 +9,9 @@ from typing import Iterable
 _ALLOWED_KINDS = {
     "file", "tree", "contract", "schema", "phase", "capability", "evidence",
     "resource", "plan", "issue", "pr", "artifact", "task",
+    # Semantic coordination namespaces. These are first-class scopes so agents can
+    # detect collisions that do not share repository paths (REG-017).
+    "architecture", "adr", "root-cause", "authority",
 }
 _SEMANTIC_TOKEN = re.compile(r"^[A-Za-z0-9._/@+-]+$")
 
