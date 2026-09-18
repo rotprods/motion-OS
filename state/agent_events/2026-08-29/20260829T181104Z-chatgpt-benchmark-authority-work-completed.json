@@ -1,0 +1,50 @@
+{
+  "affected_paths": [
+    ".github/workflows/benchmark-smoke.yml",
+    "scripts/benchmark_smoke_batch.py",
+    "src/benchmarks/authority.py",
+    "src/benchmarks/fixtures.py",
+    "src/benchmarks/physical_evidence.py",
+    "tests/test_phase08_benchmark_authority.py",
+    "tests/test_phase08_benchmark_cli.py",
+    "tests/test_phase08_benchmark_physical_evidence.py",
+    "tests/test_phase08_benchmark_smoke_fixtures.py"
+  ],
+  "agent_id": "motion://agent/chatgpt/benchmark-authority",
+  "authority": "VERIFIED",
+  "branch": "feat/p08-benchmark-authority-v1",
+  "checks": {
+    "benchmark_smoke_physical_33267384885": "SUCCESS",
+    "dependency_security": "SUCCESS",
+    "immutable_event_validation": "SUCCESS",
+    "merge_safe_33267384887": "SUCCESS"
+  },
+  "commit_sha": "f8bee3049b8102a8c198cf9048651e94849b18ab",
+  "correlation_id": "p08-benchmark-authority-v1",
+  "event_id": "20260829T181104Z-chatgpt-benchmark-authority-work-completed",
+  "event_type": "work.completed",
+  "metadata": {
+    "artifact_archive_digest": "sha256:3d40a7616d54deda6e17cdd6131cafa9e5260d04e68e4acbd7f8ea1ee1b21032",
+    "artifact_id": 9719064226,
+    "artifact_mp4_sha256": {
+      "browser-launch-01": "f0c88664cf49eef6c0fe0627561d71e757fa5e3e19dabe6f4c2fa8e63a5c4fea",
+      "browser-launch-02": "de3b690032e22025b2bb8c6b29da62720fa8313560af1ec45fc88f8ea8fbbf43",
+      "browser-launch-03": "2f9997bd3de2a3b19e3fcbd9521a0c6f79cd36ff1555ccba02cd66c7695fdd13",
+      "browser-launch-04": "42f0c1ecd99ec667387db5a28caf54a7f07278895e7a5a44178f93ef29dbd755",
+      "browser-launch-05": "50f8843c42d968056c2efeebd4a6e4ea995deddae64fd8feb2a201ff28f4498d"
+    },
+    "artifact_repeatability": "All five MP4 hashes matched the prior clean physical run.",
+    "creative_authority": "BLOCKED",
+    "evidence_class": "MECHANICAL_RENDER_ONLY",
+    "next_safe_action": "Bind a canonical benchmark suite to artifacts that materially express requested style families, then run authoritative creative/style review before any APSR/GSR PASS.",
+    "pr_number": 75,
+    "session_id": "motion://session/chatgpt/benchmark-authority/20260829T1924+0200",
+    "style_fidelity_authority": "BLOCKED",
+    "style_fidelity_finding": "Manual frame inspection shows the five smoke outputs share the generic MOTION.OS runtime-proof UI grammar; labels/palette differ, but requested style fidelity is not demonstrated.",
+    "workstream_id": "motion://workstream/p08-benchmark-authority"
+  },
+  "pr_number": 75,
+  "project": "MOTION.OS",
+  "summary": "Completed evidence-bound APSR/GSR authority and first five-artifact physical benchmark smoke. Exact code head passed MERGE_SAFE and physical clean-runner; outputs are repeatable 90-frame/30fps/3.0s artifacts. Authority remains intentionally blocked for creative/style fidelity because smoke outputs use the same generic runtime-proof visual grammar. Aggregate historical 25/5 counters and mechanical renders cannot self-promote.",
+  "timestamp": "2026-08-29T18:11:04Z"
+}
