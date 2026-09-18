@@ -5,10 +5,80 @@ from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Sequence
+import re
 
 from .clients import OllamaClient, QdrantClient, SemanticServiceError, validate_semantic_vector
 from .core import COS_LEVELS, Chunk, DeterministicJLProjector, RepoManifest, SearchHit, SemanticConfig, batched, chunk_repository, cosine, l2_normalize
 from .structural import load_structural_context
+
+
+_RETRIEVAL_STOPWORDS = frozenset({
+    "a", "an", "and", "are", "as", "at", "be", "by", "does", "for", "from",
+    "how", "in", "into", "is", "it", "of", "on", "or", "the", "that", "this",
+    "to", "where", "which", "with", "motion", "motions",
+})
+
+
+def _retrieval_tokens(value: str, *, limit: int = 64) -> tuple[str, ...]:
+    """Bounded identifier-aware tokens for repo retrieval; never execute content."""
+    expanded = re.sub(r"(?<=[a-z0-9])(?=[A-Z])", " ", value.replace("_", " "))
+    tokens = [
+        token.lower()
+        for token in re.findall(r"[A-Za-z0-9]+", expanded)
+        if len(token) > 1 and token.lower() not in _RETRIEVAL_STOPWORDS
+    ]
+    return tuple(tokens[:limit])
+
+
+def _lexical_relevance(query: str, payload: dict[str, Any]) -> float:
+    """Small bounded lexical signal; path authority dominates untrusted chunk text."""
+    query_tokens = set(_retrieval_tokens(query))
+    if not query_tokens:
+        return 0.0
+    path = str(payload.get("path") or "")
+    text = str(payload.get("text") or "")[:4096]
+    path_tokens = set(_retrieval_tokens(path))
+    text_tokens = set(_retrieval_tokens(text, limit=512))
+    path_overlap = len(query_tokens & path_tokens) / len(query_tokens)
+    text_overlap = len(query_tokens & text_tokens) / len(query_tokens)
+    return min(1.0, 0.80 * path_overlap + 0.20 * text_overlap)
+
+
+def _retrieval_intent_prior(query: str, path: str) -> float:
+    """Generic repo-search prior: code questions prefer code; doc/schema questions stay explicit."""
+    lowered = query.lower()
+    normalized = path.replace("\\", "/").lower()
+    score = 0.0
+    implementation_intent = any(
+        token in lowered
+        for token in (
+            "implement", "pipeline", "entrypoint", "execution", "compiler",
+            "compiled", "normalize", "normalization", "retrieval", "engine",
+        )
+    )
+    if implementation_intent:
+        if normalized.startswith("src/"):
+            score += 0.11
+        elif normalized.startswith("scripts/"):
+            score += 0.10
+        elif normalized.startswith("tests/"):
+            score += 0.03
+        if normalized.endswith((".md", ".mdx")):
+            score -= 0.04
+    if "document" in lowered or "operating rules" in lowered:
+        if normalized.startswith("coordination/"):
+            score += 0.08
+        elif normalized.endswith((".md", ".mdx")):
+            score += 0.04
+    if "schema" in lowered or "traceability contract" in lowered:
+        if normalized.startswith("schemas/"):
+            score += 0.12
+        elif normalized.startswith("tests/"):
+            score += 0.04
+    if "entrypoint" in lowered or "corpus orchestration" in lowered:
+        if normalized.startswith("scripts/"):
+            score += 0.12
+    return score
 
 
 class SemanticKnowledgePlane:
@@ -143,20 +213,31 @@ class SemanticKnowledgePlane:
             # IDs while retaining the independent route score as a tie-breaker.
             candidates_by_id[point_id] = candidate
 
-        hits: list[SearchHit] = []
+        scored: list[tuple[float, SearchHit]] = []
         for point_id, candidate in candidates_by_id.items():
             semantic = self._extract_named_vector(candidate, "semantic")
             semantic_score = cosine(query_semantic, semantic)
-            hits.append(
+            payload = dict(candidate.get("payload") or {})
+            lexical_score = _lexical_relevance(query, payload)
+            intent_prior = _retrieval_intent_prior(query, str(payload.get("path") or ""))
+            # Semantic similarity remains dominant. Path/type intent can correct
+            # doc-vs-code ambiguity; chunk text contributes at most 0.028 total
+            # so keyword stuffing cannot become the primary ranking authority.
+            retrieval_score = semantic_score + 0.14 * lexical_score + intent_prior
+            scored.append((
+                retrieval_score,
                 SearchHit(
                     point_id=point_id,
                     semantic_score=semantic_score,
                     route_score=route_scores.get(point_id, 0.0),
-                    payload=dict(candidate.get("payload") or {}),
-                )
-            )
-        hits.sort(key=lambda hit: (hit.semantic_score, hit.route_score), reverse=True)
-        return hits[:limit]
+                    payload=payload,
+                ),
+            ))
+        scored.sort(
+            key=lambda item: (item[0], item[1].semantic_score, item[1].route_score, item[1].point_id),
+            reverse=True,
+        )
+        return [hit for _, hit in scored[:limit]]
 
     def graphify(self, *, repo_ids: Sequence[str] | None = None, neighbors: int = 8, min_semantic_score: float = 0.15, query_batch_size: int = 32) -> dict[str, Any]:
         if neighbors < 1:
@@ -240,4 +321,4 @@ class SemanticKnowledgePlane:
 
     def cos_graph_engine(self, query: str, *, limit: int = 10, repo_ids: Sequence[str] | None = None) -> dict[str, Any]:
         hits = self.search(query, limit=limit, repo_ids=repo_ids)
-        return {"query": query, "collection": self.config.qdrant_collection, "pipeline": ["Ollama bge-m3 1024D embedding", "deterministic cos20 routing projection", "Qdrant cos20 + native semantic candidate union", "exact 1024D cosine rerank", "provenance-preserving GraphRAG result"], "cos_20_levels": list(COS_LEVELS), "active_retrieval_levels": ["L8", "L9", "L10", "L11", "L12"], "hits": [asdict(hit) for hit in hits]}
+        return {"query": query, "collection": self.config.qdrant_collection, "pipeline": ["Ollama bge-m3 1024D embedding", "deterministic cos20 routing projection", "Qdrant cos20 + native semantic candidate union", "1024D cosine + bounded path/text intent rerank", "provenance-preserving GraphRAG result"], "cos_20_levels": list(COS_LEVELS), "active_retrieval_levels": ["L8", "L9", "L10", "L11", "L12"], "hits": [asdict(hit) for hit in hits]}
