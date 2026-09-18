@@ -1,0 +1,35 @@
+{
+  "event_id": "evt_p3_heterogeneous_master_verified_20260831_1652",
+  "event_type": "work.completed",
+  "timestamp": "2026-08-31T16:52:00+02:00",
+  "agent_id": "motion://agent/chatgpt/project-completion-architect",
+  "project": "MOTION.OS",
+  "branch": "feat/p3-heterogeneous-master-v1",
+  "commit_sha": "5401dd6e101dcb3430624db66c20e57b111f55b2",
+  "pr_number": 118,
+  "summary": "P3.3 heterogeneous renderer integration achieved physical verification on the PR merge candidate: HyperFrames base + official lottie-web alpha overlay + BT.709 normalization + sole master audio produced one 90-frame 640x360 30fps master with one video and one audio stream, zero verification errors, visible overlay contribution and recoverable SHA-bound CI evidence. Promotion remains blocked by open audit issue #48.",
+  "affected_paths": [
+    "evidence/p3_heterogeneous_master_physical_2026-08-31.json",
+    "scripts/assemble_heterogeneous_master.py",
+    "src/renderers/color_policy.py",
+    "tests/test_phase08_heterogeneous_color_semantics.py"
+  ],
+  "checks": {
+    "heterogeneous_master_runtime": "PASS:run=33404913839:job=99529987533",
+    "merge_safe": "PASS:run=33404913852:job=99530373134",
+    "tested_pr_merge_sha": "4e62822d59f4a20a67636b0728782f8c75606d39",
+    "final_master_sha256": "2c11f29609a3f093f10f1ac36c1291e4560bad6fe62e7fc2a1a8c468282735e0",
+    "artifact": "9762775049:zip_sha256=d270dce0dfd532a8ee27b45877fbf91a3b2a2034af765ee4f66132a39a57afa7",
+    "promotion_barrier": "OPEN:#48:NO_MAIN_PROMOTION"
+  },
+  "authority": "VERIFIED",
+  "correlation_id": "motion://objective/project-done/p3-heterogeneous-master",
+  "metadata": {
+    "session_id": "motion://session/chatgpt/project-completion-architect/20260831T1645+0200",
+    "workstream_id": "motion://workstream/p3-heterogeneous-master-v1",
+    "control_issue": 93,
+    "physical_authority": "VERIFIED_PR_MERGE_CANDIDATE_NOT_PROMOTED",
+    "creative_authority": "none",
+    "next_action": "Keep PR #118 unpromoted while #48 is open; advance Project Completion Engine to P4 real-master recovery and real multimodal-provider authority using the verified master artifact as the canonical technical seed."
+  }
+}
