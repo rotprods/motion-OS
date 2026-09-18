@@ -1,0 +1,36 @@
+{
+  "event_id": "20260828T130600000000Z-chatgpt-lottie-runtime-integrity-work-completed",
+  "event_type": "work.completed",
+  "timestamp": "2026-08-28T11:06:00Z",
+  "agent_id": "motion://agent/chatgpt/lottie-runtime-integrity",
+  "project": "MOTION.OS",
+  "branch": "feat/p08-lottie-runtime-integrity",
+  "commit_sha": "502535bce67d3831137266ae2adea4fe04289cab",
+  "pr_number": 66,
+  "summary": "Implemented and clean-runner-qualified the Lottie supported-subset/runtime-boundary hardening. The compiler now emits canonical numeric type/transform structures, fails closed on unstable identities/timing/expressions/unresolved assets/text ambiguity, and produces a deterministic player evidence contract that cannot self-promote. Physical lottie-web/dotlottie-web rendering remains a separate authority gate.",
+  "affected_paths": [
+    "src/compilers/lottie.py",
+    "tests/test_phase08_lottie_runtime.py"
+  ],
+  "checks": {
+    "merge_safe_code_head": "PASS",
+    "quick_suite": "PASS_307_TESTS_1_SKIPPED",
+    "repo_health": "PASS",
+    "immutable_event_validation": "PASS_AFTER_CANONICAL_EVENT_TYPE_FIX",
+    "manual_code_review": "PASS_NO_KNOWN_P0_P1",
+    "manual_security_review": "PASS_NO_KNOWN_P0_P1",
+    "physical_lottie_player": "NOT_EXECUTED_PROVIDER_RUNTIME_PENDING",
+    "local_checkout": "DEGRADED_EXTERNAL_DNS"
+  },
+  "authority": "VERIFIED",
+  "correlation_id": "issue48-p08-lottie-runtime-integrity",
+  "metadata": {
+    "project_id": "motion://project/motion-os",
+    "session_id": "motion://session/chatgpt/lottie-runtime-integrity/20260828T1253+0200",
+    "workstream_id": "motion://workstream/p08-lottie-runtime-integrity",
+    "base_sha": "a8d7dbddaeb4ad9779df9883d3cf4e4f6ea4f29d",
+    "code_head_verified": "502535bce67d3831137266ae2adea4fe04289cab",
+    "merge_safe_run_id": 33165718917,
+    "next_safe_action": "Qualify this final event-bearing head, keep PR #66 draft while the #39/#48 regression barrier is active, then execute a real Lottie player roundtrip and bind document SHA256 to frame evidence before E25 may become renderer-executed."
+  }
+}
