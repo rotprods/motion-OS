@@ -45,10 +45,25 @@ def validate_artifacts(artifacts:list[RenderArtifact], *, width:int,height:int,f
     return errors
 
 
-def build_composite_plan(artifacts:list[RenderArtifact], *, width:int,height:int,fps:int,duration_ms:int,audio_path:str|None=None) -> dict[str,Any]:
+def build_composite_plan(
+    artifacts:list[RenderArtifact],
+    *,
+    width:int,
+    height:int,
+    fps:int,
+    duration_ms:int,
+    audio_path:str|None=None,
+    audio_sample_rate:int=48000,
+    audio_channels:int=2,
+) -> dict[str,Any]:
     errors=validate_artifacts(artifacts,width=width,height=height,fps=fps,duration_ms=duration_ms)
     if audio_path is not None and not str(audio_path).strip():
         errors.append("empty_master_audio_path")
+    if audio_path is not None:
+        if isinstance(audio_sample_rate, bool) or not isinstance(audio_sample_rate, int) or audio_sample_rate <= 0:
+            errors.append("invalid_master_audio_sample_rate")
+        if isinstance(audio_channels, bool) or not isinstance(audio_channels, int) or audio_channels <= 0:
+            errors.append("invalid_master_audio_channels")
     if errors: raise ValueError(";".join(errors))
     ordered=sorted(artifacts,key=lambda a:(a.z_index,a.artifact_id))
     plan={
@@ -61,6 +76,10 @@ def build_composite_plan(artifacts:list[RenderArtifact], *, width:int,height:int
       "color_policy":"normalize_before_composite",
       "audio_policy":"single_master_audio_graph",
       "audio_integrity_policy":"post_render_master_audio_required" if audio_path is not None else "explicit_silence",
+      "audio_contract":(
+          {"sample_rate":audio_sample_rate,"channels":audio_channels}
+          if audio_path is not None else None
+      ),
       "provenance_required":True,
     }
     plan["plan_hash"]=hashlib.sha256(json.dumps(plan,sort_keys=True,separators=(",",":")).encode()).hexdigest()
@@ -200,11 +219,21 @@ def verify_assembled_output_audio(
         return None
     if plan.get("audio_integrity_policy") != "post_render_master_audio_required":
         raise ValueError("unsupported audio integrity policy")
+    audio_contract=plan.get("audio_contract")
+    if not isinstance(audio_contract,dict):
+        raise ValueError("missing audio_contract")
+    sample_rate=audio_contract.get("sample_rate")
+    channels=audio_contract.get("channels")
+    if isinstance(sample_rate,bool) or not isinstance(sample_rate,int) or sample_rate <= 0:
+        raise ValueError("invalid audio_contract sample_rate")
+    if isinstance(channels,bool) or not isinstance(channels,int) or channels <= 0:
+        raise ValueError("invalid audio_contract channels")
     from .master_audio_integrity import verify_master_audio_integrity
     return verify_master_audio_integrity(
         output_path,
         expected_duration_s=plan["duration_ms"]/1000,
-        expected_sample_rate=48000,
+        expected_sample_rate=sample_rate,
+        expected_channels=channels,
         duration_tolerance_s=1/max(1, int(plan["fps"])),
         speech_windows=speech_windows,
     )
