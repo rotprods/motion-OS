@@ -34,25 +34,27 @@ def test_empty_history_requests_first_iteration():
     assert result["remaining_attempts"] == 3
 
 
-def test_verifier_completion_is_terminal_verified_only_with_independent_receipt():
+def test_verifier_completion_is_evidence_bound_but_cannot_mint_verified_authority():
     result_hash = h("a")
     result = evaluate_gauntlet(
         [attempt(1, "fix-a", result_hash, True, "all gates pass", 1.0)],
         verifier_receipt=receipt(result_hash),
-        trusted_verifier_evidence_hashes=(h("e"),),
     )
-    assert result["state"] == "VERIFIED"
+    assert result["state"] == "VERIFIER_PASS_UNPROMOTED"
+    assert result["promotion_authority"] == "NONE"
     assert result["result_hash"] == result_hash
     assert result["verifier_receipt"]["verifier_id"] == "motion://agent/verifier/1"
+    assert "external authority" in result["next_action"]
 
 
-def test_unanchored_independent_receipt_cannot_grant_verified_authority():
+def test_caller_supplied_receipt_never_grants_verified_state():
     result_hash = h("a")
-    with pytest.raises(GauntletError, match="not anchored"):
-        evaluate_gauntlet(
-            [attempt(1, "fix-a", result_hash, True, "pass", 1.0)],
-            verifier_receipt=receipt(result_hash),
-        )
+    result = evaluate_gauntlet(
+        [attempt(1, "fix-a", result_hash, True, "pass", 1.0)],
+        verifier_receipt=receipt(result_hash),
+    )
+    assert result["state"] != "VERIFIED"
+    assert result["promotion_authority"] == "NONE"
 
 
 def test_completion_without_independent_receipt_cannot_self_certify():
