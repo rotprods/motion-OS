@@ -1,0 +1,64 @@
+{
+  "schema_version": "1.0",
+  "project": "BMW_DUBAI_REFERENCE_FILM",
+  "correlation_id": "BMW-DUBAI-FILM-20260918",
+  "branch": "prod/bmw-dubai-reference-film",
+  "base_sha": "72674bca609196c25cc99e05f93ad170f22e28e4",
+  "source_video": {
+    "id": "bf212ce1-b59d-4a94-8a40-42826085b441",
+    "role": "TEMPORAL_TECHNIQUE_AUTHORITY"
+  },
+  "world": {
+    "master": {
+      "id": "4117ac42-ce00-4409-b4b0-e0361a671591",
+      "status": "WORLD_LOCK_CANDIDATE"
+    },
+    "coverage": {
+      "W01": "495f90c0-bd90-4a44-af2a-623a8cb6a0ed",
+      "W02": "9b39a50a-f7fa-4c4b-bebe-4c052d76e9ec",
+      "W03": "93a934f7-04a0-45a7-b142-d4b440283182",
+      "W04": "f7f32deb-28a3-4be6-9e1d-1a6d20028e2f",
+      "W05": "a707c389-0502-4039-a9ab-028bafdfe91d",
+      "W06": "1542df6f-5e02-4794-a62d-ae4128fcc559"
+    }
+  },
+  "hero": {
+    "extracted_reference_frames": [
+      "3bad219d-a190-4fd6-b0db-09fa64c9bb89",
+      "fed025f8-2c18-4bac-9458-58cb4080d217",
+      "8eb8092a-25e5-47de-9fa4-e23c67aac80d",
+      "93add8fc-27d8-4a56-8dbf-235ca8e8199c",
+      "d2b9a405-92e1-4011-815f-23c720ec3037"
+    ],
+    "master": "ea592be8-a49a-4696-a4b3-b4d36874780b",
+    "coverage": {
+      "H01": "f1f6ffba-e1b9-43ab-a780-aeaaf81ef5fe",
+      "H02": "c234bf6d-7010-4510-97d9-f8324dae268f",
+      "H03": "da743f40-8fb7-42fc-b7f0-150659b77ba2",
+      "H04": "8f493e8b-cd7d-40da-a277-0c7025fefdfe",
+      "H05": "b93254b9-0b01-4edb-9e6a-52f6c7bc8f97",
+      "H06": "336005a0-875f-455d-9fc8-4cf91f3789c4"
+    }
+  },
+  "transitions": {
+    "T01": "1672961b-7790-4477-a100-68e4d102dc77",
+    "T02": "cb00d8f8-20c3-4d69-abda-7b5536340252",
+    "T03": "0849d65b-84ef-4344-9b1d-5123a4b4ed8b",
+    "T04": "2f6f062c-3326-4147-8e77-8b894f556c24",
+    "T05": "242b6417-5ae6-4fef-9c5b-8a59319c5334"
+  },
+  "final_compile": {
+    "model": "seedance_2_5",
+    "mode": "omni_reference",
+    "duration_s": 15,
+    "aspect_ratio": "9:16",
+    "resolution": "1080p",
+    "bitrate_mode": "high",
+    "generate_audio": true,
+    "preflight_cost_credits": 135,
+    "submitted_job_id": "964a7476-84e5-47eb-a160-0d78e7a13757",
+    "status": "QUEUED",
+    "retry_policy": "NO_BLIND_RETRY"
+  },
+  "qa_status": "PENDING_EXACT_RENDER"
+}
