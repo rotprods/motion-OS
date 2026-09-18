@@ -1,12 +1,21 @@
 from __future__ import annotations
 
+import math
+
 from src.semantic_index.core import SemanticConfig
-from src.semantic_index.engine import SemanticKnowledgePlane
+from src.semantic_index.engine import SemanticKnowledgePlane, _lexical_relevance
 
 
 def _unit(index: int, dims: int = 1024) -> list[float]:
     vector = [0.0] * dims
     vector[index] = 1.0
+    return vector
+
+
+def _vector_with_cosine(score: float, dims: int = 1024) -> list[float]:
+    vector = [0.0] * dims
+    vector[0] = score
+    vector[1] = math.sqrt(1.0 - score * score)
     return vector
 
 
@@ -84,3 +93,60 @@ def test_semantic_only_candidate_has_neutral_route_tiebreaker_not_fake_semantic_
 
     assert hit.semantic_score == 1.0
     assert hit.route_score == 0.0
+
+
+def test_implementation_intent_prefers_source_over_slightly_stronger_plan_match():
+    query = _unit(0)
+    plan = _point(
+        "plan",
+        score=0.65,
+        semantic=_vector_with_cosine(0.65),
+        path="plans/extraction_pipeline.md",
+    )
+    source = _point(
+        "source",
+        score=0.62,
+        semantic=_vector_with_cosine(0.62),
+        path="src/extraction/pipeline.py",
+    )
+    qdrant = SplitCandidateQdrant(route_results=[plan, source], semantic_results=[plan, source])
+
+    plane = SemanticKnowledgePlane(SemanticConfig(), ollama=FakeOllama(query), qdrant=qdrant)
+    hits = plane.search("Where is the extraction pipeline implemented?", limit=2)
+
+    assert hits[0].point_id == "source"
+    assert hits[0].semantic_score < hits[1].semantic_score
+
+
+def test_documentation_intent_prefers_coordination_contract_over_generic_source():
+    query = _unit(0)
+    source = _point(
+        "source",
+        score=0.62,
+        semantic=_vector_with_cosine(0.62),
+        path="src/coordination/sdk.py",
+    )
+    protocol = _point(
+        "protocol",
+        score=0.58,
+        semantic=_vector_with_cosine(0.58),
+        path="coordination/AGENT_PROTOCOL.md",
+    )
+    qdrant = SplitCandidateQdrant(route_results=[source, protocol], semantic_results=[source, protocol])
+
+    plane = SemanticKnowledgePlane(SemanticConfig(), ollama=FakeOllama(query), qdrant=qdrant)
+    hits = plane.search("Where are agent ownership claims and operating rules documented?", limit=2)
+
+    assert hits[0].point_id == "protocol"
+
+
+def test_untrusted_chunk_keyword_stuffing_has_bounded_lexical_influence():
+    score = _lexical_relevance(
+        "extraction pipeline",
+        {"path": "notes/noise.txt", "text": ("extraction pipeline " * 5000)},
+    )
+
+    # Text is deliberately capped at 20% of the lexical signal; the final
+    # retrieval formula multiplies lexical relevance by 0.14, so content-only
+    # keyword stuffing can contribute at most 0.028.
+    assert 0.0 <= score <= 0.20
