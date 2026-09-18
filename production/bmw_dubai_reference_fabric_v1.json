@@ -72,7 +72,7 @@
     "V3": {
       "media_id": "9f3a9784-c435-44fb-a16e-74a9daf07378",
       "status": "VERIFIED_TECHNICAL_SEMANTIC_STRUCTURE",
-      "duration_s": 15.0,
+      "duration_s": 15,
       "frames": 450,
       "fps": 30,
       "resolution": "1080x1920",
@@ -106,8 +106,8 @@
     },
     "V4": {
       "media_id": "a2a42737-5aaf-4203-8fee-7b9d25500913",
-      "status": "TECHNICAL_VERIFIED_SEMANTIC_PENDING",
-      "duration_s": 15.0,
+      "status": "VERIFIED_TECHNICAL_SEMANTIC",
+      "duration_s": 15,
       "frames": 450,
       "fps": 30,
       "resolution": "1080x1920",
@@ -124,10 +124,35 @@
         "p75_pct": 7.93,
         "p90_pct": 4.77
       },
-      "semantic_analysis_id": "9cc59ecd-32fe-4491-aa3b-100cd19b41a4"
+      "semantic_analysis_id": "9cc59ecd-32fe-4491-aa3b-100cd19b41a4",
+      "sha256": "8ed16281a1e2f80ad2fa22fc9725253a1af1a76be1b49b6bc19e13edd3586ba4",
+      "size_bytes": 29797254,
+      "integrity": {
+        "decode": "PASS",
+        "black_frames_detected": 0,
+        "freezes_ge_0_5s": 0,
+        "silences_ge_0_25s": 0
+      },
+      "semantic_analysis_status": "COMPLETED",
+      "semantic_summary": [
+        "glass/reflection Dubai opening preserved",
+        "low-angle tracking shot recognized with car driving forward",
+        "speed ramping explicitly recognized",
+        "limestone/building-corner occlusion preserved",
+        "front hero with Burj preserved",
+        "registered wireframe/chassis technical reveal preserved",
+        "taillight extreme close-up preserved",
+        "rear low tracking acceleration recognized",
+        "wheel extreme close-up preserved",
+        "front driving-toward-camera shot with background blur recognized",
+        "side tracking repeat recognized",
+        "final rear static payoff aligned with Burj preserved"
+      ],
+      "evidence_bound_qa_score_10": 8.87,
+      "promotion": "CANONICAL_CREATIVE_MASTER_FOR_BMW_DUBAI_WAVE"
     }
   },
   "current_candidate": "V4",
-  "qa_status": "V4_SEMANTIC_PENDING",
+  "qa_status": "V4_PROMOTED_VERIFIED",
   "safety_ip_policy": "Seedance IP detection is a terminal platform constraint for these attempts; do not evade by repeated or disguised submissions. Continue only with permitted original/deterministic processing of already-created assets."
 }
