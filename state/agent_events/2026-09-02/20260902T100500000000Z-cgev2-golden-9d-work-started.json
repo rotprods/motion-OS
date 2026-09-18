@@ -1,0 +1,35 @@
+{
+  "event_id": "20260902T100500000000Z-cgev2-golden-9d-work-started",
+  "event_type": "work.started",
+  "timestamp": "2026-09-02T08:05:00Z",
+  "agent_id": "motion://agent/chatgpt/cos-graph-engineV2-9d",
+  "project": "MOTION.OS",
+  "branch": "feat/reverse-engineering-9d-qualification-v1",
+  "commit_sha": "2e26e311e506b6aaaa32f827e1579ddaa1e3ea58",
+  "pr_number": null,
+  "summary": "T08 renderer-neutral nine-dimension qualification workstream started after exact-head reconciliation of S04/S11/S14/S16. The work binds scene evidence but does not inherit renderer-local authority or promote aggregate scores to full fidelity.",
+  "affected_paths": [
+    "src/reverse_engineering/qualification",
+    "schemas/reverse_engineering_9d",
+    "forensics/references/screenrecording_20260826/golden/aggregate_9d",
+    "docs/reverse_engineering_v2/QUALIFICATION_9D.md",
+    "tests/test_reverse_engineering_9d_contracts.py"
+  ],
+  "checks": {
+    "main": "d4e628a1aef0cd382c3c2f1ea327a8ff70c41bd9",
+    "base_pr": "64@2e26e311e506b6aaaa32f827e1579ddaa1e3ea58",
+    "s04": "96@8ec35a259399d7b196b40627d782315a019e65e2",
+    "s11": "107@988e91893cb498f720b9c2656b3d6d85f2d56300",
+    "s14": "124@12592bd8f8149767fafcb0ad0aa6036250ce540c",
+    "s16": "125@8e6fcb79d0d7958c0f023f128297059c97a7e674",
+    "regression_barrier": "OPEN:issue-48"
+  },
+  "authority": "PROPOSED",
+  "correlation_id": "motion://work/t08-golden-scenes-9d",
+  "metadata": {
+    "session_id": "motion://session/cgev2-9d/20260902T1005+0200",
+    "workstream_id": "motion://workstream/reverse-engineering-9d-qualification-v1",
+    "objective_id": "motion://objective/t08-golden-scenes-9d-defect-graph",
+    "authority_ceiling": "CROSS_SCENE_MEASURED_QUALIFICATION_ONLY"
+  }
+}

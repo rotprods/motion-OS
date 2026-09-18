@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://motion-os.local/schemas/reverse_engineering_9d/golden_qualification_manifest.schema.json",
+  "title": "MOTION.OS Golden 9D Qualification Manifest",
+  "type": "object",
+  "required": ["schema_version", "program_id", "scenes", "evidence", "claims", "requirements"],
+  "properties": {
+    "schema_version": {"const": "motion-os.golden-9d-qualification-manifest/v1"},
+    "program_id": {"type": "string", "minLength": 1},
+    "authority_rule": {"type": "string"},
+    "promotion_rule": {"type": "string"},
+    "scenes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["scene_id", "head_sha"],
+        "properties": {
+          "scene_id": {"type": "string"},
+          "pr": {"type": "integer"},
+          "head_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["evidence_id", "scene_id", "kind", "authority"],
+        "properties": {
+          "evidence_id": {"type": "string"},
+          "scene_id": {"type": "string"},
+          "kind": {"type": "string"},
+          "authority": {"enum": ["PHYSICALLY_MEASURED", "DETERMINISTIC_HEURISTIC", "EVIDENCE_BOUND_INFERENCE", "EXPLICIT_ASSUMPTION", "UNKNOWN"]},
+          "revision": {"type": "string"},
+          "uri": {"type": "string"},
+          "digest": {"type": "string"},
+          "equivalence_proof_id": {"type": "string"},
+          "notes": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["claim_id", "scene_id", "dimension", "semantic_target", "claim_kind", "required", "status", "authority", "evidence_ids", "scope", "severity_if_unqualified"],
+        "properties": {
+          "claim_id": {"type": "string"},
+          "scene_id": {"type": "string"},
+          "dimension": {"enum": ["temporal", "motion", "camera", "typography", "depth", "color", "fx", "audio", "retention"]},
+          "semantic_target": {"type": "string"},
+          "claim_kind": {"type": "string"},
+          "required": {"type": "boolean"},
+          "status": {"enum": ["QUALIFIED", "PARTIAL", "BLOCKED", "NOT_MEASURED", "NOT_APPLICABLE"]},
+          "authority": {"enum": ["PHYSICALLY_MEASURED", "DETERMINISTIC_HEURISTIC", "EVIDENCE_BOUND_INFERENCE", "EXPLICIT_ASSUMPTION", "UNKNOWN"]},
+          "evidence_ids": {"type": "array", "items": {"type": "string"}},
+          "scope": {"type": "string"},
+          "severity_if_unqualified": {"enum": ["P0", "P1", "P2", "P3"]},
+          "blocked_reason": {"type": "string"},
+          "proxy_for": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "requirements": {
+      "type": "array",
+      "minItems": 9,
+      "maxItems": 9,
+      "items": {
+        "type": "object",
+        "required": ["dimension", "claim_ids"],
+        "properties": {
+          "dimension": {"enum": ["temporal", "motion", "camera", "typography", "depth", "color", "fx", "audio", "retention"]},
+          "claim_ids": {"type": "array", "minItems": 1, "items": {"type": "string"}}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
