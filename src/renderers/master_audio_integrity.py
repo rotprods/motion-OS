@@ -103,14 +103,40 @@ def verify_master_audio_integrity(
     expected_duration=_finite_positive_number(expected_duration_s)
     if expected_duration is None:
         raise ValueError("expected_duration_s must be finite and positive")
-    if isinstance(expected_sample_rate,bool) or expected_sample_rate <= 0:
-        raise ValueError("expected_sample_rate must be positive")
-    if isinstance(expected_channels,bool) or expected_channels <= 0:
-        raise ValueError("expected_channels must be positive")
-    if not math.isfinite(duration_tolerance_s) or duration_tolerance_s < 0:
+    if isinstance(expected_sample_rate, bool) or not isinstance(expected_sample_rate, int) or expected_sample_rate <= 0:
+        raise ValueError("expected_sample_rate must be a positive integer")
+    if isinstance(expected_channels, bool) or not isinstance(expected_channels, int) or expected_channels <= 0:
+        raise ValueError("expected_channels must be a positive integer")
+    if (
+        isinstance(duration_tolerance_s, bool)
+        or not isinstance(duration_tolerance_s, (int, float))
+        or not math.isfinite(float(duration_tolerance_s))
+        or float(duration_tolerance_s) < 0
+    ):
         raise ValueError("duration_tolerance_s must be finite and non-negative")
-    if not math.isfinite(silence_floor_dbfs):
+    duration_tolerance_s = float(duration_tolerance_s)
+    if (
+        isinstance(silence_floor_dbfs, bool)
+        or not isinstance(silence_floor_dbfs, (int, float))
+        or not math.isfinite(float(silence_floor_dbfs))
+    ):
         raise ValueError("silence_floor_dbfs must be finite")
+    silence_floor_dbfs = float(silence_floor_dbfs)
+    if isinstance(timeout, bool) or not isinstance(timeout, int) or timeout < 1:
+        raise ValueError("timeout must be a positive integer")
+    if not isinstance(speech_windows, tuple):
+        raise ValueError("speech_windows must be a tuple of (start_s, duration_s) pairs")
+    for index, window in enumerate(speech_windows):
+        if not isinstance(window, tuple) or len(window) != 2:
+            raise ValueError(f"speech_windows[{index}] must be a two-item tuple")
+        start_s, window_duration_s = window
+        if (
+            isinstance(start_s, bool) or isinstance(window_duration_s, bool)
+            or not isinstance(start_s, (int, float)) or not isinstance(window_duration_s, (int, float))
+            or not math.isfinite(float(start_s)) or not math.isfinite(float(window_duration_s))
+            or float(start_s) < 0 or float(window_duration_s) <= 0
+        ):
+            raise ValueError(f"speech_windows[{index}] must contain finite non-negative start and positive duration")
 
     probe_bin=ffprobe_bin or shutil.which("ffprobe")
     if not probe_bin:
@@ -158,11 +184,12 @@ def verify_master_audio_integrity(
             channels=None
         if channels != expected_channels:
             errors.append(f"channel_mismatch:{channels}")
+        # Container duration is not proof of audio-stream duration. Falling
+        # back to format.duration could let a truncated audio stream inherit the
+        # video's full duration and falsely qualify.
         duration=_finite_positive_number(stream.get("duration"))
         if duration is None:
-            duration=_finite_positive_number((payload.get("format") or {}).get("duration") if isinstance(payload.get("format"),dict) else None)
-        if duration is None:
-            errors.append("missing_audio_duration")
+            errors.append("missing_audio_stream_duration")
         elif abs(duration-expected_duration) > duration_tolerance_s:
             errors.append(f"audio_duration_mismatch:{duration:.6f}")
 
