@@ -36,3 +36,50 @@ Rules:
 24. COS Graph Engine is a deterministic derived projection/query/reasoning plane. It must be rebuildable from authoritative event/state history and must not become a hidden second source of truth.
 25. State mutation + event publication must converge on transactional-outbox semantics when a durable multi-host backend is promoted; consumers must be idempotent and recover from durable offsets. Websocket/realtime delivery is notification, not truth.
 26. Session end, blocker, contract change, PR-ready state and ownership transfer require a structured CHECKPOINT plus the canonical immutable agent-event lifecycle where applicable. A future agent must be able to resume without this conversation.
+
+## Recovery and capability archaeology
+27. **Do not treat `main` as the complete capability frontier.** When recovering what MOTION.OS already knows or can do, inspect live open PRs, exact branch heads, stacked bases, supersession notes and durable evidence before declaring a capability missing. `main` remains canonical software truth for promoted code; open PRs are candidate capability/evidence, not production authority.
+28. Before recreating a system, search for the existing implementation across `main`, open PR heads, Drive recovery artifacts and the interaction ledger. Prefer recovery/convergence over reimplementation.
+29. A PR description, historical green CI or conversation memory never grants current authority. Bind every capability claim to exact SHA + executable evidence + current lifecycle state.
+30. Stacked/overlapping PRs are a dependency graph, not a merge checklist. Never merge every open PR independently. Identify terminal/converged candidates, repairs, superseded donors and historical-only branches first.
+31. A later repair that demonstrates a defect in an earlier green candidate supersedes that earlier promotion evidence until the repair is incorporated and the combined candidate is requalified.
+
+## Professional-edit production law
+32. During an active video edit, pixel/audio/text/timeline-changing work has priority over system-building work. No new architecture unless a demonstrated blocker prevents delivery.
+33. Reference videos are timed evidence, not aesthetic prompts. For reference-conditioned editing use physical extraction / Editing DNA / structural template evidence before inventing visual language.
+34. A technical PASS is not a professional creative PASS. Resolution, loudness, codec, no-black-frame and similar checks can prove integrity but cannot promote creative quality.
+35. Human visual rejection immediately blocks creative promotion. Do not relabel rejected work as Gold, Master, professional or approved because technical QA passed.
+36. Do not substitute ad-hoc FFmpeg/Pillow overlays for the canonical editor/motion system when the task is to exercise MOTION.OS/AVE. If a required execution path is unavailable, surface the capability gap or render bounded inserts through a qualified renderer and ingest them with explicit provenance.
+37. For editing/reference work, recover and obey `knowledge/reconstruction/VIDEO_REVERSE_ENGINEERING_CANON.md` and the relevant EditingTemplate/forensic evidence when present on the candidate frontier.
+
+## PR convergence / promotion law
+38. Promotion starts with a **live promotion graph**: current `main`, Issue #48, latest Issue #39 watermark, branch protection, all open PR heads, base/head ancestry, overlaps, supersessions, repairs and external blockers.
+39. Every promotion candidate must pass, on the exact candidate or exact synthetic merge being promoted: `/codereview`, `/securityreview`, `/QAreview`, relevant local verification, clean-runner `MERGE_SAFE`, and any domain-specific physical gate. Review findings P0/P1 must be zero before promotion.
+40. Reviews are evidence-producing gates, not prose rituals. Findings must bind file/path/line or contract, severity, exploit/failure mode where relevant, test/reproduction, repair and re-verification status.
+41. Merge serially. After each merge: re-read live `main`, invalidate stale candidate evidence, run post-merge/combined-head verification, emit `pr.merged` + `main.verified`, then rebase/reconcile the next candidate. Never batch blind merges.
+42. Superseded PRs should be closed unmerged only after proving all unique valid deltas are represented in the converged candidate or intentionally rejected with evidence.
+43. Branch protection is a hard governance prerequisite for a production-safe train. Until GitHub enforces it, protocol discipline is not equivalent to administrative protection.
+44. Do not close Issue #48 by optimism. Its exit criteria require no unresolved P0/P1, exact merge-candidate gates, current truth convergence, recovery/E2E evidence and verified `main` after merge.
+45. The current convergence plan is `docs/PR_CONVERGENCE_MASTERPLAN_2026-09-16.md`; refresh it from live provider truth before any irreversible promotion action.
+
+## Memory / skills authority
+46. Do not create duplicate `MEMORY.md`, progress, tools or graph continuity files when existing canonical surfaces already own that responsibility. Durable learning belongs in `knowledge/interaction_ledger.jsonl`, canonical plans/contracts, immutable events and validated state projections.
+47. The executable skill authority is `src/skills/registry.py` + `src/skills/runtime.py` and their tests/candidate repairs. A prose `SKILLS.md` must never outrank executable registry/runtime truth.
+48. Before declaring a skill absent or broken, inspect the current `src/skills` implementation and relevant live skill PRs (including failure-trace semantics) at exact heads.
+
+## Ponytail minimalism law
+49. **Be lazy like a senior engineer: efficient, never careless.** After understanding the task and tracing the real flow end to end, stop at the first rung that holds:
+   1. Does this need to exist at all? If not, skip it (YAGNI).
+   2. Does it already exist in this codebase? Reuse it; do not rewrite it.
+   3. Does the standard library already solve it? Use it.
+   4. Does a native platform feature solve it? Use it.
+   5. Does an already-installed dependency solve it? Use it.
+   6. Can the correct solution be one line? Make it one line.
+   7. Only then write the minimum new code that works.
+50. The ladder comes **after understanding**, never instead of it. Read the touched code and trace the real flow before choosing the smallest solution. A tiny diff in the wrong place is not minimalism; it is another bug.
+51. Bug fixes target the **root cause**, not the named symptom. Inspect every caller/consumer of the function or contract being changed and prefer one shared repair over duplicated path-specific guards.
+52. Prefer deletion over addition, boring over clever and the fewest files possible. Do not add abstractions, dependencies or boilerplate that the task does not require.
+53. Minimalism never removes trust-boundary validation, data-loss protection, security controls, accessibility, required hardware calibration or explicitly requested behavior. Safety/assurance invariants outrank line-count reduction.
+54. Non-trivial new logic must leave behind one runnable regression check: the smallest test or self-check that would fail if the logic breaks. Trivial one-liners do not require ceremonial tests.
+55. If a deliberate simplification introduces a known ceiling, mark it with a `ponytail:` comment that states the ceiling and the concrete upgrade path. Do not hide intentional technical debt.
+56. Source principle: `DietrichGebert/ponytail`. Treat this section as an efficiency/minimalism operating law; it never overrides MOTION.OS authority, security, QA, provenance, creative-quality or promotion gates.
