@@ -3,6 +3,8 @@ from __future__ import annotations
 import importlib.util
 import json
 import sys
+
+import pytest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -232,3 +234,72 @@ def test_motion_qualifier_keeps_w1_complete_but_dimension_partial():
     assert result["scene_results"]["TEST"]["reconstruct_exact_motion"]["state"] == "PARTIAL"
     assert result["scene_results"]["TEST"]["structural_template_motion"]["state"] == "PARTIAL"
     assert result["cross_golden"]["original_easing_graph"] == "BLOCKED"
+
+
+def test_indexed_tuple_parser_rejects_nonfinite_json_constants():
+    m = compiler()
+    text = "const TRACK:any[]=[[NaN,2,3,4]];"
+    with pytest.raises(ValueError, match="non-finite JSON constant"):
+        m.parse_indexed_tuples(text, "TRACK")
+
+
+@pytest.mark.parametrize("fps", [float("nan"), float("inf"), True, 0])
+def test_kinematics_rejects_nonfinite_boolean_or_nonpositive_fps(fps):
+    m = compiler()
+    rows = [{"frame": 0, "x": 0.0, "y": 0.0, "width": 10.0, "height": 10.0}]
+    with pytest.raises(ValueError, match="fps"):
+        m.kinematics(rows, fps, "TEST")
+
+
+def test_motion_manifest_cannot_escape_qualification_root(tmp_path):
+    m = compiler()
+    outside = tmp_path.parent / "outside-track.ts"
+    outside.write_text(
+        "const TRACK:any[]=[[0,0,10,10]];",
+        encoding="utf-8",
+    )
+    manifest = {
+        "schema_version": "motion-os.golden-motion-sources/v2",
+        "canvas": {"width": 100, "height": 100},
+        "scenes": {
+            "S": {
+                "ref": "a" * 40,
+                "checkout_dir": ".",
+                "path": "../outside-track.ts",
+                "fps": 30,
+                "authority": "TEST",
+                "format": "ts_indexed_tuple_boxes",
+                "entities": {"hero": "TRACK"},
+            }
+        },
+    }
+    with pytest.raises(ValueError, match="inside the qualification root"):
+        m.compile_manifest(manifest, tmp_path)
+
+
+def test_motion_manifest_rejects_symlink_source_escape(tmp_path):
+    m = compiler()
+    outside = tmp_path.parent / "outside-symlink-track.ts"
+    outside.write_text("const TRACK:any[]=[[0,0,10,10]];", encoding="utf-8")
+    link = tmp_path / "track.ts"
+    try:
+        link.symlink_to(outside)
+    except OSError:
+        pytest.skip("symlinks unavailable on this host")
+    manifest = {
+        "schema_version": "motion-os.golden-motion-sources/v2",
+        "canvas": {"width": 100, "height": 100},
+        "scenes": {
+            "S": {
+                "ref": "a" * 40,
+                "checkout_dir": ".",
+                "path": "track.ts",
+                "fps": 30,
+                "authority": "TEST",
+                "format": "ts_indexed_tuple_boxes",
+                "entities": {"hero": "TRACK"},
+            }
+        },
+    }
+    with pytest.raises(ValueError, match="symlinks"):
+        m.compile_manifest(manifest, tmp_path)
