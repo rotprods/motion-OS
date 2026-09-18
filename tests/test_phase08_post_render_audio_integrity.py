@@ -121,3 +121,29 @@ def test_speech_window_shape_and_numeric_domains_fail_closed():
             ffprobe_bin="ffprobe",
             runner=_runner([_audio()]),
         )
+
+
+@pytest.mark.parametrize("channels", [True, 1.5, "1.0"])
+def test_probe_channel_type_confusion_cannot_qualify_mono(channels):
+    stream=_audio(channels=channels)
+    evidence=verify_master_audio_integrity(
+        "final.mp4",
+        expected_duration_s=2.0,
+        expected_channels=1,
+        ffprobe_bin="ffprobe",
+        runner=_runner([stream]),
+    )
+    assert not evidence.ok
+    assert "channel_mismatch:None" in evidence.errors
+
+
+@pytest.mark.parametrize("floor", [-1000.0, -121.0, 0.0, 1.0])
+def test_silence_floor_cannot_be_weakened_outside_physical_policy(floor):
+    with pytest.raises(ValueError, match="between -120"):
+        verify_master_audio_integrity(
+            "final.mp4",
+            expected_duration_s=2.0,
+            silence_floor_dbfs=floor,
+            ffprobe_bin="ffprobe",
+            runner=_runner([_audio()]),
+        )
