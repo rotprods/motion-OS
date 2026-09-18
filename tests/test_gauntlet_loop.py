@@ -39,10 +39,20 @@ def test_verifier_completion_is_terminal_verified_only_with_independent_receipt(
     result = evaluate_gauntlet(
         [attempt(1, "fix-a", result_hash, True, "all gates pass", 1.0)],
         verifier_receipt=receipt(result_hash),
+        trusted_verifier_evidence_hashes=(h("e"),),
     )
     assert result["state"] == "VERIFIED"
     assert result["result_hash"] == result_hash
     assert result["verifier_receipt"]["verifier_id"] == "motion://agent/verifier/1"
+
+
+def test_unanchored_independent_receipt_cannot_grant_verified_authority():
+    result_hash = h("a")
+    with pytest.raises(GauntletError, match="not anchored"):
+        evaluate_gauntlet(
+            [attempt(1, "fix-a", result_hash, True, "pass", 1.0)],
+            verifier_receipt=receipt(result_hash),
+        )
 
 
 def test_completion_without_independent_receipt_cannot_self_certify():
