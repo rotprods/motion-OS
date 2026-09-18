@@ -1,4 +1,6 @@
 import json
+
+import pytest
 from types import SimpleNamespace
 
 from src.renderers.master_audio_integrity import verify_master_audio_integrity
@@ -65,3 +67,57 @@ def test_present_but_silent_audio_cannot_qualify_when_speech_window_is_required(
     )
     assert not evidence.ok
     assert evidence.errors == ('silent_speech_window:0.200',)
+
+
+def test_container_duration_cannot_substitute_for_missing_audio_stream_duration():
+    stream=_audio()
+    stream.pop("duration")
+    evidence=verify_master_audio_integrity(
+        "final.mp4",
+        expected_duration_s=2.0,
+        ffprobe_bin="ffprobe",
+        runner=_runner([stream], format_duration="2.000"),
+    )
+    assert not evidence.ok
+    assert "missing_audio_stream_duration" in evidence.errors
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("expected_sample_rate", True),
+        ("expected_channels", 1.5),
+        ("duration_tolerance_s", True),
+        ("silence_floor_dbfs", float("nan")),
+        ("timeout", 0),
+    ],
+)
+def test_audio_policy_domains_fail_closed(field, value):
+    kwargs={
+        "media_path":"final.mp4",
+        "expected_duration_s":2.0,
+        "ffprobe_bin":"ffprobe",
+        "runner":_runner([_audio()]),
+    }
+    kwargs[field]=value
+    with pytest.raises(ValueError):
+        verify_master_audio_integrity(**kwargs)
+
+
+def test_speech_window_shape_and_numeric_domains_fail_closed():
+    with pytest.raises(ValueError, match="speech_windows"):
+        verify_master_audio_integrity(
+            "final.mp4",
+            expected_duration_s=2.0,
+            speech_windows=[(0.0, 0.5)],  # type: ignore[arg-type]
+            ffprobe_bin="ffprobe",
+            runner=_runner([_audio()]),
+        )
+    with pytest.raises(ValueError, match="speech_windows"):
+        verify_master_audio_integrity(
+            "final.mp4",
+            expected_duration_s=2.0,
+            speech_windows=((True, 0.5),),
+            ffprobe_bin="ffprobe",
+            runner=_runner([_audio()]),
+        )
