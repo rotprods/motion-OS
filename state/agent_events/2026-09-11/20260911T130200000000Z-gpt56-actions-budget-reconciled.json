@@ -1,0 +1,29 @@
+{
+  "event_id": "20260911T130200000000Z-gpt56-actions-budget-reconciled",
+  "event_type": "state.reconciled",
+  "timestamp": "2026-09-11T13:02:00Z",
+  "agent_id": "chatgpt-gpt5.6-sol",
+  "project": "MOTION.OS",
+  "branch": "feat/semantic-knowledge-plane-qdrant",
+  "commit_sha": null,
+  "pr_number": 128,
+  "summary": "Reconciled the AVE private-runner blocker from UNKNOWN to ACCOUNT_ACTIONS_BUDGET_EXHAUSTED using account-level GitHub notifications: included Actions usage and the configured Actions budget are exhausted for the current billing period. This explains private-repository jobs terminating before step execution while public MOTION clean-runner CI remains available. No semantic quality threshold was changed and the full dual-repo qualification remains required before promotion.",
+  "affected_paths": [
+    "STATE.md",
+    "TASKS.md",
+    "state/agent_events/2026-09-11/20260911T125500000000Z-gpt56-semantic-plane-checkpoint.json"
+  ],
+  "checks": {
+    "ave_private_jobs": "BLOCKED_BEFORE_STEPS",
+    "motion_public_merge_safe": "PASS",
+    "motion_public_semantic_live_smoke": "PASS",
+    "blocker_root_cause": "ACCOUNT_ACTIONS_BUDGET_EXHAUSTED"
+  },
+  "authority": "VERIFIED",
+  "correlation_id": "PHASE08_AV_MOTION_SEMANTIC_PLANE_V4",
+  "metadata": {
+    "private_actions_capacity_required": true,
+    "full_corpus_required_before_promotion": true,
+    "financial_amounts_intentionally_not_persisted": true
+  }
+}

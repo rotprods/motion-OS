@@ -1,0 +1,39 @@
+{
+  "event_id": "20260911T125500000000Z-gpt56-semantic-plane-checkpoint",
+  "event_type": "work.checkpoint",
+  "timestamp": "2026-09-11T12:55:00Z",
+  "agent_id": "chatgpt-gpt5.6-sol",
+  "project": "MOTION.OS",
+  "branch": "feat/semantic-knowledge-plane-qdrant",
+  "commit_sha": null,
+  "pr_number": 128,
+  "summary": "Phase 08 semantic plane physically verified on clean-runner Ollama/Qdrant/BGE-M3 and exact-head Merge Safe; graphify v4 moves cos20 prefetch + semantic rerank into Qdrant. Real-corpus 25-query ground truth was repaired against current architecture, AVE stale authority docs were quarantined in its paired corpus manifest, and full dual-repo qualification remains blocked only by AVE private Actions not allocating a job runner. Local fail-closed qualification script is available; no full-corpus authority is claimed yet.",
+  "affected_paths": [
+    "src/semantic_index/clients.py",
+    "src/semantic_index/engine.py",
+    "benchmarks/semantic_retrieval_v1.json",
+    "tests/test_semantic_dataset_ground_truth.py",
+    "scripts/qualify_semantic_corpus.sh",
+    ".github/workflows/semantic-live-smoke.yml",
+    "STATE.md",
+    "TASKS.md"
+  ],
+  "checks": {
+    "merge_safe_a1b69658": "PASS",
+    "semantic_live_smoke_a1b69658": "PASS",
+    "bge_m3_dimensions": "1024 PASS",
+    "qdrant_schema": "semantic=1024 cos20=20 PASS",
+    "synthetic_candidate_recall_at_10": "0.965 PASS",
+    "synthetic_topic_precision_at_10": "1.000 PASS",
+    "full_dual_repo_corpus": "NOT_EXECUTED - AVE private runner unavailable"
+  },
+  "authority": "EXECUTED",
+  "correlation_id": "PHASE08_AV_MOTION_SEMANTIC_PLANE_V4",
+  "metadata": {
+    "verified_motion_head": "a1b69658b2a5032dfc298bdf6062bb686209a1ee",
+    "physical_smoke_artifact_digest": "sha256:128d92db62d3eaa5e23b8ca8b1742498f52309ccf0dcac542d4631a8bb6b72b6",
+    "full_corpus_required_before_promotion": true,
+    "ave_pr": 138,
+    "ave_runner_state": "RUNNER_UNAVAILABLE_CAUSE_UNRESOLVED"
+  }
+}
