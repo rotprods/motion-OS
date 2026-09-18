@@ -1,0 +1,26 @@
+{
+  "affected_paths": [
+    "src/avatar/transactional_store.py",
+    "tests/test_phase08_submission_evidence_store.py"
+  ],
+  "agent_id": "motion://agent/chatgpt/cos-graph-engineV2",
+  "authority": "IMPLEMENTED",
+  "branch": "feat/p08-paid-request-durable-evidence",
+  "checks": {
+    "local_first": "DEGRADED_EXTERNAL_DNS"
+  },
+  "commit_sha": "a35f5ef861f793c587bfbb5cf0ebd5c61e8833b4",
+  "correlation_id": "p08-paid-request-durable-evidence-v1",
+  "event_id": "evt_cosv2_paid_request_evidence_pr_opened_20260831T1128",
+  "event_type": "pr.opened",
+  "metadata": {
+    "graph_delta": "RenderIntent -> SubmissionEvidence -> ProviderOutcome",
+    "pr_url": "https://github.com/rotprods/motion-OS/pull/106",
+    "session_id": "motion://session/chatgpt/cos-graph-engineV2/20260831T1107+0200-request-evidence",
+    "workstream_id": "motion://workstream/p08-paid-request-durable-evidence"
+  },
+  "pr_number": 106,
+  "project": "MOTION.OS",
+  "summary": "Opened draft PR #106 for atomic durable binding of exact paid-provider request evidence to the SUBMITTED transition; local clone was degraded by sandbox DNS and no local PASS is claimed.",
+  "timestamp": "2026-08-31T09:28:30Z"
+}
