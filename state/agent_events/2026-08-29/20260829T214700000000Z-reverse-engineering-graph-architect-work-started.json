@@ -1,0 +1,36 @@
+{
+  "event_id": "20260829T214700000000Z-reverse-engineering-graph-architect-work-started",
+  "event_type": "work.started",
+  "timestamp": "2026-08-29T21:47:00Z",
+  "agent_id": "motion://agent/reverse-engineering-graph-architect",
+  "project": "MOTION.OS",
+  "branch": "refactor/reverse-engineering-hypergraph-v2",
+  "commit_sha": "e526341fc61576919485021e968d09b090130249",
+  "pr_number": null,
+  "summary": "Started a stacked /GRAPH-REFACTOR-V2 execution over the PR #64 reverse-engineering subsystem. The work is additive and scoped to V2 architecture, schemas, implementation kernel, specimen projections, tests and durable machine state; it will not replace Event Fabric, TypedEditingGraph or other active shared authorities.",
+  "affected_paths": [
+    "architecture/reverse_engineering_v2",
+    "docs/reverse_engineering_v2",
+    "forensics/references/screenrecording_20260826/v2",
+    "plans/reverse_engineering_v2",
+    "schemas/reverse_engineering_v2",
+    "src/reverse_engineering/v2",
+    "tests/test_reverse_engineering_v2_contracts.py"
+  ],
+  "checks": {
+    "live_main": "a8d7dbddaeb4ad9779df9883d3cf4e4f6ea4f29d",
+    "base_pr_head": "e526341fc61576919485021e968d09b090130249",
+    "base_pr_merge_safe": "SUCCESS:33174846190",
+    "regression_barrier": "OPEN:issue-48",
+    "coordination_bus": "OPEN:issue-39"
+  },
+  "authority": "PROPOSED",
+  "correlation_id": "motion://work/reverse-engineering-hypergraph-v2",
+  "metadata": {
+    "session_id": "motion://session/graph-refactor-v2/20260829T214038Z",
+    "workstream_id": "motion://workstream/reverse-engineering-hypergraph-v2",
+    "objective_id": "motion://objective/recompile-reference-video-reverse-engineering-v2",
+    "expected_revision": "e526341fc61576919485021e968d09b090130249",
+    "authority_ceiling": "IMPLEMENTED_UNVERIFIED until physical reconstruction, cross-renderer fidelity and generalization gates pass"
+  }
+}
