@@ -307,7 +307,14 @@ class BenchmarkLedger:
         if minimum_quality is None or minimum_quality < float(release_quality):
             blockers.append(f"minimum_quality:{minimum_quality if minimum_quality is not None else 'NONE'}/{release_quality}")
 
-        authoritative = bool(suite is not None and not blockers and len(passed) == required_briefs)
+        # This pure ledger can validate evidence shape, suite binding and scoring,
+        # but producer/reviewer IDs and review hashes are still caller-supplied data.
+        # It therefore must not mint release authority by itself. Canonical external
+        # review/CI authority must bind this candidate evidence before promotion.
+        candidate_complete = bool(suite is not None and not blockers and len(passed) == required_briefs)
+        if candidate_complete:
+            blockers.append("external_review_authority_unbound")
+        authoritative = False
         evidence_hash = _hash({
             "evidence": sorted(item.content_hash() for item in self._evidence.values()),
             "suite_hash": suite.content_hash() if suite is not None else None,
