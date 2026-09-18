@@ -1,5 +1,7 @@
 {
   "repository": "rotprods/motion-OS",
+  "authority": "historical_bootstrap_sync_snapshot",
+  "live_reconciliation_required": true,
   "installation_verified": true,
   "repository_permissions": {"admin": true, "push": true},
   "default_branch": "main",
@@ -7,6 +9,9 @@
   "canonical_bootstrap_pr": 10,
   "canonical_bootstrap_pr_state": "merged",
   "canonical_main_sha": "aeb8abb3820edf322c4dfb6313f3f8d2a9809b8b",
+  "canonical_main_sha_semantics": "historical bootstrap/import snapshot only; never use as current main without live GitHub reconciliation",
+  "observed_main_sha_at_reg013_start": "a8d7dbddaeb4ad9779df9883d3cf4e4f6ea4f29d",
+  "observed_main_sha_at_reg013_start_semantics": "revision-pinned observation for REG-013 session provenance; not a perpetually current main pointer",
   "issues": [1,2,3,4,5,7,8,9],
   "control_plane_remote": true,
   "full_source_import_complete": true,
@@ -14,6 +19,7 @@
   "ci_verified": true,
   "repo_health_verified": true,
   "security_baseline_verified": true,
+  "verification_scope": "bootstrap/import baseline; current PR/main verification must come from live workflow/lifecycle evidence",
   "historical_bootstrap_pr": 6,
   "historical_bootstrap_pr_state": "closed_superseded"
 }
