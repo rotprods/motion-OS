@@ -1,0 +1,24 @@
+{
+  "schema_version": "2.0.0",
+  "video_id": "screenrecording_2026-08-26_173251",
+  "loops": [
+    {"loop_id":"G01_TEMPORAL_CENSUS","status":"PASS","evidence":["18/18 scenes bounded","P90 MAD/flow peaks mapped"],"residuals":["hidden internal cut construction unknowable from flattened MP4"]},
+    {"loop_id":"G02_CAPTION_DEPTH","status":"PASS","evidence":["hero-word behaviors recorded","phone/card/foreground depth roles recorded","source-lock UI separated"],"residuals":["exact font files unavailable","original roto/matte construction unknown"]},
+    {"loop_id":"G03_MOTION_TRANSITIONS","status":"PASS","evidence":["major transition clusters classified","camera-like changes conservatively represented as reframe/depth where appropriate","glitch/flash/iris/carousel/row-stagger mapped"],"residuals":["exact Graph Editor curves require render calibration","exact plugin parameters unknown"]},
+    {"loop_id":"G04_AUDIO_RETENTION","status":"PASS","evidence":["strong onsets linked to major caption/transition events","representation-mode switching identified as primary retention mechanism","low-entropy reset isolated"],"residuals":["audio stems unavailable; SFX classes inferred"]},
+    {"loop_id":"G05_RENDERER_PARITY","status":"PASS","evidence":["all parent operations map to AE/Remotion/HyperFrames","creative timing renderer-independent"],"residuals":["physical renderer output not yet compared"]},
+    {"loop_id":"G06_ADVERSARIAL_MISSING_ACTION","status":"PASS","evidence":["no P90 change/motion peak unmapped","all scenes have operations or deliberate hold/source-lock states"],"residuals":["P90-only coverage was later proven insufficient, motivating G08/G09"]},
+    {"loop_id":"G07_COVERAGE_CLOSURE","status":"PASS_SUPERSEDED_BY_DEEPER_GATES","evidence":["first observable census closed at P90","unknown internals explicit"],"residuals":["broad stagger windows could still hide child operations"]},
+    {"loop_id":"G08_SUBACTION_GRANULARITY","status":"PASS","evidence":["98 parents + 32 explicit subevents = 121 leaf operations","9 staggered parents expose child events","continuous/source-native semantics separated"],"residuals":["exact child transform curves remain render-calibrated estimates where source is flattened"]},
+    {"loop_id":"G09_LOW_THRESHOLD_RESIDUAL_REVIEW","status":"PASS_LOCAL_AWAITING_CLEAN_RUNNER","evidence":["MAD P80/P75/P70: zero unexplained","flow P80/P75/P70: zero unexplained","prior residual frames 56/478/714/800 explicitly adjudicated"],"residuals":["physical reconstruction can still reveal sub-threshold or mis-parameterized operations"]}
+  ],
+  "closure": {
+    "observable_action_coverage": 1.0,
+    "parent_actions": 98,
+    "subevents": 32,
+    "leaf_operations": 121,
+    "claim": "100% of currently observable high-salience replicable action classes and measured residuals reviewed through P70 are represented or explicitly adjudicated under the v2 action model.",
+    "authority_boundary": "This is observable-action closure, not recovery of hidden original AEP internals and not physical reconstruction fidelity.",
+    "next_required_gate": "physical golden-scene reconstruction + frame-level visual/motion/audio diff + graph-native repair loop"
+  }
+}

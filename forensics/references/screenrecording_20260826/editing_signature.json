@@ -1,0 +1,68 @@
+{
+  "source_sha256": "9b3076cb542e358386942a0fb6b160f1345564d4326738f9a340e2b5b38e199d",
+  "temporal": {
+    "scene_count": 18,
+    "duration_s": 27.833,
+    "fps": 30,
+    "cut_change_peaks_p90": 29,
+    "major_change_peaks": 16
+  },
+  "visual": {
+    "global_palette": [
+      {"rgb": [8,6,7], "hex": "#080607", "ratio": 0.3708862751831502},
+      {"rgb": [42,27,26], "hex": "#2A1B1A", "ratio": 0.18184809981684982},
+      {"rgb": [89,5,4], "hex": "#590504", "ratio": 0.13643257783882784},
+      {"rgb": [141,11,10], "hex": "#8D0B0A", "ratio": 0.11386790293040293},
+      {"rgb": [85,59,52], "hex": "#553B34", "ratio": 0.08987236721611722},
+      {"rgb": [125,101,96], "hex": "#7D6560", "ratio": 0.053313873626373624},
+      {"rgb": [231,230,229], "hex": "#E7E6E5", "ratio": 0.033246050824175824},
+      {"rgb": [171,166,165], "hex": "#ABA6A5", "ratio": 0.020532852564102564}
+    ],
+    "dominant_language": "red/black editorial + classical symbols + device/UI inserts + 3D figures"
+  },
+  "caption": {
+    "caption_groups": 12,
+    "hero_keyword_strategy": "red/large/condensed or boxed contrast",
+    "spatial_caption_scenes": ["S08_CROWD_CONTENT", "S09_INTEREST_MAN"]
+  },
+  "motion": {
+    "core_patterns": [
+      "iris/mask reveal",
+      "numeric count-up and card stagger",
+      "progressive word build",
+      "hero caption punch",
+      "apparent camera-or-crop push",
+      "phone scale/reframe",
+      "glitch flash",
+      "3D stage push",
+      "progressive UI row stagger",
+      "horizontal carousel snap",
+      "foreground classical-column rise",
+      "hard-cut payoff punch"
+    ],
+    "measured_notes": {
+      "phone_scroll_median_adjacent_scale_delta_pct": 1.6965,
+      "phone_scroll_p95_adjacent_scale_delta_pct": 3.5592,
+      "carousel_p95_translation_px_on_256x554_analysis_copy": 11.9256,
+      "factor_x_p95_adjacent_scale_delta_pct": 0.6391
+    }
+  },
+  "audio": {
+    "strong_onsets": 22,
+    "linked_to_transition_within_180ms": 4,
+    "linked_to_caption_word_within_180ms": 10,
+    "note": "Timing is physically measured from the mixed audio track; SFX class/function labels are evidence-bound inferences because stems are unavailable."
+  },
+  "retention": {
+    "annotated_salient_stimulus_clusters": 64,
+    "annotated_visual_stimulus_rate_per_s": 2.3,
+    "median_interval_ms": 254,
+    "p90_interval_ms": 939,
+    "max_annotated_dead_interval_ms": 2300,
+    "measured_p90_frame_change_peaks": 29,
+    "measured_p90_change_peak_rate_per_s": 1.042,
+    "strong_audio_onsets_count": 22,
+    "strong_audio_onset_rate_per_s": 0.791,
+    "strategy": "Alternate dense composite beats with brief low-entropy resets. Captions/keywords, device inserts, 3D scenes, progressive UI, carousel snaps, foreground cards and classical-object payoff prevent a talking-head shot from remaining visually static."
+  }
+}

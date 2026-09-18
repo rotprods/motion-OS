@@ -1,0 +1,25 @@
+{
+  "affected_paths": [
+    "forensics/references/screenrecording_20260826/cross_renderer_mapping_v1.json"
+  ],
+  "agent_id": "motion://agent/video-reverse-engineer",
+  "authority": "IMPLEMENTED",
+  "branch": "feat/video-reverse-engineering-templates-v1",
+  "checks": {},
+  "commit_sha": "0055be92135f22d371f4e7a75c2e4262707dc5e1",
+  "correlation_id": "motion://work/video-reverse-engineering-templates-v1",
+  "event_id": "20260828T131000000000Z-video-reverse-engineer-cross-renderer-map",
+  "event_type": "work.checkpoint",
+  "metadata": {
+    "session_id": "motion://session/video-reverse-engineer/20260828T095100Z",
+    "mission_id": "motion://mission/ultra-deep-video-reverse-engineering-v2",
+    "source_sha256": "9b3076cb542e358386942a0fb6b160f1345564d4326738f9a340e2b5b38e199d",
+    "mapping": "canonical channels -> After Effects / Remotion / HyperFrames",
+    "hard_rule": "renderer adapters do not own creative timing, hierarchy, z-order or transition semantics",
+    "next": "physical golden-scene reconstruction and frame-level fidelity comparison"
+  },
+  "pr_number": 64,
+  "project": "MOTION.OS",
+  "summary": "Persisted the cross-renderer equivalence map for the first real specimen, defining how source-authoritative layer timing, transforms, masks, z-order, captions, easing and audio events translate into AE, Remotion and HyperFrames without creative reinterpretation.",
+  "timestamp": "2026-08-28T13:10:00+02:00"
+}

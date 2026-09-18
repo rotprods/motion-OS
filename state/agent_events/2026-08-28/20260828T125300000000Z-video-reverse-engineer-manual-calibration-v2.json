@@ -1,0 +1,46 @@
+{
+  "affected_paths": [
+    "forensics/references/screenrecording_20260826/MANUAL_CALIBRATION_V2.md"
+  ],
+  "agent_id": "motion://agent/video-reverse-engineer",
+  "authority": "IMPLEMENTED",
+  "branch": "feat/video-reverse-engineering-templates-v1",
+  "checks": {},
+  "commit_sha": "7e9a1267edd14abdaaa37539a559d2f16a264677",
+  "correlation_id": "motion://work/video-reverse-engineering-templates-v1",
+  "event_id": "20260828T125300000000Z-video-reverse-engineer-manual-calibration-v2",
+  "event_type": "work.checkpoint",
+  "metadata": {
+    "session_id": "motion://session/video-reverse-engineer/20260828T095100Z",
+    "mission_id": "motion://mission/ultra-deep-video-reverse-engineering-v2",
+    "source_sha256": "9b3076cb542e358386942a0fb6b160f1345564d4326738f9a340e2b5b38e199d",
+    "specimen": "ScreenRecording_08-26-2026 17-32-51_1.mp4",
+    "manual_calibration": "v2",
+    "domains": [
+      "caption-geometry",
+      "depth-occlusion",
+      "motion-grammar",
+      "audio-visual-sync",
+      "retention-stimuli",
+      "after-effects-reconstruction",
+      "renderer-parity"
+    ],
+    "authority_note": "Manual scene/layer calibration is evidence-bound inference over the measured 30fps/835-frame source timeline. Original AE layer/plugin/font identity remains unknown. No reconstruction render/fidelity/generalization authority is claimed.",
+    "promotion_state": {
+      "draft_extracted": "PASS",
+      "evidence_validated": "PARTIAL",
+      "layer_model_validated": "MANUAL_VISUAL_V2",
+      "motion_validated": "PARTIAL",
+      "audio_sync_validated": "PARTIAL",
+      "ae_reconstruction_validated": "NOT_EXECUTED",
+      "remotion_render_validated": "NOT_EXECUTED",
+      "hyperframes_render_validated": "NOT_EXECUTED",
+      "fidelity_validated": "NOT_EXECUTED",
+      "generalization_validated": "NOT_EXECUTED"
+    }
+  },
+  "pr_number": 64,
+  "project": "MOTION.OS",
+  "summary": "Completed second-pass manual calibration of the first real reverse-engineering specimen. Persisted caption timing/geometry metrics, depth/occlusion model, motion/SFX relationships, AE reconstruction recipes, renderer parity constraints and retention conclusions without claiming original-project recovery or render fidelity.",
+  "timestamp": "2026-08-28T12:53:00+02:00"
+}

@@ -1,0 +1,84 @@
+schema_version: 1
+capability: video_reverse_engineering_template_compiler
+
+replication_modes:
+  RECONSTRUCT_EXACT:
+    copy_policy: observed_source_allowed
+    asset_policy: provenance_required
+    timing_policy: preserve_exact
+  STRUCTURAL_TEMPLATE:
+    copy_policy: replace_with_slots
+    asset_policy: replace_with_slots
+    timing_policy: preserve_structure
+  STYLE_TRANSFER:
+    copy_policy: replace_with_slots
+    asset_policy: replace_with_slots
+    timing_policy: preserve_distributions
+
+frame_timeline:
+  coverage: every_decoded_frame
+  unknown_policy: explicit_null_or_empty
+  optical_flow_authority: measured_pair_only
+  ocr_authority: sampled_frame_only
+  audio_onset_authority: measured_candidate
+
+cadence:
+  hyper_max_median_shot_ms: 900
+  fast_max_median_shot_ms: 1600
+  medium_max_median_shot_ms: 3200
+  cut_onset_sync_tolerance_ms: 90
+
+invariant_policy:
+  hard_requires_evidence: true
+  strip_literal_copy_in:
+    - STRUCTURAL_TEMPLATE
+    - STYLE_TRANSFER
+  default_slot_roles:
+    - PRIMARY_HERO
+    - PRIMARY_COPY
+    - SECONDARY_COPY
+    - BRAND_MARK
+    - UI_STATE
+    - BROLL
+    - BACKGROUND_PLATE
+    - VOICE_LINE
+    - MUSIC_BED
+    - SFX_ACCENT
+
+promotion:
+  DRAFT_EXTRACTED:
+    - schema_valid
+    - complete_frame_index
+  EVIDENCE_VALIDATED:
+    - source_sha_present
+    - contiguous_shots
+    - evidence_bound_hard_invariants
+    - no_literal_copy_leakage
+  RENDER_VALIDATED:
+    - physical_renderer_execution
+    - exact_duration_coverage
+  GENERALIZATION_VALIDATED:
+    - three_substituted_content_runs
+    - zero_required_slot_failures
+    - no_fixed_copy_leakage
+  CANONICAL_TEMPLATE:
+    - corpus_deduplication
+    - retrieval_metadata
+    - authoritative_qa_approval
+
+qa_dimensions:
+  - temporal_fidelity
+  - transition_fidelity
+  - motion_fidelity
+  - typography_layout_fidelity
+  - color_material_fidelity
+  - audio_alignment
+  - narrative_structure
+  - content_independence
+
+rules:
+  - measurable_facts_are_evidence_bound
+  - unknown_is_not_fabricated
+  - exact_font_requires_evidence
+  - motion_requires_function_or_source_evidence
+  - report_dimensions_separately

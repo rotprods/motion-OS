@@ -1,0 +1,28 @@
+{
+  "schema_version": "2.0.0",
+  "video_id": "screenrecording_2026-08-26_173251",
+  "source_sha256": "9b3076cb542e358386942a0fb6b160f1345564d4326738f9a340e2b5b38e199d",
+  "thresholds": {
+    "mad_p95": {"peak_count": 18, "unexplained": [], "statuses": {"anchored": 18, "continuous": 0, "source_native": 0, "unexplained": 0}},
+    "mad_p90": {"peak_count": 27, "unexplained": [], "statuses": {"anchored": 27, "continuous": 0, "source_native": 0, "unexplained": 0}},
+    "mad_p85": {"peak_count": 34, "unexplained": [], "statuses": {"anchored": 34, "continuous": 0, "source_native": 0, "unexplained": 0}},
+    "mad_p80": {"peak_count": 44, "unexplained": [], "statuses": {"anchored": 44, "continuous": 0, "source_native": 0, "unexplained": 0}},
+    "mad_p75": {"peak_count": 52, "unexplained": [], "statuses": {"anchored": 52, "continuous": 0, "source_native": 0, "unexplained": 0}},
+    "mad_p70": {"peak_count": 60, "unexplained": [], "statuses": {"anchored": 60, "continuous": 0, "source_native": 0, "unexplained": 0}},
+    "flow_p95": {"peak_count": 16, "unexplained": [], "statuses": {"anchored": 16, "continuous": 0, "source_native": 0, "unexplained": 0}},
+    "flow_p90": {"peak_count": 29, "unexplained": [], "statuses": {"anchored": 29, "continuous": 0, "source_native": 0, "unexplained": 0}},
+    "flow_p85": {"peak_count": 40, "unexplained": [], "statuses": {"anchored": 39, "continuous": 1, "source_native": 0, "unexplained": 0}},
+    "flow_p80": {"peak_count": 48, "unexplained": [], "statuses": {"anchored": 47, "continuous": 1, "source_native": 0, "unexplained": 0}},
+    "flow_p75": {"peak_count": 54, "unexplained": [], "statuses": {"anchored": 52, "continuous": 2, "source_native": 0, "unexplained": 0}},
+    "flow_p70": {"peak_count": 60, "unexplained": [], "statuses": {"anchored": 58, "continuous": 2, "source_native": 0, "unexplained": 0}}
+  },
+  "prior_residual_adjudication": [
+    {"frame": 56, "resolution": "continuous", "action_ids": ["A006"], "reason": "continuous count-up/social-proof activity; no fabricated point keyframe"},
+    {"frame": 478, "resolution": "anchored_subevent", "action_ids": ["A061"], "subevent": "A061.4", "reason": "CLARO child reveal"},
+    {"frame": 714, "resolution": "anchored_subevent", "action_ids": ["A084"], "subevent": "A084.5", "reason": "fifth example-card child event"},
+    {"frame": 800, "resolution": "source_native", "action_ids": ["A093", "A094"], "reason": "Factor-X hold retains source-native face/body motion; do not invent motion-design keyframes"}
+  ],
+  "closure": true,
+  "heavy_review_drive_file_id": "1zQWEBrFPU0x81WpdGKWWkOrQHLaalk5I",
+  "authority_boundary": "This closes measured residual explanation down through P70 under the current peak detector and action/subevent model; physical reconstruction mismatch can still reveal sub-threshold or mis-parameterized operations."
+}
