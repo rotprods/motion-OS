@@ -4,6 +4,10 @@ set -euo pipefail
 ROOT="$(git rev-parse --show-toplevel)"
 cd "$ROOT"
 
+# Git provides every proposed ref update on stdin. Enforce the irreversible
+# ref policy before spending time on tests. Malformed/empty input fails closed.
+python scripts/pre_push_ref_guard.py
+
 base="origin/main"
 if ! git rev-parse --verify "$base" >/dev/null 2>&1; then
   base="HEAD~1"
