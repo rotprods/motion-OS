@@ -7,12 +7,14 @@ from statistics import mean, median
 from typing import Any, Iterable, Mapping
 import json
 import math
+import re
 
 from .frame_timeline import compile_frame_timeline, validate_frame_timeline
 
 
 SCHEMA_VERSION = "1.0.0"
 REPLICATION_MODES = {"RECONSTRUCT_EXACT", "STRUCTURAL_TEMPLATE", "STYLE_TRANSFER"}
+SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 
 
 class EditingTemplateError(ValueError):
@@ -20,7 +22,16 @@ class EditingTemplateError(ValueError):
 
 
 def _canonical_json(value: Any) -> str:
-    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    try:
+        return json.dumps(
+            value,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        )
+    except (TypeError, ValueError) as exc:
+        raise EditingTemplateError("editing template contains non-canonical JSON values") from exc
 
 
 def _histogram(values: Iterable[str]) -> dict[str, int]:
@@ -28,56 +39,60 @@ def _histogram(values: Iterable[str]) -> dict[str, int]:
 
 
 def _round(value: float, digits: int = 6) -> float:
-    if not math.isfinite(value):
-        return 0.0
-    return round(float(value), digits)
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise EditingTemplateError("derived metric must be numeric")
+    normalized = float(value)
+    if not math.isfinite(normalized):
+        raise EditingTemplateError("derived metric must be finite")
+    return round(normalized, digits)
 
 
 def _source_meta(pack: Mapping[str, Any]) -> dict[str, Any]:
     meta = pack.get("video_meta", {})
-    source_sha = str(meta.get("source_sha256", ""))
-    if len(source_sha) != 64:
-        raise EditingTemplateError("FeaturePack must carry a 64-character source_sha256")
+    if not isinstance(meta, Mapping):
+        raise EditingTemplateError("FeaturePack video_meta must be an object")
 
-    raw_fps = meta.get("fps", 0.0)
-    if isinstance(raw_fps, bool):
-        raise EditingTemplateError("FeaturePack fps must be finite and positive")
-    try:
-        fps = float(raw_fps)
-    except (TypeError, ValueError) as exc:
-        raise EditingTemplateError("FeaturePack fps must be finite and positive") from exc
+    source_sha = meta.get("source_sha256")
+    if not isinstance(source_sha, str) or not SHA256_RE.fullmatch(source_sha):
+        raise EditingTemplateError("FeaturePack source_sha256 must be lowercase SHA-256")
+
+    fps_raw = meta.get("fps")
+    if isinstance(fps_raw, bool) or not isinstance(fps_raw, (int, float)):
+        raise EditingTemplateError("FeaturePack fps must be a finite positive number")
+    fps = float(fps_raw)
     if not math.isfinite(fps) or fps <= 0:
-        raise EditingTemplateError("FeaturePack fps must be finite and positive")
+        raise EditingTemplateError("FeaturePack fps must be a finite positive number")
 
-    resolution = dict(meta.get("resolution", {}))
-    if int(resolution.get("w", 0)) <= 0 or int(resolution.get("h", 0)) <= 0:
-        raise EditingTemplateError("FeaturePack resolution must be positive")
+    resolution = meta.get("resolution")
+    if not isinstance(resolution, Mapping):
+        raise EditingTemplateError("FeaturePack resolution must be an object")
+    width, height = resolution.get("w"), resolution.get("h")
+    if (
+        isinstance(width, bool) or isinstance(height, bool)
+        or not isinstance(width, int) or not isinstance(height, int)
+        or width <= 0 or height <= 0
+    ):
+        raise EditingTemplateError("FeaturePack resolution must contain positive integer w/h")
 
-    duration_ms = int(meta.get("duration_ms", 0))
-    frame_raw = meta.get("decoded_frame_count")
-    if frame_raw is None:
-        frame_raw = meta.get("frame_count")
-    if frame_raw is None:
-        frame_raw = round(duration_ms * fps / 1000.0)
-    if isinstance(frame_raw, bool):
-        raise EditingTemplateError("FeaturePack frame count must be a positive integer")
-    try:
-        frame_numeric = float(frame_raw)
-    except (TypeError, ValueError) as exc:
-        raise EditingTemplateError("FeaturePack frame count must be a positive integer") from exc
-    if not math.isfinite(frame_numeric) or not frame_numeric.is_integer() or frame_numeric <= 0:
-        raise EditingTemplateError("FeaturePack frame count must be a positive integer")
-    total_frames = int(frame_numeric)
+    duration_raw = meta.get("duration_ms")
+    if isinstance(duration_raw, bool) or not isinstance(duration_raw, int) or duration_raw < 0:
+        raise EditingTemplateError("FeaturePack duration_ms must be a non-negative integer")
+    duration_ms = duration_raw
+
+    decoded_frames = meta.get("decoded_frame_count")
+    if isinstance(decoded_frames, bool) or not isinstance(decoded_frames, int) or decoded_frames <= 0:
+        raise EditingTemplateError(
+            "FeaturePack decoded_frame_count is required and must be a positive integer"
+        )
 
     return {
         "sha256": source_sha,
         "duration_ms": duration_ms,
         "fps": fps,
-        "resolution": {"w": int(resolution["w"]), "h": int(resolution["h"])},
-        "aspect_ratio": str(meta.get("aspect_ratio", f"{resolution['w']}:{resolution['h']}")),
-        "total_frames": total_frames,
+        "resolution": {"w": width, "h": height},
+        "aspect_ratio": str(meta.get("aspect_ratio", f"{width}:{height}")),
+        "total_frames": decoded_frames,
     }
-
 
 def _shot_durations(pack: Mapping[str, Any]) -> list[int]:
     return [max(0, int(s.get("end_ms", 0)) - int(s.get("start_ms", 0))) for s in pack.get("shots", [])]
@@ -603,8 +618,12 @@ def compile_editing_template(
     if mode not in REPLICATION_MODES:
         raise EditingTemplateError(f"unsupported replication mode: {replication_mode}")
 
-    source = _source_meta(feature_pack)
+    # Preserve the compiler's established frame-authority failure contract:
+    # source identity / decoded-frame defects are rejected by the authoritative
+    # timeline boundary before metadata/signature compilation. _source_meta()
+    # remains independently strict for public signature callers.
     frame_timeline = compile_frame_timeline(feature_pack, motionstyle)
+    source = _source_meta(feature_pack)
     validate_frame_timeline(frame_timeline, total_frames=source["total_frames"])
     signature = build_editing_signature(feature_pack, motionstyle)
     slots = _slots(feature_pack, mode)
@@ -713,6 +732,12 @@ def write_reverse_engineering_bundle(
     out.mkdir(parents=True, exist_ok=True)
     template_path = out / "editing_template.json"
     timeline_path = out / "frame_timeline.json"
-    template_path.write_text(json.dumps(template, indent=2, ensure_ascii=False), encoding="utf-8")
-    timeline_path.write_text(json.dumps(frame_timeline, indent=2, ensure_ascii=False), encoding="utf-8")
+    template_path.write_text(
+        json.dumps(template, indent=2, ensure_ascii=False, allow_nan=False),
+        encoding="utf-8",
+    )
+    timeline_path.write_text(
+        json.dumps(frame_timeline, indent=2, ensure_ascii=False, allow_nan=False),
+        encoding="utf-8",
+    )
     return {"editing_template": str(template_path), "frame_timeline": str(timeline_path)}
