@@ -22,7 +22,16 @@ class EditingTemplateError(ValueError):
 
 
 def _canonical_json(value: Any) -> str:
-    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    try:
+        return json.dumps(
+            value,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        )
+    except (TypeError, ValueError) as exc:
+        raise EditingTemplateError("editing template contains non-canonical JSON values") from exc
 
 
 def _histogram(values: Iterable[str]) -> dict[str, int]:
@@ -30,9 +39,12 @@ def _histogram(values: Iterable[str]) -> dict[str, int]:
 
 
 def _round(value: float, digits: int = 6) -> float:
-    if not math.isfinite(value):
-        return 0.0
-    return round(float(value), digits)
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise EditingTemplateError("derived metric must be numeric")
+    normalized = float(value)
+    if not math.isfinite(normalized):
+        raise EditingTemplateError("derived metric must be finite")
+    return round(normalized, digits)
 
 
 def _source_meta(pack: Mapping[str, Any]) -> dict[str, Any]:
@@ -718,6 +730,12 @@ def write_reverse_engineering_bundle(
     out.mkdir(parents=True, exist_ok=True)
     template_path = out / "editing_template.json"
     timeline_path = out / "frame_timeline.json"
-    template_path.write_text(json.dumps(template, indent=2, ensure_ascii=False), encoding="utf-8")
-    timeline_path.write_text(json.dumps(frame_timeline, indent=2, ensure_ascii=False), encoding="utf-8")
+    template_path.write_text(
+        json.dumps(template, indent=2, ensure_ascii=False, allow_nan=False),
+        encoding="utf-8",
+    )
+    timeline_path.write_text(
+        json.dumps(frame_timeline, indent=2, ensure_ascii=False, allow_nan=False),
+        encoding="utf-8",
+    )
     return {"editing_template": str(template_path), "frame_timeline": str(timeline_path)}
