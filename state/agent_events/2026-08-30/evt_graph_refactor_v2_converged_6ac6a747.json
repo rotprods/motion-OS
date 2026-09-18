@@ -1,0 +1,43 @@
+{
+  "event_id": "evt_graph_refactor_v2_converged_6ac6a747",
+  "event_type": "work.checkpoint",
+  "timestamp": "2026-08-30T00:17:00+02:00",
+  "agent_id": "motion://agent/chatgpt/graph-refactor-v2",
+  "project": "MOTION.OS",
+  "branch": "refactor/cos-20d-v2-architecture",
+  "commit_sha": "6ac6a747e6b1e5ec04b8b1a34f4056eeae22e087",
+  "pr_number": 91,
+  "summary": "Cross-agent V2 architecture convergence complete: #91 selected as canonical candidate, unique #90 donor capabilities transferred and exact-head Merge Safe passed; #90 closed unmerged as superseded. V2 remains draft/not promoted while Issue #48 barrier is active.",
+  "affected_paths": [
+    "architecture/v2",
+    "plans/v2",
+    "graph/v2",
+    "state/v2",
+    "schemas/v2_hypergraph.schema.json",
+    "scripts/validate_v2_hypergraph.py",
+    "scripts/validate_v2_package.py",
+    "tests/test_v2_hypergraph_contract.py",
+    "tests/test_v2_package_contract.py"
+  ],
+  "checks": {
+    "merge_safe_run_33278128055": "PASS",
+    "python_3_12_local_contract": "PASS",
+    "pytest_local_first": "PASS",
+    "repo_health": "PASS",
+    "immutable_event_bus": "PASS",
+    "python_3_11": "SKIPPED_PATH_CLASSIFIED",
+    "dependency_security": "SKIPPED_PATH_CLASSIFIED",
+    "physical_analysis": "SKIPPED_PATH_CLASSIFIED",
+    "physical_remotion": "SKIPPED_PATH_CLASSIFIED"
+  },
+  "authority": "VERIFIED",
+  "correlation_id": "graph-refactor-v2-001",
+  "metadata": {
+    "workstream_id": "motion://workstream/graph-refactor-v2",
+    "objective_id": "motion://objective/v2-architecture-recompile",
+    "canonical_candidate_pr": 91,
+    "superseded_pr": 90,
+    "promotion": "NOT_PROMOTED",
+    "blocker": "Issue#48"
+  }
+}

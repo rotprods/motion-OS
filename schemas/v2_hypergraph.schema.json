@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://motion.os/schemas/v2_hypergraph.schema.json",
+  "title": "MOTION.OS V2 Temporal Hypergraph",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "snapshot", "nodes", "hyperedges", "cos_dimensions"],
+  "properties": {
+    "schema_version": {"const": "2.0.0"},
+    "snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["project_id", "main_sha", "session_id", "workstream_id", "correlation_id", "generated_at", "authority"],
+      "properties": {
+        "project_id": {"type": "string", "pattern": "^motion://project/"},
+        "main_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "session_id": {"type": "string", "pattern": "^motion://session/"},
+        "workstream_id": {"type": "string", "pattern": "^motion://workstream/"},
+        "correlation_id": {"type": "string", "minLength": 1},
+        "generated_at": {"type": "string", "format": "date-time"},
+        "bootstrap_event_watermark": {"type": ["string", "null"]},
+        "runtime_event_watermark": {"type": ["integer", "null"], "minimum": 0},
+        "contextpack_revision": {"type": ["string", "null"]},
+        "authority": {"$ref": "#/$defs/authority"}
+      }
+    },
+    "nodes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/node"}
+    },
+    "hyperedges": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/hyperedge"}
+    },
+    "cos_dimensions": {
+      "type": "object",
+      "minProperties": 17,
+      "additionalProperties": {
+        "type": "object",
+        "required": ["status", "focus"],
+        "additionalProperties": false,
+        "properties": {
+          "status": {"enum": ["ACTIVE", "NOT_APPLICABLE", "DEFERRED"]},
+          "focus": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  },
+  "$defs": {
+    "authority": {
+      "enum": ["PROPOSED", "IMPLEMENTED", "EXECUTED", "VERIFIED", "EMPIRICALLY_QUALIFIED", "BLOCKED", "DEGRADED_EXTERNAL", "SUPERSEDED"]
+    },
+    "confidence": {
+      "enum": ["HIGH_CONFIDENCE", "MEDIUM_CONFIDENCE", "LOW_CONFIDENCE", "UNKNOWN"]
+    },
+    "node": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "label", "authority", "confidence", "provenance"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^motion://"},
+        "type": {"type": "string", "minLength": 1},
+        "label": {"type": "string", "minLength": 1},
+        "authority": {"$ref": "#/$defs/authority"},
+        "confidence": {"$ref": "#/$defs/confidence"},
+        "state": {"type": ["string", "null"]},
+        "owner": {"type": ["string", "null"]},
+        "valid_from": {"type": ["string", "null"], "format": "date-time"},
+        "valid_to": {"type": ["string", "null"], "format": "date-time"},
+        "attributes": {"type": "object"},
+        "provenance": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "hyperedge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "participants", "authority", "confidence", "provenance"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^motion://edge/"},
+        "type": {"type": "string", "minLength": 1},
+        "participants": {
+          "type": "object",
+          "minProperties": 2,
+          "additionalProperties": {
+            "type": "array",
+            "minItems": 1,
+            "items": {"type": "string", "pattern": "^motion://"}
+          }
+        },
+        "authority": {"$ref": "#/$defs/authority"},
+        "confidence": {"$ref": "#/$defs/confidence"},
+        "criticality": {"enum": ["P0", "P1", "P2", "P3", "INFO"]},
+        "valid_from": {"type": ["string", "null"], "format": "date-time"},
+        "valid_to": {"type": ["string", "null"], "format": "date-time"},
+        "attributes": {"type": "object"},
+        "provenance": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  }
+}
