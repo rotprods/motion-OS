@@ -5,7 +5,7 @@ import copy
 import pytest
 
 from src.reverse_engineering.frame_timeline import FrameTimelineError, compile_frame_timeline
-from src.reverse_engineering.template_compiler import compile_editing_template
+from src.reverse_engineering.template_compiler import EditingTemplateError, build_editing_signature, compile_editing_template
 
 
 def pack():
@@ -109,3 +109,26 @@ def test_duplicate_measured_motion_frame_cannot_silently_overwrite_evidence():
     data["motion_stats"]["tracks"].append(copy.deepcopy(data["motion_stats"]["tracks"][0]))
     with pytest.raises(FrameTimelineError, match="duplicate motion observation"):
         compile_frame_timeline(data, motionstyle())
+
+
+def test_public_signature_builder_rejects_fake_sha_before_timeline_compilation():
+    data = pack()
+    data["video_meta"]["source_sha256"] = "z" * 64
+    with pytest.raises(EditingTemplateError, match="SHA-256"):
+        build_editing_signature(data, motionstyle())
+
+
+@pytest.mark.parametrize("fps", [float("nan"), float("inf"), True])
+def test_public_signature_builder_rejects_nonfinite_or_boolean_fps(fps):
+    data = pack()
+    data["video_meta"]["fps"] = fps
+    with pytest.raises(EditingTemplateError, match="fps"):
+        build_editing_signature(data, motionstyle())
+
+
+def test_public_signature_builder_requires_decoded_frame_count_not_duration_estimate():
+    data = pack()
+    data["video_meta"].pop("decoded_frame_count")
+    data["video_meta"]["frame_count"] = 3
+    with pytest.raises(EditingTemplateError, match="decoded_frame_count"):
+        build_editing_signature(data, motionstyle())
