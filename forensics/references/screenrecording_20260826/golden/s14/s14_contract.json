@@ -1,0 +1,95 @@
+{
+  "schema_version": "motion-os.golden-s14-contract/v3",
+  "scene_id": "S14_AUDIO_VISUAL_TEXTO",
+  "source": {
+    "video_id": "screenrecording_2026-08-26_173251",
+    "sha256": "9b3076cb542e358386942a0fb6b160f1345564d4326738f9a340e2b5b38e199d",
+    "start_frame": 561,
+    "end_frame_exclusive": 655,
+    "frame_count": 94,
+    "fps": 30,
+    "width": 512,
+    "height": 1108
+  },
+  "drive_evidence": {
+    "reference_clip": "1xjTYPPbQnKs8OdI_H2l6js2nG0fokkTd",
+    "mixed_audio_wav": "1VznX99ZYpelCjQSrcccjkYIkre9x_RXc",
+    "reference_frames_tar": "1pgbnsbqMCJ8S8TsXsktQ2QMC-jEQW2oZ",
+    "contact_sheet": "1GALXmGNZdRAuU9lpA7-oxT_MrDXstAX6",
+    "full_measured_track_v1": "19r2Xhl0IYZ6ErgcCFZUrsHbw-08g4FWj",
+    "full_measured_track_v2": "1VFgmwZaJdnDaRRJ8Lz-GiwUUPiKDcPum",
+    "annotation_track_v1": "1VYdmrkBHIa3SlytJg36ZDTJua3icx55D",
+    "measured_track_v1_sha256": "9828608f26fed5e18e06c4ac727b19fb348f0e55c449c3d07f9fc4ab484020dc",
+    "measured_track_v2_sha256": "60aa87f43adb8b9fa204892563f2d48f76e3c1dd2a7e587c616fcda23ee1beb0",
+    "annotation_track_v1_sha256": "5d7879d9849601ba5b548335cd8516791e28229a6b1cf2e64570bb216d78ca46"
+  },
+  "measurement_history": [
+    {
+      "id": "S14-MEAS-CORR-001",
+      "authority": "MANUAL_VISUAL_ADJUDICATION_SUPPORTED_BY_TEMPORAL_CONTINUITY",
+      "status": "SUPERSEDES_ONLY_TRACK_IDENTITY_LABELS_NOT_RAW_FRAME_EVIDENCE",
+      "frames": [52,53,54,55,56],
+      "defect_family": "TRACK_IDENTITY_SWAP_DURING_CROSSING",
+      "change": "heading observations assigned to visual in v1 are reassigned to the incoming texto track in v2",
+      "evidence": "texto enters from the right at local49 x≈384, continues x≈320/276, then x≈245/220/200/185 and x≈172; outgoing visual has exited left by local51. Source frames/contact sheet visibly read texto at local54+.",
+      "preserves_v1": true
+    },
+    {
+      "id": "S14-MEAS-CORR-002",
+      "authority": "MEASURED_VISIBLE_BBOX_PROXY",
+      "status": "REPLACES_STABLE_MEDIAN_SUMMARY_WITH_TEMPORAL_TRACK",
+      "defect_family": "STATIC_SUMMARY_COLLAPSED_ANNOTATION_TRAJECTORY",
+      "frames": [0,93],
+      "change": "state annotations now use a measured screen-space bbox track rather than one stable-state median per state",
+      "preserves_prior_summary_as_historical_evidence": true,
+      "exact_vector_path_authority": "UNKNOWN"
+    }
+  ],
+  "state_machine": {
+    "states": ["audio", "visual", "texto"],
+    "semantic_activation_frames": {"audio": 561, "visual": 578, "texto": 615},
+    "transition_windows": [
+      {"id": "AUDIO_TO_VISUAL", "source_frames": [572, 581], "local_frames": [11, 20]},
+      {"id": "VISUAL_TO_TEXTO", "source_frames": [608, 621], "local_frames": [47, 60]}
+    ],
+    "rule": "semantic state, heading identity, selected media card and annotation identity must remain causally bound; renderer adapters may not retime source truth independently"
+  },
+  "refined_actions": [
+    {"id":"S14-PHY-001","refines":"A076","authority":"MEASURED_VISIBLE","domain":"motion","target":"CAROUSEL_TRACK","verb":"carousel_transition","start_frame":572,"impact_frame":578,"settle_frame":581,"from":"audio","to":"visual","note":"A076 historical start at 578 was a coarse semantic summary; physical source shows outgoing/incoming panels from 572. History is preserved rather than rewritten."},
+    {"id":"S14-PHY-002","refines":"A078","authority":"MEASURED_VISIBLE","domain":"motion","target":"CAROUSEL_TRACK","verb":"carousel_transition","start_frame":608,"impact_frame":615,"settle_frame":621,"from":"visual","to":"texto"},
+    {"id":"S14-PHY-003","authority":"MEASURED_VISIBLE","domain":"object","target":"STATE_MEDIA_CARD","verb":"continuous_reframe_and_scale","start_frame":561,"end_frame_exclusive":655,"note":"Selected card continues changing screen-space size/centering after semantic state activation; do not collapse to a one-frame swap."},
+    {"id":"S14-PHY-004","authority":"SOURCE_LOCK","domain":"media","target":"NESTED_MEDIA_SLOT","verb":"continuous_playback","start_frame":561,"end_frame_exclusive":655,"note":"Content inside the rounded card is nested source media. Exact mode may use the source asset; structural-template mode must replace it without changing carousel timing."},
+    {"id":"S14-PHY-005","authority":"MEASURED_VISIBLE_BBOX_PROXY","domain":"annotation","target":"STATE_ANNOTATION","verb":"state_bound_annotation_track","start_frame":561,"end_frame_exclusive":655,"track_drive_id":"1VYdmrkBHIa3SlytJg36ZDTJua3icx55D","states":{"audio":"red waveform/crosshair emphasis","visual":"large red oval over visual examples","texto":"red oval around VIRAL SERIES text"},"unknown":"original vector path/stroke construction"}
+  ],
+  "audio_transient_clusters": [
+    {"local_frame":10.05,"source_frame":571.05,"authority":"MEASURED_MIXED_TRACK_TRANSIENT_PROXY"},
+    {"local_frame":14.40,"source_frame":575.40,"authority":"MEASURED_MIXED_TRACK_TRANSIENT_PROXY"},
+    {"local_frame":16.80,"source_frame":577.80,"authority":"MEASURED_MIXED_TRACK_TRANSIENT_PROXY","relation":"near visual semantic activation"},
+    {"local_frame":45.75,"source_frame":606.75,"authority":"MEASURED_MIXED_TRACK_TRANSIENT_PROXY","relation":"pre texto transition"},
+    {"local_frame":50.25,"source_frame":611.25,"authority":"MEASURED_MIXED_TRACK_TRANSIENT_PROXY"},
+    {"local_frame":56.25,"source_frame":617.25,"authority":"MEASURED_MIXED_TRACK_TRANSIENT_PROXY","relation":"inside texto settle cluster"},
+    {"local_frame":62.85,"source_frame":623.85,"authority":"MEASURED_MIXED_TRACK_TRANSIENT_PROXY","relation":"post-transition accent"}
+  ],
+  "renderer_calibrations": [
+    {
+      "id": "S14-RENDER-CAL-001",
+      "renderer": "REMOTION_H264_AAC_STRUCTURAL_FIXTURE",
+      "authority": "MEASURED_RENDERER_PEAK_LATENCY_CALIBRATION",
+      "baseline_head": "ebe8eedf210e4c2bd9c0465d38dfbb584d7a0471",
+      "baseline_artifact_id": 9781244633,
+      "baseline_mean_absolute_peak_error_frames": 1.2318270165208938,
+      "baseline_max_absolute_peak_error_frames": 1.5425170068027256,
+      "repair": "schedule deterministic synthetic hit one renderer frame before canonical source-proxy event so decoded transient peak aligns without shifting source event authority",
+      "synthetic_hit_lead_frames": 1,
+      "must_be_physically_reverified": true
+    }
+  ],
+  "hypotheses": [
+    {"id":"S14-HYP-001","authority":"EVIDENCE_BOUND_INFERENCE","type":"SHARED_CAROUSEL_PARENT","statement":"Outgoing/incoming cards and headings preserve ordered panel spacing through both horizontal transitions, supporting one shared carousel parent plus per-state nested media."},
+    {"id":"S14-HYP-002","authority":"EVIDENCE_BOUND_INFERENCE","type":"LONG_SETTLE_OR_STATE_CAMERA","statement":"The selected panel keeps enlarging/recentering after activation; equivalent implementations should preserve the visible trajectory without claiming an original physical camera or AE parenting graph."}
+  ],
+  "source_locks": ["screen-recording chrome","exact nested media pixels","source-specific VIRAL SERIES examples"],
+  "template_invariants": ["three semantic states","leftward state transition direction","heading and selected-card synchronization","state-specific red annotation role","selected-card progressive reframe","transition-linked audio accents"],
+  "unknowns": ["exact heading font","original After Effects precomp/parenting graph","original Graph Editor curves","original isolated SFX stems","exact annotation vector paths/strokes","hidden source media mattes","full source audio decomposition"],
+  "authority": "MEASURED_SOURCE_BOUND_CONTRACT_NOT_FULL_FIDELITY"
+}
