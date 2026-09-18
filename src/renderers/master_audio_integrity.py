@@ -6,11 +6,30 @@ from pathlib import Path
 from typing import Any, Callable
 import json
 import math
+import re
 import shutil
 import subprocess
 
 
 Runner = Callable[..., Any]
+
+MAX_SPEECH_WINDOWS = 64
+_MEDIA_SCHEME_RE = re.compile(r"^[A-Za-z][A-Za-z0-9+.-]*:")
+_WINDOWS_DRIVE_RE = re.compile(r"^[A-Za-z]:[\\/]")
+
+
+def _local_media_path(value: str | Path) -> str:
+    path = str(value)
+    if not path.strip():
+        raise ValueError("media_path must be non-empty")
+    if path == "-" or any(ord(ch) < 32 or ord(ch) == 127 for ch in path):
+        raise ValueError("media_path must be a local file path")
+    # ffmpeg/ffprobe accept URL/protocol inputs (http:, concat:, pipe:, data:,
+    # etc.). Final-master verification is intentionally local-byte authority,
+    # so remote/protocol inputs are rejected instead of being dereferenced.
+    if _MEDIA_SCHEME_RE.match(path) and not _WINDOWS_DRIVE_RE.match(path):
+        raise ValueError("media_path protocols/URLs are forbidden; local file required")
+    return path
 
 
 @dataclass(frozen=True)
@@ -107,10 +126,8 @@ def verify_master_audio_integrity(
     mandatory. Optional ``speech_windows`` add physical decoded-energy evidence so
     a present-but-silent stream cannot masquerade as a successful master.
     """
-    path=str(media_path)
+    path=_local_media_path(media_path)
     errors: list[str]=[]
-    if not path.strip():
-        raise ValueError("media_path must be non-empty")
     expected_duration=_finite_positive_number(expected_duration_s)
     if expected_duration is None:
         raise ValueError("expected_duration_s must be finite and positive")
@@ -144,6 +161,9 @@ def verify_master_audio_integrity(
         raise ValueError("timeout must be a positive integer")
     if not isinstance(speech_windows, tuple):
         raise ValueError("speech_windows must be a tuple of (start_s, duration_s) pairs")
+    if len(speech_windows) > MAX_SPEECH_WINDOWS:
+        raise ValueError(f"speech_windows exceeds bounded decode budget: {len(speech_windows)} > {MAX_SPEECH_WINDOWS}")
+    previous_end = 0.0
     for index, window in enumerate(speech_windows):
         if not isinstance(window, tuple) or len(window) != 2:
             raise ValueError(f"speech_windows[{index}] must be a two-item tuple")
@@ -155,8 +175,14 @@ def verify_master_audio_integrity(
             or float(start_s) < 0 or float(window_duration_s) <= 0
         ):
             raise ValueError(f"speech_windows[{index}] must contain finite non-negative start and positive duration")
-        if float(start_s) + float(window_duration_s) > expected_duration + duration_tolerance_s:
+        start = float(start_s)
+        window_duration = float(window_duration_s)
+        window_end = start + window_duration
+        if index and start < previous_end:
+            raise ValueError("speech_windows must be ordered and non-overlapping")
+        if window_end > expected_duration + duration_tolerance_s:
             raise ValueError(f"speech_windows[{index}] exceeds expected master duration")
+        previous_end = window_end
 
     probe_bin=ffprobe_bin or shutil.which("ffprobe")
     if not probe_bin:
