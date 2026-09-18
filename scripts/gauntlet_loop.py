@@ -113,6 +113,7 @@ def evaluate_gauntlet(
     min_progress_delta: float = 0.01,
     kill_switch: bool = False,
     verifier_receipt: dict[str, Any] | None = None,
+    trusted_verifier_evidence_hashes: tuple[str, ...] = (),
 ) -> dict[str, Any]:
     if isinstance(max_attempts, bool) or not isinstance(max_attempts, int) or max_attempts < 1:
         raise GauntletError("max_attempts must be a positive integer")
@@ -123,6 +124,17 @@ def evaluate_gauntlet(
         raise GauntletError("min_progress_delta must be finite and non-negative")
     if type(kill_switch) is not bool:
         raise GauntletError("kill_switch must be a JSON boolean")
+    if not isinstance(trusted_verifier_evidence_hashes, tuple):
+        raise GauntletError("trusted_verifier_evidence_hashes must be a tuple of sha256 values")
+    if len(trusted_verifier_evidence_hashes) > 128:
+        raise GauntletError("trusted_verifier_evidence_hashes exceeds 128 entries")
+    trusted_hashes: set[str] = set()
+    for evidence_hash in trusted_verifier_evidence_hashes:
+        if not isinstance(evidence_hash, str) or not SHA256_RE.fullmatch(evidence_hash):
+            raise GauntletError("trusted verifier evidence must be lowercase sha256")
+        if evidence_hash in trusted_hashes:
+            raise GauntletError("trusted verifier evidence hashes must be unique")
+        trusted_hashes.add(evidence_hash)
     if kill_switch:
         return {"state": "BLOCKED", "reason": "KILL_SWITCH_ACTIVE", "next_action": "stop immediately"}
     if not isinstance(attempts, list):
@@ -140,6 +152,10 @@ def evaluate_gauntlet(
     latest = parsed[-1]
     if latest.verifier_complete:
         receipt = _verify_independent_receipt(verifier_receipt, expected_result_hash=latest.result_hash)
+        if receipt["evidence_hash"] not in trusted_hashes:
+            raise GauntletError(
+                "verifier evidence is not anchored in trusted Event Fabric / clean-runner authority"
+            )
         return {
             "state": "VERIFIED",
             "reason": latest.verifier_reason or "VERIFIER_COMPLETE",
