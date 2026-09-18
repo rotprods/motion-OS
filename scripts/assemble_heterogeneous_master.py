@@ -292,6 +292,7 @@ def main() -> int:
         fps=30,
         duration_ms=3000,
         audio_path=str(AUDIO),
+        audio_channels=1,
     )
     argv = ffmpeg_assembly_argv(plan, str(MASTER), overwrite=True)
     argv[-1:-1] = ["-pix_fmt", "yuv420p", *ffmpeg_output_color_args()]
