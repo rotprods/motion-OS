@@ -126,6 +126,11 @@ def verify_master_audio_integrity(
     ):
         raise ValueError("duration_tolerance_s must be finite and non-negative")
     duration_tolerance_s = float(duration_tolerance_s)
+    max_duration_tolerance=min(0.5, max(0.05, expected_duration * 0.02))
+    if duration_tolerance_s > max_duration_tolerance:
+        raise ValueError(
+            f"duration_tolerance_s exceeds bounded integrity policy: {duration_tolerance_s} > {max_duration_tolerance}"
+        )
     if (
         isinstance(silence_floor_dbfs, bool)
         or not isinstance(silence_floor_dbfs, (int, float))
@@ -150,6 +155,8 @@ def verify_master_audio_integrity(
             or float(start_s) < 0 or float(window_duration_s) <= 0
         ):
             raise ValueError(f"speech_windows[{index}] must contain finite non-negative start and positive duration")
+        if float(start_s) + float(window_duration_s) > expected_duration + duration_tolerance_s:
+            raise ValueError(f"speech_windows[{index}] exceeds expected master duration")
 
     probe_bin=ffprobe_bin or shutil.which("ffprobe")
     if not probe_bin:
