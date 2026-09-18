@@ -1,0 +1,51 @@
+{
+  "schema": "motion-os.autoloop-policy/v1",
+  "project_id": "motion://project/motion-os",
+  "north_star": "brief -> professional motion-design master with autonomous research, design, animation, edit, sound, critique and repair",
+  "priority_weights": {
+    "P0": 1000,
+    "P1": 700,
+    "P2": 400,
+    "P3": 100
+  },
+  "score_weights": {
+    "north_star_value": 20,
+    "bottleneck_relief": 18,
+    "correctness_security": 16,
+    "e2e_unblocking": 14,
+    "empirical_evidence": 12,
+    "recovery_truth": 10,
+    "simplicity": 6,
+    "risk": -12,
+    "scope_contention": -20
+  },
+  "hard_rules": {
+    "live_github_over_stale_projection": true,
+    "context_main_sha_must_match_live_main": true,
+    "event_semantic_divergence_fail_closed": true,
+    "authority_conflict_fail_closed": true,
+    "one_workstream_one_branch": true,
+    "never_force_push_other_agent": true,
+    "barrier_blocks_irreversible_actions": true,
+    "skipped_test_is_not_verified": true,
+    "cancelled_ci_is_not_pass": true,
+    "closed_pr_is_not_merged": true,
+    "correlation_is_not_causation": true,
+    "no_optional_infrastructure_without_measured_trigger": true
+  },
+  "deferred_without_trigger": [
+    "postgres",
+    "redis",
+    "kafka",
+    "kubernetes",
+    "cdn",
+    "vector_db",
+    "multi_host_workers"
+  ],
+  "local_first_profiles": ["quick", "analysis", "remotion", "security", "merge"],
+  "terminal_states": [
+    "BLOCKED",
+    "DEGRADED_EXTERNAL",
+    "EMPIRICALLY_QUALIFIED"
+  ]
+}

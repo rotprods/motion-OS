@@ -1,0 +1,41 @@
+{
+  "affected_paths": [
+    "config/autoloop_policy.json",
+    "coordination/AUTONOMOUS_EXECUTION_LOOP.md",
+    "coordination/NEXT_ITERATION_METAPROMPT.md",
+    "scripts/gauntlet_loop.py",
+    "scripts/next_iteration_metaprompt.py",
+    "scripts/next_wave.py",
+    "tests/test_autoloop_abuse_limits.py",
+    "tests/test_autoloop_preproduction_e2e.py",
+    "tests/test_gauntlet_loop.py",
+    "tests/test_next_iteration_metaprompt.py",
+    "tests/test_next_wave.py"
+  ],
+  "agent_id": "motion://agent/chatgpt/autonomous-execution-architect",
+  "authority": "EXECUTED",
+  "branch": "feat/self-driving-execution-loop-v1",
+  "checks": {
+    "code_review": "PASS",
+    "security_review": "PASS_WITH_EXTERNAL_DEPENDENCY_GATE",
+    "coordination_contracts_code_head": "PASS",
+    "merge_safe_code_head": "PASS"
+  },
+  "commit_sha": "2b90c2226653227846ac856b32819c878d180cc0",
+  "correlation_id": "motion-os-autoloop-v1-preproduction-qualification",
+  "event_id": "20260828T130824000000Z-chatgpt-autoloop-work-completed",
+  "event_type": "work.completed",
+  "metadata": {
+    "automation_state": "DISABLED",
+    "canonical_event_fabric_dependency": "PR#58 motion-os.event-fabric/v3 remains open/draft",
+    "promotion_barrier": "Issue#48 and Bus#39 cognitive-pause barrier remain active",
+    "qualified_code_head": "2b90c2226653227846ac856b32819c878d180cc0",
+    "qualification": "358 passed, 1 skipped; repo-health PASS; immutable event validation PASS; Coordination Contracts SUCCESS; MERGE_SAFE SUCCESS",
+    "skipped_gate_note": "Python 3.11, dependency-security, physical analysis and physical Remotion were path-classified as non-applicable on this orchestration-only diff and are not claimed as executed evidence.",
+    "next_safe_action": "Requalify the final branch head containing this immutable handoff. Keep the external clock disabled until PR#58/canonical Event Fabric v3 is available and the cognitive-pause barrier is released/reconciled."
+  },
+  "pr_number": 68,
+  "project": "MOTION.OS",
+  "summary": "Completed pre-production hardening of the self-driving execution loop: strict freshness/authority binding, bounded inputs, prompt-data isolation, gauntlet anti-loop controls, sealed continuation packets and an end-to-end dry-run. Automation remains disabled pending canonical Event Fabric v3 and barrier release.",
+  "timestamp": "2026-08-28T13:08:24Z"
+}
