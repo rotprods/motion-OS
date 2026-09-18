@@ -6,7 +6,9 @@
     "qdrant_storage/**",
     ".qdrant/**",
     "runtime/remotion/node_modules/**",
-    "runtime/remotion/.next/**"
+    "runtime/remotion/.next/**",
+    "benchmarks/semantic_retrieval*.json",
+    "semantic-*-artifacts/**"
   ],
   "max_file_bytes": 1572864,
   "store_text": true,

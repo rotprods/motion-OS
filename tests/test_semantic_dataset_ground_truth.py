@@ -4,6 +4,8 @@ import fnmatch
 import json
 from pathlib import Path
 
+from src.semantic_index.core import RepoManifest, chunk_repository
+
 
 ROOT = Path(__file__).resolve().parents[1]
 DATASET = ROOT / "benchmarks" / "semantic_retrieval_v1.json"
@@ -62,3 +64,18 @@ def test_ground_truth_contains_no_known_stale_architecture_paths() -> None:
     }
     found = sorted(path for path in stale if path in dataset_text)
     assert not found, "known stale benchmark labels reintroduced: " + ", ".join(found)
+
+
+def test_index_excludes_evaluation_answers_and_generated_reports(tmp_path: Path) -> None:
+    manifest = RepoManifest.load(ROOT)
+    for relative in (
+        "benchmarks/semantic_retrieval_v1.json",
+        "semantic-full-motion-artifacts/evaluation.json",
+        "semantic-live-artifacts/evaluation.json",
+        "src/rag/hybrid.py",
+    ):
+        path = tmp_path / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("retrievable content", encoding="utf-8")
+    paths = {chunk.path for chunk in chunk_repository(tmp_path, manifest)}
+    assert paths == {"src/rag/hybrid.py"}

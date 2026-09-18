@@ -5,10 +5,80 @@ from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Sequence
+import re
 
-from .clients import OllamaClient, QdrantClient, SemanticServiceError
+from .clients import OllamaClient, QdrantClient, SemanticServiceError, validate_semantic_vector
 from .core import COS_LEVELS, Chunk, DeterministicJLProjector, RepoManifest, SearchHit, SemanticConfig, batched, chunk_repository, cosine, l2_normalize
 from .structural import load_structural_context
+
+
+_RETRIEVAL_STOPWORDS = frozenset({
+    "a", "an", "and", "are", "as", "at", "be", "by", "does", "for", "from",
+    "how", "in", "into", "is", "it", "of", "on", "or", "the", "that", "this",
+    "to", "where", "which", "with", "motion", "motions",
+})
+
+
+def _retrieval_tokens(value: str, *, limit: int = 64) -> tuple[str, ...]:
+    """Bounded identifier-aware tokens for repo retrieval; never execute content."""
+    expanded = re.sub(r"(?<=[a-z0-9])(?=[A-Z])", " ", value.replace("_", " "))
+    tokens = [
+        token.lower()
+        for token in re.findall(r"[A-Za-z0-9]+", expanded)
+        if len(token) > 1 and token.lower() not in _RETRIEVAL_STOPWORDS
+    ]
+    return tuple(tokens[:limit])
+
+
+def _lexical_relevance(query: str, payload: dict[str, Any]) -> float:
+    """Small bounded lexical signal; path authority dominates untrusted chunk text."""
+    query_tokens = set(_retrieval_tokens(query))
+    if not query_tokens:
+        return 0.0
+    path = str(payload.get("path") or "")
+    text = str(payload.get("text") or "")[:4096]
+    path_tokens = set(_retrieval_tokens(path))
+    text_tokens = set(_retrieval_tokens(text, limit=512))
+    path_overlap = len(query_tokens & path_tokens) / len(query_tokens)
+    text_overlap = len(query_tokens & text_tokens) / len(query_tokens)
+    return min(1.0, 0.80 * path_overlap + 0.20 * text_overlap)
+
+
+def _retrieval_intent_prior(query: str, path: str) -> float:
+    """Generic repo-search prior: code questions prefer code; doc/schema questions stay explicit."""
+    lowered = query.lower()
+    normalized = path.replace("\\", "/").lower()
+    score = 0.0
+    implementation_intent = any(
+        token in lowered
+        for token in (
+            "implement", "pipeline", "entrypoint", "execution", "compiler",
+            "compiled", "normalize", "normalization", "retrieval", "engine",
+        )
+    )
+    if implementation_intent:
+        if normalized.startswith("src/"):
+            score += 0.11
+        elif normalized.startswith("scripts/"):
+            score += 0.10
+        elif normalized.startswith("tests/"):
+            score += 0.03
+        if normalized.endswith((".md", ".mdx")):
+            score -= 0.04
+    if "document" in lowered or "operating rules" in lowered:
+        if normalized.startswith("coordination/"):
+            score += 0.08
+        elif normalized.endswith((".md", ".mdx")):
+            score += 0.04
+    if "schema" in lowered or "traceability contract" in lowered:
+        if normalized.startswith("schemas/"):
+            score += 0.12
+        elif normalized.startswith("tests/"):
+            score += 0.04
+    if "entrypoint" in lowered or "corpus orchestration" in lowered:
+        if normalized.startswith("scripts/"):
+            score += 0.12
+    return score
 
 
 class SemanticKnowledgePlane:
@@ -96,30 +166,78 @@ class SemanticKnowledgePlane:
         self.qdrant.delete_stale(repo_id, run_id)
         return {"repo": repo_id, "commit": chunks[0].commit, "index_run": run_id, "chunks": len(chunks), "upserted": upserted, "collection": self.config.qdrant_collection, "semantic_dims": self.config.semantic_dims, "cos_route_dims": self.config.cos_dims, "embedding_model": self.config.ollama_model}
 
-    @staticmethod
-    def _extract_named_vector(point: dict[str, Any], name: str) -> list[float] | None:
+    def _extract_named_vector(self, point: dict[str, Any], name: str) -> list[float]:
         vectors = point.get("vector") or point.get("vectors")
-        if isinstance(vectors, dict):
-            vector = vectors.get(name)
-            if isinstance(vector, list):
-                return [float(value) for value in vector]
-        return None
+        vector = vectors.get(name) if isinstance(vectors, dict) else None
+        return validate_semantic_vector(vector, self.config.semantic_dims)
 
     def search(self, query: str, *, limit: int = 10, repo_ids: Sequence[str] | None = None, route_multiplier: int | None = None) -> list[SearchHit]:
         if not query.strip():
             raise ValueError("query must not be empty")
+        if limit < 1:
+            raise ValueError("limit must be >= 1")
         query_semantic = l2_normalize(self.ollama.embed([query])[0])
         query_route = self.projector.project(query_semantic)
         multiplier = route_multiplier or self.config.route_multiplier
-        candidates = self.qdrant.query(query_route, using="cos20", limit=max(limit * multiplier, 32), repo_ids=repo_ids, with_vectors=["semantic"])
-        hits: list[SearchHit] = []
-        for candidate in candidates:
+        candidate_limit = max(limit * multiplier, 32)
+
+        # The low-dimensional COS route is useful for broad routing, but it must
+        # not be an irreversible recall bottleneck. Union it with a native
+        # semantic candidate set before exact 1024D reranking. This preserves
+        # the COS route signal while guaranteeing that strong native-semantic
+        # candidates cannot disappear solely because of 20D projection loss.
+        route_candidates = self.qdrant.query(
+            query_route,
+            using="cos20",
+            limit=candidate_limit,
+            repo_ids=repo_ids,
+            with_vectors=["semantic"],
+        )
+        semantic_candidates = self.qdrant.query(
+            query_semantic,
+            using="semantic",
+            limit=max(limit * 4, 32),
+            repo_ids=repo_ids,
+            with_vectors=["semantic"],
+        )
+
+        route_scores: dict[str, float] = {}
+        candidates_by_id: dict[str, dict[str, Any]] = {}
+        for candidate in route_candidates:
+            point_id = str(candidate.get("id"))
+            route_scores[point_id] = float(candidate.get("score", 0.0))
+            candidates_by_id[point_id] = candidate
+        for candidate in semantic_candidates:
+            point_id = str(candidate.get("id"))
+            # Prefer the native-semantic response payload/vector for duplicate
+            # IDs while retaining the independent route score as a tie-breaker.
+            candidates_by_id[point_id] = candidate
+
+        scored: list[tuple[float, SearchHit]] = []
+        for point_id, candidate in candidates_by_id.items():
             semantic = self._extract_named_vector(candidate, "semantic")
-            route_score = float(candidate.get("score", 0.0))
-            semantic_score = cosine(query_semantic, semantic) if semantic is not None else route_score
-            hits.append(SearchHit(point_id=str(candidate.get("id")), semantic_score=semantic_score, route_score=route_score, payload=dict(candidate.get("payload") or {})))
-        hits.sort(key=lambda hit: (hit.semantic_score, hit.route_score), reverse=True)
-        return hits[:limit]
+            semantic_score = cosine(query_semantic, semantic)
+            payload = dict(candidate.get("payload") or {})
+            lexical_score = _lexical_relevance(query, payload)
+            intent_prior = _retrieval_intent_prior(query, str(payload.get("path") or ""))
+            # Semantic similarity remains dominant. Path/type intent can correct
+            # doc-vs-code ambiguity; chunk text contributes at most 0.028 total
+            # so keyword stuffing cannot become the primary ranking authority.
+            retrieval_score = semantic_score + 0.14 * lexical_score + intent_prior
+            scored.append((
+                retrieval_score,
+                SearchHit(
+                    point_id=point_id,
+                    semantic_score=semantic_score,
+                    route_score=route_scores.get(point_id, 0.0),
+                    payload=payload,
+                ),
+            ))
+        scored.sort(
+            key=lambda item: (item[0], item[1].semantic_score, item[1].route_score, item[1].point_id),
+            reverse=True,
+        )
+        return [hit for _, hit in scored[:limit]]
 
     def graphify(self, *, repo_ids: Sequence[str] | None = None, neighbors: int = 8, min_semantic_score: float = 0.15, query_batch_size: int = 32) -> dict[str, Any]:
         if neighbors < 1:
@@ -203,4 +321,4 @@ class SemanticKnowledgePlane:
 
     def cos_graph_engine(self, query: str, *, limit: int = 10, repo_ids: Sequence[str] | None = None) -> dict[str, Any]:
         hits = self.search(query, limit=limit, repo_ids=repo_ids)
-        return {"query": query, "collection": self.config.qdrant_collection, "pipeline": ["Ollama bge-m3 1024D embedding", "deterministic cos20 routing projection", "Qdrant cos20 candidate retrieval", "exact 1024D cosine rerank", "provenance-preserving GraphRAG result"], "cos_20_levels": list(COS_LEVELS), "active_retrieval_levels": ["L8", "L9", "L10", "L11", "L12"], "hits": [asdict(hit) for hit in hits]}
+        return {"query": query, "collection": self.config.qdrant_collection, "pipeline": ["Ollama bge-m3 1024D embedding", "deterministic cos20 routing projection", "Qdrant cos20 + native semantic candidate union", "1024D cosine + bounded path/text intent rerank", "provenance-preserving GraphRAG result"], "cos_20_levels": list(COS_LEVELS), "active_retrieval_levels": ["L8", "L9", "L10", "L11", "L12"], "hits": [asdict(hit) for hit in hits]}

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import math
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -12,6 +13,22 @@ from .core import SemanticConfig
 
 class SemanticServiceError(RuntimeError):
     pass
+
+
+def validate_semantic_vector(value: object, dims: int) -> list[float]:
+    """Reject provider corruption before it can become semantic evidence."""
+    if not isinstance(value, list) or len(value) != dims:
+        raise SemanticServiceError(f"semantic vector must contain exactly {dims} dimensions")
+    if any(isinstance(v, bool) or not isinstance(v, (int, float)) for v in value):
+        raise SemanticServiceError("semantic vector components must be JSON numbers")
+    try:
+        vector = [float(v) for v in value]
+        norm_squared = sum(v * v for v in vector)
+    except (ValueError, OverflowError) as exc:
+        raise SemanticServiceError("semantic vector is not representable") from exc
+    if not all(math.isfinite(v) for v in vector) or not math.isfinite(norm_squared) or norm_squared <= 0:
+        raise SemanticServiceError("semantic vector must have a finite, nonzero norm")
+    return vector
 
 
 @dataclass(frozen=True)
@@ -64,7 +81,7 @@ class OllamaClient:
         for vector in embeddings:
             if not isinstance(vector, list) or len(vector) != self.config.semantic_dims:
                 raise SemanticServiceError(f"embedding dimension mismatch: expected {self.config.semantic_dims}, got {len(vector) if isinstance(vector, list) else 'invalid'}")
-            result.append([float(v) for v in vector])
+            result.append(validate_semantic_vector(vector, self.config.semantic_dims))
         return result
 
 
@@ -102,6 +119,8 @@ class QdrantClient:
             size = spec.get("size") if isinstance(spec, dict) else None
             if int(size or -1) != dims:
                 raise SemanticServiceError(f"collection {self.config.qdrant_collection!r} vector {name!r} has size {size}; expected {dims}. Use a versioned collection name instead of mutating incompatible data.")
+            if spec.get("distance") != "Cosine":
+                raise SemanticServiceError(f"collection vector {name!r} must use Cosine distance; use a compatible versioned collection")
 
     def _ensure_payload_indexes(self) -> None:
         for field in ("repo", "path", "index_run", "commit"):
@@ -124,20 +143,32 @@ class QdrantClient:
         return {"should": [{"key": "repo", "match": {"value": repo_id}} for repo_id in repo_ids]}
 
     @staticmethod
+    def _parse_query_points(result: object) -> list[dict[str, Any]]:
+        points = result.get("points") if isinstance(result, dict) else result
+        if not isinstance(points, list) or any(not isinstance(point, dict) for point in points):
+            raise SemanticServiceError("Qdrant query response must contain a list of point objects")
+        for point in points:
+            point_id = point.get("id")
+            if not ((isinstance(point_id, str) and bool(point_id.strip())) or (type(point_id) is int and point_id >= 0)):
+                raise SemanticServiceError("Qdrant point identity must be a nonempty string or unsigned integer")
+            score = point.get("score")
+            if isinstance(score, bool) or not isinstance(score, (int, float)):
+                raise SemanticServiceError("Qdrant point score must be a finite JSON number")
+            try:
+                finite_score = math.isfinite(score)
+            except OverflowError:
+                finite_score = False
+            if not finite_score:
+                raise SemanticServiceError("Qdrant point score must be a finite JSON number")
+            if not isinstance(point.get("payload"), dict):
+                raise SemanticServiceError("Qdrant point payload must be an object")
+        return points
+
+    @staticmethod
     def _parse_query_batch(result: object, expected: int) -> list[list[dict[str, Any]]]:
-        if not isinstance(result, list):
-            return [[] for _ in range(expected)]
-        batches: list[list[dict[str, Any]]] = []
-        for item in result:
-            if isinstance(item, list):
-                batches.append(item)
-            elif isinstance(item, dict) and isinstance(item.get("points"), list):
-                batches.append(item["points"])
-            else:
-                batches.append([])
-        if len(batches) < expected:
-            batches.extend([[] for _ in range(expected - len(batches))])
-        return batches[:expected]
+        if not isinstance(result, list) or len(result) != expected:
+            raise SemanticServiceError(f"Qdrant batch response must contain exactly {expected} query results")
+        return [QdrantClient._parse_query_points(item) for item in result]
 
     def query(self, vector: Sequence[float], *, using: str, limit: int, repo_ids: Sequence[str] | None = None, with_vectors: Sequence[str] | bool = False) -> list[dict[str, Any]]:
         body: dict[str, Any] = {"query": [float(v) for v in vector], "using": using, "limit": int(limit), "with_payload": True, "with_vector": list(with_vectors) if isinstance(with_vectors, (list, tuple)) else bool(with_vectors)}
@@ -145,13 +176,7 @@ class QdrantClient:
         if repo_filter:
             body["filter"] = repo_filter
         response = self.http.request("POST", f"{self.collection_path}/points/query", body).body
-        result = response.get("result", {})
-        if isinstance(result, list):
-            return result
-        if isinstance(result, dict):
-            points = result.get("points", [])
-            return points if isinstance(points, list) else []
-        return []
+        return self._parse_query_points(response.get("result"))
 
     def query_batch(self, vectors: Sequence[Sequence[float]], *, using: str, limit: int, repo_ids: Sequence[str] | None = None, with_vectors: Sequence[str] | bool = False) -> list[list[dict[str, Any]]]:
         repo_filter = self._repo_filter(repo_ids)

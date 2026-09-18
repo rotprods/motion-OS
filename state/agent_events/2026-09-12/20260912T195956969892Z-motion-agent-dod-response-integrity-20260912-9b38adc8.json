@@ -1,0 +1,21 @@
+{
+  "affected_paths": [
+    "docs/SEMANTIC_RESPONSE_INTEGRITY_2026-09-12.md",
+    "src/semantic_index/clients.py",
+    "src/semantic_index/engine.py",
+    "tests/test_semantic_response_integrity.py"
+  ],
+  "agent_id": "motion://agent/dod-response-integrity-20260912",
+  "authority": "EXECUTED",
+  "branch": "fix/semantic-evaluation-integrity-20260912",
+  "checks": {},
+  "commit_sha": "cd8239e8a58d89ebb6e3f03276967b15131f4f53",
+  "correlation_id": "motion://work/dod-response-integrity-20260912",
+  "event_id": "20260912T195956969892Z-motion-agent-dod-response-integrity-20260912-9b38adc8",
+  "event_type": "work.blocked",
+  "metadata": {},
+  "pr_number": 163,
+  "project": "MOTION.OS",
+  "summary": "Session motion://session/dod-response-integrity-20260912: bounded provider-response integrity repaired with 52 focused tests and 366 local quick tests. Independent review reproduced an extra corrupt-point bypass, now closed and re-reviewed. Full retrieval quality remains below frozen gates; no ranking or workflow change. Checkpoint docs/SEMANTIC_RESPONSE_INTEGRITY_2026-09-12.md. Scope released at publication boundary; not project completion or promotion.",
+  "timestamp": "2026-09-12T19:59:56.969892Z"
+}

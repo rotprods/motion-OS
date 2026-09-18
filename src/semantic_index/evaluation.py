@@ -142,8 +142,12 @@ def score_case(case: EvaluationCase, hits: Sequence[SearchHit], *, k: int) -> di
         matches = [index for index, target in enumerate(case.expected) if _matches(repo, path, target)]
         if matches and first_relevant_rank is None:
             first_relevant_rank = rank
+        # Ground truth describes target groups (often globs), not every file.
+        # Reward a group only at its first discovery; repeated files matching
+        # an already covered glob must not inflate DCG beyond its ideal.
+        new_matches = [index for index in matches if index not in covered]
         covered.update(matches)
-        relevance.append(1 if matches else 0)
+        relevance.append(1 if new_matches else 0)
         ranked_files.append(
             {
                 "rank": rank,
@@ -152,6 +156,7 @@ def score_case(case: EvaluationCase, hits: Sequence[SearchHit], *, k: int) -> di
                 "semantic_score": round(float(hit.semantic_score), 8),
                 "route_score": round(float(hit.route_score), 8),
                 "matched_target_indices": matches,
+                "new_target_indices": new_matches,
             }
         )
 
