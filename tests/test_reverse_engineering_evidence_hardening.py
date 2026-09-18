@@ -5,7 +5,7 @@ import copy
 import pytest
 
 from src.reverse_engineering.frame_timeline import FrameTimelineError, compile_frame_timeline
-from src.reverse_engineering.template_compiler import EditingTemplateError, build_editing_signature, compile_editing_template
+from src.reverse_engineering.template_compiler import EditingTemplateError, build_editing_signature, compile_editing_template, write_reverse_engineering_bundle
 
 
 def pack():
@@ -132,3 +132,19 @@ def test_public_signature_builder_requires_decoded_frame_count_not_duration_esti
     data["video_meta"]["frame_count"] = 3
     with pytest.raises(EditingTemplateError, match="decoded_frame_count"):
         build_editing_signature(data, motionstyle())
+
+
+def test_public_signature_builder_rejects_nonfinite_motion_instead_of_zero_laundering():
+    data = pack()
+    data["motion_stats"]["tracks"][0]["motion_median"] = float("nan")
+    with pytest.raises(EditingTemplateError, match="finite"):
+        build_editing_signature(data, motionstyle())
+
+
+def test_bundle_writer_refuses_nonstandard_nan_json(tmp_path):
+    with pytest.raises(ValueError):
+        write_reverse_engineering_bundle(
+            tmp_path,
+            {"template_id": "bad", "metric": float("nan")},
+            [],
+        )
