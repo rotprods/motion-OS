@@ -1,0 +1,30 @@
+{
+  "event_id": "20260917T203100000000Z-chatgpt-pr-convergence-work-started",
+  "event_type": "work.started",
+  "timestamp": "2026-09-17T20:31:00Z",
+  "agent_id": "motion://agent/chatgpt/pr-convergence",
+  "project": "MOTION.OS",
+  "branch": "docs/aprende-pr-convergence-20260916",
+  "commit_sha": "c27f746be421ef46c501a2a747d219ed8376fc60",
+  "pr_number": 166,
+  "summary": "Started Wave 1 PR convergence archaeology: compile a machine-readable promotion graph from live GitHub truth, beginning with #162→#165, #128→#163, #64→#157/golden dependencies, and #56/#57/#58/#59. No merge or product mutation authorized.",
+  "affected_paths": [
+    "docs/PR_CONVERGENCE_MASTERPLAN_2026-09-16.md",
+    "state/promotion_graph.json",
+    "state/agent_events/2026-09-17/"
+  ],
+  "checks": {
+    "scope_conflict_preflight": "PASS",
+    "promotion_barrier_respected": "PASS",
+    "main_mutation_authorized": "NO"
+  },
+  "authority": "PROPOSED",
+  "correlation_id": "motion-pr-convergence-wave1-20260917",
+  "metadata": {
+    "project_id": "motion://project/motion-os",
+    "session_id": "motion://session/chatgpt/pr-convergence/20260917T2231+0200",
+    "workstream_id": "motion://workstream/pr-convergence-wave1",
+    "base_sha": "d4e628a1aef0cd382c3c2f1ea327a8ff70c41bd9",
+    "promotion_effect": "NONE"
+  }
+}
