@@ -33,3 +33,14 @@ def test_ci_policy_change_forces_every_gate():
 def test_force_full_for_merge_group_forces_every_gate():
     result = classify(["README.md"], force_full=True)
     assert all(result.values())
+
+
+def test_reverse_engineering_changes_route_to_physical_analysis():
+    for path in (
+        "src/reverse_engineering/template_compiler.py",
+        "scripts/reverse_engineer_video.py",
+        "scripts/reverse_engineering_gauntlet.py",
+        "tests/test_reverse_engineering_frame_authority.py",
+    ):
+        result = classify([path])
+        assert result["analysis"] is True

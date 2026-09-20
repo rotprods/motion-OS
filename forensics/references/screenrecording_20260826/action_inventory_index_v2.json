@@ -1,0 +1,35 @@
+{
+  "schema_version": "2.0.0",
+  "video_id": "screenrecording_2026-08-26_173251",
+  "source_sha256": "9b3076cb542e358386942a0fb6b160f1345564d4326738f9a340e2b5b38e199d",
+  "fps": 30,
+  "parent_action_count": 98,
+  "subevent_count": 32,
+  "leaf_operation_count": 121,
+  "temporal_modes": {"discrete": 44, "continuous": 27, "hold": 16, "staggered": 9, "compound": 2},
+  "motion_origins": {"editorial": 90, "mixed": 5, "source_native": 3},
+  "staggered_actions": {
+    "A007": 5,
+    "A039": 3,
+    "A056": 3,
+    "A061": 4,
+    "A062": 3,
+    "A064": 3,
+    "A082": 3,
+    "A083": 3,
+    "A084": 5
+  },
+  "continuous_calibration": {
+    "A006": "continuous frame-derived count-up; do not fabricate internal point keyframes",
+    "A093": "mixed subject/reframe motion; source-native motion explicitly allowed during the editorial reframe",
+    "A094": "Factor-X hold allows source-native facial/body motion under stable editorial foreground"
+  },
+  "explicit_child_examples": {
+    "A056": ["Y 383→384→388", "POR 386→389→393", "ESO 390→393→398"],
+    "A061": ["DEBE 441→444→449", "DEJAR 448→451→456", "ABSOLUTAMENTE 455→459→468", "CLARO 473→478→485"],
+    "A062": ["ROW_X 487→490→493", "ROW_DIAMOND 495→498→501", "ROW_MEGAPHONE 504→507→510"],
+    "A084": ["CARD_01 665→669→676", "CARD_02 672→677→684", "CARD_03 680→686→694", "CARD_04 692→700→708", "CARD_05 704→714→724"]
+  },
+  "heavy_inventory_drive_file_id": "1SImm9KaLbmVbWdnIzSOTUVYSmfTajZdh",
+  "authority": "lightweight inspectable index of the heavy Drive action inventory; exact per-action evidence/renderer mappings remain in Drive artifact"
+}

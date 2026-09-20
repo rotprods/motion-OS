@@ -1,0 +1,33 @@
+{
+  "affected_paths": [
+    "copy_pastes/2026-08-28_video_reverse_engineering_template_directive.md",
+    "plans/phase_04_video_reverse_engineering_template_compiler_v1.md",
+    "knowledge/reconstruction/VIDEO_REVERSE_ENGINEERING_CANON.md",
+    "config/reverse_engineering.yaml",
+    "schemas/editing_template.schema.json",
+    "src/reverse_engineering/",
+    "scripts/reverse_engineer_video.py",
+    "tests/test_reverse_engineering_template_compiler.py"
+  ],
+  "agent_id": "motion://agent/video-reverse-engineer",
+  "authority": "IMPLEMENTED",
+  "branch": "feat/video-reverse-engineering-templates-v1",
+  "checks": {},
+  "commit_sha": "5b31579938de34427169efa21be14f063cc5c7b8",
+  "correlation_id": "motion://work/video-reverse-engineering-templates-v1",
+  "event_id": "20260828T100400000000Z-video-reverse-engineer-pr-opened",
+  "event_type": "pr.opened",
+  "metadata": {
+    "session_id": "motion://session/video-reverse-engineer/20260828T095100Z",
+    "base_sha_at_open": "a8d7dbddaeb4ad9779df9883d3cf4e4f6ea4f29d",
+    "bus_issue": 39,
+    "regression_barrier_issue": 48,
+    "draft": true,
+    "promotion_blocked": true,
+    "empirical_real_video_qualification": "NOT_EXECUTED"
+  },
+  "pr_number": 64,
+  "project": "MOTION.OS",
+  "summary": "Opened draft PR #64 for the isolated Phase04 frame-accurate reverse-engineering and reusable editing-template compiler. Promotion remains blocked by the canonical #39/#48 regression barrier and empirical real-video qualification remains pending.",
+  "timestamp": "2026-08-28T10:04:00Z"
+}

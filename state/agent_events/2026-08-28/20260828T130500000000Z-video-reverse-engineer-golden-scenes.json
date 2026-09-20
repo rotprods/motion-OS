@@ -1,0 +1,27 @@
+{
+  "affected_paths": [
+    "forensics/references/screenrecording_20260826/golden_scenes_reconstruction_v1.json",
+    "forensics/references/screenrecording_20260826/GOLDEN_SCENE_VALIDATION_PLAN.md"
+  ],
+  "agent_id": "motion://agent/video-reverse-engineer",
+  "authority": "IMPLEMENTED",
+  "branch": "feat/video-reverse-engineering-templates-v1",
+  "checks": {},
+  "commit_sha": "821894b8bf12dd993715c60df2acddb21301e87a",
+  "correlation_id": "motion://work/video-reverse-engineering-templates-v1",
+  "event_id": "20260828T130500000000Z-video-reverse-engineer-golden-scenes",
+  "event_type": "work.checkpoint",
+  "metadata": {
+    "session_id": "motion://session/video-reverse-engineer/20260828T095100Z",
+    "mission_id": "motion://mission/ultra-deep-video-reverse-engineering-v2",
+    "source_sha256": "9b3076cb542e358386942a0fb6b160f1345564d4326738f9a340e2b5b38e199d",
+    "golden_scenes": ["S04_TALKING_CAPTION", "S11_UI_LIST", "S14_AUDIO_VISUAL_TEXT", "S16_FACTOR_X"],
+    "scope": ["caption_geometry", "subject_reframe", "vector_ui", "carousel", "depth_occlusion", "sfx_sync", "cross_renderer_parity"],
+    "next_empirical_gate": "physically reconstruct and compare the four golden scenes before full 835-frame reconstruction or canonical-template promotion",
+    "authority_note": "Golden-scene keyframes/effect/layer recipes remain evidence-bound reconstruction estimates. Original project internals remain unknown."
+  },
+  "pr_number": 64,
+  "project": "MOTION.OS",
+  "summary": "Defined four golden reconstruction scenes and the renderer/fidelity/generalization validation plan so AE, Remotion and HyperFrames can be tested against one canonical editing model instead of independently re-interpreting the reference.",
+  "timestamp": "2026-08-28T13:05:00+02:00"
+}

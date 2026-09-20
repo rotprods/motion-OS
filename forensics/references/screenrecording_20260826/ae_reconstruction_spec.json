@@ -1,0 +1,60 @@
+{
+  "schema_version": "0.1",
+  "project_name": "ScreenRecording_08-26-2026_17-32-51_RECONSTRUCTION",
+  "authority": "evidence_bound_reconstruction_plan_not_original_project",
+  "master_comp": {
+    "name": "MASTER_512x1108_30",
+    "width": 512,
+    "height": 1108,
+    "fps": 30,
+    "duration_frames": 835,
+    "duration_s": 27.833,
+    "pixel_aspect": 1.0,
+    "bg_color": "#080607"
+  },
+  "precomps": [
+    {"name":"PRECOMP_BACKGROUND","role":"room plates, black/red fields, grids, 3D stages"},
+    {"name":"PRECOMP_SUBJECT","role":"talking-head or rendered-human plates"},
+    {"name":"PRECOMP_GRAPHICS","role":"hook icon, question marks, count-up, classical columns, accents"},
+    {"name":"PRECOMP_CAPTIONS","role":"kinetic typography and section headings"},
+    {"name":"PRECOMP_UI","role":"phone mockups, status/list UI, carousel cards, source-lock Instagram chrome"},
+    {"name":"PRECOMP_FOREGROUND","role":"social proof cards, example cards, Factor X column"},
+    {"name":"PRECOMP_GRADE","role":"global red/black grade, vignette, optional grain"}
+  ],
+  "layer_z_model": {
+    "IG_UI": 6.0,
+    "CAPTIONS": 3.5,
+    "FOREGROUND_OBJECT": 3.0,
+    "FOREGROUND_CARDS": 2.5,
+    "DEVICE": 2.0,
+    "MIDGRAPHICS": 1.7,
+    "SUBJECT": 1.0,
+    "BACKGROUND": -3.0
+  },
+  "major_reconstruction_events": [
+    {"frames":[0,15],"event":"iris/mask reveal","implementation":"shape matte or alpha matte, inferred ease-out"},
+    {"frames":[30,60],"event":"red numeric count-up +9,458 → +10,009","implementation":"text source updates / counter expression"},
+    {"frames":[64,117],"event":"progressive 'así es como puedes redactar' build","implementation":"separate text layers + question-mark/classical graphic stack"},
+    {"frames":[112,124],"event":"compound flash/blur transition","implementation":"adjustment/precomp exposure+blur+distortion, exact plugin unknown"},
+    {"frames":[150,216],"event":"'que sea CIENTÍFICAMENTE imposible' caption","implementation":"small white setup + large red condensed keyword + small white tail"},
+    {"frames":[216,240],"event":"phone frame-within-frame + oversized 'de scrollear'","implementation":"phone precomp + perspective/scale transform + foreground serif text"},
+    {"frames":[240,244],"event":"4-frame glitch/white-red flash","implementation":"compound distortion/exposure transition"},
+    {"frames":[244,272],"event":"context phone + classical columns","implementation":"phone/card precomp with scale settle"},
+    {"frames":[272,329],"event":"3D crowd explainer + 'contenido'","implementation":"rendered/footage people layers + dark vignette + red floor glow + spatial type"},
+    {"frames":[329,383],"event":"single 3D figure + 'INTERÉS'","implementation":"rendered figure plate + cool/warm rim grade + spatial type"},
+    {"frames":[383,405],"event":"low-entropy red reset 'y por eso'","implementation":"flat red field + small white text"},
+    {"frames":[405,535],"event":"progressive status/list UI","implementation":"rounded pill, hook icon, cursor/arrow, row stagger, boxed 'absolutamente'"},
+    {"frames":[561,655],"event":"audio→visual→texto carousel","implementation":"horizontal card carousel on red grid, snappy state changes"},
+    {"frames":[655,727],"event":"talking head + icons + translucent example cards","implementation":"subject plate + upper icon/copy group + foreground card stack"},
+    {"frames":[727,819],"event":"Factor X payoff","implementation":"extreme close subject + foreground classical column + red question mark + white Factor X lockup"},
+    {"frames":[819,835],"event":"end-card 'la caga'","implementation":"large blurred red title under source-lock Instagram chrome"}
+  ],
+  "rules": [
+    "Treat original talking-head and rendered-human footage as replaceable footage plates unless separate layers are visually evidenced.",
+    "Do not invent exact font families; preserve typography class, width, weight, placement, color and timing.",
+    "Do not call apparent crop/subject-scale variation a physical camera move without additional evidence.",
+    "Enable motion blur only for fast transform/transition events; original shutter angle is unknown.",
+    "Instagram UI is SOURCE_LOCK in exact reconstruction and must be stripped from reusable templates."
+  ],
+  "status": "SPECIFIED_NOT_AEP_EXECUTED"
+}

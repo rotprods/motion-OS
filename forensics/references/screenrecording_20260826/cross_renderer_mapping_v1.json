@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.0.0",
+  "source_sha256": "9b3076cb542e358386942a0fb6b160f1345564d4326738f9a340e2b5b38e199d",
+  "principle": "After Effects, Remotion and HyperFrames execute one canonical editing graph; mappings are implementation translations, not creative reinterpretations.",
+  "canonical_channels": {
+    "layer_in_out": {"after_effects":"layer.inPoint/outPoint","remotion":"Sequence from/durationInFrames","hyperframes":"data-start/data-duration"},
+    "position_2d": {"after_effects":"Transform.Position","remotion":"style transform translate / interpolate","hyperframes":"GSAP x/y"},
+    "scale": {"after_effects":"Transform.Scale","remotion":"style transform scale / interpolate/spring adapter","hyperframes":"GSAP scale"},
+    "rotation_z": {"after_effects":"Transform.Rotation","remotion":"style transform rotate","hyperframes":"GSAP rotation"},
+    "opacity": {"after_effects":"Transform.Opacity","remotion":"style opacity / interpolate","hyperframes":"GSAP opacity"},
+    "mask": {"after_effects":"Mask/Track Matte","remotion":"SVG mask/clipPath/CSS clipPath","hyperframes":"SVG mask/CSS clip-path"},
+    "z_order": {"after_effects":"layer stacking / 3D Z when justified","remotion":"zIndex + optional 3D transform","hyperframes":"CSS z-index + optional translateZ"},
+    "precomp": {"after_effects":"CompItem/precomp","remotion":"React component + Sequence","hyperframes":"composition or semantic DOM group"},
+    "text": {"after_effects":"TextLayer/Text Animator","remotion":"independent React text geometry + Caption timing data","hyperframes":"DOM text + GSAP timeline"},
+    "bezier_ease": {"after_effects":"KeyframeEase / temporal bezier","remotion":"Easing.bezier adapter","hyperframes":"GSAP custom/cubic ease"},
+    "snappy_overshoot": {"after_effects":"3-key scale curve / Graph Editor","remotion":"explicit frame interpolation or calibrated spring","hyperframes":"GSAP keyframes/fromTo sequence"},
+    "audio_event": {"after_effects":"layer marker/comp marker + audio waveform reference","remotion":"frame-derived event timestamp / Audio track","hyperframes":"separate audio clip + timeline label"}
+  },
+  "golden_scene_equivalence": [
+    {
+      "scene_id":"S04_TALKING_CAPTION",
+      "canonical":"subject footage + reframe transform + three semantic caption groups + linked impacts",
+      "after_effects":["FOOTAGE_LAYER subject","NULL reframe","TEXT_LAYER que/sea","TEXT_LAYER CIENTÍFICAMENTE","TEXT_LAYER imposible","audio markers"],
+      "remotion":["Sequence subject","ReframeWrapper","caption setup component","hero keyword component","tail component","audio-event data"],
+      "hyperframes":["video clip","transform wrapper","caption DOM layers","registered paused GSAP timeline","audio clip/labels"]
+    },
+    {
+      "scene_id":"S11_UI_LIST",
+      "canonical":"red field + status pill + hook/cursor + progressive caption + three semantic UI rows",
+      "after_effects":["shape background","status precomp","shape icon/arrow","caption precomps","UI row precomps"],
+      "remotion":["SVG/CSS background","status component","arrow SVG","caption components","row components/Sequences"],
+      "hyperframes":["CSS field","status DOM/SVG","arrow SVG","caption DOM","row DOM groups with staggered gsap.from"]
+    },
+    {
+      "scene_id":"S14_AUDIO_VISUAL_TEXT",
+      "canonical":"one horizontal carousel topology with three state indices and frame-locked headings",
+      "after_effects":["CAROUSEL precomp X animation","three heading layers","annotation shape"],
+      "remotion":["CarouselTrack x derived from frame/state","frame-locked heading switch","annotation SVG"],
+      "hyperframes":["carousel DOM track","GSAP x snaps at frame-derived seconds","heading DOM state swap","annotation SVG"]
+    },
+    {
+      "scene_id":"S16_FACTOR_X",
+      "canonical":"subject plate + foreground column + foreground question mark + hero title, short entrance then stable hold",
+      "after_effects":["subject footage","column layer","question-mark shape/text","Factor X text precomp"],
+      "remotion":["subject Sequence","foreground object component","question SVG/text","hero title component"],
+      "hyperframes":["subject clip","foreground image/SVG","question mark DOM/SVG","hero title DOM"]
+    }
+  ],
+  "hard_rules": [
+    "Frame index remains the authoritative timebase.",
+    "Do not replace hard source cuts with long transitions in exact reconstruction.",
+    "Do not collapse independent hero/setup/tail captions into one text renderer.",
+    "Do not invert DepthGraph z-order to satisfy renderer convenience.",
+    "Do not use renderer-specific randomization or browser-clock timing.",
+    "If a renderer cannot reproduce a property, surface a capability gap rather than silently redesigning it."
+  ]
+}

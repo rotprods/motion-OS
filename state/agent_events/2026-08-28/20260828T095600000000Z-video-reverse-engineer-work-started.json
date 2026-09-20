@@ -1,0 +1,48 @@
+{
+  "affected_paths": [
+    "copy_pastes/2026-08-28_video_reverse_engineering_template_directive.md",
+    "plans/phase_04_video_reverse_engineering_template_compiler_v1.md",
+    "knowledge/reconstruction/VIDEO_REVERSE_ENGINEERING_CANON.md",
+    "config/reverse_engineering.yaml",
+    "schemas/editing_template.schema.json",
+    "src/reverse_engineering/",
+    "scripts/reverse_engineer_video.py",
+    "tests/test_reverse_engineering_template_compiler.py"
+  ],
+  "agent_id": "motion://agent/video-reverse-engineer",
+  "authority": "IMPLEMENTED",
+  "branch": "feat/video-reverse-engineering-templates-v1",
+  "checks": {},
+  "commit_sha": null,
+  "correlation_id": "motion://work/video-reverse-engineering-templates-v1",
+  "event_id": "20260828T095600000000Z-video-reverse-engineer-work-started",
+  "event_type": "work.started",
+  "metadata": {
+    "session_id": "motion://session/video-reverse-engineer/20260828T095100Z",
+    "base_sha": "a8d7dbddaeb4ad9779df9883d3cf4e4f6ea4f29d",
+    "bus_issue": 39,
+    "regression_barrier_issue": 48,
+    "allowed_write_scopes": [
+      "phase:04/video-reverse-engineering-v2",
+      "contract:editing-template-v1",
+      "tree:src/reverse_engineering/**"
+    ],
+    "forbidden_write_scopes": [
+      "src/coordination/**",
+      "coordination/**",
+      "state/project_state.json",
+      "STATE.md",
+      "TASKS.md",
+      "src/skills/runtime.py",
+      "src/qa/alignment.py",
+      "src/graph/editing_graph.py",
+      "schemas/motionstyle2json.schema.json",
+      "schemas/editing_graph.schema.json"
+    ],
+    "authority_note": "Session/bus registration is durable; implementation remains unverified until clean-runner qualification. No merge during the active #39/#48 barrier."
+  },
+  "pr_number": null,
+  "project": "MOTION.OS",
+  "summary": "Start additive Phase04 frame-accurate video reverse-engineering and reusable editing-template compiler, consuming existing evidence contracts without mutating concurrent coordination/canonical-truth/SkillRuntime/graph-QA scopes.",
+  "timestamp": "2026-08-28T09:56:00Z"
+}

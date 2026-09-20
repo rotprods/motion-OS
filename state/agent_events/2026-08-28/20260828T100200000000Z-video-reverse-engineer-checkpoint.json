@@ -1,0 +1,43 @@
+{
+  "affected_paths": [
+    "copy_pastes/2026-08-28_video_reverse_engineering_template_directive.md",
+    "plans/phase_04_video_reverse_engineering_template_compiler_v1.md",
+    "knowledge/reconstruction/VIDEO_REVERSE_ENGINEERING_CANON.md",
+    "config/reverse_engineering.yaml",
+    "schemas/editing_template.schema.json",
+    "src/reverse_engineering/",
+    "scripts/reverse_engineer_video.py",
+    "tests/test_reverse_engineering_template_compiler.py"
+  ],
+  "agent_id": "motion://agent/video-reverse-engineer",
+  "authority": "IMPLEMENTED",
+  "branch": "feat/video-reverse-engineering-templates-v1",
+  "checks": {},
+  "commit_sha": "2fbff0eb4508b12ec343b8630dd12509c2f8894f",
+  "correlation_id": "motion://work/video-reverse-engineering-templates-v1",
+  "event_id": "20260828T100200000000Z-video-reverse-engineer-checkpoint",
+  "event_type": "work.checkpoint",
+  "metadata": {
+    "session_id": "motion://session/video-reverse-engineer/20260828T095100Z",
+    "base_sha": "a8d7dbddaeb4ad9779df9883d3cf4e4f6ea4f29d",
+    "bus_issue": 39,
+    "regression_barrier_issue": 48,
+    "implemented": [
+      "frame-complete evidence index without interpolation",
+      "evidence-bound EditingTemplate v1 contract",
+      "three explicit replication modes",
+      "deterministic editing signature and invariant/slot separation",
+      "raw-video CLI on top of existing Phase04 analyze_video pipeline",
+      "adversarial unit-test fixture for coverage, content stripping and hash integrity"
+    ],
+    "known_limits": [
+      "no empirical real-user-video qualification yet",
+      "new reverse_engineering paths are not yet mapped to the analysis CI classifier because scripts/change_impact.py is concurrently owned by PR #56",
+      "object/card tracking and transition classification remain bounded by existing Phase04 provider evidence"
+    ]
+  },
+  "pr_number": null,
+  "project": "MOTION.OS",
+  "summary": "Implemented the isolated Phase04 reverse-engineering/template compiler v1. The branch now turns FeaturePack + MotionStyle2JSON evidence into a complete frame timeline, editing signature and exact/structural/style-transfer templates. Verification is still pending clean-runner CI and the capability remains empirically unqualified until real user videos are analyzed.",
+  "timestamp": "2026-08-28T10:02:00Z"
+}

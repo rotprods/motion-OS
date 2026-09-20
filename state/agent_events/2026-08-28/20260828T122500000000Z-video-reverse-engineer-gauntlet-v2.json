@@ -1,0 +1,46 @@
+{
+  "affected_paths": [
+    "schemas/reverse_engineering_action_inventory.schema.json",
+    "src/reverse_engineering/action_inventory.py",
+    "scripts/reverse_engineering_gauntlet.py",
+    "tests/test_reverse_engineering_action_inventory.py",
+    "templates/reverse_engineering/TEMPLATE.md",
+    "knowledge/reconstruction/GAUNTLET_100_PERCENT_EXTRACTION_PROTOCOL.md",
+    "forensics/references/screenrecording_20260826/action_inventory_index_v2.json",
+    "forensics/references/screenrecording_20260826/deep_residual_review_v2.json",
+    "forensics/references/screenrecording_20260826/coverage_matrix.json",
+    "forensics/references/screenrecording_20260826/gauntlet_report.json",
+    "forensics/references/screenrecording_20260826/drive_mirror_manifest.json"
+  ],
+  "agent_id": "motion://agent/video-reverse-engineer",
+  "authority": "EXECUTED",
+  "branch": "feat/video-reverse-engineering-templates-v1",
+  "checks": {
+    "clean_runner_previous_code_head": "67592d7d4b1aa177f45337a10f182b405f3c8467 MERGE_SAFE SUCCESS",
+    "local_v2_schema_semantics": "PASS: 98 parent actions, 32 subevents",
+    "deep_residual_review": "PASS: zero unexplained MAD/flow residuals through P70 locally",
+    "drive_canonical_mirror": "PASS: v2 inventory, G08/G09, source video and frame metrics persisted"
+  },
+  "commit_sha": "16cc755b688ec5e28603d9c287169dbac4bb8f0e",
+  "correlation_id": "motion://work/video-reverse-engineering-templates-v1",
+  "event_id": "20260828T122500000000Z-video-reverse-engineer-gauntlet-v2",
+  "event_type": "work.checkpoint",
+  "metadata": {
+    "session_id": "motion://session/video-reverse-engineer/20260828T095100Z",
+    "mission_id": "motion://mission/ultra-deep-video-reverse-engineering-v2",
+    "source_sha256": "9b3076cb542e358386942a0fb6b160f1345564d4326738f9a340e2b5b38e199d",
+    "parent_actions": 98,
+    "subevents": 32,
+    "leaf_operations": 121,
+    "gauntlet_loops": 9,
+    "new_semantics": ["continuous", "staggered subevents", "source-native motion adjudication", "P80/P75 residual review"],
+    "drive_root_id": "1GPUW-lWs-FvCwJmtif4bHBzrzFOu2abV",
+    "drive_specimen_folder_id": "1G9vveuR71XKu-0ysNz3pAoqBJ692K8qa",
+    "authority_boundary": "Observable action closure is not hidden-project recovery and not physical reconstruction fidelity.",
+    "next_gate": "freeze action graph and reconstruct S04/S11/S14/S16 physically without source-driven creative patching"
+  },
+  "pr_number": 64,
+  "project": "MOTION.OS",
+  "summary": "Second-order gauntlet hardened the reverse-engineering contract after P90-only coverage proved too coarse. Staggered actions now expose explicit child events, continuous operations avoid fabricated keyframes, source-native plate motion is separated from editorial motion, and low-threshold residual review closes the current specimen through P70 locally. GitHub and MOTION.OS_CANONICAL Drive now carry the v2 architecture and durable evidence; physical reconstruction fidelity remains the next authority gate.",
+  "timestamp": "2026-08-28T12:25:00Z"
+}

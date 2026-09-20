@@ -1,0 +1,215 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://motion.os/schemas/editing_template.schema.json",
+  "title": "MOTION.OS Evidence-Bound Editing Template",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "template_id",
+    "replication_mode",
+    "source",
+    "frame_contract",
+    "editing_signature",
+    "invariants",
+    "slots",
+    "timeline",
+    "motion_grammar",
+    "visual_grammar",
+    "audio_grammar",
+    "evidence",
+    "compiler_targets",
+    "qa",
+    "provenance",
+    "content_hash"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "template_id": {"type": "string", "minLength": 1},
+    "replication_mode": {
+      "enum": ["RECONSTRUCT_EXACT", "STRUCTURAL_TEMPLATE", "STYLE_TRANSFER"]
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sha256", "duration_ms", "fps", "resolution", "aspect_ratio"],
+      "properties": {
+        "sha256": {"type": "string", "pattern": "^[0-9a-fA-F]{64}$"},
+        "duration_ms": {"type": "integer", "minimum": 0},
+        "fps": {"type": "number", "exclusiveMinimum": 0},
+        "resolution": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["w", "h"],
+          "properties": {
+            "w": {"type": "integer", "minimum": 1},
+            "h": {"type": "integer", "minimum": 1}
+          }
+        },
+        "aspect_ratio": {"type": "string"}
+      }
+    },
+    "frame_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fps", "total_frames", "duration_ms", "frame_timeline_ref", "coverage"],
+      "properties": {
+        "fps": {"type": "number", "exclusiveMinimum": 0},
+        "total_frames": {"type": "integer", "minimum": 1},
+        "duration_ms": {"type": "integer", "minimum": 0},
+        "frame_timeline_ref": {"type": "string", "minLength": 1},
+        "coverage": {"const": "every_decoded_frame"}
+      }
+    },
+    "editing_signature": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["temporal", "motion", "transitions", "camera", "typography", "audio", "visual"],
+      "properties": {
+        "temporal": {"type": "object"},
+        "motion": {"type": "object"},
+        "transitions": {"type": "object"},
+        "camera": {"type": "object"},
+        "typography": {"type": "object"},
+        "audio": {"type": "object"},
+        "visual": {"type": "object"}
+      }
+    },
+    "invariants": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "class", "domain", "value", "authority", "confidence", "evidence_refs"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "class": {"enum": ["HARD_INVARIANT", "SOFT_INVARIANT", "SOURCE_LOCK"]},
+          "domain": {"enum": ["temporal", "motion", "transition", "camera", "typography", "layout", "visual", "audio", "brand", "narrative"]},
+          "value": {},
+          "authority": {"enum": ["measured", "measured_heuristic", "inferred", "assumption", "unavailable"]},
+          "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+          "evidence_refs": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+        }
+      }
+    },
+    "slots": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["slot_id", "role", "media_type", "required", "constraints", "source_binding"],
+        "properties": {
+          "slot_id": {"type": "string", "minLength": 1},
+          "role": {"type": "string", "minLength": 1},
+          "media_type": {"enum": ["text", "image", "video", "ui", "logo", "audio", "data", "generic"]},
+          "required": {"type": "boolean"},
+          "constraints": {"type": "object"},
+          "source_binding": {"type": ["object", "null"]}
+        }
+      }
+    },
+    "timeline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["beats", "coverage"],
+      "properties": {
+        "coverage": {"const": "contiguous_full_duration"},
+        "beats": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": ["id", "source_shot_id", "start_ms", "end_ms", "from_frame", "to_frame", "role", "slot_refs", "transition_in", "transition_out"],
+            "properties": {
+              "id": {"type": "string"},
+              "source_shot_id": {"type": "string"},
+              "start_ms": {"type": "integer", "minimum": 0},
+              "end_ms": {"type": "integer", "minimum": 0},
+              "from_frame": {"type": "integer", "minimum": 0},
+              "to_frame": {"type": "integer", "minimum": 0},
+              "role": {"type": "string"},
+              "slot_refs": {"type": "array", "items": {"type": "string"}},
+              "transition_in": {"type": ["string", "null"]},
+              "transition_out": {"type": ["string", "null"]}
+            }
+          }
+        }
+      }
+    },
+    "motion_grammar": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["verbs", "easing", "camera_motions", "micro_choreography"],
+      "properties": {
+        "verbs": {"type": "array", "items": {"type": "string"}},
+        "easing": {"type": "array", "items": {"type": "string"}},
+        "camera_motions": {"type": "array", "items": {"type": "string"}},
+        "micro_choreography": {"type": "array", "items": {"type": "object"}}
+      }
+    },
+    "visual_grammar": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["style_families", "palette", "layout", "materials", "fx"],
+      "properties": {
+        "style_families": {"type": "array", "items": {"type": "object"}},
+        "palette": {"type": "array"},
+        "layout": {"type": "object"},
+        "materials": {"type": "array"},
+        "fx": {"type": "array"}
+      }
+    },
+    "audio_grammar": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["available", "onset_rate_per_sec", "cut_onset_sync_ratio", "sync_tolerance_ms"],
+      "properties": {
+        "available": {"type": "boolean"},
+        "onset_rate_per_sec": {"type": "number", "minimum": 0},
+        "cut_onset_sync_ratio": {"type": "number", "minimum": 0, "maximum": 1},
+        "sync_tolerance_ms": {"type": "integer", "minimum": 0}
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["claims", "warnings"],
+      "properties": {
+        "claims": {"type": "array", "items": {"type": "object"}},
+        "warnings": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "compiler_targets": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["remotion", "after_effects_event_map", "generative_video", "storyboard"],
+      "properties": {
+        "remotion": {"type": "object"},
+        "after_effects_event_map": {"type": "object"},
+        "generative_video": {"type": "object"},
+        "storyboard": {"type": "object"}
+      }
+    },
+    "qa": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["promotion_state", "frame_coverage", "literal_copy_leakage", "warnings"],
+      "properties": {
+        "promotion_state": {"enum": ["DRAFT_EXTRACTED", "EVIDENCE_VALIDATED", "RENDER_VALIDATED", "GENERALIZATION_VALIDATED", "CANONICAL_TEMPLATE"]},
+        "frame_coverage": {"type": "number", "minimum": 0, "maximum": 1},
+        "literal_copy_leakage": {"type": "boolean"},
+        "warnings": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["generator", "source_refs"],
+      "properties": {
+        "generator": {"type": "string"},
+        "source_refs": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "content_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

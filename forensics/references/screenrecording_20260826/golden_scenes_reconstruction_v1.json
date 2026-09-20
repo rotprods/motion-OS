@@ -1,0 +1,123 @@
+{
+  "schema_version": "1.0.0",
+  "mission_id": "motion://mission/ultra-deep-video-reverse-engineering-v2",
+  "source_sha256": "9b3076cb542e358386942a0fb6b160f1345564d4326738f9a340e2b5b38e199d",
+  "authority": "evidence_bound_reconstruction_spec_not_original_project",
+  "timebase": {"fps": 30, "width": 512, "height": 1108},
+  "selection_reason": "These four scenes jointly exercise the dominant editing identity: kinetic captions/crop motion, progressive vector UI, state-bound carousel motion, and foreground depth/payoff composition.",
+  "scenes": [
+    {
+      "scene_id": "S04_TALKING_CAPTION",
+      "frames": [147, 216],
+      "time_ms": [4900, 7200],
+      "validation_role": ["caption_geometry", "hero_keyword_punch", "subject_reframe", "caption_sfx_sync"],
+      "attention_function": "Hold human eye contact while semantic emphasis migrates from small setup words to one oversized hero keyword, then releases into the device transition.",
+      "layers": [
+        {"id": "S04_BG", "type": "FOOTAGE_OR_PRECOMP", "z": -3.0, "source": "talking_head_room_plate", "in_frame": 147, "out_frame": 216, "effects": ["COLOR_GRADE:red_black", "VIGNETTE:subtle"], "confidence": 0.95},
+        {"id": "S04_SUBJECT", "type": "FOOTAGE_LAYER", "z": 1.0, "source": "talking_head_subject_plate", "in_frame": 147, "out_frame": 216, "parent": "S04_REFRAME_NULL", "motion_blur": false, "confidence": 0.95},
+        {"id": "S04_REFRAME_NULL", "type": "NULL", "z": 1.0, "in_frame": 147, "out_frame": 216, "keyframes": [{"frame":147,"channel":"scale","value":1.0,"authority":"inferred_from_face_bbox"},{"frame":175,"channel":"scale","value":1.25,"authority":"inferred_from_face_bbox"},{"frame":205,"channel":"scale","value":0.80,"authority":"inferred_from_face_bbox"}], "note": "Represents apparent crop/reframe. Do not label as physical dolly."},
+        {"id": "CAP_QUE_SEA", "type": "TEXT_LAYER_GROUP", "z": 3.5, "in_frame": 150, "out_frame": 188, "text": "que sea", "style": {"class":"condensed_sans","case":"lower","fill":"off_white","weight":"bold"}, "animation": "small setup build", "confidence": 0.80},
+        {"id": "CAP_CIENTIFICAMENTE", "type": "TEXT_LAYER", "z": 3.5, "in_frame": 156, "out_frame": 216, "text": "CIENTÍFICAMENTE", "style": {"class":"condensed_display","case":"upper","fill":"deep_red","weight":"heavy"}, "keyframes": [{"frame":156,"scale":0.84,"opacity":0.0},{"frame":160,"scale":1.12,"opacity":1.0},{"frame":165,"scale":1.0,"opacity":1.0}], "ease_alias": "expoOut_like_short_overshoot", "confidence": 0.58},
+        {"id": "CAP_IMPOSIBLE", "type": "TEXT_LAYER", "z": 3.5, "in_frame": 188, "out_frame": 216, "text": "imposible", "style": {"class":"sans","case":"lower","fill":"off_white","weight":"medium"}, "animation": "small tail reveal", "confidence": 0.78}
+      ],
+      "audio_links": [
+        {"onset_ms":5120,"class":"impact","relation":"pre_emphasis","target":"CAP_CIENTIFICAMENTE","offset_ms":-80,"authority":"mixed_track_measured_plus_inferred_class"},
+        {"onset_ms":5451,"class":"sub_hit","relation":"settle_support","target":"CAP_CIENTIFICAMENTE","authority":"mixed_track_measured_plus_inferred_class"},
+        {"onset_ms":6931,"class":"whoosh","relation":"transition_prep","target":"S05_PHONE_SCROLL","authority":"mixed_track_measured_plus_inferred_class"}
+      ],
+      "renderer_contract": {
+        "after_effects": "Footage plate parented to a 2D reframe NULL; hero keyword as independent text layer with three scale/opacity keys; source hard cut/device transition preserved.",
+        "remotion": "Sequence for footage + transform wrapper; Caption JSON timing feeds independent hero text component; frame-driven interpolate/spring-equivalent only where calibrated.",
+        "hyperframes": "Static CSS hero layout first; GSAP fromTo on hero scale/opacity and wrapper scale; timeline registered synchronously."
+      }
+    },
+    {
+      "scene_id": "S11_UI_LIST",
+      "frames": [405, 535],
+      "time_ms": [13500, 17833],
+      "validation_role": ["vector_ui", "row_stagger", "boxed_caption", "cursor_arrow", "low_to_high_density_build"],
+      "attention_function": "Turn a low-entropy reset into a progressive proof stack; every new row is a semantic reveal, not decorative dashboard noise.",
+      "layers": [
+        {"id":"S11_BG","type":"SHAPE_LAYER","z":-3.0,"fill":"deep_red","in_frame":405,"out_frame":535,"confidence":0.98},
+        {"id":"S11_STATUS_PILL","type":"SHAPE_PRECOMP","z":1.7,"in_frame":405,"out_frame":535,"style":{"fill":"near_black","radius_class":"pill"},"keyframes":[{"frame":405,"scale_x":0.15,"opacity":0.0},{"frame":414,"scale_x":1.0,"opacity":1.0}],"ease_alias":"expoOut_like","confidence":0.75},
+        {"id":"S11_HOOK_ICON","type":"SHAPE_LAYER","z":2.0,"in_frame":414,"out_frame":535,"parent":"S11_STATUS_PILL","confidence":0.85},
+        {"id":"S11_CURSOR_ARROW","type":"SHAPE_OR_FOOTAGE","z":2.4,"in_frame":430,"out_frame":535,"animation":"curved_attention_route","confidence":0.65},
+        {"id":"CAP_DEBE_DEJAR","type":"TEXT_LAYER_GROUP","z":3.5,"in_frame":443,"out_frame":480,"animation":"progressive_sentence_build","confidence":0.80},
+        {"id":"CAP_ABSOLUTAMENTE","type":"TEXT_PRECOMP","z":3.5,"in_frame":456,"out_frame":480,"animation":"boxed_keyword_punch","confidence":0.72},
+        {"id":"CAP_CLARO","type":"TEXT_LAYER","z":3.5,"in_frame":480,"out_frame":535,"animation":"tail_resolve","confidence":0.78},
+        {"id":"ROW_X","type":"UI_ROW_PRECOMP","z":2.0,"in_frame":487,"out_frame":535,"keyframes":[{"frame":487,"y":35,"opacity":0.0},{"frame":493,"y":0,"opacity":1.0}],"ease_alias":"snappy_ease_out","confidence":0.67},
+        {"id":"ROW_DIAMOND","type":"UI_ROW_PRECOMP","z":2.0,"in_frame":495,"out_frame":535,"keyframes":[{"frame":495,"y":35,"opacity":0.0},{"frame":501,"y":0,"opacity":1.0}],"ease_alias":"snappy_ease_out","confidence":0.67},
+        {"id":"ROW_MEGAPHONE","type":"UI_ROW_PRECOMP","z":2.0,"in_frame":504,"out_frame":535,"keyframes":[{"frame":504,"y":35,"opacity":0.0},{"frame":510,"y":0,"opacity":1.0}],"ease_alias":"snappy_ease_out","confidence":0.67}
+      ],
+      "audio_links": [
+        {"onset_ms":14315,"class":"ui_hit","relation":"status_activation","target":"S11_STATUS_PILL"},
+        {"onset_ms":15749,"class":"ui_click","relation":"semantic_reveal","target":"CAP_ABSOLUTAMENTE"},
+        {"onset_ms":15894,"class":"ui_click","relation":"ui_build","target":"ROW_X"},
+        {"onset_ms":16417,"class":"ui_hit","relation":"ui_build","target":"ROW_DIAMOND_OR_ROW_MEGAPHONE"},
+        {"onset_ms":17461,"class":"whoosh","relation":"scene_exit_prep","target":"S12_TALKING_BRIDGE"}
+      ],
+      "renderer_contract": {
+        "after_effects": "Vector shape/precomp rows, status-pill precomp, independent text precomps, row stagger in 6-frame windows.",
+        "remotion": "SVG/CSS UI rows in Sequences; identical in/out frames; no generic dashboard generation.",
+        "hyperframes": "DOM/SVG end-state layout; gsap.from entrances per row; transition handles scene exit."
+      }
+    },
+    {
+      "scene_id": "S14_AUDIO_VISUAL_TEXT",
+      "frames": [561, 655],
+      "time_ms": [18700, 21833],
+      "validation_role": ["carousel", "state_heading_sync", "device_cards", "annotation_overlay", "slide_sfx_sync"],
+      "attention_function": "Three semantic states reuse one composition while horizontal card position and heading identity snap together; this gives fast novelty without resetting the visual world.",
+      "layers": [
+        {"id":"S14_BG","type":"SHAPE_PRECOMP","z":-3.0,"style":{"fill":"deep_red","grid":"thin_technical"},"in_frame":561,"out_frame":655},
+        {"id":"S14_CAROUSEL","type":"PRECOMP","z":2.0,"in_frame":561,"out_frame":655,"keyframes":[{"frame":562,"state":"audio","x_state":0},{"frame":578,"state":"visual","x_state":-1},{"frame":615,"state":"texto","x_state":-2}],"motion":"horizontal_snap_with_short_settle","confidence":0.74},
+        {"id":"S14_HEADING_AUDIO","type":"TEXT_LAYER","z":3.5,"in_frame":562,"out_frame":578,"text":"audio"},
+        {"id":"S14_HEADING_VISUAL","type":"TEXT_LAYER","z":3.5,"in_frame":578,"out_frame":615,"text":"visual"},
+        {"id":"S14_HEADING_TEXTO","type":"TEXT_LAYER","z":3.5,"in_frame":615,"out_frame":655,"text":"texto"},
+        {"id":"S14_RED_OVAL","type":"SHAPE_LAYER","z":3.0,"animation":"annotation_draw_or_state_reveal","confidence":0.60},
+        {"id":"S14_VIRAL_SERIES","type":"TEXT_OR_SOURCE_GRAPHIC","z":3.0,"style":{"accent":"yellow"},"authority":"source_locked_or_replaceable_by_mode"}
+      ],
+      "audio_links": [
+        {"onset_ms":19267,"class":"slide_hit","relation":"exact_state_change","target":"S14_HEADING_VISUAL","offset_ms":0},
+        {"onset_ms":19534,"class":"impact","relation":"carousel_settle","target":"S14_CAROUSEL"},
+        {"onset_ms":20805,"class":"slide_hit","relation":"texto_state_change","target":"S14_HEADING_TEXTO"},
+        {"onset_ms":21322,"class":"whoosh","relation":"carousel_exit_prep","target":"S15_EXAMPLES_TALKING"}
+      ],
+      "renderer_contract": {
+        "after_effects": "One carousel precomp translated on X; heading layers are frame-state locked; annotation remains separate foreground shape layer.",
+        "remotion": "One frame-driven x transform derived from state index; headings switch at exact source frames; separate annotation SVG.",
+        "hyperframes": "Single carousel DOM track with GSAP snap tweens at frame-derived seconds; no independent creative timing."
+      }
+    },
+    {
+      "scene_id": "S16_FACTOR_X",
+      "frames": [727, 819],
+      "time_ms": [24233, 27300],
+      "validation_role": ["foreground_depth", "occlusion", "payoff_caption", "classical_object", "low_motion_hold"],
+      "attention_function": "After dense example cards, collapse attention to one face plus one foreground symbolic object and one semantic lockup. The hold is intentionally calmer than preceding scenes.",
+      "layers": [
+        {"id":"S16_BG","type":"FOOTAGE_OR_PRECOMP","z":-3.0,"source":"red_black_room_field","in_frame":727,"out_frame":819},
+        {"id":"S16_SUBJECT","type":"FOOTAGE_LAYER","z":1.0,"source":"extreme_close_talking_head","in_frame":727,"out_frame":819,"confidence":0.96},
+        {"id":"S16_COLUMN","type":"FOREGROUND_OBJECT","z":3.0,"in_frame":735,"out_frame":819,"keyframes":[{"frame":735,"y_pct":115,"opacity":0.0},{"frame":748,"y_pct":88,"opacity":1.0},{"frame":756,"y_pct":84,"opacity":1.0}],"effects":["SHADOW:soft","GRADE:red_black_match"],"confidence":0.62},
+        {"id":"S16_QUESTION_MARK","type":"SHAPE_OR_TEXT","z":3.0,"in_frame":742,"out_frame":819,"style":{"fill":"red","scale":"oversized"},"confidence":0.76},
+        {"id":"CAP_FACTOR_X","type":"TEXT_PRECOMP","z":3.5,"in_frame":750,"out_frame":819,"text":"Factor X","style":{"fill":"off_white","class":"editorial_display"},"keyframes":[{"frame":747,"scale":0.90,"opacity":0.0},{"frame":752,"scale":1.06,"opacity":1.0},{"frame":758,"scale":1.00,"opacity":1.0}],"confidence":0.64}
+      ],
+      "occlusion_rules": ["S16_COLUMN and S16_QUESTION_MARK remain in front of S16_SUBJECT", "CAP_FACTOR_X is readable above foreground composition and must not be hidden by subject"],
+      "audio_links": [{"onset_ms":24218,"class":"impact","relation":"payoff_cut","target":"S16_FACTOR_X","offset_ms":-15,"authority":"mixed_track_measured_plus_inferred_class"}],
+      "renderer_contract": {
+        "after_effects": "Independent foreground column, question mark and title over subject plate; preserve stable late hold instead of adding continuous motion.",
+        "remotion": "Explicit z-order with foreground SVG/image object and hero text; short entrance then hold.",
+        "hyperframes": "CSS z-index stack + gsap.from entrance; avoid repeat/infinite motion during payoff hold."
+      }
+    }
+  ],
+  "fidelity_gates": {
+    "temporal": "Every source-bound scene/key event remains on identical frame index before any renderer-specific accommodation.",
+    "caption": "Hero text visible-start <= 1 frame error; bbox/scale hierarchy must remain recognizably equivalent.",
+    "depth": "No z-order/occlusion inversion on foreground devices/cards/objects.",
+    "motion": "Major transform extrema and settle timing <= 2 frames error where the source permits measurement.",
+    "audio": "Linked visual impact should land within 1 frame of the source-bound event unless the measured onset explicitly leads/lags it.",
+    "content": "Structural-template run must replace source literals/assets without losing scene roles or retention timing."
+  },
+  "unknowns": ["exact_font_family", "original_ae_effect_plugins", "hidden_rotoscope_mattes", "physical_camera_intrinsics", "separated_audio_stems"]
+}
