@@ -1,0 +1,37 @@
+{
+  "event_id": "20260828T092213000000Z-chatgpt-truth-regression-pr-opened",
+  "event_type": "pr.opened",
+  "timestamp": "2026-08-28T09:22:13Z",
+  "agent_id": "motion://agent/chatgpt/truth-regression",
+  "project": "MOTION.OS",
+  "branch": "fix/p08-canonical-truth-consistency",
+  "commit_sha": "6ef6fffc68d952e1a7f2455e693bdb36d4697361",
+  "pr_number": 56,
+  "summary": "Opened draft PR #56 for REG-013 canonical truth reconciliation and release-evidence binding; clean-runner verification is required because local runtime is degraded by external DNS.",
+  "affected_paths": [
+    "state/project_state.json",
+    "state/checkpoints.json",
+    "STATE.md",
+    "TASKS.md",
+    "HANDOFF.md",
+    "coordination/ACTIVE_AGENTS.yaml",
+    "scripts/repo_health.py",
+    "src/qa/alignment.py",
+    "scripts/change_impact.py",
+    "tests/test_alignment_v08.py",
+    "tests/test_change_impact.py"
+  ],
+  "checks": {
+    "draft_pr_opened": "PASS",
+    "local_verify": "DEGRADED_EXTERNAL_DNS",
+    "clean_runner_required": "YES"
+  },
+  "authority": "IMPLEMENTED",
+  "correlation_id": "REG-013-CANONICAL-TRUTH",
+  "metadata": {
+    "session_id": "motion://session/chatgpt/truth-regression/20260828T1116+0200",
+    "workstream_id": "motion://workstream/canonical-truth-consistency",
+    "pr_url": "https://github.com/rotprods/motion-OS/pull/56",
+    "base_sha_at_open": "a8d7dbddaeb4ad9779df9883d3cf4e4f6ea4f29d"
+  }
+}

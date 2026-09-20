@@ -1,0 +1,38 @@
+{
+  "event_id": "20260828T091600000000Z-chatgpt-truth-regression-work-started",
+  "event_type": "work.started",
+  "timestamp": "2026-08-28T09:16:00Z",
+  "agent_id": "motion://agent/chatgpt/truth-regression",
+  "project": "MOTION.OS",
+  "branch": "fix/p08-canonical-truth-consistency",
+  "commit_sha": "a8d7dbddaeb4ad9779df9883d3cf4e4f6ea4f29d",
+  "pr_number": 56,
+  "summary": "Started isolated REG-013 canonical truth reconciliation after live GitHub showed main advanced through merged PRs #54/#55; intentionally excluded PR #53 Event Fabric files and PR #52 audit documents.",
+  "affected_paths": [
+    "state/project_state.json",
+    "state/checkpoints.json",
+    "STATE.md",
+    "TASKS.md",
+    "HANDOFF.md",
+    "coordination/ACTIVE_AGENTS.yaml",
+    "scripts/repo_health.py",
+    "src/qa/alignment.py",
+    "scripts/change_impact.py",
+    "tests/test_alignment_v08.py",
+    "tests/test_change_impact.py"
+  ],
+  "checks": {
+    "live_main_reconciled": "PASS",
+    "issue_39_read": "PASS",
+    "issue_48_read": "PASS",
+    "open_pr_scope_preflight": "PASS"
+  },
+  "authority": "PROPOSED",
+  "correlation_id": "REG-013-CANONICAL-TRUTH",
+  "metadata": {
+    "session_id": "motion://session/chatgpt/truth-regression/20260828T1116+0200",
+    "workstream_id": "motion://workstream/canonical-truth-consistency",
+    "base_sha": "a8d7dbddaeb4ad9779df9883d3cf4e4f6ea4f29d",
+    "bootstrap_bus_event": "evt_truth_consistency_start_20260828_1116"
+  }
+}
