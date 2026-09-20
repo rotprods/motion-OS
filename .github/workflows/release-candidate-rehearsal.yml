@@ -51,7 +51,7 @@ jobs:
           .venv-ci/quick312/bin/python scripts/release_candidate_rehearsal.py \
             --repository "$REPOSITORY" \
             --candidate-sha "$CANDIDATE_SHA" \
-            --expected-main-sha d4e628a1aef0cd382c3c2f1ea327a8ff70c41bd9 \
+            --expected-main-sha f578adea6046bde9f8f36ce2680fe16391da6b97 \
             --expect-status BLOCKED_EXTERNAL \
             --json-out .artifacts/release-candidate-rehearsal.json
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
