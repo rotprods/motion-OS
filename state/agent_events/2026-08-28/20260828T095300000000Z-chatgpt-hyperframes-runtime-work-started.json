@@ -1,0 +1,33 @@
+{
+  "event_id": "20260828T095300000000Z-chatgpt-hyperframes-runtime-work-started",
+  "event_type": "work.started",
+  "timestamp": "2026-08-28T09:53:00Z",
+  "agent_id": "motion://agent/chatgpt/hyperframes-runtime",
+  "project": "MOTION.OS",
+  "branch": "fix/hyperframes-runtime-proof-v2",
+  "commit_sha": "a8d7dbddaeb4ad9779df9883d3cf4e4f6ea4f29d",
+  "pr_number": 62,
+  "summary": "Started isolated P0 HyperFrames physical-runtime qualification from exact main after confirming no overlap with active event-fabric, skill-runtime, canonical-truth or graph-QA workstreams.",
+  "affected_paths": [
+    "src/compilers/hyperframes.py",
+    "runtime/hyperframes/",
+    "scripts/build_hyperframes_runtime_fixture.py",
+    "scripts/verify_hyperframes_render.py",
+    "tests/test_hyperframes_runtime_contract.py",
+    ".github/workflows/hyperframes-runtime.yml"
+  ],
+  "checks": {
+    "live_main_reconciled": "PASS",
+    "issue39_watermark_read": "PASS",
+    "issue48_open": "PASS",
+    "scope_conflict_preflight": "PASS"
+  },
+  "authority": "PROPOSED",
+  "correlation_id": "issue2-hyperframes-runtime-v2",
+  "metadata": {
+    "project_id": "motion://project/motion-os",
+    "session_id": "motion://session/chatgpt/hyperframes-runtime/20260828T1153+0200",
+    "workstream_id": "motion://workstream/p0-hyperframes-physical-runtime",
+    "base_sha": "a8d7dbddaeb4ad9779df9883d3cf4e4f6ea4f29d"
+  }
+}
