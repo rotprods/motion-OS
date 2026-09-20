@@ -1,0 +1,123 @@
+flowchart TD
+  NS[North Star\nBrief → Professional Motion Master]
+
+  subgraph AUTH[Authoritative planes]
+    GH[GitHub main / PR lifecycle]
+    ES[Promoted Event History]
+    P6[Phase06 Transactional Store\nSingle-host paid-render authority]
+    AR[Artifact Registry + SHA-bound Media]
+  end
+
+  subgraph PROJ[Rebuildable projections]
+    SS[State Snapshot]
+    CP[ContextPack]
+    COS[COS / Unified Graph]
+    DOCS[STATE / TASKS / HANDOFF / Operator Views]
+  end
+
+  subgraph L1[L1 Semantic / Creative]
+    BRIEF[Brief]
+    DIR[DirectorGraph]
+    INTENT[Intent / Emotion / Attention]
+    BRAND[Brand + Negative Constraints]
+    DNA[Visual DNA / Style Signature]
+  end
+
+  subgraph L2[L2 Editing / Motion]
+    BEAT[Beat / Scene]
+    LAYER[Layer / Track]
+    ASSET[Asset]
+    CAM[Camera / Depth / Material]
+    AUDIO[Audio / VO / Music]
+    PRIM[Semantic Primitive]
+    TRANS[Transition]
+  end
+
+  subgraph L3[L3 Runtime / Evidence]
+    SKILL[Skill DAG]
+    ROUTER[Renderer Router]
+    REM[Remotion]
+    HF[HyperFrames]
+    LOT[Lottie]
+    SVG[SVG]
+    PLATE[Video / Generated Plate]
+    COMP[FFmpeg Heterogeneous Compositor]
+    EVID[Artifact + Evidence]
+    QA[Temporal + Creative + Technical QA]
+    DEF[Defect / Root Cause]
+    REPAIR[Localized Repair Candidate]
+    REL[Release Manifest]
+  end
+
+  subgraph COORD[Agent / Session / Coordination]
+    AGENT[Agent]
+    SESSION[Session]
+    WS[Workstream]
+    CLAIM[Claim / Lease / Scope]
+    EVT[Event]
+    TEST[TestRun]
+    HAND[Handoff]
+  end
+
+  subgraph CONTENT[Phase06 lineage]
+    SRC[Source]
+    CLM[Claim]
+    ICP[ICP / Driver / Angle]
+    HOOK[Hook / Beat / Script]
+    TTS[TTS]
+    AV[Avatar / Render]
+    ID[PRV / MNF / Stable Beat IDs]
+    STUDIO[Studio]
+    PUB[Publication / Performance]
+  end
+
+  NS --> BRIEF
+  BRIEF --> DIR --> INTENT
+  BRAND --> DIR
+  DNA --> DIR
+  INTENT --> BEAT --> LAYER
+  LAYER --> ASSET
+  LAYER --> PRIM --> TRANS
+  CAM --> LAYER
+  AUDIO --> BEAT
+
+  LAYER --> SKILL --> ROUTER
+  ROUTER --> REM
+  ROUTER --> HF
+  ROUTER --> LOT
+  ROUTER --> SVG
+  ROUTER --> PLATE
+  REM --> COMP
+  HF --> COMP
+  LOT --> COMP
+  SVG --> COMP
+  PLATE --> COMP
+  COMP --> EVID --> QA
+  QA -->|pass| REL
+  QA -->|defect| DEF --> REPAIR --> SKILL
+
+  GH --> SS
+  ES --> SS
+  P6 --> SS
+  AR --> SS
+  SS --> CP
+  SS --> COS
+  SS --> DOCS
+  GH -. live lifecycle precedence .-> DOCS
+
+  AGENT --> SESSION --> WS --> CLAIM
+  CLAIM --> EVT
+  WS --> TEST
+  WS --> HAND
+  EVT --> ES
+  TEST --> EVID
+  HAND --> ES
+  COS -. reasoning only; no reverse authority .-> AGENT
+
+  SRC --> CLM --> ICP --> HOOK --> TTS --> AV --> ID --> STUDIO --> PUB
+  CLM --> EVID
+  AV --> AR
+  STUDIO --> L1
+
+  classDef authority fill:#111,stroke:#fff,color:#fff;
+  class GH,ES,P6,AR authority;
