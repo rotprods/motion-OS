@@ -69,25 +69,25 @@ sha256 = "a352e7e428770286cc899e2542b6cdaedb2b4953ff269a210103ec58f6198a61"
 
 [[packages]]
 name = "filelock"
-version = "3.32.6"
+version = "4.0.1"
 
 [[packages.wheels]]
-name = "filelock-3.32.6-py3-none-any.whl"
-url = "https://files.pythonhosted.org/packages/cc/06/4f138f618dbea66803291274f228f01daf29f306fe8b96bc30dab765df75/filelock-3.32.6-py3-none-any.whl"
+name = "filelock-4.0.1-py3-none-any.whl"
+url = "https://files.pythonhosted.org/packages/29/33/af0635ab07fe83b1788a1dbe370ff3e226062495a998335cb18a1cac81aa/filelock-4.0.1-py3-none-any.whl"
 
 [packages.wheels.hashes]
-sha256 = "3f16ecd0117feae0dfc147e8c62eb5daeccd8bd800378c3ddf416de9b4feb6b1"
+sha256 = "481a321a27bef441e23c53371c6abc8d7d16e26b97090074ba44f7538a3fd55a"
 
 [[packages]]
 name = "idna"
-version = "3.19"
+version = "3.20"
 
 [[packages.wheels]]
-name = "idna-3.19-py3-none-any.whl"
-url = "https://files.pythonhosted.org/packages/57/b0/0e52c878c53f245edd3a11020f20979b3f490f245af532c7cae3027754b5/idna-3.19-py3-none-any.whl"
+name = "idna-3.20-py3-none-any.whl"
+url = "https://files.pythonhosted.org/packages/58/a2/bb081bab032533a855d44de1d56f8e8426114ff1ba5d1f07a438a0a654f8/idna-3.20-py3-none-any.whl"
 
 [packages.wheels.hashes]
-sha256 = "815e7be7a7806d54abb586dc943addc79e8b2ee16915059658cbeff4b1b43bf4"
+sha256 = "ab7ae7122974553370f0bdb919e1a960b2cd1bc1ef0276416d896db81c14582c"
 
 [[packages]]
 name = "license-expression"
@@ -201,14 +201,14 @@ sha256 = "4659bc2a667783e7a15d190f6fccf8b2486685b6dba4c19c3876314769c57526"
 
 [[packages]]
 name = "platformdirs"
-version = "4.11.8"
+version = "4.11.11"
 
 [[packages.wheels]]
-name = "platformdirs-4.11.8-py3-none-any.whl"
-url = "https://files.pythonhosted.org/packages/f4/e1/5b7b8bbb55084d1425bcb9bc823ff519e1b2be05f6ebb0089e2eacc38413/platformdirs-4.11.8-py3-none-any.whl"
+name = "platformdirs-4.11.11-py3-none-any.whl"
+url = "https://files.pythonhosted.org/packages/39/be/3ae887e84c38c4dd1c549cd5825adc93f48069a94fe1cb8ac52a9da16f15/platformdirs-4.11.11-py3-none-any.whl"
 
 [packages.wheels.hashes]
-sha256 = "52f2f181bbfde907966932cc8312d967d02976422d66d537ea16092b8e291081"
+sha256 = "972ea6b2b387155a536226a0750e46923d731d459a387c4a255c583ed2f64547"
 
 [[packages]]
 name = "py-serializable"
@@ -311,11 +311,11 @@ sha256 = "481caa481374e813c1b176ada14e97f1f67a4539ce9cfeb3f350d78d6370c2e8"
 
 [[packages]]
 name = "urllib3"
-version = "2.7.0"
+version = "2.8.0"
 
 [[packages.wheels]]
-name = "urllib3-2.7.0-py3-none-any.whl"
-url = "https://files.pythonhosted.org/packages/7f/3e/5db95bcf282c52709639744ca2a8b149baccf648e39c8cc87553df9eae0c/urllib3-2.7.0-py3-none-any.whl"
+name = "urllib3-2.8.0-py3-none-any.whl"
+url = "https://files.pythonhosted.org/packages/92/9d/c4e665119135114480843e7ab388fa94d8480650450e6f8e26b70d323a4c/urllib3-2.8.0-py3-none-any.whl"
 
 [packages.wheels.hashes]
-sha256 = "9fb4c81ebbb1ce9531cce37674bbc6f1360472bc18ca9a553ede278ef7276897"
+sha256 = "0cf3cae568d36aa9576b28dfb35f11328f1cb974ca7647d9475ebb86c75ac6e3"
