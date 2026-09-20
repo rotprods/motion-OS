@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import Any, Mapping
 import json
 
-
 KNOWN_STYLES = {
     "editorial_minimal", "neon_dark", "ui_saas_glow", "frosted_atmosphere",
     "eco_handdrawn_green", "kinetic_type", "3d_soft_pastel", "data_map_minimal",
@@ -41,12 +40,56 @@ def infer_style_family(pack: Mapping[str, Any]) -> dict[str, Any]:
 
 
 def _camera_plan(shot: Mapping[str, Any], motion_stats: Mapping[str, Any]) -> dict[str, Any]:
-    motion_class = motion_stats.get("camera_motion", {}).get("classification") or "static"
-    if motion_class == "camera_dominant":
+    camera = dict(motion_stats.get("camera_motion") or {})
+    classification = camera.get("classification") or "static"
+    primitive = camera.get("primitive")
+    allowed = {"static", "micro_drift", "linear_slide", "dolly_in", "dolly_out", "arc_pan", "orbit", "other"}
+    if primitive in allowed:
+        motion = primitive
+    elif classification == "camera_dominant":
         motion = "linear_slide"
     else:
         motion = "static"
-    return {"rig_id":"rigC_ui_plate","framing":"medium","motion":motion,"z_drift":None,"focus_behavior":"locked","no_shake":True}
+    transform = camera.get("transform_6dof")
+    return {
+        "rig_id": camera.get("rig_id") or "rigC_ui_plate",
+        "framing": camera.get("framing") or "medium",
+        "motion": motion,
+        "z_drift": camera.get("z_drift"),
+        "focus_behavior": camera.get("focus_behavior") or "locked",
+        "no_shake": bool(camera.get("no_shake", True)),
+        "transform_6dof": transform if isinstance(transform, Mapping) else {"x":None,"y":None,"z":None,"yaw":None,"pitch":None,"roll":None},
+        "pivot_target": camera.get("pivot_target"),
+        "screen_anchor": camera.get("screen_anchor"),
+        "velocity_curve": camera.get("velocity_curve"),
+    }
+
+
+def _causal_transition(shot: Mapping[str, Any], pack: Mapping[str, Any]) -> dict[str, Any] | None:
+    transitions = pack.get("transition_stats") or []
+    candidate = next((t for t in transitions if t.get("shot_id") == shot.get("id") or t.get("from_shot_id") == shot.get("id")), None)
+    if not candidate:
+        return None
+    # Preserve measured telemetry only. Missing causal phases remain empty/null rather than fabricated.
+    return {
+        "approach": deepcopy(candidate.get("approach") or {}),
+        "feature_acquisition": deepcopy(candidate.get("feature_acquisition") or {}),
+        "transformation": deepcopy(candidate.get("transformation") or {}),
+        "crossing": deepcopy(candidate.get("crossing") or {}),
+        "handoff": deepcopy(candidate.get("handoff") or {}),
+        "resolve": deepcopy(candidate.get("resolve") or {}),
+        "focus_plane": deepcopy(candidate.get("focus_plane")),
+        "occlusion_pct": deepcopy(candidate.get("occlusion_pct")),
+        "mask_topology": candidate.get("mask_topology"),
+        "screen_anchor": deepcopy(candidate.get("screen_anchor")),
+        "motion_vector": deepcopy(candidate.get("motion_vector")),
+        "speed_curve": deepcopy(candidate.get("speed_curve")),
+        "motion_blur": deepcopy(candidate.get("motion_blur")),
+        "incoming_scene_relation": candidate.get("incoming_scene_relation"),
+        "audio_impulse": deepcopy(candidate.get("audio_impulse")),
+        "confidence": candidate.get("confidence"),
+        "evidence_refs": list(candidate.get("evidence_refs") or []),
+    }
 
 
 def normalize_feature_pack(pack: Mapping[str, Any]) -> dict[str, Any]:
@@ -73,39 +116,31 @@ def normalize_feature_pack(pack: Mapping[str, Any]) -> dict[str, Any]:
                 {"id":f"{shot['id']}_{target}_enter","at_ms":at,"at_frame":round(at*fps/1000),"target":target,"action":"enter","channels":["y","opacity"],"from":{"y":12,"opacity":0},"to":{"y":0,"opacity":1},"duration_ms":180,"ease":"ease_out_cubic","notes":"Evidence-bound text block enters."},
                 {"id":f"{shot['id']}_{target}_settle","at_ms":min(end_ms-1,at+180),"at_frame":round(min(end_ms-1,at+180)*fps/1000),"target":target,"action":"settle","channels":["y","opacity"],"from":{"y":0,"opacity":1},"to":{"y":0,"opacity":1},"duration_ms":0,"ease":"linear","notes":"Text locks without drift."},
             ])
+        measured_events = [e for e in pack.get("micro_choreography", []) if e.get("shot_id") == shot["id"]]
+        choreography.extend(deepcopy(measured_events))
         if len(choreography) < 12:
             assumptions.append(f"{shot['id']}: micro_choreography has <12 measured steps; no synthetic events were invented")
+        causal = _causal_transition(shot, pack)
         shots_out.append({
             "id":shot["id"], "start_ms":start_ms, "end_ms":end_ms,
             "on_screen_text":[{"text":x.get("text"),"bbox":x.get("bbox"),"confidence":x.get("confidence")} for x in shot_ocr],
             "palette":[x.get("hex") for x in pack.get("color_stats", {}).get("palette", []) if x.get("hex")],
             "composition_tokens":[pack.get("layout_stats", {}).get("pattern","other")],
             "camera_plan":_camera_plan(shot, pack.get("motion_stats", {})),
+            "hero_plan": deepcopy(shot.get("hero_plan")),
             "depth_plan":{"layers_z":[{"id":"background","z_index":0,"parallax_ratio":0.0},{"id":"subject","z_index":1,"parallax_ratio":0.2},{"id":"ui","z_index":2,"parallax_ratio":0.35}],"materials_cues":[],"occlusion_events":[]},
-            "transition_spec":{"type":"cut" if index>1 else "none","at_ms_global":start_ms,"supporting_fx":[],"notes":"Normalized from shot boundary; refine only with measured transition evidence."},
+            "transition_spec":{"type":"cut" if index>1 else "none","at_ms_global":start_ms,"supporting_fx":[],"notes":"Normalized from shot boundary; refine only with measured transition evidence.","causal":causal},
             "motion_events":[], "micro_choreography":choreography,
         })
     result = {
         "schema_version":"1.0.0",
         "video":{"duration_ms":duration_ms,"fps":fps,"resolution":{"w":width,"h":height},"aspect_ratio":video["aspect_ratio"]},
-        "style_system":{
-            "style_family":[style],
-            "color":deepcopy(pack.get("color_stats", {})),
-            "typography":{"families":[],"treatments":[]},
-            "composition":deepcopy(pack.get("layout_stats", {})),
-            "motion":deepcopy(pack.get("motion_stats", {})),
-            "materials_3d":[x.get("label") for x in pack.get("asset_stats", {}).get("materials", []) if x.get("label")],
-            "fx":list(pack.get("fx_stats", {}).get("labels", [])),
-            "timing_rules":[],"failure_modes":[],"mitigations":[],
-        },
-        "camera_rigs":[{"rig_id":"rigC_ui_plate","type":"ui_plate","parameters":{"distortion":"none"},"confidence":0.6}],
+        "style_system":{"style_family":[style],"color":deepcopy(pack.get("color_stats", {})),"typography":{"families":[],"treatments":[]},"composition":deepcopy(pack.get("layout_stats", {})),"motion":deepcopy(pack.get("motion_stats", {})),"materials_3d":[x.get("label") for x in pack.get("asset_stats", {}).get("materials", []) if x.get("label")],"fx":list(pack.get("fx_stats", {}).get("labels", [])),"timing_rules":[],"failure_modes":[],"mitigations":[]},
+        "camera_rigs":[{"rig_id":"rigC_ui_plate","type":"ui_plate","parameters":{"distortion":"none"},"confidence":0.6},{"rig_id":"rigD_automotive_orbit","type":"automotive_orbit","parameters":{"center_lock":True,"parameterized_6dof":True},"confidence":0.5}],
         "shots":shots_out,
         "evidence":{"keyframes":deepcopy(pack.get("keyframes", [])),"timestamps":[],"claims":[{"claim_id":"style_family_01","label":style["id"],"confidence":style["confidence"],"evidence_refs":refs,"status":"inferred"}]},
         "quality":{"coverage":{"keyframe_count":len(refs)},"warnings":list(pack.get("warnings", [])),"assumptions":assumptions},
-        "compiler_targets":{
-            "remotion":{"project":{"fps":fps,"width":width,"height":height,"duration_frames":max(1,ceil(duration_ms*fps/1000))},"scene_boundaries":scene_boundaries,"z_order":["ui","subject","background"]},
-            "framer_motion":{"easing_presets":{"ease_out_cubic":[0.215,0.61,0.355,1.0]},"motion_contracts":{}},
-        },
+        "compiler_targets":{"remotion":{"project":{"fps":fps,"width":width,"height":height,"duration_frames":max(1,ceil(duration_ms*fps/1000))},"scene_boundaries":scene_boundaries,"z_order":["ui","subject","background"]},"framer_motion":{"easing_presets":{"ease_out_cubic":[0.215,0.61,0.355,1.0]},"motion_contracts":{}},"generative_video":{"boundary_condition_rule":"reference images must form a plausible spatial trajectory","preserve":["hero_identity","hero_geometry","camera_continuity","screen_anchors","transition_geometry","motion_vectors"]}},
     }
     return result
 

@@ -1,0 +1,158 @@
+{
+  "schema_version": "1.1",
+  "project": "BMW_DUBAI_REFERENCE_FILM",
+  "correlation_id": "BMW-DUBAI-FILM-20260918",
+  "branch": "prod/bmw-dubai-reference-film",
+  "base_sha": "72674bca609196c25cc99e05f93ad170f22e28e4",
+  "source_video": {
+    "id": "bf212ce1-b59d-4a94-8a40-42826085b441",
+    "role": "FORENSIC_LEARNING_SOURCE_ONLY",
+    "direct_generation_reuse": "PROHIBITED_AFTER_IP_DETECTION"
+  },
+  "world": {
+    "master": {
+      "id": "4117ac42-ce00-4409-b4b0-e0361a671591",
+      "status": "WORLD_LOCK_CANDIDATE_RENDER_SUPPORTED"
+    },
+    "coverage": {
+      "W01": "495f90c0-bd90-4a44-af2a-623a8cb6a0ed",
+      "W02": "9b39a50a-f7fa-4c4b-bebe-4c052d76e9ec",
+      "W03": "93a934f7-04a0-45a7-b142-d4b440283182",
+      "W04": "f7f32deb-28a3-4be6-9e1d-1a6d20028e2f",
+      "W05": "a707c389-0502-4039-a9ab-028bafdfe91d",
+      "W06": "1542df6f-5e02-4794-a62d-ae4128fcc559"
+    }
+  },
+  "hero": {
+    "extracted_reference_frames": [
+      "3bad219d-a190-4fd6-b0db-09fa64c9bb89",
+      "fed025f8-2c18-4bac-9458-58cb4080d217",
+      "8eb8092a-25e5-47de-9fa4-e23c67aac80d",
+      "93add8fc-27d8-4a56-8dbf-235ca8e8199c",
+      "d2b9a405-92e1-4011-815f-23c720ec3037"
+    ],
+    "master": "ea592be8-a49a-4696-a4b3-b4d36874780b",
+    "coverage": {
+      "H01": "f1f6ffba-e1b9-43ab-a780-aeaaf81ef5fe",
+      "H02": "c234bf6d-7010-4510-97d9-f8324dae268f",
+      "H03": "da743f40-8fb7-42fc-b7f0-150659b77ba2",
+      "H04": "8f493e8b-cd7d-40da-a277-0c7025fefdfe",
+      "H05": "b93254b9-0b01-4edb-9e6a-52f6c7bc8f97",
+      "H06": "336005a0-875f-455d-9fc8-4cf91f3789c4"
+    }
+  },
+  "transitions": {
+    "T01": "1672961b-7790-4477-a100-68e4d102dc77",
+    "T02": "cb00d8f8-20c3-4d69-abda-7b5536340252",
+    "T03": "0849d65b-84ef-4344-9b1d-5123a4b4ed8b",
+    "T04": "2f6f062c-3326-4147-8e77-8b894f556c24",
+    "T05": "242b6417-5ae6-4fef-9c5b-8a59319c5334"
+  },
+  "seedance_attempts": [
+    {
+      "version": "V1_TECHNIQUE_VIDEO_PLUS_STILLS",
+      "job_id": "964a7476-84e5-47eb-a160-0d78e7a13757",
+      "model": "seedance_2_5",
+      "mode": "omni_reference",
+      "preflight_cost_credits": 135,
+      "status": "IP_DETECTED",
+      "retry_policy": "DO_NOT_RETRY_OR_BYPASS"
+    },
+    {
+      "version": "V2_ORIGINAL_STILLS_ONLY",
+      "job_id": "42fd21e3-a1e3-4172-a2ee-a0505cd5954d",
+      "model": "seedance_2_5",
+      "mode": "omni_reference",
+      "preflight_cost_credits": 135,
+      "status": "IP_DETECTED",
+      "retry_policy": "DO_NOT_RETRY_OR_BYPASS"
+    }
+  ],
+  "deterministic_masters": {
+    "V3": {
+      "media_id": "9f3a9784-c435-44fb-a16e-74a9daf07378",
+      "status": "VERIFIED_TECHNICAL_SEMANTIC_STRUCTURE",
+      "duration_s": 15,
+      "frames": 450,
+      "fps": 30,
+      "resolution": "1080x1920",
+      "video_codec": "h264",
+      "audio_codec": "aac",
+      "audio_channels": 2,
+      "audio_sample_rate_hz": 96000,
+      "bit_rate_bps": 9742824,
+      "integrated_lufs": -15.7,
+      "true_peak_dbfs": -0.4,
+      "semantic_analysis_id": "bb3b8587-d5a6-42ce-9060-7184abbc2ed9",
+      "semantic_summary": [
+        "BMW M3 identity recognized",
+        "night Dubai luxury environment maintained",
+        "Burj Khalifa repeatedly recognized",
+        "glass reflection opening recognized",
+        "stone pillar occlusion recognized",
+        "wireframe/chassis reveal recognized",
+        "taillight macro recognized",
+        "rear/diffuser shot recognized",
+        "wheel macro recognized",
+        "front hero read recognized",
+        "rear/Burj final payoff recognized"
+      ],
+      "known_weakness": "camera energy still reads static in multiple semantic scene descriptions"
+    },
+    "V3_1_AUDIO_TEST": {
+      "media_id": "1ef0fbb3-d59b-47e5-919d-329d73ea6e06",
+      "status": "REJECTED_QA",
+      "reason": "AAC remaster measured +1.3 dBFS true peak; worse than V3"
+    },
+    "V4": {
+      "media_id": "a2a42737-5aaf-4203-8fee-7b9d25500913",
+      "status": "VERIFIED_TECHNICAL_SEMANTIC",
+      "duration_s": 15,
+      "frames": 450,
+      "fps": 30,
+      "resolution": "1080x1920",
+      "video_codec": "h264",
+      "audio_codec": "aac",
+      "audio_channels": 2,
+      "audio_sample_rate_hz": 48000,
+      "bit_rate_bps": 15891868,
+      "integrated_lufs": -16.4,
+      "true_peak_dbfs": -2.1,
+      "motion_energy_vs_v3": {
+        "median_adjacent_luma_delta_pct": 4.97,
+        "mean_trim95_pct": 11.09,
+        "p75_pct": 7.93,
+        "p90_pct": 4.77
+      },
+      "semantic_analysis_id": "9cc59ecd-32fe-4491-aa3b-100cd19b41a4",
+      "sha256": "8ed16281a1e2f80ad2fa22fc9725253a1af1a76be1b49b6bc19e13edd3586ba4",
+      "size_bytes": 29797254,
+      "integrity": {
+        "decode": "PASS",
+        "black_frames_detected": 0,
+        "freezes_ge_0_5s": 0,
+        "silences_ge_0_25s": 0
+      },
+      "semantic_analysis_status": "COMPLETED",
+      "semantic_summary": [
+        "glass/reflection Dubai opening preserved",
+        "low-angle tracking shot recognized with car driving forward",
+        "speed ramping explicitly recognized",
+        "limestone/building-corner occlusion preserved",
+        "front hero with Burj preserved",
+        "registered wireframe/chassis technical reveal preserved",
+        "taillight extreme close-up preserved",
+        "rear low tracking acceleration recognized",
+        "wheel extreme close-up preserved",
+        "front driving-toward-camera shot with background blur recognized",
+        "side tracking repeat recognized",
+        "final rear static payoff aligned with Burj preserved"
+      ],
+      "evidence_bound_qa_score_10": 8.87,
+      "promotion": "CANONICAL_CREATIVE_MASTER_FOR_BMW_DUBAI_WAVE"
+    }
+  },
+  "current_candidate": "V4",
+  "qa_status": "V4_PROMOTED_VERIFIED",
+  "safety_ip_policy": "Seedance IP detection is a terminal platform constraint for these attempts; do not evade by repeated or disguised submissions. Continue only with permitted original/deterministic processing of already-created assets."
+}

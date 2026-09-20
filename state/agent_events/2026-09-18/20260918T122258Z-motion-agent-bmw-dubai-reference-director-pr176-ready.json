@@ -1,0 +1,23 @@
+{
+  "event_id": "20260918T122258Z-motion-agent-bmw-dubai-reference-director-pr176-ready",
+  "event_type": "pr.ready",
+  "timestamp": "2026-09-18T12:22:58Z",
+  "agent_id": "motion://agent/bmw-dubai-reference-director",
+  "project": "MOTION.OS",
+  "branch": "prod/bmw-dubai-reference-film",
+  "commit_sha": "500aa56cd1a82c652a069abc8ba1b5826d82453b",
+  "pr_number": 176,
+  "summary": "PR #176 reached ready state after exact-head Merge Safe run 35344284198 passed on the preceding content head; lifecycle-event commits intentionally trigger fresh exact-head CI before merge.",
+  "affected_paths": [
+    "state/agent_events/2026-09-18/"
+  ],
+  "checks": {
+    "merge_safe_prior_content_head": "PASS"
+  },
+  "authority": "VERIFIED",
+  "correlation_id": "BMW-DUBAI-FILM-20260918",
+  "metadata": {
+    "prior_merge_safe_run_id": 35344284198,
+    "requires_fresh_exact_head_ci": true
+  }
+}
