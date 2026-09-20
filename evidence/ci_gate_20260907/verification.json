@@ -1,0 +1,177 @@
+{
+  "schema": "motion-os.sc06-candidate-verification/v1",
+  "captured_at": "2026-09-07T15:55:04.401278+00:00",
+  "authority": "VERIFIED_CANDIDATE_NOT_PROMOTED_BOUNDED_CI_VERDICT_ONLY",
+  "project_done": false,
+  "cp1_complete": false,
+  "session_id": "motion://session/chatgpt/ci-gate-engineer/20260907T153345Z",
+  "pr": 130,
+  "base_sha": "d4e628a1aef0cd382c3c2f1ea327a8ff70c41bd9",
+  "implementation_head": "3e6844933315ecf3ecada9d2fc799a600603db7a",
+  "tested_merge_sha": "cfdccfdccbb583632e95a6ad20019e3e983bcab8",
+  "coordination": {
+    "start_comment": 5572864724,
+    "contract_comment": 5572919867,
+    "preflight_watermark": 5572744566,
+    "issue48": "OPEN"
+  },
+  "local": {
+    "python": "3.13.5",
+    "surface": "hash-verified fetched-file mirror, no full clone",
+    "baseline_red": 5,
+    "tests_passed": 136,
+    "tests_skipped": 0,
+    "truth_table_configurations": 196608,
+    "actual_workflow_shell_cases": 6,
+    "compileall": "PASS",
+    "python311_syntax": "PASS_PARSE_ONLY",
+    "yaml_parse_and_wiring": "PASS",
+    "test_log_hashes": {
+      "baseline-red.log": {
+        "bytes": 11446,
+        "git_blob_sha1": "0e2e0cda8c34d26e5676a0de34bcea3bc03ce228",
+        "sha256": "07faf032e36b51268ba74f287fec5da29d380f643551bfc7e1b9480f73975194"
+      },
+      "baseline-red.xml": {
+        "bytes": 11410,
+        "git_blob_sha1": "cff3346d29b1a7ceea290a46f305da3c51e66efd",
+        "sha256": "26edb80e26d480c3236d5b94af4e5657ea9ade5884d2406bcfdad5f766940cda"
+      },
+      "final-gate-tests.log": {
+        "bytes": 181,
+        "git_blob_sha1": "ab249aeef0da0917fa0f8526cffab2894fc3286f",
+        "sha256": "6fa030c49126ff03ae81f494fae6c804d327417b90a4535e99768face7f2092b"
+      },
+      "final-gate-tests.xml": {
+        "bytes": 21019,
+        "git_blob_sha1": "9445d2c7b2d0e15f786f75e7ed3a1a23d0f97d8d",
+        "sha256": "def854b852f0a8d19f9397e886687303482b5349c524595c5220f4c298fc93a9"
+      }
+    }
+  },
+  "implementation_files": {
+    ".github/workflows/merge-gate.yml": {
+      "bytes": 6521,
+      "git_blob_sha1": "1706f0152bb9ebff64b709fd0060acb205bcc476",
+      "sha256": "f83fe6350c2f9cad8af61d46e81460abff7bc3b4c39f00f9d4078e85f423adce"
+    },
+    "scripts/change_impact.py": {
+      "bytes": 2659,
+      "git_blob_sha1": "5f695570d6ec2cd590b2f0c9fe3161e57270b1ec",
+      "sha256": "4baa0b1e257ce912cb0008badbb1ea3973218dea0a7fbe5e708bc47306e9dd5e"
+    },
+    "scripts/merge_safe_gate.py": {
+      "bytes": 4671,
+      "git_blob_sha1": "7489a6e34033a856a7cdf9a662d21bba8ff838c0",
+      "sha256": "7525bca261302d11e2383570a2438487221d6200545e7849c1153b16c50cb39c"
+    },
+    "tests/test_merge_safe_gate.py": {
+      "bytes": 11891,
+      "git_blob_sha1": "3f0b95b3443bc8f3875c7f19133ea27ce946c054",
+      "sha256": "fee3fa9f847aba8d5274f9124651dcb8e9a3d69b2618070bfaa55dce310b6b40"
+    }
+  },
+  "remote_blob_readback": "ALL_FOUR_MATCH_LOCAL_TESTED_BYTES",
+  "clean_runner": {
+    "run_id": 34140053978,
+    "conclusion": "success",
+    "quick_pytest": {"passed": 436, "skipped": 1, "warnings": 5},
+    "jobs": {
+      "quick": 101799780638,
+      "classify": 101799780904,
+      "compat311": 101799809420,
+      "analysis": 101799809348,
+      "remotion": 101799809467,
+      "security": 101799809443,
+      "merge-safe": 101800166729
+    },
+    "all_jobs_conclusion": "success",
+    "skipped_jobs": 0,
+    "python_runtime": "3.12.14 (quick); Python 3.11 compatibility executed",
+    "native_event_ledger": {"events": 7, "status": "PASS"},
+    "commands": [
+      "python scripts/local_verify.py quick",
+      "python scripts/local_verify.py analysis",
+      "python scripts/local_verify.py remotion --skip-install-check",
+      "python scripts/local_verify.py security --skip-install-check",
+      "python scripts/agent_event.py validate"
+    ],
+    "scope": "Existing full Merge Safe workflow, not whole-product creative/security qualification"
+  },
+  "artifacts": [
+    {
+      "artifact_id": 10025573340,
+      "archive_name": "sc06_merge_safe_verdict.zip",
+      "archive_bytes": 367,
+      "sha256": "c1e5de9954016634dbbab53c336d89a98e925fb0426308adc5a3ede0baa829d9",
+      "independent_hash_check": "PASS",
+      "github_retention_until": "2026-09-14",
+      "release_backup_authority": false
+    },
+    {
+      "artifact_id": 10025558672,
+      "archive_name": "sc06_remotion_evidence.zip",
+      "archive_bytes": 161875,
+      "sha256": "01ec7218f308c1d28cb4c043de40861c9169dc5968f604acef17009de9dd9ff4",
+      "independent_hash_check": "PASS",
+      "github_retention_until": "2026-09-14",
+      "release_backup_authority": false
+    }
+  ],
+  "physical_probe": {
+    "video_width": 640,
+    "video_height": 360,
+    "fps": "30/1",
+    "nb_read_frames": 90,
+    "audio_stream_count": 1,
+    "visual_duration_seconds": 3.0,
+    "container_duration_seconds": 3.050667,
+    "mp4_bytes": 282119,
+    "mp4_sha256": "8e4d6f23f97fc686806b31c71b20c064597457bee496abc5a4c1a16e6ca05e03",
+    "authority": "TECHNICAL_RUNTIME_FIXTURE_ONLY",
+    "creative_authority": "none",
+    "temporal_critic_authority": "none",
+    "procedure": "Downloaded artifact; independently recomputed ZIP/media SHA256; ran local ffprobe -count_frames; matched renderer evidence"
+  },
+  "review": {
+    "review_id": 5133749519,
+    "type": "SAME_AGENT_ADVERSARIAL_SELF_REVIEW_NOT_INDEPENDENT_APPROVAL",
+    "no_known_open_p0_p1_in_touched_scope": true
+  },
+  "remaining": [
+    "Full CI/donor inventory",
+    "Reuse #58 pinning and #95 frozen Node installs",
+    "Python/toolchain reproducibility",
+    "Whole classifier coverage",
+    "Cache/evidence retention audit",
+    "actionlint/zizmor NOT_RUN_UNAVAILABLE",
+    "Independent review for CP1",
+    "Native main protection and #48 barrier",
+    "Frontend/backend integration and whole-product E2E"
+  ],
+  "next_safe_action": "Fresh live preflight, finish SC02 inventory; converge existing #58/#95 donors without foreign branch writes. Do not merge #130 while #48 remains OPEN.",
+  "graph_delta": {
+    "authority": "DERIVED_LOCAL_WORKFLOW_PROJECTION",
+    "nodes": ["workflow:merge-safe", "job:classify", "job:quick", "job:compat311", "job:analysis", "job:remotion", "job:security", "job:merge-safe", "code:merge_safe_gate", "test:merge_safe_gate", "artifact:verdict"],
+    "edges": [
+      ["job:classify", "PROVIDES_REQUIREMENTS_TO", "job:merge-safe"],
+      ["job:merge-safe", "EXECUTES", "code:merge_safe_gate"],
+      ["test:merge_safe_gate", "TESTS", "code:merge_safe_gate"],
+      ["job:merge-safe", "EMITS", "artifact:verdict"],
+      ["job:classify", "REQUIRED_INPUT_TO", "job:merge-safe"],
+      ["job:quick", "REQUIRED_INPUT_TO", "job:merge-safe"],
+      ["job:compat311", "REQUIRED_INPUT_TO", "job:merge-safe"],
+      ["job:analysis", "REQUIRED_INPUT_TO", "job:merge-safe"],
+      ["job:remotion", "REQUIRED_INPUT_TO", "job:merge-safe"],
+      ["job:security", "REQUIRED_INPUT_TO", "job:merge-safe"]
+    ]
+  },
+  "actual_verdict": {
+    "classification": {"analysis": true, "full": true, "remotion": true, "security": true},
+    "errors": [],
+    "job_results": {"analysis": "success", "classify": "success", "compat311": "success", "quick": "success", "remotion": "success", "security": "success"},
+    "required_jobs": ["classify", "quick", "compat311", "analysis", "remotion", "security"],
+    "schema": "motion-os.merge-safe-verdict/v1",
+    "status": "PASS"
+  }
+}

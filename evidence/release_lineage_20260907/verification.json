@@ -1,0 +1,203 @@
+{
+  "schema": "motion-os.release-lineage-integration-evidence/v1",
+  "authority": "VERIFIED_SCOPED_CANDIDATE_NOT_PROMOTED",
+  "repository": "rotprods/motion-OS",
+  "pr": 133,
+  "base_sha": "cd1414bcbb58112e9fe5171613f98ba36ec43d2b",
+  "implementation_sha": "7dc42a1035ad380ed6b9391f56635cf553b76677",
+  "tested_merge_sha": "672848cd7527323a215b007fe350c4ba6150b821",
+  "ci": {
+    "run_id": 34153730274,
+    "conclusion": "success",
+    "quick": {
+      "python": "3.12.14",
+      "passed": 669,
+      "skipped": 1,
+      "inherited_warnings": 5
+    },
+    "actionlint": "1.7.12_EXECUTED_PASS_9_WORKFLOWS",
+    "native_events": 13,
+    "compatibility311": "PASS",
+    "physical_analysis": "PASS",
+    "physical_remotion": "PASS",
+    "security": "static-security_and_pip-audit_exit0"
+  },
+  "local": {
+    "python": "3.13.5",
+    "surface": "scoped_hash_verified_file_mirror_NOT_FULL_REPOSITORY",
+    "new_tests_passed": 87,
+    "regression_tests_passed": 374,
+    "deselected": 1,
+    "deselection_reason": "current_repo_high_signal_baseline_requires_full_checkout; included_in_CI",
+    "baseline_unsafe_pass_cases": 4,
+    "compileall": "PASS",
+    "scoped_static_findings": 0
+  },
+  "code_blob_identities": {
+    "scripts/main_lineage_sentinel.py": {
+      "bytes": 9424,
+      "git_blob_sha": "c759e61d2703a65c8d3310234f28dde7521553f6",
+      "sha256": "012bd05916b20f96e838e8e932a7f003608fb3acd2b933732c526d814f9126ac"
+    },
+    "scripts/release_authority_guard.py": {
+      "bytes": 6796,
+      "git_blob_sha": "3393d7af668ba569da358e5d77a85dae016211c8",
+      "sha256": "76c41ff507a6d0229fc54ff62f7b53264266fd6a82d9354c257937a930cf38d0"
+    },
+    "tests/test_release_lineage_integration.py": {
+      "bytes": 13755,
+      "git_blob_sha": "8cd3ba98862898078bc13b4e06962f336cb79ee5",
+      "sha256": "06c5c3925616a43cf7f5f97b80759e0e687f4793ebf50fa7dc339472548cd6e1"
+    },
+    ".github/workflows/main-lineage-sentinel.yml": {
+      "bytes": 1071,
+      "git_blob_sha": "f445824d0dd8976a6e9fbca9b2906426d75347ce",
+      "sha256": "729ce2c364fbf3062e35896f61d443d1f02e0c7cb24b3eada822b02b609d97de"
+    },
+    ".github/workflows/release-guard.yml": {
+      "bytes": 1306,
+      "git_blob_sha": "7470c1ba0e50986ce70a14834e0adc6cd8f4e5cb",
+      "sha256": "e2022988650ccca91ae488e5c5a8cbd1c787bd26b04b0bcb8b2df29716a26e45"
+    }
+  },
+  "artifact_checks": {
+    "pr133_verdict.zip": {
+      "sha256": "51a3cde03802e90b496581b220d8f509c7ace075f1efbbdd229f209bb2d0f29d",
+      "bytes": 367,
+      "files": [
+        "merge-safe-verdict.json"
+      ]
+    },
+    "pr133_runtime.zip": {
+      "sha256": "9af5c511c9afe7861be64f9a645c0580bdf17d1b5fc51d0482aec4b375e37d6c",
+      "bytes": 162467,
+      "files": [
+        ".artifacts/node-lock-verification.json",
+        ".artifacts/remotion-verify.json",
+        "runtime/remotion/render_evidence.local.json",
+        "runtime/remotion/out/runtime-local.mp4"
+      ]
+    },
+    "video": {
+      "bytes": 282119,
+      "sha256": "8e4d6f23f97fc686806b31c71b20c064597457bee496abc5a4c1a16e6ca05e03",
+      "ffprobe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 640,
+            "height": 360,
+            "r_frame_rate": "30/1",
+            "duration": "3.000000",
+            "nb_read_frames": "90",
+            "side_data_list": [
+              {}
+            ]
+          }
+        ]
+      }
+    },
+    "pr133_security.zip": {
+      "sha256": "e1765f40330b3005435ad75fe2b7584f7d4eb94587bb58dde9646cfbc8b2783d",
+      "bytes": 495,
+      "receipt": {
+        "schema": "motion-os.local-verification/v1",
+        "profile": "security",
+        "python": "3.12.14",
+        "cwd": "/home/runner/work/motion-OS/motion-OS",
+        "git_sha": "672848cd7527323a215b007fe350c4ba6150b821",
+        "results": [
+          {
+            "name": "static-security",
+            "command": [
+              "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python",
+              "scripts/security_static.py"
+            ],
+            "returncode": 0,
+            "duration_s": 0.465,
+            "required": true,
+            "status": "PASS"
+          },
+          {
+            "name": "pip-audit",
+            "command": [
+              "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python",
+              "-m",
+              "pip_audit",
+              "--progress-spinner",
+              "off"
+            ],
+            "returncode": 0,
+            "duration_s": 2.62,
+            "required": true,
+            "status": "PASS"
+          }
+        ],
+        "status": "PASS"
+      }
+    }
+  },
+  "review": {
+    "id": 5134729871,
+    "type": "SAME_AGENT_ADVERSARIAL_SELF_REVIEW_NOT_INDEPENDENT_APPROVAL"
+  },
+  "donors": {
+    "102": "c8f11b801d1293508fb8aa5e3e84029ca43afd15",
+    "104": "67d2a72bd04a17f097d670dccbc4b526dd257343"
+  },
+  "graph_delta": [
+    [
+      "release-guard",
+      "executes",
+      "scripts.release_authority_guard"
+    ],
+    [
+      "release_authority_guard",
+      "checks",
+      "committed_state_blob_and_stable_live_main"
+    ],
+    [
+      "release_authority_guard",
+      "uses",
+      "main_lineage_sentinel.assess_lineage"
+    ],
+    [
+      "lineage_commands",
+      "write_receipt_with",
+      "local_verify._write_report"
+    ],
+    [
+      "lineage_commands",
+      "never_authorize",
+      "publish_or_barrier_release"
+    ]
+  ],
+  "separate_product_finding": {
+    "path": "src/studio/inspector.py",
+    "blob": "60e00e65f96790696516e67147aa215daa67f986",
+    "state": "REPRODUCED_NOT_REPAIRED",
+    "finding": "Layer with no render_manifest reports recovery_ready=true; same Layer with empty assignments reports false",
+    "evidence": "studio_recovery_gap.json"
+  },
+  "not_claimed": [
+    "native_branch_protection",
+    "barrier_release",
+    "main_sentinel_or_tag_workflow_executed_on_main",
+    "live_HTTP_transport_from_new_code",
+    "whole_history_lineage",
+    "CP1_COMPLETE",
+    "production_ready",
+    "frontend_backend_E2E",
+    "creative_provider_quality",
+    "independent_approval"
+  ],
+  "limits": [
+    "local_clone_DNS_blocked",
+    "socket_timeout_not_total_deadline",
+    "last_read_not_transactional_main_lock",
+    "trusted_single_writer_filesystem",
+    "CI_artifact_expiry_2026-09-14; downloaded_copies_delivered_no_Drive_mirror_claim"
+  ]
+}

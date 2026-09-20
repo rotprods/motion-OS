@@ -9,7 +9,13 @@ from src.content.content_factory import Beat, cognitive_load_warnings, preflight
 from src.content.performance_learning import (
     EvidenceStage, LearningHypothesis, approve_promoted_rule, promote_hypothesis,
 )
-from src.content.source_security import normalize_claim, scan_untrusted_source, source_pack, validate_claim_lineage
+from src.content.source_security import (
+    SOURCE_SECURITY_ENVELOPE_SCHEMA,
+    build_source_security_envelope,
+    normalize_claim,
+    scan_untrusted_source,
+    validate_claim_lineage,
+)
 from src.content.tts_integrity import tts_integrity_errors
 
 
@@ -26,10 +32,16 @@ def test_source_prompt_injection_is_data_and_secret_quarantines():
     risk = scan_untrusted_source(text)
     assert risk.prompt_injection_hits
     assert risk.secret_hits
-    pack = source_pack(text, "https://example.com")
-    assert pack["trust_class"] == "UNTRUSTED_SOURCE_DATA"
-    assert pack["quarantined"] is True
-    assert "REDACTED_SECRET" in pack["redacted_text"]
+    envelope = build_source_security_envelope(text, "https://example.com")
+    assert envelope["schema"] == SOURCE_SECURITY_ENVELOPE_SCHEMA
+    assert envelope["trust_class"] == "UNTRUSTED_SOURCE_DATA"
+    assert envelope["quarantined"] is True
+    assert "REDACTED_SECRET" in envelope["redacted_text"]
+
+
+def test_source_security_envelope_requires_source_ref():
+    with pytest.raises(ValueError, match="source_ref required"):
+        build_source_security_envelope("untrusted", "   ")
 
 
 def test_factual_beat_requires_known_supported_claim():
@@ -107,10 +119,17 @@ def test_preflight_blocks_factual_beat_without_lineage():
 
 
 def test_learning_never_promotes_rule_automatically():
-    h = LearningHypothesis("H1", "LOSS hooks work better", EvidenceStage.OBSERVED_CORRELATION, ("a",))
-    h = promote_hypothesis(h, independent_examples=10, controlled_test_passed=True)
+    evidence_ids = tuple(f"content-{index}" for index in range(10))
+    h = LearningHypothesis(
+        "H1",
+        "LOSS hooks work better",
+        EvidenceStage.OBSERVED_CORRELATION,
+        evidence_ids,
+        controlled_test_id="test-1",
+    )
+    h = promote_hypothesis(h, independent_examples=len(evidence_ids), controlled_test_passed=True)
     assert h.stage == EvidenceStage.CONTROLLED_TEST
     with pytest.raises(PermissionError):
         approve_promoted_rule(h, explicit_approval=False)
-    approved = approve_promoted_rule(h, explicit_approval=True)
+    approved = approve_promoted_rule(h, explicit_approval=True, approval_evidence=("approval:review-1",))
     assert approved.stage == EvidenceStage.PROMOTED_RULE

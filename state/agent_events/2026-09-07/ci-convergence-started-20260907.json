@@ -1,0 +1,23 @@
+{
+  "affected_paths": [
+    ".githooks/pre-push",
+    ".github/workflows",
+    "runtime/remotion/package-lock.json",
+    "scripts/change_impact.py",
+    "scripts/verify_node_lock.py",
+    "tests/test_ci_convergence.py"
+  ],
+  "agent_id": "motion://agent/chatgpt/ci-convergence-engineer",
+  "authority": "EXECUTED",
+  "branch": "fix/ci-convergence-frozen-impact-20260907",
+  "checks": {},
+  "commit_sha": "9a7b7435d6b884785c41a7e21212581f0dd80c1d",
+  "correlation_id": "motion://correlation/ci-convergence-20260907",
+  "event_id": "ci-convergence-started-20260907",
+  "event_type": "work.started",
+  "metadata": {},
+  "pr_number": null,
+  "project": "MOTION.OS",
+  "summary": "CI convergence under Bus claim 5573618864: exact-file local mirror materialized and adversarial tests executed; integrate existing PR58 pins, PR95 lock, and PR130 verdict without editing donor branches or promoting main.",
+  "timestamp": "2026-09-07T17:02:28.489413Z"
+}

@@ -1,0 +1,44 @@
+{
+  "event_id": "product-e2e-run-manifest-completed-20260909",
+  "event_type": "work.completed",
+  "timestamp": "2026-09-09T12:40:00Z",
+  "agent_id": "motion://agent/chatgpt/product-e2e-run-manifest",
+  "project": "MOTION.OS",
+  "branch": "feat/product-e2e-run-manifest-20260909",
+  "commit_sha": "5327e3872fe12e6b82a5bd8815074a29573c21cf",
+  "pr_number": 141,
+  "summary": "Golden technical Product E2E persistence/replay scope verified on PR141: Merge Safe and dedicated Product E2E passed on the exact code head/synthetic merge; physical MP4, run manifest and recovery evidence were independently rehashed and the exact artifact ZIP completed a Drive upload/download round-trip. This is branch qualification only; #48 remains OPEN and creative/provider/production/PROJECT_DONE authority remain false.",
+  "affected_paths": [
+    ".github/workflows/product-e2e.yml",
+    "evidence/product_e2e_20260909/QUALIFICATION.md",
+    "scripts/studio_finalize_run.py",
+    "src/studio/run_manifest.py",
+    "tests/test_product_e2e_run_manifest.py"
+  ],
+  "checks": {
+    "merge_safe_run": "34351881211:SUCCESS",
+    "product_e2e_run": "34351881220:SUCCESS",
+    "synthetic_merge_sha": "96762d2f331ac5b219986b612005213f74de40dd",
+    "python_suite": "716 passed, 1 skipped",
+    "product_contract_tests": "15 passed",
+    "physical_mp4_sha256": "ef2c2b4f50a555157021865f07a67364cf01d65991282b905a6af1bfc1c93d2a",
+    "product_manifest_hash": "0df5fa0e59e38565fdbf437c93b582855967b1e988608429bbc1340008067273",
+    "recovery_ready": "true",
+    "github_artifact_sha256": "5e2418992244a50e4d208aa7cffcce473f6bfcd99ba69dc93368f2089e56f32c",
+    "drive_roundtrip_sha256": "5e2418992244a50e4d208aa7cffcce473f6bfcd99ba69dc93368f2089e56f32c"
+  },
+  "authority": "VERIFIED",
+  "correlation_id": "motion://correlation/product-e2e-run-manifest-20260909",
+  "metadata": {
+    "tracker_issue": 138,
+    "project_completion_issue": 93,
+    "promotion_barrier_issue": 48,
+    "run_id": "RUN_0C1C6574F41DC3E0AADD",
+    "drive_file_id": "1iN1TWGqHPQg0Yoen3X58aJc1GRC8LPFh",
+    "drive_parent_id": "1t8Y34fkpBos2KIbIQgz9gWkj2-o3hcoX",
+    "production_authority": false,
+    "creative_authority": false,
+    "provider_authority": false,
+    "project_done": false
+  }
+}

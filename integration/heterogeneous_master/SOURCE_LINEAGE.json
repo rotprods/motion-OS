@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0.0",
+  "authority": "IMPLEMENTED_UNVERIFIED",
+  "base": {
+    "pr": 95,
+    "head_sha": "f3d55bf948ac80d1a456c63dab4dff19ea5f1adc",
+    "purpose": "node dependency reproducibility"
+  },
+  "sources": [
+    {"pr":61,"head_sha":"91bc6c8c121d84cad3a6e6a170b8c8cbe890f2ec","capability":"single_master_audio_assembly"},
+    {"pr":62,"head_sha":"17da8a190a4492f1193716fa864bcd838bfcfd7b","capability":"hyperframes_physical_provenance"},
+    {"pr":63,"head_sha":"615037e17a2bba9025efdaa406098acef575ec70","capability":"semantic_alpha"},
+    {"pr":66,"head_sha":"3513566b37fa6b8d15c357e78bb523c611669d0b","capability":"lottie_physical_player"},
+    {"pr":69,"head_sha":"54ab004d649e7736d6a5e2803335f51964125566","capability":"bt709_color_normalization"}
+  ],
+  "claim_boundary": "No production or creative-quality authority. Exact branch-level technical integration only."
+}

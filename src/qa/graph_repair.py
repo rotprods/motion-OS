@@ -1,7 +1,8 @@
 from __future__ import annotations
 from dataclasses import dataclass, asdict
+from numbers import Real
 from typing import Any
-import hashlib, json
+import hashlib, json, math
 from src.graph.model import Edge
 from src.graph.impact import descendant_invalidation
 
@@ -46,22 +47,70 @@ def plan_repair_candidates(graph, defect_id:str, *, strategies=("minimal","struc
     return out
 
 def attach_repair_candidates(graph, candidates:list[RepairCandidateSpec]) -> list[str]:
+    """Attach repair candidates while preserving defect lineage and mutation truth.
+
+    ``DERIVED_FROM`` records which defect caused the candidate to exist. ``MUTATES``
+    records only the actual graph nodes named by RepairMutation. Missing defects,
+    missing mutation targets, and mutation-free candidates fail closed before any
+    candidate node is written.
+    """
     ids=[]
+    existing={n.id for n in graph.nodes}
     for c in candidates:
+        if c.defect_id not in existing:
+            raise ValueError(f"repair defect target missing: {c.defect_id}")
+        if not c.mutations:
+            raise ValueError(f"repair candidate has no mutations: {c.candidate_id}")
+
+        mutation_targets=tuple(sorted({m.target_node_id for m in c.mutations}))
+        missing=[target for target in mutation_targets if target not in existing]
+        if missing:
+            raise ValueError(f"repair mutation target missing: {missing}")
+        if c.candidate_id in existing:
+            raise ValueError(f"repair candidate identity collision: {c.candidate_id}")
+
         graph.add_node(graph.typed_node(c.candidate_id,"RepairCandidate",data={
             "defect_id":c.defect_id,"strategy":c.strategy,
             "mutations":[asdict(m) for m in c.mutations],
             "affected_nodes":list(c.affected_nodes),"regression_protected":list(c.regression_protected),
         },authority="inferred",provenance_refs=[c.defect_id]))
-        graph.add_edge(Edge(c.candidate_id,c.defect_id,"MUTATES",{"id":f"e_{c.candidate_id}_defect"}))
+        graph.add_edge(Edge(c.candidate_id,c.defect_id,"DERIVED_FROM",{"id":f"e_{c.candidate_id}_defect"}))
+        for target in mutation_targets:
+            graph.add_edge(Edge(c.candidate_id,target,"MUTATES",{"id":f"e_{c.candidate_id}_mutates_{target}"}))
+        existing.add(c.candidate_id)
         ids.append(c.candidate_id)
     return ids
 
+def _validated_score(value: object, candidate_id: str) -> float:
+    if isinstance(value, bool) or not isinstance(value, Real):
+        raise ValueError(f"repair score must be a finite numeric scalar: {candidate_id}")
+    score=float(value)
+    if not math.isfinite(score):
+        raise ValueError(f"repair score must be finite: {candidate_id}")
+    return score
+
+
 def choose_candidate(candidates:list[RepairCandidateSpec], scores:dict[str,float], *, regression_pass:dict[str,bool]) -> dict[str,Any]:
-    eligible=[c for c in candidates if regression_pass.get(c.candidate_id,False) and c.candidate_id in scores]
-    if not eligible: return {"decision":"HOLD","winner":None,"reason":"no_candidate_passed_regression"}
-    winner=max(eligible,key=lambda c:(scores[c.candidate_id],c.strategy=="structural"))
-    return {"decision":"PROMOTE","winner":winner.candidate_id,"score":scores[winner.candidate_id],"protected_nodes":list(winner.regression_protected)}
+    if not isinstance(scores, dict) or not isinstance(regression_pass, dict):
+        raise ValueError("scores and regression_pass must be dictionaries")
+    candidate_ids=[c.candidate_id for c in candidates]
+    if len(candidate_ids) != len(set(candidate_ids)):
+        raise ValueError("repair candidate IDs must be unique")
+
+    eligible=[]
+    normalized_scores:dict[str,float]={}
+    for c in candidates:
+        passed=regression_pass.get(c.candidate_id,False)
+        if not isinstance(passed,bool):
+            raise ValueError(f"regression verdict must be a literal boolean: {c.candidate_id}")
+        if c.candidate_id in scores:
+            normalized_scores[c.candidate_id]=_validated_score(scores[c.candidate_id],c.candidate_id)
+        if passed and c.candidate_id in normalized_scores:
+            eligible.append(c)
+    if not eligible:
+        return {"decision":"HOLD","winner":None,"reason":"no_candidate_passed_regression"}
+    winner=max(eligible,key=lambda c:(normalized_scores[c.candidate_id],c.strategy=="structural"))
+    return {"decision":"PROMOTE","winner":winner.candidate_id,"score":normalized_scores[winner.candidate_id],"protected_nodes":list(winner.regression_protected)}
 
 def tournament_hash(candidates:list[RepairCandidateSpec]) -> str:
     payload=[{"id":c.candidate_id,"strategy":c.strategy,"mutations":[asdict(m) for m in c.mutations],"affected":list(c.affected_nodes)} for c in candidates]

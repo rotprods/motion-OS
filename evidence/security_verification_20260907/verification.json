@@ -1,0 +1,116 @@
+{
+  "authority": "VERIFIED_STACKED_IMPLEMENTATION_NOT_PROMOTED",
+  "repository": "rotprods/motion-OS",
+  "pr": 132,
+  "base_sha": "909591e61fc0691d9ef1328180d374507fea4441",
+  "implementation_sha": "82f1eb8ecd524f3e514e1b1d32c078e2d1bf7601",
+  "tested_merge_sha": "e685d630c5a11697c1b0dcb130adbac8b0ff3af4",
+  "donors": {
+    "70": "ceac784c9f00d560370f5d70c5666ce6072bf48f",
+    "103": "af88f74c94402a90f157c9d21e563f66071c20ac"
+  },
+  "tests": {
+    "local_mirror": {
+      "python": "3.13.5",
+      "passed": 288,
+      "failed": 0,
+      "skipped": 0,
+      "new_cases": 45,
+      "donor_cases": 24,
+      "inherited_cases": 219
+    },
+    "clean_runner": {
+      "run_id": 34149794390,
+      "conclusion": "success",
+      "python": "3.12.14",
+      "passed": 582,
+      "skipped": 1,
+      "inherited_warnings": 5,
+      "native_events_validated": 11,
+      "all_seven_jobs": "success",
+      "python311_compatibility": "success",
+      "actual_actionlint": "success",
+      "actual_static_security": "success",
+      "actual_same_interpreter_pip_audit": "success",
+      "actual_physical_analysis": "success",
+      "actual_physical_remotion": "success"
+    },
+    "red_to_green": [
+      "Missing auditor: original exit0/PASS; fixed exit2/BLOCKED",
+      "Failed repo-health: original no receipt; fixed FAIL with child exit7",
+      "Old PASS receipt: original left stale; fixed invalidates before work and replaces with FAIL",
+      "Missing scanner root: original PASS; fixed SCAN_SCOPE_INVALID"
+    ],
+    "real_git_push": "Disposable bare remote: main create rejected before tests, refs unchanged, feature push succeeded. No live remote mutation."
+  },
+  "downloaded_artifacts": [
+    {
+      "artifact_id": 10028948567,
+      "archive_sha256": "f0db92f4af29f9d4b0fe91de739ea873438f669a376edca5da2a16ff2a05e4a2",
+      "archive_bytes": 496,
+      "verified": true
+    },
+    {
+      "artifact_id": 10028961744,
+      "archive_sha256": "cfeeeba54c0e2d74c1fee5cadf81f7e206579a3008f52fc3c3e0629b58cd4d4d",
+      "archive_bytes": 162466,
+      "verified": true
+    },
+    {
+      "artifact_id": 10028975575,
+      "archive_sha256": "c006856c11b3061f11ee407db52132fde9b9ef6d485d0df71ee5cb259debc2b8",
+      "archive_bytes": 367,
+      "verified": true
+    }
+  ],
+  "security_receipt": {
+    "git_sha": "e685d630c5a11697c1b0dcb130adbac8b0ff3af4",
+    "checks": {
+      "static-security": 0,
+      "pip-audit": 0
+    },
+    "status": "PASS"
+  },
+  "media": {
+    "sha256": "8e4d6f23f97fc686806b31c71b20c064597457bee496abc5a4c1a16e6ca05e03",
+    "bytes": 282119,
+    "counted_frames": 90,
+    "fps": "30/1",
+    "width": 640,
+    "height": 360,
+    "identical_to_previous_fixture": true,
+    "creative_authority": false
+  },
+  "review": {
+    "id": 5134478165,
+    "type": "SAME_AGENT_ADVERSARIAL_SELF_REVIEW_NOT_INDEPENDENT_APPROVAL"
+  },
+  "graph_delta": [
+    ["local_hook", "gated_by", "main_destination_guard"],
+    ["local_hook", "uses", "shared_verifier"],
+    ["required_CI_security_job", "uses", "shared_verifier"],
+    ["shared_verifier", "requires", "same_interpreter_pip_audit"],
+    ["shared_verifier", "requires", "static_scanner"],
+    ["verification_step", "persists", "atomic_progress_receipt"],
+    ["failure", "invalidates", "prior_PASS_receipt"]
+  ],
+  "barriers": {
+    "issue48": "OPEN",
+    "main_protected": false,
+    "main_changed": false,
+    "merge_deploy_spend_activation": false,
+    "cp1_complete": false,
+    "project_done": false
+  },
+  "limitations": [
+    "Local full clone DNS-blocked; local proof uses a hash-verified scoped file mirror.",
+    "Auditor returncode0 is recorded, not a universal dependency-coverage or vulnerability-absence claim.",
+    "Static rules and scan exclusions are bounded; no general-purpose SAST certification.",
+    "Trusted single-run workspace; no concurrent hostile-filesystem TOCTOU or multi-writer lock guarantee.",
+    "Disk failure/SIGKILL can prevent final persistence; RUNNING and report-write failure never count as PASS.",
+    "Ordinary child console output is not generally redacted; only external auditor output and exception-message reflection are suppressed.",
+    "Local hook remains bypassable and is not native GitHub protection.",
+    "Scheduled security wiring has not run on main.",
+    "Full Python/toolchain freeze, npm audit, zizmor, release-lineage, independent acceptance and functional product E2E remain pending."
+  ]
+}

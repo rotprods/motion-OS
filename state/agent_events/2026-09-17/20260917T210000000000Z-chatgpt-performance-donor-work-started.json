@@ -1,0 +1,30 @@
+{
+  "event_id": "20260917T210000000000Z-chatgpt-performance-donor-work-started",
+  "event_type": "work.started",
+  "timestamp": "2026-09-17T21:00:00Z",
+  "agent_id": "motion://agent/chatgpt/product-convergence",
+  "project": "MOTION.OS",
+  "branch": "convergence/p8-product-recovery-v2-20260917",
+  "commit_sha": "81477a0c1a76b09a885c239d3ffa78d14588a026",
+  "pr_number": null,
+  "summary": "Started successor convergence wave to preserve unique PR77 performance-learning authority invariants on top of frozen PR167 checkpoint. No unrelated architecture or qualification-only donors are included.",
+  "affected_paths": [
+    "src/content/performance_learning.py",
+    "tests/test_phase06_adversarial_hardening.py",
+    "tests/test_phase08_performance_learning_authority.py",
+    "state/agent_events/2026-09-17/"
+  ],
+  "checks": {
+    "pr77_unique_value_absent_from_pr167": "PASS",
+    "pr77_historical_exact_head_merge_safe": "SUCCESS:33266617645",
+    "scope_isolated": "PASS",
+    "promotion_effect": "NONE"
+  },
+  "authority": "PROPOSED",
+  "correlation_id": "motion-product-convergence-pr77-20260917",
+  "metadata": {
+    "base_sha": "81477a0c1a76b09a885c239d3ffa78d14588a026",
+    "donor_pr": 77,
+    "donor_sha": "15eb497029159a1c7d885749845baf302c3f8d81"
+  }
+}

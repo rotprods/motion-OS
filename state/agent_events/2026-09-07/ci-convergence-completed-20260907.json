@@ -1,0 +1,19 @@
+{
+  "affected_paths": [
+    "evidence/ci_convergence_20260907/HANDOFF.md",
+    "evidence/ci_convergence_20260907/verification.json"
+  ],
+  "agent_id": "motion://agent/chatgpt/ci-convergence-engineer",
+  "authority": "VERIFIED",
+  "branch": "fix/ci-convergence-frozen-impact-20260907",
+  "checks": {},
+  "commit_sha": "eb0f104caf6efad5113a322210d676721fde0266",
+  "correlation_id": "motion://correlation/ci-convergence-20260907",
+  "event_id": "ci-convergence-completed-20260907",
+  "event_type": "work.completed",
+  "metadata": {},
+  "pr_number": 131,
+  "project": "MOTION.OS",
+  "summary": "Bounded CI convergence candidate verified: MergeSafe34146588775 and Coordination34146588637 success; 513 passed/1skipped; real actionlint, two frozen npm ci installs and physical Remotion passed. Downloaded receipts and media hash/90frames independently checked. Main/production unchanged; CP1 and independent approval remain incomplete.",
+  "timestamp": "2026-09-07T17:15:56.293986Z"
+}

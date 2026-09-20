@@ -1,0 +1,114 @@
+{
+  "schema": "motion-os.phase06-studio-runtime-bridge-verification/v1",
+  "authority": "VERIFIED_BRANCH_CANDIDATE_NOT_PROMOTED",
+  "base_pr": 134,
+  "base_sha": "ecb2187b09d933bbf8720d4d6727433d4e7956fa",
+  "implementation_sha": "f62586533068de0242f3d23771c747f2bed46c36",
+  "tested_synthetic_merge_sha": "8ada7dd158d02b8c6e5a50ab8f2629d441c60ae2",
+  "merge_safe_run": {
+    "id": 34157539618,
+    "status": "SUCCESS",
+    "tests": {
+      "passed": 694,
+      "skipped": 1,
+      "warnings": 5
+    }
+  },
+  "checks": {
+    "python_3_12": "PASS",
+    "python_3_11": "PASS",
+    "repo_health": "PASS",
+    "agent_event_validation_events": 16,
+    "actionlint": "PASS",
+    "dependency_security": "PASS",
+    "physical_analysis": "PASS",
+    "physical_remotion": "PASS",
+    "merge_safe": "PASS"
+  },
+  "physical_flow": {
+    "gateway": "src.content.studio_execution_gateway.execute_verified_studio_handoff",
+    "bridge": "src.studio.content_bridge.prepare_studio_execution",
+    "content_id": "fixture-studio-runtime-001",
+    "provenance_root": "PRV_3DEC5F1936B015BB624A56043681D8CC",
+    "replay_fingerprint": "MNF_2C9EF5B709F84193446EE9C1",
+    "semantic_beat_ids": [
+      "B00_HOOK",
+      "B01_MECHANISM",
+      "B02_PROOF",
+      "B03_PAYOFF"
+    ],
+    "scene_count": 4,
+    "graph_hash": "3c82b9598b020d4adab8d70edf6a74798bd20f5c4d008e53a5044c246e0b3827",
+    "asset_manifest_hash": "4ae6e5c5ed94232e3497683c9a565b482ff16bc7824931402348bf9e73b62dd0",
+    "render_manifest_hash": "085e1bcd0927219b23494ea8953faa26b1a4f5584bc28619310819a128945317",
+    "remotion_spec_hash": "a59282582c37ecda30d935328d0556a8f07dcb0147d6378f2d0c205dca949764",
+    "runtime_spec_hash": "bff94067973eda59eb4f66b4a9c38133c277b531fb9868c01cdc0f6dd58f216b",
+    "runtime_spec_file_sha256": "56b187ec1e9b5960c919aa10ca5a9be1e66942a94d1c405e4e60bb235ee64903",
+    "execution_hash": "e820b463e67eddc81bc809b9f26d58844db78c7f6797df57d527f029a92a775b",
+    "execution_started": true,
+    "render_started_before_remotion_cli": false,
+    "coverage_errors": []
+  },
+  "rendered_media": {
+    "width": 640,
+    "height": 360,
+    "fps": 30.0,
+    "duration_frames": 90,
+    "visual_duration_s": 3.0,
+    "container_duration_s": 3.050667,
+    "audio_stream_count": 1,
+    "video_bytes": 351586,
+    "video_sha256": "e7914081749141c71ab721985467a8122b5c1024996ff78512a8fd501c71bf48",
+    "technical_runtime_gate": "PASS"
+  },
+  "frozen_node": {
+    "node": "v22.23.2",
+    "npm": "10.9.8",
+    "package_lock_sha256": "9c77bffa2c30ddc1347785f40f18b5d03663faba375d293259201afc80d78e55",
+    "package_json_sha256": "10edac842ee8127cd87c259ec4d7811aa5f76de179d8cbe9c18520ae8c4f1520",
+    "two_clean_installs": "PASS"
+  },
+  "artifacts": {
+    "verdict": {
+      "id": 10031493360,
+      "bytes": 367,
+      "sha256": "37602f2d9bcc3f7e332c3b980427a86d82ab3682400976f77bdc07abc513a69b",
+      "downloaded_and_inspected": true
+    },
+    "runtime": {
+      "id": 10031490350,
+      "bytes": 232138,
+      "sha256": "6aa0feb767f4267e19b23becdac3d52c3a5c00e78ab16d9e87f2ff39a04a9ed8",
+      "downloaded_and_inspected": true
+    },
+    "security": {
+      "id": 10031477613,
+      "bytes": 496,
+      "sha256": "7423780255de6f9d677d91b25dbded92d8a1cee1af6ebe9799c49da500632f67",
+      "downloaded_and_inspected": true
+    },
+    "quick": {
+      "id": 10031477070,
+      "bytes": 544,
+      "sha256": "0550aa07d5ea6e3677632fa9c7112ea931599610690aa4a688e5f82e538499ff"
+    }
+  },
+  "security_receipt": {
+    "git_sha": "8ada7dd158d02b8c6e5a50ab8f2629d441c60ae2",
+    "static_security": "PASS",
+    "pip_audit": "PASS"
+  },
+  "not_claimed": [
+    "creative qualification",
+    "temporal critic authority",
+    "real provider execution",
+    "publication or deployment",
+    "CP1 completion",
+    "main promotion",
+    "production readiness"
+  ],
+  "next_frontier": {
+    "finding": "Remotion graph compiler reads Transition only from Scene CONTAINS children while EditingGraph emits EXITS_VIA/ENTERS_VIA edges, risking silent transition loss.",
+    "action": "Reproduce with regression test, repair compiler relationship lookup, and prove intended transition survives into physical runtimeSpec/render."
+  }
+}

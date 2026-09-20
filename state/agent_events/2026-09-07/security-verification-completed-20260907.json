@@ -1,0 +1,28 @@
+{
+  "affected_paths": [".githooks/pre-push", ".github/workflows/merge-gate.yml", ".github/workflows/security.yml", "scripts/local_verify.py", "scripts/pre_push_ref_guard.py", "scripts/security_static.py", "tests/test_ci_convergence.py", "tests/test_phase08_local_main_push_guard.py", "tests/test_security_static.py", "tests/test_verification_security_integration.py"],
+  "agent_id": "motion://agent/chatgpt/security-verification-integrator",
+  "authority": "VERIFIED",
+  "branch": "fix/security-verification-receipts-20260907",
+  "checks": {
+    "clean_runner_tests": "582 passed /1 skipped /5 inherited warnings",
+    "implementation_merge_safe_34149794390": "SUCCESS",
+    "local_scoped_tests": "288 passed /0 failed /0 skipped",
+    "main_protection": "false; not changed",
+    "promotion": "blocked by Issue48",
+    "security_receipt": "downloaded and hash verified; static-security and pip-audit exit0"
+  },
+  "commit_sha": "82f1eb8ecd524f3e514e1b1d32c078e2d1bf7601",
+  "correlation_id": "motion://correlation/security-verification-20260907",
+  "event_id": "security-verification-completed-20260907",
+  "event_type": "work.completed",
+  "metadata": {
+    "completion_scope": "BOUNDED_BRANCH_IMPLEMENTATION_ONLY",
+    "evidence": "evidence/security_verification_20260907/verification.json",
+    "review_id": 5134478165,
+    "review_type": "SAME_AGENT_NOT_INDEPENDENT"
+  },
+  "pr_number": 132,
+  "project": "MOTION.OS",
+  "summary": "Bounded security-verification integration implemented and exact synthetic candidate verified: required scanner/audit, atomic progress/failure receipts, donor103 hook guard and tests. Full CI582 passed/1skipped; local scoped288passed. Not CP1, main or production authority.",
+  "timestamp": "2026-09-07T18:05:26.468391Z"
+}

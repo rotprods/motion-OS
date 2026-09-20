@@ -1,0 +1,43 @@
+{
+  "schema": "motion-os.ci-convergence-inventory/v1",
+  "authority": "DERIVED_SCOPED_CANDIDATE_INVENTORY_NOT_RELEASE",
+  "base_pr": 130,
+  "base_head": "9a7b7435d6b884785c41a7e21212581f0dd80c1d",
+  "main_at_capture": "d4e628a1aef0cd382c3c2f1ea327a8ff70c41bd9",
+  "donors": [
+    {"pr": 58, "sha": "dd9faebcda994bd74f28e52cd9d74f8bcc5da0ef", "selected": "Coordination immutable Action pins only; not EventFabric implementation"},
+    {"pr": 95, "sha": "f3d55bf948ac80d1a456c63dab4dff19ea5f1adc", "lock_blob": "134ead8bcb1733aeaed3d3a3e63a17cb5e4c3a27", "lock_sha256": "9c77bffa2c30ddc1347785f40f18b5d03663faba375d293259201afc80d78e55", "selected": "Exact lock + frozen installation semantics; no deleting/regenerating approved locks"},
+    {"pr": 56, "sha": "a244cc06c02e77e23d550d26cdf5af330012ad5d", "selected": "Shared-authority impact coverage only; no current-state rewrite"}
+  ],
+  "workflows": [
+    {"path": ".github/workflows/ci.yml", "sha256": "9192c3f648a05a433bee3978587e237d338ca2c2f8792cdb0b7494f3962379b4", "triggers": ["workflow_dispatch"], "permissions": {"contents": "read"}, "jobs": [{"id": "verify", "needs": [], "scripts": ["scripts/local_verify.py"]}]},
+    {"path": ".github/workflows/coordination-ci.yml", "sha256": "3a0abb3ac573b50273c67a939a6031cb8162aaa48af5932bf8d4fb6e096887e9", "triggers": ["pull_request", "push"], "permissions": {"contents": "read"}, "jobs": [{"id": "coordination-contracts", "needs": [], "scripts": ["scripts/coordination_cli.py", "scripts/repo_health.py"]}]},
+    {"path": ".github/workflows/merge-gate.yml", "sha256": "5ff7c33136bd0b1959bae9fc86c360db7dc36b2e116af522eb0bbb6da3ae93f8", "triggers": ["pull_request", "merge_group", "workflow_dispatch"], "permissions": {"contents": "read"}, "jobs": [
+      {"id": "classify", "needs": [], "scripts": ["scripts/change_impact.py"]},
+      {"id": "quick", "needs": [], "scripts": ["scripts/agent_event.py", "scripts/local_verify.py"]},
+      {"id": "compat311", "needs": "classify", "scripts": ["scripts/local_verify.py"]},
+      {"id": "analysis", "needs": "classify", "scripts": ["scripts/local_verify.py"]},
+      {"id": "remotion", "needs": "classify", "scripts": ["scripts/local_verify.py", "scripts/verify_node_lock.py"]},
+      {"id": "security", "needs": "classify", "scripts": ["scripts/local_verify.py"]},
+      {"id": "merge-safe", "needs": ["classify", "quick", "compat311", "analysis", "remotion", "security"], "scripts": ["scripts/merge_safe_gate.py"]}
+    ]},
+    {"path": ".github/workflows/release-guard.yml", "sha256": "7700d9105e583a6807618b4056b6fcfd97b58ef2b039070e7c574f0f1fb227a7", "triggers": ["workflow_dispatch", "push"], "permissions": {"contents": "read"}, "jobs": [{"id": "guard", "needs": [], "scripts": []}]},
+    {"path": ".github/workflows/remotion-runtime.yml", "sha256": "9c01cf5cf00fd54eff224327db72ad2df47520076c4fd9c7b137e7b6436032d5", "triggers": ["workflow_dispatch"], "permissions": {"contents": "read"}, "jobs": [{"id": "render-proof", "needs": [], "scripts": ["scripts/local_verify.py", "scripts/verify_node_lock.py"]}]},
+    {"path": ".github/workflows/repo-health.yml", "sha256": "d95224dec81c8f4be98b4b4190e664224d62fa3c04323628dee326139296545f", "triggers": ["workflow_dispatch"], "permissions": {"contents": "read"}, "jobs": [{"id": "health", "needs": [], "scripts": ["scripts/repo_health.py"]}]},
+    {"path": ".github/workflows/runtime-smoke.yml", "sha256": "9976ef6da08db69e52aabdf91e29cc2c5711291cdfe763661fc2512f4a2224be", "triggers": ["workflow_dispatch"], "permissions": {"contents": "read"}, "jobs": [{"id": "smoke", "needs": [], "scripts": []}]},
+    {"path": ".github/workflows/security.yml", "sha256": "381fa0430c2d2c6eb58299fcf06f79038b3dc9e9c20d22a68cfd75cf506a6fa7", "triggers": ["workflow_dispatch", "schedule"], "permissions": {"contents": "read"}, "jobs": [{"id": "dependency-audit", "needs": [], "scripts": []}]}
+  ],
+  "scope_exclusions": ["unintegrated renderer/provider/T08/semantic-plane branch-only workflows", "full transitive Python lock", "native branch protection", "independent security approval", "local direct-main guard donor103"],
+  "local_evidence": {
+    "pytest": {"passed": 219, "failed": 0, "skipped": 0, "python": "3.13.5", "scope": "isolated hash-verified source mirror"},
+    "baseline_red_cases": 7,
+    "git_hook_tests": "real temp repositories and Bash; fake app verifier used only to observe dispatch",
+    "npm_tests": "injected process responses; actual npm/runtime proof pending CI",
+    "actionlint": "installer digest-negative test executed; actual binary execution pending CI",
+    "harness_fix": "Bound oversized-payload pytest parameter IDs; original long ID exceeded subprocess environment size. Payload test retained; all219 passed after fix.",
+    "test_log": "local-tests.log in the supplied implementation evidence bundle"
+  },
+  "residuals": ["local_verify security warns instead of blocking when pip-audit absent outside stricter hook; reconcile donor70/120", "release-guard lineage donor104 not imported", "runtime Node minor, runner image, Python transitive deps not yet frozen"],
+  "actionlint_asset": {"version": "1.7.12", "asset_id": 384924896, "sha256": "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8", "source": "https://api.github.com/repos/rhysd/actionlint/releases/assets/384924896"},
+  "recorded_at": "2026-09-07T17:03:10.851747+00:00"
+}

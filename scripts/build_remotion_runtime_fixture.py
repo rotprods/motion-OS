@@ -10,10 +10,14 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from src.compilers.remotion import compile_remotion_scene_spec, validate_scene_coverage
+from src.content.integrity import seal_manifest
+from src.content.provenance_chain import attach_provenance_chain, downstream_handoff_record
+from src.studio.content_bridge import prepare_studio_execution
 
 
 OUT = ROOT / "runtime" / "remotion" / "src" / "runtimeSpec.json"
 EVIDENCE = ROOT / "runtime" / "remotion" / "compiler_evidence.json"
+BUNDLE = ROOT / "runtime" / "remotion" / "studio_execution_bundle.json"
 
 
 def _shot(shot_id: str, start_ms: int, transition: str, camera_motion: str, event_frame: int) -> dict:
@@ -65,6 +69,7 @@ def _shot(shot_id: str, start_ms: int, transition: str, camera_motion: str, even
 
 
 def build_doc() -> dict:
+    """Legacy low-level compiler fixture retained for unit-level regression tests."""
     return {
         "schema_version": "1.0.0",
         "video": {
@@ -105,30 +110,88 @@ def build_doc() -> dict:
     }
 
 
+def build_phase06_studio_fixture() -> tuple[dict, dict]:
+    source_pack = {
+        "source_ref": "fixture://phase06-studio-runtime",
+        "content_fingerprint": "phase06-studio-runtime-v1",
+        "trust_class": "UNTRUSTED_SOURCE_DATA",
+        "claims": [],
+    }
+    beats = [
+        {"id": "B00_HOOK", "function": "hook", "text": "Authorized package", "target_duration_s": 1, "edit_cues": ["browser UI"]},
+        {"id": "B01_MECHANISM", "function": "mechanism", "text": "Studio graph", "target_duration_s": 1, "edit_cues": ["graph"]},
+        {"id": "B02_PROOF", "function": "proof", "text": "Renderer assignment", "target_duration_s": 1, "edit_cues": ["counter"]},
+        {"id": "B03_PAYOFF", "function": "payoff", "text": "Physical runtime", "target_duration_s": 1, "edit_cues": ["final frame"]},
+    ]
+    manifest = {
+        "content_id": "fixture-studio-runtime-001",
+        "schema_version": "1.0.0",
+        "source_refs": ["fixture://phase06-studio-runtime"],
+        "claim_notes": [],
+        "viral_driver": "PERSONAL_GROWTH",
+        "secondary_driver": "MONEY",
+        "core_thesis": "An authorized Phase06 package reaches the physical Studio renderer without losing semantic identity.",
+        "hook": "Authorized package.",
+        "script_display_text": "Authorized package to Studio graph to physical renderer.",
+        "script_tts_text": "Authorized package to Studio graph to physical renderer.",
+        "semantic_beats": beats,
+        "cta": {"text": "Verify", "placement": "END", "target_beat_id": "B03_PAYOFF"},
+        "moral": "Authority and execution remain explicit transitions.",
+        "duration_target_s": 3,
+        "avatar": {"provider": "fixture", "profile_id": "fixture-runtime-avatar"},
+        "render": {
+            "provider": "fixture",
+            "provider_job_id": "fixture-render-job-001",
+            "status": "completed",
+            "asset_ref": "fixture://avatar/master.mp4",
+        },
+        "downstream_edit_cues": [
+            {"beat_id": "B01_MECHANISM", "intent": "show the Studio graph", "suggested_layer": "PRIMARY_UI"}
+        ],
+    }
+    sealed = seal_manifest(attach_provenance_chain(source_pack, manifest))
+    return sealed, downstream_handoff_record(sealed)
+
+
 def main() -> int:
-    doc = build_doc()
-    spec = compile_remotion_scene_spec(doc)
+    sealed, handoff = build_phase06_studio_fixture()
+    bundle = prepare_studio_execution(sealed, handoff, fps=30, width=640, height=360)
+    spec = bundle["runtime_spec"]
     errors = validate_scene_coverage(spec)
     if errors:
         raise SystemExit(f"scene coverage failed: {errors}")
+
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    payload = json.dumps(spec, indent=2, ensure_ascii=False) + "\n"
-    OUT.write_text(payload, encoding="utf-8")
+    runtime_payload = json.dumps(spec, indent=2, ensure_ascii=False, sort_keys=True) + "\n"
+    OUT.write_text(runtime_payload, encoding="utf-8")
+    BUNDLE.write_text(json.dumps(bundle, indent=2, ensure_ascii=False, sort_keys=True) + "\n", encoding="utf-8")
     evidence = {
-        "schema": "motion-os.remotion-compiler-evidence/v1",
-        "source": "scripts/build_remotion_runtime_fixture.py",
-        "compiler": "src.compilers.remotion.compile_remotion_scene_spec",
-        "spec_sha256": hashlib.sha256(payload.encode("utf-8")).hexdigest(),
-        "project": spec["project"],
+        "schema": "motion-os.remotion-compiler-evidence/v2",
+        "source": "technical_phase06_authorized_studio_fixture",
+        "gateway": "src.content.studio_execution_gateway.execute_verified_studio_handoff",
+        "studio_bridge": "src.studio.content_bridge.prepare_studio_execution",
+        "content_id": bundle["content_id"],
+        "provenance_root": bundle["provenance_root"],
+        "replay_fingerprint": bundle["replay_fingerprint"],
+        "semantic_beat_ids": bundle["semantic_beat_ids"],
         "scene_count": len(spec["scenes"]),
-        "scene_ids": [s["id"] for s in spec["scenes"]],
-        "event_count": sum(len(s["events"]) for s in spec["scenes"]),
+        "graph_hash": bundle["graph_hash"],
+        "asset_manifest_hash": bundle["asset_manifest_hash"],
+        "render_manifest_hash": bundle["render_manifest"]["manifest_hash"],
+        "remotion_spec_hash": bundle["remotion_spec_hash"],
+        "runtime_spec_hash": bundle["runtime_spec_hash"],
+        "runtime_spec_file_sha256": hashlib.sha256(runtime_payload.encode("utf-8")).hexdigest(),
+        "execution_hash": bundle["execution_hash"],
+        "project": spec["project"],
         "coverage_errors": errors,
-        "authority": "deterministic_compiler_fixture",
+        "execution_started": bundle["execution_started"],
+        "render_started_before_remotion_cli": bundle["render_started"],
+        "authority": "technical_authorized_studio_execution_fixture",
         "creative_authority": "none",
+        "provider_authority": "none",
     }
-    EVIDENCE.write_text(json.dumps(evidence, indent=2) + "\n", encoding="utf-8")
-    print(json.dumps(evidence, indent=2))
+    EVIDENCE.write_text(json.dumps(evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    print(json.dumps(evidence, indent=2, sort_keys=True))
     return 0
 
 

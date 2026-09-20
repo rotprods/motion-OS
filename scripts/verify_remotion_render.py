@@ -48,6 +48,34 @@ def _sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _spec_lineage(spec: dict) -> dict:
+    scenes = spec.get("scenes")
+    if not isinstance(scenes, list):
+        raise AssertionError("runtime spec scenes must be a list")
+    scene_ids: list[str] = []
+    transition_types: list[str | None] = []
+    for index, scene in enumerate(scenes):
+        if not isinstance(scene, dict):
+            raise AssertionError(f"runtime spec scene {index} must be an object")
+        scene_id = scene.get("id")
+        if not isinstance(scene_id, str) or not scene_id:
+            raise AssertionError(f"runtime spec scene {index} requires id")
+        transition = scene.get("transition")
+        if transition is None:
+            transition_type = None
+        elif isinstance(transition, dict):
+            raw_type = transition.get("type")
+            transition_type = raw_type if isinstance(raw_type, str) else None
+        else:
+            raise AssertionError(f"runtime spec scene {scene_id} transition must be object/null")
+        scene_ids.append(scene_id)
+        transition_types.append(transition_type)
+    return {
+        "scene_ids": scene_ids,
+        "transition_types": transition_types,
+    }
+
+
 def verify_probe(spec: dict, probe: dict, *, video_bytes: int, video_sha256: str) -> dict:
     video_streams = [s for s in probe.get("streams", []) if s.get("codec_type") == "video"]
     audio_streams = [s for s in probe.get("streams", []) if s.get("codec_type") == "audio"]
@@ -86,9 +114,6 @@ def verify_probe(spec: dict, probe: dict, *, video_bytes: int, video_sha256: str
             f"visual_duration:{observed_visual_duration}!={expected_visual_duration}:tol={frame_tolerance}"
         )
 
-    # MP4 container duration may be slightly longer than the visual timeline after
-    # muxing an AAC track. Treat the frame-count/fps pair as visual authority and
-    # bound the mux tail independently rather than weakening the visual contract.
     mux_tail_padding = container_duration - expected_visual_duration
     mux_tail_limit = max(0.100, 3.0 / expected_fps)
     if container_duration < expected_visual_duration - frame_tolerance:
@@ -99,10 +124,11 @@ def verify_probe(spec: dict, probe: dict, *, video_bytes: int, video_sha256: str
         errors.append(f"mux_tail_padding:{mux_tail_padding}>limit={mux_tail_limit}")
 
     return {
-        "schema": "motion-os.remotion-runtime-evidence/v2",
+        "schema": "motion-os.remotion-runtime-evidence/v3",
         "runtime": "Remotion/Chromium",
         "video_sha256": video_sha256,
         "video_bytes": video_bytes,
+        "spec_lineage": _spec_lineage(spec),
         "expected": {
             "width": project["width"],
             "height": project["height"],
@@ -130,6 +156,8 @@ def verify_probe(spec: dict, probe: dict, *, video_bytes: int, video_sha256: str
 def verify(spec_path: Path, video_path: Path) -> dict:
     if not video_path.exists() or video_path.stat().st_size <= 0:
         raise AssertionError("rendered MP4 missing or empty")
+    if not spec_path.exists() or spec_path.stat().st_size <= 0:
+        raise AssertionError("runtime spec missing or empty")
     spec = json.loads(spec_path.read_text(encoding="utf-8"))
     probe = ffprobe(video_path)
     report = verify_probe(
@@ -139,6 +167,7 @@ def verify(spec_path: Path, video_path: Path) -> dict:
         video_sha256=_sha256_file(video_path),
     )
     report["spec_path"] = str(spec_path)
+    report["spec_sha256"] = _sha256_file(spec_path)
     report["video_path"] = str(video_path)
     if report["errors"]:
         raise AssertionError(json.dumps(report, indent=2))
@@ -146,11 +175,11 @@ def verify(spec_path: Path, video_path: Path) -> dict:
 
 
 def main() -> int:
-    p = argparse.ArgumentParser()
-    p.add_argument("--spec", required=True)
-    p.add_argument("--video", required=True)
-    p.add_argument("--out", required=True)
-    args = p.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--spec", required=True)
+    parser.add_argument("--video", required=True)
+    parser.add_argument("--out", required=True)
+    args = parser.parse_args()
     report = verify(Path(args.spec), Path(args.video))
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)

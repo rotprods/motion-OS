@@ -1,0 +1,71 @@
+{
+  "schema": "motion-os.remotion-graph-relations-verification/v1",
+  "authority": "VERIFIED_BRANCH_CANDIDATE_NOT_PROMOTED",
+  "base_pr": 135,
+  "base_sha": "5cc07346b2e4199eccaef3543e52e2ef18b08668",
+  "implementation_sha": "9ae6cd8220981907b3d83d199a49438ce4727f98",
+  "tested_synthetic_merge_sha": "247e47c2221b05af46eab570f209d5b1019595f3",
+  "merge_safe_run": {
+    "id": 34158290757,
+    "status": "SUCCESS",
+    "tests": {"passed": 701, "skipped": 1, "warnings": 5}
+  },
+  "reproduced_red": {
+    "compiler_blob": "661ff0e6c9b7cdfc4d7372c49a003154b0c20da1",
+    "canonical_edges": ["EXITS_VIA", "ENTERS_VIA"],
+    "observed_before": [
+      {"scene": "scene:a", "transitionIn": null, "transitionOut": null},
+      {"scene": "scene:b", "transitionIn": null, "transitionOut": null}
+    ],
+    "adjacent_camera_gap": "EditingGraph Scene USES CameraRig was also ignored because compiler only scanned CONTAINS."
+  },
+  "repair": {
+    "camera_relation": "Scene --USES--> CameraRig",
+    "transition_in_relation": "Scene --ENTERS_VIA--> Transition",
+    "transition_out_relation": "Scene --EXITS_VIA--> Transition",
+    "legacy_contains_fallback": true,
+    "ambiguity_fail_closed": true,
+    "wrong_transition_target_fail_closed": true
+  },
+  "physical_runtime": {
+    "artifact_id": 10031728690,
+    "artifact_sha256": "12df60b4ac6712eb061de6f1a648b2713ebd2fa645c61cd28de3ec68385f7bd0",
+    "artifact_bytes": 252635,
+    "downloaded_and_inspected": true,
+    "runtime_evidence_schema": "motion-os.remotion-runtime-evidence/v3",
+    "spec_sha256": "175abd483b99c9fed9b7e18e8324c47186311856e94e99c80ef0e4674e2f1e94",
+    "scene_ids": [
+      "scene:B00_HOOK",
+      "scene:B01_MECHANISM",
+      "scene:B02_PROOF",
+      "scene:B03_PAYOFF"
+    ],
+    "transition_types": [
+      "cut",
+      "match_geometry_or_existing_element",
+      "match_geometry_or_existing_element",
+      "match_geometry_or_existing_element"
+    ],
+    "video_sha256": "ef2c2b4f50a555157021865f07a67364cf01d65991282b905a6af1bfc1c93d2a",
+    "video_bytes": 371706,
+    "frames": 90,
+    "fps": 30.0,
+    "width": 640,
+    "height": 360,
+    "errors": [],
+    "technical_runtime_gate": "PASS"
+  },
+  "artifacts": {
+    "verdict": {"id": 10031731090, "sha256": "28df669b28f623acc285b8e12330e90c741c9d308b0f31a2a790af30b7c1c6ca", "bytes": 367},
+    "security": {"id": 10031714102, "sha256": "70867017cbc52708dccf69ea7e4236e881c5d22fdfe8f44b0ae59c93f4803c8c", "bytes": 496},
+    "quick": {"id": 10031714749, "sha256": "ce9a86a7b380f4fd76ade3cd4744fe72324ffcb29f3af93091db44b05cbaecf1", "bytes": 542}
+  },
+  "not_claimed": [
+    "creative qualification",
+    "real provider execution",
+    "layer/content pixel sensitivity",
+    "main promotion",
+    "production readiness"
+  ],
+  "next_frontier": "MotionOSRuntime receives layers in runtimeSpec but currently ignores them visually; add explicit layer rendering and physical input-sensitivity proof."
+}

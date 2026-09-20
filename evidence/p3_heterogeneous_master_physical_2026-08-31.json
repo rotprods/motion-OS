@@ -1,0 +1,82 @@
+{
+  "schema": "motion-os.project-completion.p3-heterogeneous-master-proof/v1",
+  "project": "MOTION.OS",
+  "control_issue": 93,
+  "pull_request": 118,
+  "branch": "feat/p3-heterogeneous-master-v1",
+  "branch_head_sha": "5401dd6e101dcb3430624db66c20e57b111f55b2",
+  "base_branch": "main",
+  "base_sha": "d4e628a1aef0cd382c3c2f1ea327a8ff70c41bd9",
+  "tested_pr_merge_sha": "4e62822d59f4a20a67636b0728782f8c75606d39",
+  "authority": "VERIFIED_PR_MERGE_CANDIDATE_NOT_PROMOTED",
+  "promotion_barrier": {
+    "issue": 48,
+    "state": "OPEN",
+    "effect": "NO_MAIN_PROMOTION"
+  },
+  "physical_runtime": {
+    "workflow": "Heterogeneous Master Runtime",
+    "run_id": 33404913839,
+    "job_id": 99529987533,
+    "conclusion": "success",
+    "artifact_id": 9762775049,
+    "artifact_zip_sha256": "d270dce0dfd532a8ee27b45877fbf91a3b2a2034af765ee4f66132a39a57afa7"
+  },
+  "merge_safe": {
+    "workflow": "Merge Safe",
+    "run_id": 33404913852,
+    "conclusion": "success",
+    "final_gate_job_id": 99530373134
+  },
+  "master": {
+    "path": ".artifacts/heterogeneous-master/heterogeneous-master.mp4",
+    "sha256": "2c11f29609a3f093f10f1ac36c1291e4560bad6fe62e7fc2a1a8c468282735e0",
+    "bytes": 55276,
+    "width": 640,
+    "height": 360,
+    "fps": "30/1",
+    "frame_count": 90,
+    "duration_seconds": 3.0,
+    "video_streams": 1,
+    "audio_streams": 1,
+    "video_codec": "h264",
+    "pixel_format": "yuv420p",
+    "color_primaries": "bt709",
+    "color_transfer": "bt709",
+    "color_space": "bt709",
+    "color_range": "tv",
+    "master_audio_sample_rate": 48000,
+    "master_audio_channels": 1
+  },
+  "renderer_sources": {
+    "hyperframes": {
+      "family": "yuv",
+      "sha256": "abe33b119a1c898b8999960a0a89e3c70f5db60605ceb08ed330ed33bf09c0a8",
+      "observed_profile": "bt709/bt709/bt709/limited"
+    },
+    "lottie": {
+      "family": "rgb",
+      "sha256": "48571a2af3468e9ebf93ca4d1cd431a00f9db957b21abf2f9d861c73b779b77a",
+      "player": "lottie-web@5.13.0",
+      "transport": "puppeteer-core@24.16.0",
+      "pixel_format": "argb",
+      "frame_count": 90,
+      "unique_frame_hashes": 90,
+      "declared_profile": "sRGB full / GBR",
+      "alpha_preserved": true
+    }
+  },
+  "normalized_intermediates": {
+    "hyperframes_bt709_sha256": "1838baecb327484aa559c26a0cbb5527e0968c8b108c062a1ba04f6657fe9f05",
+    "lottie_bt709_alpha_sha256": "4f8c709a365741bc0c9cf7c8c414c2895694f2c9ee50d40e1307281cbd364075",
+    "master_audio_sha256": "61c18d5d7e2518fcbfba3dff450582d3da20f8ac76eb44ee5e2b1dad6554ec69"
+  },
+  "composite": {
+    "plan_hash": "755977097f032a950a9d6f32e45ecc4363cdf7143348aebabd4e3ab6679a30b4",
+    "overlay_visual_difference_mae": 5.06415943287037,
+    "errors": [],
+    "ok": true
+  },
+  "regression_invariant": "Browser-originated content MUST NOT imply RGB encoded media. Encoded pixel family and observed colorimetry are qualified before normalization; unknown YUV colorimetry fails closed.",
+  "claim_boundary": "Physical heterogeneous renderer integration is verified for this PR merge candidate. No creative-quality, provider, publication, production, or main-branch authority is claimed."
+}

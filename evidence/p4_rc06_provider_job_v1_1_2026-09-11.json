@@ -1,0 +1,179 @@
+{
+  "schema_version": "1.1",
+  "job_id": "p4-rc06-full-video-provider-job-v1.1",
+  "project": "MOTION.OS",
+  "phase": "P4",
+  "status": "READY_FOR_EXTERNAL_PROVIDER",
+  "authority": "PREPARED_NOT_EXECUTED",
+  "supersedes": {
+    "path": "evidence/p4_rc06_provider_job_2026-08-31.json",
+    "source_commit_sha": "a319b853246d579fc0879e9e0edf9e0f11126a3e",
+    "source_blob_sha": "9eec83bc500cfd0a02178767e20077d92b838f29",
+    "disposition": "SUPERSEDED_CONTRACT_PRESERVED_AS_HISTORICAL_EVIDENCE",
+    "reason": "P1 authority gap: the v1.0 payload contract did not require exact provider-produced media SHA, full-video scope, and attestation identity bindings."
+  },
+  "master": {
+    "identity_id": "RC06",
+    "media_sha256": "fbfd4fda97b1e4d07b8477018324210324c8115c0f5b9a3515eb27ae255f0f1f",
+    "bytes": 11253549,
+    "frame_count": 300,
+    "fps": 30.0,
+    "duration_ms": 10000,
+    "width": 1080,
+    "height": 1920,
+    "drive_file_id": "1r3y35J735DhfyW4e5rDBcTRTdEKPPnrf",
+    "recovery_evidence": "evidence/p4_rc06_real_master_recovery_2026-08-31.json"
+  },
+  "sampling_authority": {
+    "source_manifest": "evidence/p4_rc06_provider_job_2026-08-31.json",
+    "source_commit_sha": "a319b853246d579fc0879e9e0edf9e0f11126a3e",
+    "source_blob_sha": "9eec83bc500cfd0a02178767e20077d92b838f29",
+    "policy": "uniform_plus_boundaries_v1",
+    "target_samples": 24,
+    "decoded_pixel_format": "rgb24",
+    "frame_hash_semantics": "sha256_of_decoded_rgb24_pixel_bytes",
+    "first_frame_index": 0,
+    "last_frame_index": 299,
+    "note": "The immutable v1.0 source manifest remains the authority for the exact 24 sampled RGB frame hashes; v1.1 changes provider-attestation semantics only."
+  },
+  "provider_requirements": {
+    "must_receive_or_access_entire_video": true,
+    "must_review_entire_video_not_only_samples": true,
+    "must_return_stable_provider_identity": true,
+    "must_return_nonempty_provider_run_id": true,
+    "must_bind_exact_media_sha256": "fbfd4fda97b1e4d07b8477018324210324c8115c0f5b9a3515eb27ae255f0f1f",
+    "must_return_literal_full_video_scope_true": true,
+    "must_return_nonempty_provider_attestation_id": true,
+    "caller_local_boolean_is_authority": false,
+    "must_not_claim_authority_if_media_is_transcoded_or_replaced_without_new_sha": true
+  },
+  "temporal_payload_contract": {
+    "required_fields_for_authority": [
+      "provider",
+      "provider_run_id",
+      "media_sha256",
+      "full_video_scope",
+      "provider_attestation_id",
+      "authoritative",
+      "score",
+      "dimensions",
+      "defects",
+      "recommendation"
+    ],
+    "exact_match_fields": [
+      "provider",
+      "provider_run_id",
+      "media_sha256"
+    ],
+    "literal_boolean_fields": [
+      "authoritative",
+      "full_video_scope"
+    ],
+    "score_range": [
+      0.0,
+      10.0
+    ],
+    "recommended_dimensions": [
+      "temporal_coherence",
+      "motion_choreography",
+      "transition_quality",
+      "typography_temporal_stability",
+      "asset_integration",
+      "pacing",
+      "professional_finish"
+    ],
+    "defect_fields": [
+      "code",
+      "severity",
+      "start_ms",
+      "end_ms",
+      "evidence_frame_indices",
+      "description"
+    ],
+    "severity_values": [
+      "P0",
+      "P1",
+      "P2",
+      "P3"
+    ],
+    "recommendation_values": [
+      "RELEASE",
+      "ITERATE",
+      "BLOCK"
+    ],
+    "release_policy": "RELEASE is valid only when exact provider/run/media bindings, full_video_scope=true, provider_attestation_id, authoritative=true, score >= 9.0, and zero P0/P1 defects all validate."
+  },
+  "creative_payload_contract": {
+    "required_fields_for_authority": [
+      "provider",
+      "provider_run_id",
+      "media_sha256",
+      "full_video_scope",
+      "provider_attestation_id",
+      "authoritative",
+      "dimensions"
+    ],
+    "exact_match_fields": [
+      "provider",
+      "provider_run_id",
+      "media_sha256"
+    ],
+    "literal_boolean_fields": [
+      "authoritative",
+      "full_video_scope"
+    ],
+    "required_dimensions": [
+      "composition",
+      "hierarchy",
+      "typography",
+      "motion_choreography",
+      "transition_quality",
+      "asset_realism",
+      "asset_integration",
+      "depth",
+      "lighting",
+      "style_coherence",
+      "originality",
+      "narrative_clarity",
+      "brand_alignment",
+      "final_frame_memorability",
+      "professional_finish"
+    ],
+    "mean_gate": 9.0,
+    "hard_thresholds": {
+      "composition": 8.5,
+      "typography": 9.0,
+      "asset_realism": 8.5,
+      "motion_choreography": 9.0,
+      "transition_quality": 8.8,
+      "professional_finish": 9.0
+    },
+    "release_policy": "Creative review authority requires the same exact provider/run/media/full-video/attestation binding family as temporal authority; local attestation booleans are non-authoritative."
+  },
+  "untrusted_input_policy": {
+    "provider_payload": "UNTRUSTED_DATA",
+    "reject_truthy_string_booleans": true,
+    "reject_bool_as_numeric": true,
+    "reject_nan_and_infinity": true,
+    "reject_cross_media_replay": true,
+    "reject_cross_candidate_replay": true,
+    "reject_unbounded_identity_fields": true,
+    "fail_closed_on_missing_authority_binding": true
+  },
+  "known_non_authoritative_delivery_facts": {
+    "legacy_rc06_color_metadata": "delivery-quality concern preserved; not rewritten by this authority-contract repair",
+    "sampled_still_preflight": "non-authoritative",
+    "authority": "NONE"
+  },
+  "execution": {
+    "provider": null,
+    "provider_run_id": null,
+    "provider_attestation_id": null,
+    "media_sha256": "fbfd4fda97b1e4d07b8477018324210324c8115c0f5b9a3515eb27ae255f0f1f",
+    "full_video_scope": false,
+    "executed": false,
+    "authoritative": false,
+    "blocked_reason": "NO_QUALIFIED_FULL_VIDEO_PROVIDER_RESULT_INGESTED"
+  },
+  "next_action": "Give the exact RC06 media object to one qualified full-video multimodal provider, capture immutable provider/run/media/full-video/attestation bindings, then ingest temporal and creative payloads through the hardened parsers without altering the media SHA."
+}

@@ -1,0 +1,18 @@
+{
+  "affected_paths": [
+    "evidence/release_lineage_20260907"
+  ],
+  "agent_id": "motion://agent/chatgpt/release-lineage-integrator",
+  "authority": "VERIFIED",
+  "branch": "fix/release-lineage-integration-20260907",
+  "checks": {},
+  "commit_sha": "7dc42a1035ad380ed6b9391f56635cf553b76677",
+  "correlation_id": "motion://correlation/release-lineage-20260907",
+  "event_id": "release-lineage-completed-20260907",
+  "event_type": "work.completed",
+  "metadata": {},
+  "pr_number": 133,
+  "project": "MOTION.OS",
+  "summary": "Scoped release-lineage candidate implemented and verified: CI34153730274 success, 87 new tests; receipts and handoff persisted. CP1/product remain incomplete; separate inspector missing-manifest defect reproduced, not repaired.",
+  "timestamp": "2026-09-07T19:04:17.765500Z"
+}

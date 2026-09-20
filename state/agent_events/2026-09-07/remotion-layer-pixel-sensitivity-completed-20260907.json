@@ -1,0 +1,37 @@
+{
+  "event_id": "remotion-layer-pixel-sensitivity-completed-20260907",
+  "event_type": "work.completed",
+  "timestamp": "2026-09-07T20:18:34Z",
+  "agent_id": "motion://agent/chatgpt/remotion-layer-pixel-sensitivity",
+  "project": "MOTION.OS",
+  "branch": "feat/remotion-layer-pixel-sensitivity-20260907",
+  "commit_sha": "7b6bb30817949e3e4f2b91a099e71247f7936d9c",
+  "pr_number": 137,
+  "summary": "Studio layer text and layer metadata now drive the Remotion runtime, and a two-render raw-frame differential proves typography input causally changes rendered pixels while restoring runtimeSpec byte-for-byte.",
+  "affected_paths": [
+    "runtime/remotion/src/MotionOSRuntime.tsx",
+    "scripts/verify_remotion_input_sensitivity.py",
+    "tests/test_remotion_input_sensitivity.py",
+    "scripts/local_verify.py",
+    "evidence/remotion_layer_pixel_20260907"
+  ],
+  "checks": {
+    "merge_safe_run": "34158812435",
+    "pytest": "709 passed, 1 skipped, 5 warnings",
+    "physical_remotion": "PASS",
+    "input_sensitivity": "PASS",
+    "dependency_security": "PASS"
+  },
+  "authority": "VERIFIED",
+  "correlation_id": "motion://correlation/remotion-layer-pixel-sensitivity-20260907",
+  "metadata": {
+    "synthetic_merge_sha": "b8d86470a79fc9bdb740dda04d1d4d820b6bfe0e",
+    "frame_index": 11,
+    "changed_rgb_bytes": 191614,
+    "changed_ratio": 0.2772193287037037,
+    "spec_restored_byte_exact": true,
+    "issue48": "OPEN",
+    "main_mutated": false,
+    "creative_authority": "none"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "event_id": "remotion-graph-relations-completed-20260907",
+  "event_type": "work.completed",
+  "timestamp": "2026-09-07T20:10:18Z",
+  "agent_id": "motion://agent/chatgpt/remotion-graph-relations",
+  "project": "MOTION.OS",
+  "branch": "fix/remotion-graph-relations-20260907",
+  "commit_sha": "9ae6cd8220981907b3d83d199a49438ce4727f98",
+  "pr_number": 136,
+  "summary": "EditingGraph camera and transition semantic edges are preserved by the Remotion compiler and verified in physical runtime evidence v3.",
+  "affected_paths": [
+    "src/compilers/remotion_graph.py",
+    "tests/test_remotion_graph_relationships.py",
+    "scripts/verify_remotion_render.py",
+    "tests/test_remotion_runtime_contract.py",
+    "evidence/remotion_graph_relations_20260907"
+  ],
+  "checks": {
+    "merge_safe_run": "34158290757",
+    "pytest": "701 passed, 1 skipped, 5 warnings",
+    "physical_remotion": "PASS",
+    "dependency_security": "PASS"
+  },
+  "authority": "VERIFIED",
+  "correlation_id": "motion://correlation/remotion-graph-relations-20260907",
+  "metadata": {
+    "synthetic_merge_sha": "247e47c2221b05af46eab570f209d5b1019595f3",
+    "runtime_spec_sha256": "175abd483b99c9fed9b7e18e8324c47186311856e94e99c80ef0e4674e2f1e94",
+    "video_sha256": "ef2c2b4f50a555157021865f07a67364cf01d65991282b905a6af1bfc1c93d2a",
+    "issue48": "OPEN",
+    "main_mutated": false
+  }
+}

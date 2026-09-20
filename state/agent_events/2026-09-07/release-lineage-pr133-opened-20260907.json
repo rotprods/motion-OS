@@ -1,0 +1,18 @@
+{
+  "affected_paths": [
+    "evidence/release_lineage_20260907"
+  ],
+  "agent_id": "motion://agent/chatgpt/release-lineage-integrator",
+  "authority": "VERIFIED",
+  "branch": "fix/release-lineage-integration-20260907",
+  "checks": {},
+  "commit_sha": "7dc42a1035ad380ed6b9391f56635cf553b76677",
+  "correlation_id": "motion://correlation/release-lineage-20260907",
+  "event_id": "release-lineage-pr133-opened-20260907",
+  "event_type": "pr.opened",
+  "metadata": {},
+  "pr_number": 133,
+  "project": "MOTION.OS",
+  "summary": "PR133 opened DRAFT on PR132 for scoped release-lineage integration; no promotion.",
+  "timestamp": "2026-09-07T19:04:16.313828Z"
+}

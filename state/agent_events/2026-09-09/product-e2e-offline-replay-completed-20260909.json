@@ -1,0 +1,46 @@
+{
+  "event_id": "product-e2e-offline-replay-completed-20260909",
+  "event_type": "work.completed",
+  "timestamp": "2026-09-09T12:54:30Z",
+  "agent_id": "motion://agent/chatgpt/product-e2e-offline-replay",
+  "project": "MOTION.OS",
+  "branch": "feat/product-e2e-offline-replay-20260909",
+  "commit_sha": "6b55d4f685d1c47dcbd6d181e47616f90812d1b2",
+  "pr_number": 143,
+  "summary": "Offline Product E2E destruction/replay scope verified on PR143: Merge Safe, Product E2E and dedicated Offline Replay passed on the implementation head/synthetic merge. Producer evidence was deleted outside the ZIP before archive-only reconstruction; the restored MP4/runtimeSpec passed a fresh physical probe. The GitHub evidence artifact was independently rehashed and completed an exact Drive upload/download round-trip. Branch qualification only; #48 remains OPEN and creative/provider/production/PROJECT_DONE authority remain false.",
+  "affected_paths": [
+    ".github/workflows/offline-replay.yml",
+    "evidence/product_e2e_offline_replay_20260909/QUALIFICATION.md",
+    "scripts/studio_replay_verify.py",
+    "src/studio/replay.py",
+    "tests/test_product_e2e_replay.py"
+  ],
+  "checks": {
+    "merge_safe_run": "34353315223:SUCCESS",
+    "product_e2e_run": "34353315162:SUCCESS",
+    "offline_replay_run": "34353315455:SUCCESS",
+    "synthetic_merge_sha": "d3da7adb353d147040004da13b630c3685950ce0",
+    "offline_replay_tests": "14 passed",
+    "inner_evidence_zip_sha256": "c8b44806fc4d25ecd31714375e41b02359dbef95b9a21ebb0792d18a0bf9c2d0",
+    "offline_replay_report_hash": "45a12c797e27d5332f692643d74c8a0cd7bc46591c5bf8b4308dbeeec96fb2d1",
+    "physical_mp4_sha256": "ef2c2b4f50a555157021865f07a67364cf01d65991282b905a6af1bfc1c93d2a",
+    "github_artifact_sha256": "185d32fda188fee3162aeefa217c17bf7f58977ca0ab7dda33a78e8759f80f5d",
+    "drive_roundtrip_sha256": "185d32fda188fee3162aeefa217c17bf7f58977ca0ab7dda33a78e8759f80f5d",
+    "recovery_ready": "true"
+  },
+  "authority": "VERIFIED",
+  "correlation_id": "motion://correlation/product-e2e-offline-replay-20260909",
+  "metadata": {
+    "tracker_issue": 142,
+    "project_completion_issue": 93,
+    "promotion_barrier_issue": 48,
+    "run_id": "RUN_BCA01EC9882C9D659C49",
+    "drive_file_id": "196T9aopKKl9tE5Iy35UuKmhi7-9hBpQ9",
+    "drive_parent_id": "1t8Y34fkpBos2KIbIQgz9gWkj2-o3hcoX",
+    "physical_authority": true,
+    "production_authority": false,
+    "creative_authority": false,
+    "provider_authority": false,
+    "project_done": false
+  }
+}

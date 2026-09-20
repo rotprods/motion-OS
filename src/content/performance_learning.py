@@ -1,9 +1,11 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, asdict
+from dataclasses import InitVar, asdict, dataclass
 from enum import Enum
+from numbers import Real
 from statistics import mean
 from typing import Any, Iterable
+import math
 
 
 class EvidenceStage(str, Enum):
@@ -12,6 +14,51 @@ class EvidenceStage(str, Enum):
     REPEATED_PATTERN = "REPEATED_PATTERN"
     CONTROLLED_TEST = "CONTROLLED_TEST"
     PROMOTED_RULE = "PROMOTED_RULE"
+
+
+# Public construction is intentionally limited to the initial evidence stage.
+# Higher-authority stages must be reached through the validated transition APIs.
+_AUTHORITY_TRANSITION_TOKEN = object()
+
+
+def _nonnegative_int(value: object, *, name: str) -> int:
+    if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+        raise ValueError(f"{name} must be a non-negative integer")
+    return value
+
+
+def _finite_nonnegative(value: object, *, name: str) -> float:
+    if isinstance(value, bool) or not isinstance(value, Real):
+        raise ValueError(f"{name} must be a finite non-negative number")
+    normalized = float(value)
+    if not math.isfinite(normalized) or normalized < 0:
+        raise ValueError(f"{name} must be a finite non-negative number")
+    return normalized
+
+
+def _rate(value: object, *, name: str) -> float:
+    normalized = _finite_nonnegative(value, name=name)
+    if normalized > 1:
+        raise ValueError(f"{name} must be between 0 and 1")
+    return normalized
+
+
+def _nonempty_id(value: object, *, name: str) -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError(f"{name} must be a non-empty string")
+    return value.strip()
+
+
+def _validated_unique_ids(values: Iterable[str], *, name: str) -> tuple[str, ...]:
+    if isinstance(values, (str, bytes, bytearray, dict)):
+        raise ValueError(f"{name}s must be a collection of IDs, not a scalar or mapping")
+    try:
+        items = tuple(_nonempty_id(item, name=name) for item in values)
+    except TypeError as exc:
+        raise ValueError(f"{name}s must be an iterable of IDs") from exc
+    if len(items) != len(set(items)):
+        raise ValueError(f"{name}s must be unique")
+    return items
 
 
 @dataclass(frozen=True)
@@ -33,6 +80,20 @@ class PerformanceRecord:
     topic_heat: str | None = None
     distribution_notes: str | None = None
 
+    def __post_init__(self) -> None:
+        _nonempty_id(self.content_id, name="content_id")
+        _nonempty_id(self.platform, name="platform")
+        for name in ("views", "rewatches", "saves", "shares", "comments", "cta_conversions", "follows"):
+            value = getattr(self, name)
+            if value is not None:
+                _nonnegative_int(value, name=name)
+        for name in ("retention_3s", "retention_5s", "completion_rate"):
+            value = getattr(self, name)
+            if value is not None:
+                _rate(value, name=name)
+        if self.average_watch_time_s is not None:
+            _finite_nonnegative(self.average_watch_time_s, name="average_watch_time_s")
+
 
 @dataclass(frozen=True)
 class LearningHypothesis:
@@ -42,6 +103,31 @@ class LearningHypothesis:
     supporting_content_ids: tuple[str, ...]
     confounders: tuple[str, ...] = ()
     controlled_test_id: str | None = None
+    promotion_approval_evidence: tuple[str, ...] = ()
+    _transition_token: InitVar[object | None] = None
+
+    def __post_init__(self, _transition_token: object | None) -> None:
+        _nonempty_id(self.hypothesis_id, name="hypothesis_id")
+        _nonempty_id(self.statement, name="statement")
+        if not isinstance(self.stage, EvidenceStage):
+            raise ValueError("stage must be an EvidenceStage")
+        if not isinstance(self.supporting_content_ids, tuple):
+            raise ValueError("supporting_content_ids must be a tuple of IDs")
+        if not isinstance(self.promotion_approval_evidence, tuple):
+            raise ValueError("promotion_approval_evidence must be a tuple of IDs")
+        ids = _validated_unique_ids(self.supporting_content_ids, name="supporting_content_id")
+        if self.stage in {EvidenceStage.CONTROLLED_TEST, EvidenceStage.PROMOTED_RULE}:
+            if len(ids) < 4:
+                raise ValueError("controlled-test authority requires at least 4 unique supporting content IDs")
+            _nonempty_id(self.controlled_test_id, name="controlled_test_id")
+        approval = _validated_unique_ids(self.promotion_approval_evidence, name="promotion_approval_evidence")
+        if self.stage == EvidenceStage.PROMOTED_RULE:
+            if not approval:
+                raise ValueError("PROMOTED_RULE requires promotion_approval_evidence")
+        elif approval:
+            raise ValueError("promotion_approval_evidence is valid only for PROMOTED_RULE")
+        if self.stage != EvidenceStage.OBSERVED_CORRELATION and _transition_token is not _AUTHORITY_TRANSITION_TOKEN:
+            raise ValueError("higher evidence stages require a validated transition")
 
     def to_dict(self) -> dict[str, Any]:
         data = asdict(self)
@@ -50,10 +136,17 @@ class LearningHypothesis:
 
 
 def attach_attribution(manifest: dict[str, Any], perf: PerformanceRecord) -> dict[str, Any]:
+    manifest_content_id = manifest.get("content_id")
+    if not isinstance(perf, PerformanceRecord):
+        raise TypeError("perf must be a validated PerformanceRecord")
+    if not isinstance(manifest_content_id, str) or not manifest_content_id.strip():
+        raise ValueError("manifest.content_id required for performance attribution")
+    if manifest_content_id != perf.content_id:
+        raise ValueError("performance content_id does not match manifest.content_id")
     return {
         "performance": asdict(perf),
         "attribution": {
-            "content_id": manifest.get("content_id"),
+            "content_id": manifest_content_id,
             "viral_driver": manifest.get("viral_driver"),
             "secondary_driver": manifest.get("secondary_driver"),
             "hook": manifest.get("hook"),
@@ -74,14 +167,28 @@ def attach_attribution(manifest: dict[str, Any], perf: PerformanceRecord) -> dic
 
 def promote_hypothesis(hypothesis: LearningHypothesis, *, independent_examples: int,
                        controlled_test_passed: bool = False) -> LearningHypothesis:
+    if not isinstance(hypothesis, LearningHypothesis):
+        raise TypeError("hypothesis must be a LearningHypothesis")
+    if hypothesis.stage == EvidenceStage.PROMOTED_RULE:
+        raise ValueError("PROMOTED_RULE is terminal and cannot be promoted again")
+    examples = _nonnegative_int(independent_examples, name="independent_examples")
+    evidence_count = len(set(hypothesis.supporting_content_ids))
+    if examples != evidence_count:
+        raise ValueError("independent_examples must equal unique supporting_content_ids evidence")
+    if controlled_test_passed is not True and controlled_test_passed is not False:
+        raise ValueError("controlled_test_passed must be boolean")
+
     stage = hypothesis.stage
-    if stage == EvidenceStage.OBSERVED_CORRELATION and independent_examples >= 2:
+    if stage == EvidenceStage.OBSERVED_CORRELATION and examples >= 2:
         stage = EvidenceStage.CANDIDATE_HYPOTHESIS
-    if stage == EvidenceStage.CANDIDATE_HYPOTHESIS and independent_examples >= 4:
+    if stage == EvidenceStage.CANDIDATE_HYPOTHESIS and examples >= 4:
         stage = EvidenceStage.REPEATED_PATTERN
     if controlled_test_passed:
+        if stage != EvidenceStage.REPEATED_PATTERN:
+            raise ValueError("controlled test cannot bypass repeated-pattern evidence stage")
+        _nonempty_id(hypothesis.controlled_test_id, name="controlled_test_id")
         stage = EvidenceStage.CONTROLLED_TEST
-    # Promotion to rule is deliberately not automatic. Human/explicit policy approval is required.
+    # Promotion to rule is deliberately not automatic. Explicit approval evidence is required.
     return LearningHypothesis(
         hypothesis_id=hypothesis.hypothesis_id,
         statement=hypothesis.statement,
@@ -89,14 +196,25 @@ def promote_hypothesis(hypothesis: LearningHypothesis, *, independent_examples: 
         supporting_content_ids=hypothesis.supporting_content_ids,
         confounders=hypothesis.confounders,
         controlled_test_id=hypothesis.controlled_test_id,
+        promotion_approval_evidence=(),
+        _transition_token=_AUTHORITY_TRANSITION_TOKEN,
     )
 
 
-def approve_promoted_rule(hypothesis: LearningHypothesis, *, explicit_approval: bool) -> LearningHypothesis:
-    if not explicit_approval:
+def approve_promoted_rule(
+    hypothesis: LearningHypothesis,
+    *,
+    explicit_approval: bool,
+    approval_evidence: Iterable[str] = (),
+) -> LearningHypothesis:
+    if explicit_approval is not True:
         raise PermissionError("explicit approval required to promote a performance rule")
     if hypothesis.stage != EvidenceStage.CONTROLLED_TEST:
         raise ValueError("only controlled-test hypotheses can become canonical rules")
+    _nonempty_id(hypothesis.controlled_test_id, name="controlled_test_id")
+    evidence = _validated_unique_ids(approval_evidence, name="promotion_approval_evidence")
+    if not evidence:
+        raise ValueError("promotion approval requires explicit approval_evidence")
     return LearningHypothesis(
         hypothesis_id=hypothesis.hypothesis_id,
         statement=hypothesis.statement,
@@ -104,6 +222,8 @@ def approve_promoted_rule(hypothesis: LearningHypothesis, *, explicit_approval: 
         supporting_content_ids=hypothesis.supporting_content_ids,
         confounders=hypothesis.confounders,
         controlled_test_id=hypothesis.controlled_test_id,
+        promotion_approval_evidence=evidence,
+        _transition_token=_AUTHORITY_TRANSITION_TOKEN,
     )
 
 
@@ -113,7 +233,9 @@ def duration_mae(records: Iterable[dict[str, Any]]) -> float | None:
         est = record.get("duration_estimate_s")
         actual = (record.get("render") or {}).get("actual_duration_s")
         if est is not None and actual is not None:
-            errors.append(abs(float(est) - float(actual)))
+            estimate = _finite_nonnegative(est, name="duration_estimate_s")
+            observed = _finite_nonnegative(actual, name="actual_duration_s")
+            errors.append(abs(estimate - observed))
     return round(mean(errors), 4) if errors else None
 
 
@@ -122,6 +244,10 @@ def normalized_duration_error(records: Iterable[dict[str, Any]]) -> float | None
     for record in records:
         est = record.get("duration_estimate_s")
         actual = (record.get("render") or {}).get("actual_duration_s")
-        if est is not None and actual:
-            errors.append(abs(float(est) - float(actual)) / float(actual))
+        if est is not None and actual is not None:
+            estimate = _finite_nonnegative(est, name="duration_estimate_s")
+            observed = _finite_nonnegative(actual, name="actual_duration_s")
+            if observed == 0:
+                raise ValueError("actual_duration_s must be > 0 for normalized duration error")
+            errors.append(abs(estimate - observed) / observed)
     return round(mean(errors), 6) if errors else None

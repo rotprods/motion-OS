@@ -5,21 +5,41 @@ on:
     tags: ['v*']
 permissions:
   contents: read
+  pull-requests: read # required to prove the release SHA originated from a merged PR into main
+concurrency:
+  group: release-guard-${{ github.ref }}
+  cancel-in-progress: false
 jobs:
   guard:
-    runs-on: ubuntu-latest
+    name: Verify release lineage and committed release state
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
-          python-version: '3.12'
-      - name: Require explicit released state and zero P0 blockers
+          python-version: '3.12.14'
+      - name: Resolve release target commit
+        shell: bash
         run: |
-          python - <<'PY'
-          import json,sys
-          s=json.load(open('state/project_state.json'))
-          ok=s.get('release_status')=='RELEASED' and not s.get('p0_blockers')
-          print(json.dumps({'release_guard':ok,'status':s.get('release_status'),'p0':s.get('p0_blockers')},indent=2))
-          sys.exit(0 if ok else 1)
-          PY
+          set -euo pipefail
+          release_sha="$(git rev-parse 'HEAD^{commit}')"
+          printf 'RELEASE_SHA=%s\n' "$release_sha" >> "$GITHUB_ENV"
+      - name: Verify committed release state and stable current-main lineage
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          python -m scripts.release_authority_guard \
+            --release-sha "$RELEASE_SHA" \
+            --state state/project_state.json \
+            --json-out .artifacts/release-lineage.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: release-lineage-evidence
+          path: .artifacts/release-lineage.json
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 14
