@@ -1,0 +1,71 @@
+{
+  "schema_version": "motion-os.retention-grammar-summary/v3",
+  "source": {
+    "video_id": "screenrecording_2026-08-26_173251",
+    "sha256": "9b3076cb542e358386942a0fb6b160f1345564d4326738f9a340e2b5b38e199d",
+    "frame_count": 835,
+    "fps": 30,
+    "duration_s": 27.833333333333332
+  },
+  "authority": {
+    "physical_visual_signals": "PHYSICALLY_MEASURED_FROM_DECODED_REFERENCE",
+    "mixed_audio_signals": "PHYSICALLY_MEASURED_MIXED_MASTER_NOT_SFX_IDENTITY",
+    "semantic_action_labels": "EVIDENCE_BOUND_ACTION_INVENTORY_V2_WITH_GOLDEN_SOURCE_BOUND_OVERRIDES",
+    "editor_intent": "NOT_CLAIMED"
+  },
+  "drive_evidence": {
+    "full_retention_measurement": {"file_id":"1lw3xtd8fPXCZJdlF8CSBv5WZDYROMVbH","sha256":"442f784a66dab57678b8dcc25fc2018fa433ec4fa0d5de99249a9633dc29364e"},
+    "visual_frame_signals": {"file_id":"1auSm6f1hSaOjpEBT4GhHMvh6LpoabFoU","sha256":"dda98d10b91982d33480c549095a2e3a14aeca1c345060c37055c23bcde5ae9d"},
+    "audio_frame_signals": {"file_id":"1cR4bnRgeKRFwWaRq72fkRcqdIIQVrwxP","sha256":"780d79cf1e07f80d428c19be39e3bc3e60b4cf11e2b841855cb881a9b4f3efe7"}
+  },
+  "cluster_invariant": "FIXED_WINDOW_FROM_CLUSTER_START_MAX_3_FRAMES; TRANSITIVE_CHAINING_FORBIDDEN",
+  "counts": {
+    "action_parent_impacts": 98,
+    "action_subevents": 32,
+    "semantic_editorial_clusters": 85,
+    "physical_visual_clusters": 59,
+    "visual_retention_clusters": 109,
+    "mixed_audio_clusters": 103,
+    "pattern_interrupt_clusters": 15,
+    "text_refresh_clusters": 32,
+    "spatial_refresh_clusters": 39,
+    "high_salience_visual_payoffs": 28
+  },
+  "timing_ms": {
+    "semantic_editorial_interval": {"p50":233.33333333333334,"p75":341.6666666666667,"p90":623.3333333333334,"p95":784.9999999999994},
+    "physical_visual_interval": {"p50":233.33333333333334,"p75":458.3333333333333,"p90":843.3333333333335,"p95":914.9999999999998},
+    "visual_retention_interval": {"p50":200.0,"p75":266.6666666666667,"p90":443.33333333333326,"p95":654.9999999999997},
+    "pattern_interrupt_interval": {"p50":1800.0,"p75":2391.6666666666665,"p90":3113.333333333334,"p95":3809.9999999999995},
+    "text_refresh_interval": {"p50":633.3333333333333,"p75":1200.0,"p90":1700.0,"p95":2100.0},
+    "spatial_refresh_interval": {"p50":300.0,"p75":916.6666666666666,"p90":1773.3333333333355,"p95":2254.9999999999995},
+    "mixed_audio_interval": {"p50":233.33333333333334,"p75":325.0,"p90":466.6666666666667,"p95":531.6666666666663},
+    "high_salience_visual_payoff_interval": {"p50":433.33333333333337,"p75":1133.3333333333333,"p90":2606.6666666666683,"p95":3509.9999999999995}
+  },
+  "observable_gaps": {
+    "max_visual_retention_gap_frames": 42,
+    "max_visual_retention_gap_ms": 1400.0,
+    "max_visual_retention_gap_window": [777,819],
+    "s16_measured_editorial_calm_hold": {"source_frames":[781,813],"duration_frames":33,"duration_ms":1100.0}
+  },
+  "av_relation": {
+    "physical_visual_peaks": 81,
+    "visual_peaks_with_mixed_audio_peak_within_plus_minus_2_frames": 53,
+    "reinforcement_ratio": 0.654320987654321,
+    "sfx_identity_claimed": false
+  },
+  "golden_overrides": {
+    "hold_actions_are_state_not_stimulus": ["A021","A027","A048","A054","A057","A063","A067","A094","A098"],
+    "camera_causality_blocked_not_editorial_stimulus": ["A026","A093"],
+    "source_bound_semantic_activation_overrides": {"A076":578,"A078":615}
+  },
+  "observable_retention_grammar": {
+    "visual_micro_refresh": "P90 physical visual change interval < 1 second; visual-retention P90 ~443 ms when semantic and physical visible changes are combined.",
+    "pattern_interrupt": "Major representation/transition interrupts are much sparser than micro-stimuli; median ~1.8 s.",
+    "text_rhythm": "Text refresh median ~633 ms but distribution is bursty rather than constant.",
+    "spatial_rhythm": "Spatial/object/depth/camera-class refresh median ~300 ms with long-tail breathing windows.",
+    "payoff_rhythm": "High-salience visual payoff median ~433 ms; P75 ~1.13 s; long-tail large payoffs reach multi-second spacing.",
+    "calm_contrast": "The system deliberately permits ~1.0–1.4 s low-editorial-change windows; S16 contains a source-qualified 1.1 s payoff hold.",
+    "principle": "Retention is produced by layered burst cadence and representation-mode switching, not by maximum continuous motion."
+  },
+  "qualification_scope": "QUALIFIES OBSERVABLE STIMULUS CHOREOGRAPHY ONLY. Does not prove psychological retention efficacy, editor intent, SFX identity, or source authoring graph."
+}
