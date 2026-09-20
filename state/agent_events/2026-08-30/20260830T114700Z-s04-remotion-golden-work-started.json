@@ -1,0 +1,37 @@
+{
+  "event_id": "20260830T114700Z-s04-remotion-golden-work-started",
+  "event_type": "work.started",
+  "timestamp": "2026-08-30T11:47:00Z",
+  "agent_id": "motion://agent/s04-remotion-golden-reconstructor",
+  "project": "MOTION.OS",
+  "branch": "feat/reverse-engineering-s04-remotion-golden-v1",
+  "commit_sha": "2e26e311e506b6aaaa32f827e1579ddaa1e3ea58",
+  "pr_number": null,
+  "summary": "Started T07 golden-scene reconstruction for S04_CIENTIFICAMENTE. Scope is additive Remotion composition, source-bound timing contract, physical verifier, regression tests and durable evidence. Source media remains outside public Git and structural execution will not self-promote to source-fidelity authority.",
+  "affected_paths": [
+    ".github/workflows/remotion-golden-s04.yml",
+    "forensics/references/screenrecording_20260826/golden/s04",
+    "runtime/remotion/package.json",
+    "runtime/remotion/src/Root.tsx",
+    "runtime/remotion/src/golden_s04",
+    "scripts/verify_s04_golden.py",
+    "tests/test_s04_golden_contract.py"
+  ],
+  "checks": {
+    "live_main": "a8d7dbddaeb4ad9779df9883d3cf4e4f6ea4f29d",
+    "base_pr": "64",
+    "base_head": "2e26e311e506b6aaaa32f827e1579ddaa1e3ea58",
+    "regression_barrier": "OPEN:issue-48",
+    "source_media_policy": "DRIVE_ONLY"
+  },
+  "authority": "PROPOSED",
+  "correlation_id": "motion://work/golden-scene-s04-remotion-v1",
+  "metadata": {
+    "session_id": "motion://session/s04-remotion-golden/20260830T114400Z",
+    "workstream_id": "motion://workstream/golden-scene-s04-remotion-v1",
+    "scene_id": "S04_CIENTIFICAMENTE",
+    "source_frame_range": [145, 216],
+    "fps": 30,
+    "authority_ceiling": "STRUCTURAL_RENDER_EXECUTED until source-bound frame/audio diff and human review pass"
+  }
+}

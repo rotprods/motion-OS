@@ -1,0 +1,109 @@
+{
+  "schema_version": "motion-os.golden-scene/v2",
+  "scene_id": "S04_CIENTIFICAMENTE",
+  "composition_id": "GoldenS04Cientificamente",
+  "overlay_composition_id": "GoldenS04Overlay",
+  "supersedes": {
+    "schema_version": "motion-os.golden-scene/v1",
+    "commit": "0790a005f391327b731464d269e42864c64ea4cb",
+    "policy": "Historical action summaries remain evidence; v2 reconciles current qualification authority without claiming unavailable source internals."
+  },
+  "source": {
+    "video_id": "screenrecording_2026-08-26_173251",
+    "sha256": "9b3076cb542e358386942a0fb6b160f1345564d4326738f9a340e2b5b38e199d",
+    "fps": 30,
+    "width": 512,
+    "height": 1108,
+    "start_frame": 145,
+    "end_frame_exclusive": 216,
+    "frame_count": 71
+  },
+  "historical_actions": [
+    {"id":"A022","domain":"transition","local":[0,0,5],"source":[145,145,150],"verb":"cut","authority":"MEASURED_HEURISTIC"},
+    {"id":"A023","domain":"caption","local":[1,5,9],"source":[146,150,154],"verb":"text_build","target":"CAP_SETUP","authority":"EVIDENCE_BOUND_INFERENCE"},
+    {"id":"A024","domain":"caption","local":[11,15,20],"source":[156,160,165],"verb":"scale_punch","target":"CAP_CIENTIFICAMENTE","values":{"scale":[0.84,1.12,1.0]},"authority":"EVIDENCE_BOUND_INFERENCE"},
+    {"id":"A025","domain":"caption","local":[38,43,50],"source":[183,188,195],"verb":"opacity_reveal","target":"CAP_IMPOSIBLE","authority":"EVIDENCE_BOUND_INFERENCE"},
+    {"id":"A026","domain":"camera","local":[0,29,65],"source":[145,174,210],"verb":"reframe","target":"SUBJECT_PRECOMP","physical_camera_claim":false,"authority":"EVIDENCE_BOUND_INFERENCE"},
+    {"id":"A027","domain":"audio","local":[11,15,25],"source":[156,160,170],"verb":"impact_sub_hit","target":"SFX_EMPHASIS","authority":"INFERRED_FROM_MIXED_AUDIO"},
+    {"id":"A028","domain":"object","local":[60,67,71],"source":[205,212,216],"verb":"object_insert","target":"PHONE_HAND_PROP","authority":"EVIDENCE_BOUND_INFERENCE"}
+  ],
+  "physical_reconstruction": {
+    "caption_layout_contract": "runtime/remotion/src/golden_s04/measuredTrack.ts",
+    "caption_renderer": "runtime/remotion/src/golden_s04/MeasuredCaptionSystem.tsx",
+    "layout_method": "REFERENCE_MINUS_INPAINTED_CLEAN_PLATE_COLOR_COMPONENT_BBOX",
+    "layout_authority": "MEASURED_SOURCE_VISIBLE_SCREEN_SPACE_BBOX",
+    "caption_parent_hypothesis": {
+      "value": "SHARED_SCREEN_SPACE_PARENT_AFTER_HERO_ENTRY",
+      "authority": "EVIDENCE_BOUND_INFERENCE",
+      "setup_hero_width_scale_correlation": 0.9975202500257605,
+      "setup_tail_width_scale_correlation": 0.9939963827123907,
+      "hero_tail_width_scale_correlation": 0.9968121946478035,
+      "caveat": "Does not prove original After Effects parenting/precomp topology."
+    },
+    "audio_onset": {
+      "source_peak_local_frame": 8.829931972789115,
+      "render_peak_local_frame": 9.27891156462585,
+      "absolute_error_frames": 0.44897959183673564,
+      "sfx_identity": "INFERRED_FROM_MIXED_AUDIO"
+    }
+  },
+  "qualification": {
+    "current_git": "forensics/references/screenrecording_20260826/golden/s04/fidelity/s04_fidelity_current.json",
+    "drive_full_qualification": "1D5bfqJhU6-_fJyKTotUz1wl6WT8T7l4Q",
+    "drive_hypergraph": "1IY15RWLALxjLE1OH1_j2g1XqCALsxOP1",
+    "drive_report": "1A6zDk-9Qcon5ngWPhYS_4A1ig_leoDkj",
+    "renderer_head": "0790a005f391327b731464d269e42864c64ea4cb",
+    "workflow_run": 33321379790,
+    "artifact_id": 9734987644,
+    "artifact_digest": "sha256:e3943283f2f63add79b3a51016fc7d1349053223e6f809952443be46104e214d",
+    "state": "SOURCE_BOUND_PARTIAL_QUALIFICATION_P0P1_CLOSED",
+    "full_9d_fidelity_validated": false
+  },
+  "declared_p0_p1_gates": {
+    "temporal_visibility_exact": true,
+    "mean_bbox_iou_min": 0.90,
+    "mean_centroid_error_px_max": 3.0,
+    "mean_area_error_pct_max": 8.0,
+    "primary_audio_onset_error_frames_max": 1.5,
+    "result": "PASS"
+  },
+  "adversarial_ceiling": {
+    "setup_worst_frame_iou": 0.6913195796029583,
+    "status": "P2_FIDELITY_CEILING_NOT_ACTION_LAYOUT_BLOCKER",
+    "meaning": "Mean reconstructed-output layout gates pass, but fallback glyph morphology is not exact. Do not infer exact font/glyph fidelity from P0/P1 closure."
+  },
+  "asset_policy": {
+    "source_and_clean_plate": "DRIVE_ONLY",
+    "git": "CODE_CONTRACTS_AND_TEXT_EVIDENCE_ONLY",
+    "ci_plate": "PROCEDURAL_NON_SOURCE_FIXTURE",
+    "exact_local_plate_mode": "IMAGE_SEQUENCE_FROM_EXTERNAL_ASSET",
+    "overlay_sequence": "CI_RENDERED_TRANSPARENT_PNG"
+  },
+  "template_policy": {
+    "preserve": [
+      "caption appearance/visibility timing",
+      "measured screen-space trajectories",
+      "hero emphasis beat",
+      "shared-caption-parent behavioral relationship",
+      "audio-accent timing relationship"
+    ],
+    "do_not_source_lock_as_reusable_truth": [
+      "literal caption copy",
+      "speaker pixels",
+      "phone/source UI pixels",
+      "unknown original font identity",
+      "unknown original SFX stem"
+    ]
+  },
+  "unknowns": [
+    "exact original font identity and font files",
+    "exact original glyph morphology under fallback renderer fonts",
+    "original After Effects Graph Editor curves",
+    "original compositing/precomp/effect graph",
+    "original isolated SFX stem/timbre",
+    "exact pre-grade caption fill tokens",
+    "causal separation of source-native subject motion and editorial reframe",
+    "full source-plate depth/camera decomposition"
+  ],
+  "authority": "SOURCE_BOUND_PARTIAL_QUALIFICATION_P0P1_CLOSED"
+}
