@@ -1,0 +1,35 @@
+{
+  "schema_version": "motion-os.s14-qualification-hypergraph/v1",
+  "scene_id": "S14_AUDIO_VISUAL_TEXTO",
+  "authority": "DERIVED_PROJECTION_NOT_SOURCE_OF_TRUTH",
+  "nodes": [
+    {"id":"S14-SOURCE","kind":"SourceVideo","authority":"MEASURED","sha256":"9b3076cb542e358386942a0fb6b160f1345564d4326738f9a340e2b5b38e199d"},
+    {"id":"S14-MEASURED-V2","kind":"MeasurementTrack","authority":"MEASURED_PLUS_ADJUDICATED_IDENTITY","drive_id":"1VFgmwZaJdnDaRRJ8Lz-GiwUUPiKDcPum"},
+    {"id":"S14-ANNOTATION-V1","kind":"MeasurementTrack","authority":"MEASURED_VISIBLE_BBOX_PROXY","drive_id":"1VYdmrkBHIa3SlytJg36ZDTJua3icx55D"},
+    {"id":"S14-RENDER-1EC6","kind":"RenderArtifact","authority":"EXECUTED","artifact_id":9781474661,"digest":"sha256:61ecefaf94a60aaebc04e55c53391e06f7574014caab4f5cba92faf9f4a99f4d"},
+    {"id":"S14-Q-VISIBLE-1EC6","kind":"Qualification","authority":"MEASURED_SOURCE_BOUND_LOCAL_RUN","passed":true},
+    {"id":"S14-Q-AUDIO-1EC6","kind":"Qualification","authority":"MEASURED_RENDERED_TRANSIENT_PEAK_VS_MEASURED_SOURCE_MIX_PROXY","passed":true},
+    {"id":"S14-DEF-SRC-001","kind":"Defect","family":"STATIC_SUMMARY_COLLAPSED_ANNOTATION_TRAJECTORY","status":"REPAIRED_VERIFIED"},
+    {"id":"S14-DEF-AUDIO-001","kind":"Defect","family":"RENDERER_TRANSIENT_PEAK_LATENCY","status":"REPAIRED_VERIFIED"},
+    {"id":"S14-UNKNOWN-FONT","kind":"Unknown","status":"OPEN"},
+    {"id":"S14-UNKNOWN-AE","kind":"Unknown","status":"OPEN"},
+    {"id":"S14-UNKNOWN-STEMS","kind":"Unknown","status":"OPEN"},
+    {"id":"S14-GATE-P0P1","kind":"PromotionGate","state":"SOURCE_BOUND_VISIBLE_AND_ONSET_P0P1_CLOSED"}
+  ],
+  "edges": [
+    ["S14-SOURCE","SOURCE_OF_TRUTH_FOR","S14-MEASURED-V2"],
+    ["S14-SOURCE","SOURCE_OF_TRUTH_FOR","S14-ANNOTATION-V1"],
+    ["S14-MEASURED-V2","CONSTRAINS","S14-RENDER-1EC6"],
+    ["S14-ANNOTATION-V1","CONSTRAINS","S14-RENDER-1EC6"],
+    ["S14-RENDER-1EC6","MEASURED_BY","S14-Q-VISIBLE-1EC6"],
+    ["S14-RENDER-1EC6","MEASURED_BY","S14-Q-AUDIO-1EC6"],
+    ["S14-DEF-SRC-001","REPAIRED_BY","S14-ANNOTATION-V1"],
+    ["S14-DEF-AUDIO-001","VERIFIED_BY","S14-Q-AUDIO-1EC6"],
+    ["S14-Q-VISIBLE-1EC6","QUALIFIES","S14-GATE-P0P1"],
+    ["S14-Q-AUDIO-1EC6","QUALIFIES","S14-GATE-P0P1"],
+    ["S14-UNKNOWN-FONT","BLOCKS","FULL_9D_FIDELITY"],
+    ["S14-UNKNOWN-AE","BLOCKS","FULL_9D_FIDELITY"],
+    ["S14-UNKNOWN-STEMS","BLOCKS","FULL_9D_FIDELITY"]
+  ],
+  "qualification_state": {"source_bound_visible_p0_p1_closed":true,"audio_peak_sync_closed":true,"full_9d_fidelity_validated":false,"canonical_template":false}
+}

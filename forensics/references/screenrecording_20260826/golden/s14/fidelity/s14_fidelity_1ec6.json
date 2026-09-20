@@ -1,0 +1,26 @@
+{
+  "schema_version": "motion-os.s14-source-bound-qualification/v2",
+  "scene_id": "S14_AUDIO_VISUAL_TEXTO",
+  "renderer_head": "1ec6a2e561b2e7f67569242dbd3fbaebc724defa",
+  "artifact_id": 9781474661,
+  "artifact_digest": "sha256:61ecefaf94a60aaebc04e55c53391e06f7574014caab4f5cba92faf9f4a99f4d",
+  "measured_schema": "motion-os.s14-measured-track/v2",
+  "annotation_schema": "motion-os.s14-annotation-track/v1",
+  "measurement_mode": "TARGET_ISOLATED_UNIQUE_COLOR_RENDER",
+  "authority": "MEASURED_SOURCE_BOUND_LOCAL_RUN",
+  "metrics": {
+    "card_audio": {"expected_first":0,"expected_last":18,"observed_first":0,"observed_last":18,"first_err":0,"last_err":0,"mean_iou":1.0,"min_iou":1.0,"mean_centroid_error_px":0.0,"mean_area_error_pct":0.0},
+    "card_visual": {"expected_first":11,"expected_last":54,"observed_first":11,"observed_last":54,"first_err":0,"last_err":0,"mean_iou":0.9978862571741014,"min_iou":0.9767869632501556,"mean_centroid_error_px":0.30916625824973787,"mean_area_error_pct":0.13498339116701125},
+    "card_texto": {"expected_first":47,"expected_last":93,"observed_first":47,"observed_last":93,"first_err":0,"last_err":0,"mean_iou":0.9961198585992685,"min_iou":0.9540540540540541,"mean_centroid_error_px":0.5177892975676278,"mean_area_error_pct":0.3334355721506665},
+    "heading_audio": {"expected_first":0,"expected_last":18,"observed_first":0,"observed_last":18,"first_err":0,"last_err":0,"mean_iou":0.9248957827190533,"min_iou":0.8210153042179917,"mean_centroid_error_px":3.411064569020093,"mean_area_error_pct":4.289628126826228},
+    "heading_visual": {"expected_first":11,"expected_last":51,"observed_first":11,"observed_last":51,"first_err":0,"last_err":0,"mean_iou":0.9410521687341404,"min_iou":0.8775510204081632,"mean_centroid_error_px":1.6884004597996614,"mean_area_error_pct":1.6389594757859238},
+    "heading_texto": {"expected_first":49,"expected_last":93,"observed_first":49,"observed_last":93,"first_err":0,"last_err":0,"mean_iou":0.9650048404982027,"min_iou":0.9278725640818307,"mean_centroid_error_px":1.4487032585004556,"mean_area_error_pct":2.5230502452231347},
+    "annotation_audio": {"expected_first":0,"expected_last":18,"observed_first":0,"observed_last":18,"first_err":0,"last_err":0,"mean_iou":0.9997967892704734,"min_iou":0.9961389961389961,"mean_centroid_error_px":0.02631578947368421,"mean_area_error_pct":0.020399836801305592},
+    "annotation_visual": {"expected_first":11,"expected_last":54,"observed_first":11,"observed_last":54,"first_err":0,"last_err":0,"mean_iou":0.9977079425281873,"min_iou":0.9855371900826446,"mean_centroid_error_px":0.23731394331712205,"mean_area_error_pct":0.2017677480500174},
+    "annotation_texto": {"expected_first":47,"expected_last":93,"observed_first":47,"observed_last":93,"first_err":0,"last_err":0,"mean_iou":0.9967543357472642,"min_iou":0.9790875635259069,"mean_centroid_error_px":0.22973437950121148,"mean_area_error_pct":0.2300291388599514}
+  },
+  "gates": {"card_geometry":true,"card_timing":true,"heading_geometry":true,"heading_timing":true,"annotation_geometry":true,"annotation_timing":true},
+  "p0_p1_visible_state_gates_pass": true,
+  "full_9d_fidelity_validated": false,
+  "blocked_dimensions": ["exact annotation vector-path topology/stroke pre-compression","exact heading font identity/source glyph outline","nested source-media pixel fidelity in structural mode","original AE graph/Graph Editor curves","isolated original SFX stems","full FX/color/depth/camera decomposition"]
+}
