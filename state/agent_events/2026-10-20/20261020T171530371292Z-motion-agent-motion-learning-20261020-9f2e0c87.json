@@ -1,0 +1,18 @@
+{
+  "affected_paths": [
+    "knowledge/learning/20261020-motion"
+  ],
+  "agent_id": "motion://agent/motion-learning-20261020",
+  "authority": "IMPLEMENTED",
+  "branch": "docs/motion-learning-20261020",
+  "checks": {},
+  "commit_sha": "f578adea6046bde9f8f36ce2680fe16391da6b97",
+  "correlation_id": "ROT-MOTION-LEARNING-20261020",
+  "event_id": "20261020T171530371292Z-motion-agent-motion-learning-20261020-9f2e0c87",
+  "event_type": "pr.opened",
+  "metadata": {},
+  "pr_number": 180,
+  "project": "MOTION.OS",
+  "summary": "Opened draft PR180 for isolated additive learning; shared entrypoints deferred to canonical-truth owner; no merge or release promotion",
+  "timestamp": "2026-10-20T17:15:30.371292Z"
+}
