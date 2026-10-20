@@ -1,0 +1,20 @@
+{
+  "agent_id": "motion://agent/motion-learning-20261020",
+  "session_id": "1726a818fe10-motion-learning",
+  "context_revision": "main:f578adea6046bde9f8f36ce2680fe16391da6b97; issue39 latest 2026-09-22; skill61e5e5d",
+  "classification": "ADDITIVE_PROPOSED",
+  "owned_paths": [
+    "knowledge/learning/20261020-motion/",
+    "copy_pastes/motion_learning_20261020.md"
+  ],
+  "foreign_scopes_avoided": [
+    "canonical-truth repair PR178",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "director.md",
+    "runtime",
+    "plans"
+  ],
+  "cold_recovery": "PASS_DOCUMENTARY_ONLY",
+  "next_action": "Review additive knowledge PR; resolve canonical-truth ownership before wiring shared project entrypoints; next production starts from preserved V6 and tests storytelling variant; continuous watch still pending."
+}
