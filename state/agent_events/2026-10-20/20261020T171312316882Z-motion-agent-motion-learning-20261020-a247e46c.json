@@ -1,0 +1,19 @@
+{
+  "affected_paths": [
+    "copy_pastes/motion_learning_20261020.md",
+    "knowledge/learning/20261020-motion"
+  ],
+  "agent_id": "motion://agent/motion-learning-20261020",
+  "authority": "PROPOSED",
+  "branch": "docs/motion-learning-20261020",
+  "checks": {},
+  "commit_sha": "f578adea6046bde9f8f36ce2680fe16391da6b97",
+  "correlation_id": "ROT-MOTION-LEARNING-20261020",
+  "event_id": "20261020T171312316882Z-motion-agent-motion-learning-20261020-a247e46c",
+  "event_type": "work.started",
+  "metadata": {},
+  "pr_number": null,
+  "project": "MOTION.OS",
+  "summary": "Persist user-authorized additive motion learning in isolated documentation scope; no runtime or authority changes",
+  "timestamp": "2026-10-20T17:13:12.316882Z"
+}

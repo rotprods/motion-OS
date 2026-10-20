@@ -1,0 +1,7 @@
+interface:
+  display_name: "ROT Motion Director"
+  short_description: "Dirige motion con historia, continuidad, media y sonido"
+  default_prompt: "Usa $rot-motion-director para dirigir y entregar esta pieza con narrativa, diseño, media, sonido y verificación."
+
+policy:
+  allow_implicit_invocation: true

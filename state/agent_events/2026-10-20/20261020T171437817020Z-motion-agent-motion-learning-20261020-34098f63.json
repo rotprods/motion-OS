@@ -1,0 +1,19 @@
+{
+  "affected_paths": [
+    "copy_pastes/motion_learning_20261020.md",
+    "knowledge/learning/20261020-motion"
+  ],
+  "agent_id": "motion://agent/motion-learning-20261020",
+  "authority": "IMPLEMENTED",
+  "branch": "docs/motion-learning-20261020",
+  "checks": {},
+  "commit_sha": "f578adea6046bde9f8f36ce2680fe16391da6b97",
+  "correlation_id": "ROT-MOTION-LEARNING-20261020",
+  "event_id": "20261020T171437817020Z-motion-agent-motion-learning-20261020-34098f63",
+  "event_type": "work.completed",
+  "metadata": {},
+  "pr_number": null,
+  "project": "MOTION.OS",
+  "summary": "Additive learning documents and portable skill snapshot prepared; cold recovery passed; local quick passed 310 tests with src on PYTHONPATH; no runtime or accepted video changed; merge pending review",
+  "timestamp": "2026-10-20T17:14:37.817020Z"
+}

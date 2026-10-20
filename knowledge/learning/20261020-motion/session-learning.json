@@ -1,0 +1,480 @@
+{
+  "session": "ROT-MOTION-20261020",
+  "authorization": "User explicitly requests saving all knowledge across necessary surfaces and future reuse.",
+  "aprende": "V1 adapted to explicitly authorized cross-surface persistence; RC1 lenses used as staging audit, not globally promoted.",
+  "cosecha": "Exact skill body unavailable; portable/manual harvest, no brain runtime ingestion claimed.",
+  "items": [
+    {
+      "id": "MOTION-L01",
+      "type": "memory",
+      "class_": "PREFERENCE",
+      "claim": "Preservar versiones aceptadas; mejorar en copias independientes.",
+      "evidence": "Usuario: No rompas nada de lo que hay ahora solo mejora.",
+      "confidence": "high",
+      "novelty": "refinement_or_reuse",
+      "reuse_value": "high",
+      "strategic_impact": "future creative execution",
+      "scope": "ROT motion work unless PROJECT_ONLY",
+      "affected": [
+        "rot-motion-director",
+        "motion-OS",
+        "Spotify study"
+      ],
+      "contradictions": "Do not impose 15 s, Spotify grammar or project audio targets globally.",
+      "security_class": "non_secret",
+      "promotion_status": "SHARED_ADAPTER",
+      "validation_required": "readback + skill structural validation + cold recovery",
+      "next_action": "Apply to next motion brief; reevaluate with user feedback"
+    },
+    {
+      "id": "MOTION-L02",
+      "type": "lesson",
+      "class_": "INFERENCE",
+      "claim": "Reparar storytelling antes de aumentar efectos.",
+      "evidence": "Usuario detecta falta de storytelling después de V6; contraste con director.md y protocolo.",
+      "confidence": "high",
+      "novelty": "refinement_or_reuse",
+      "reuse_value": "high",
+      "strategic_impact": "future creative execution",
+      "scope": "ROT motion work unless PROJECT_ONLY",
+      "affected": [
+        "rot-motion-director",
+        "motion-OS",
+        "Spotify study"
+      ],
+      "contradictions": "Do not impose 15 s, Spotify grammar or project audio targets globally.",
+      "security_class": "non_secret",
+      "promotion_status": "SHARED_ADAPTER",
+      "validation_required": "readback + skill structural validation + cold recovery",
+      "next_action": "Apply to next motion brief; reevaluate with user feedback"
+    },
+    {
+      "id": "MOTION-L03",
+      "type": "project_doc",
+      "class_": "RULE",
+      "claim": "Leer director.md y fuentes pertinentes antes de dirigir una pieza.",
+      "evidence": "AGENTS.md y director.md de motion-OS, consultados f578adea.",
+      "confidence": "high",
+      "novelty": "refinement_or_reuse",
+      "reuse_value": "high",
+      "strategic_impact": "future creative execution",
+      "scope": "ROT motion work unless PROJECT_ONLY",
+      "affected": [
+        "rot-motion-director",
+        "motion-OS",
+        "Spotify study"
+      ],
+      "contradictions": "Do not impose 15 s, Spotify grammar or project audio targets globally.",
+      "security_class": "non_secret",
+      "promotion_status": "SHARED_ADAPTER",
+      "validation_required": "readback + skill structural validation + cold recovery",
+      "next_action": "Apply to next motion brief; reevaluate with user feedback"
+    },
+    {
+      "id": "MOTION-L04",
+      "type": "lesson",
+      "class_": "RULE",
+      "claim": "Cada movimiento debe comunicar, orientar, emocionar o conectar.",
+      "evidence": "director.md y gramática universal.",
+      "confidence": "high",
+      "novelty": "refinement_or_reuse",
+      "reuse_value": "high",
+      "strategic_impact": "future creative execution",
+      "scope": "ROT motion work unless PROJECT_ONLY",
+      "affected": [
+        "rot-motion-director",
+        "motion-OS",
+        "Spotify study"
+      ],
+      "contradictions": "Do not impose 15 s, Spotify grammar or project audio targets globally.",
+      "security_class": "non_secret",
+      "promotion_status": "SHARED_ADAPTER",
+      "validation_required": "readback + skill structural validation + cold recovery",
+      "next_action": "Apply to next motion brief; reevaluate with user feedback"
+    },
+    {
+      "id": "MOTION-L05",
+      "type": "lesson",
+      "class_": "RULE",
+      "claim": "Mantener vínculo causal o visual entre escenas y una idea dominante por beat.",
+      "evidence": "director.md y MOTION_GRAMMAR_SYSTEM_V1.md.",
+      "confidence": "high",
+      "novelty": "refinement_or_reuse",
+      "reuse_value": "high",
+      "strategic_impact": "future creative execution",
+      "scope": "ROT motion work unless PROJECT_ONLY",
+      "affected": [
+        "rot-motion-director",
+        "motion-OS",
+        "Spotify study"
+      ],
+      "contradictions": "Do not impose 15 s, Spotify grammar or project audio targets globally.",
+      "security_class": "non_secret",
+      "promotion_status": "SHARED_ADAPTER",
+      "validation_required": "readback + skill structural validation + cold recovery",
+      "next_action": "Apply to next motion brief; reevaluate with user feedback"
+    },
+    {
+      "id": "MOTION-L06",
+      "type": "memory",
+      "class_": "PREFERENCE",
+      "claim": "Integrar imágenes y media con contenido; evitar superficies vacías.",
+      "evidence": "Correcciones reiteradas del usuario en V4–V6.",
+      "confidence": "high",
+      "novelty": "refinement_or_reuse",
+      "reuse_value": "high",
+      "strategic_impact": "future creative execution",
+      "scope": "ROT motion work unless PROJECT_ONLY",
+      "affected": [
+        "rot-motion-director",
+        "motion-OS",
+        "Spotify study"
+      ],
+      "contradictions": "Do not impose 15 s, Spotify grammar or project audio targets globally.",
+      "security_class": "non_secret",
+      "promotion_status": "SHARED_ADAPTER",
+      "validation_required": "readback + skill structural validation + cold recovery",
+      "next_action": "Apply to next motion brief; reevaluate with user feedback"
+    },
+    {
+      "id": "MOTION-L07",
+      "type": "lesson",
+      "class_": "RULE",
+      "claim": "Diseñar música, ambiente, interacción, silencio y payoff con el montaje.",
+      "evidence": "soundos.md y director.md.",
+      "confidence": "high",
+      "novelty": "refinement_or_reuse",
+      "reuse_value": "high",
+      "strategic_impact": "future creative execution",
+      "scope": "ROT motion work unless PROJECT_ONLY",
+      "affected": [
+        "rot-motion-director",
+        "motion-OS",
+        "Spotify study"
+      ],
+      "contradictions": "Do not impose 15 s, Spotify grammar or project audio targets globally.",
+      "security_class": "non_secret",
+      "promotion_status": "SHARED_ADAPTER",
+      "validation_required": "readback + skill structural validation + cold recovery",
+      "next_action": "Apply to next motion brief; reevaluate with user feedback"
+    },
+    {
+      "id": "MOTION-L08",
+      "type": "lesson",
+      "class_": "RULE",
+      "claim": "Separar muestreo visual, QA técnico y visionado continuo con escucha.",
+      "evidence": "Protocolo Motion.OS y QA V6 con full_watch pendiente.",
+      "confidence": "high",
+      "novelty": "refinement_or_reuse",
+      "reuse_value": "high",
+      "strategic_impact": "future creative execution",
+      "scope": "ROT motion work unless PROJECT_ONLY",
+      "affected": [
+        "rot-motion-director",
+        "motion-OS",
+        "Spotify study"
+      ],
+      "contradictions": "Do not impose 15 s, Spotify grammar or project audio targets globally.",
+      "security_class": "non_secret",
+      "promotion_status": "SHARED_ADAPTER",
+      "validation_required": "readback + skill structural validation + cold recovery",
+      "next_action": "Apply to next motion brief; reevaluate with user feedback"
+    },
+    {
+      "id": "MOTION-L09",
+      "type": "memory",
+      "class_": "FACT",
+      "claim": "V6 disponible como proyecto durable; 1080p60, 15 s, 900 frames, audio AAC.",
+      "evidence": "VERIFICATION.json y Library libfile_656ed3cad91881918c586184a9a7368a.",
+      "confidence": "high",
+      "novelty": "refinement_or_reuse",
+      "reuse_value": "high",
+      "strategic_impact": "future creative execution",
+      "scope": "ROT motion work unless PROJECT_ONLY",
+      "affected": [
+        "rot-motion-director",
+        "motion-OS",
+        "Spotify study"
+      ],
+      "contradictions": "Do not impose 15 s, Spotify grammar or project audio targets globally.",
+      "security_class": "non_secret",
+      "promotion_status": "PROJECT_ONLY",
+      "validation_required": "readback + skill structural validation + cold recovery",
+      "next_action": "Apply to next motion brief; reevaluate with user feedback"
+    },
+    {
+      "id": "MOTION-L10",
+      "type": "lesson",
+      "class_": "FACT",
+      "claim": "Separar fuentes reales, vectores y fotografías; registrar procedencia.",
+      "evidence": "Director AE y manifests de clips/fotos V6.",
+      "confidence": "high",
+      "novelty": "refinement_or_reuse",
+      "reuse_value": "high",
+      "strategic_impact": "future creative execution",
+      "scope": "ROT motion work unless PROJECT_ONLY",
+      "affected": [
+        "rot-motion-director",
+        "motion-OS",
+        "Spotify study"
+      ],
+      "contradictions": "Do not impose 15 s, Spotify grammar or project audio targets globally.",
+      "security_class": "non_secret",
+      "promotion_status": "SHARED_ADAPTER",
+      "validation_required": "readback + skill structural validation + cold recovery",
+      "next_action": "Apply to next motion brief; reevaluate with user feedback"
+    },
+    {
+      "id": "MOTION-L11",
+      "type": "lesson",
+      "class_": "INFERENCE",
+      "claim": "En esta captura evitar devolver objetos GSAP y comprobar executablePath asíncrono.",
+      "evidence": "Fallos y correcciones ejecutados en V4/V6.",
+      "confidence": "medium",
+      "novelty": "refinement_or_reuse",
+      "reuse_value": "high",
+      "strategic_impact": "future creative execution",
+      "scope": "ROT motion work unless PROJECT_ONLY",
+      "affected": [
+        "rot-motion-director",
+        "motion-OS",
+        "Spotify study"
+      ],
+      "contradictions": "Do not impose 15 s, Spotify grammar or project audio targets globally.",
+      "security_class": "non_secret",
+      "promotion_status": "PROJECT_ONLY",
+      "validation_required": "readback + skill structural validation + cold recovery",
+      "next_action": "Apply to next motion brief; reevaluate with user feedback"
+    },
+    {
+      "id": "MOTION-L12",
+      "type": "skill",
+      "class_": "DECISION",
+      "claim": "Persistir una skill de entrada reutilizable para motion relacionado.",
+      "evidence": "Petición explícita actual del usuario y flujo repetido V4–V6.",
+      "confidence": "high",
+      "novelty": "refinement_or_reuse",
+      "reuse_value": "high",
+      "strategic_impact": "future creative execution",
+      "scope": "ROT motion work unless PROJECT_ONLY",
+      "affected": [
+        "rot-motion-director",
+        "motion-OS",
+        "Spotify study"
+      ],
+      "contradictions": "Do not impose 15 s, Spotify grammar or project audio targets globally.",
+      "security_class": "non_secret",
+      "promotion_status": "SHARED_ADAPTER",
+      "validation_required": "readback + skill structural validation + cold recovery",
+      "next_action": "Apply to next motion brief; reevaluate with user feedback"
+    },
+    {
+      "id": "MOTION-L13",
+      "type": "project_doc",
+      "class_": "DECISION",
+      "claim": "Usar skill para entrada, Git para versión, Drive para recuperación y Mem para índice semántico.",
+      "evidence": "Petición de todas las superficies necesarias; evita copias con autoridad rival.",
+      "confidence": "high",
+      "novelty": "refinement_or_reuse",
+      "reuse_value": "high",
+      "strategic_impact": "future creative execution",
+      "scope": "ROT motion work unless PROJECT_ONLY",
+      "affected": [
+        "rot-motion-director",
+        "motion-OS",
+        "Spotify study"
+      ],
+      "contradictions": "Do not impose 15 s, Spotify grammar or project audio targets globally.",
+      "security_class": "non_secret",
+      "promotion_status": "SHARED_ADAPTER",
+      "validation_required": "readback + skill structural validation + cold recovery",
+      "next_action": "Apply to next motion brief; reevaluate with user feedback"
+    },
+    {
+      "id": "MOTION-L14",
+      "type": "eval",
+      "class_": "OPEN_QUESTION",
+      "claim": "La variante narrativa siguiente y el visionado completo siguen pendientes.",
+      "evidence": "MASTER research: propuesta de 15 s, sin nuevo render.",
+      "confidence": "high",
+      "novelty": "refinement_or_reuse",
+      "reuse_value": "high",
+      "strategic_impact": "future creative execution",
+      "scope": "ROT motion work unless PROJECT_ONLY",
+      "affected": [
+        "rot-motion-director",
+        "motion-OS",
+        "Spotify study"
+      ],
+      "contradictions": "Do not impose 15 s, Spotify grammar or project audio targets globally.",
+      "security_class": "non_secret",
+      "promotion_status": "PROJECT_ONLY",
+      "validation_required": "readback + skill structural validation + cold recovery",
+      "next_action": "Apply to next motion brief; reevaluate with user feedback"
+    },
+    {
+      "id": "MOTION-L15",
+      "type": "risk",
+      "class_": "FACT",
+      "claim": "cosecha: hay inventario y alias pero no body recuperado ni brain_query callable.",
+      "evidence": "Búsquedas Drive/GitHub de esta sesión y registro previo.",
+      "confidence": "high",
+      "novelty": "refinement_or_reuse",
+      "reuse_value": "high",
+      "strategic_impact": "future creative execution",
+      "scope": "ROT motion work unless PROJECT_ONLY",
+      "affected": [
+        "rot-motion-director",
+        "motion-OS",
+        "Spotify study"
+      ],
+      "contradictions": "Do not impose 15 s, Spotify grammar or project audio targets globally.",
+      "security_class": "non_secret",
+      "promotion_status": "PROJECT_ONLY",
+      "validation_required": "readback + skill structural validation + cold recovery",
+      "next_action": "Apply to next motion brief; reevaluate with user feedback"
+    }
+  ],
+  "lenses_considered": {
+    "memory": 3,
+    "lesson": 7,
+    "skill": 1,
+    "tool": 0,
+    "project_doc": 2,
+    "refactor": 0,
+    "project_idea": 0,
+    "correlation": 0,
+    "adr": 0,
+    "automation": 0,
+    "eval": 1,
+    "risk": 1,
+    "hypothesis": 0,
+    "metric": 0,
+    "agent_improvement": 0,
+    "action": 0,
+    "deprecation": 0
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "MOTION-L01",
+        "kind": "PREFERENCE",
+        "claim": "Preservar versiones aceptadas; mejorar en copias independientes."
+      },
+      {
+        "id": "MOTION-L02",
+        "kind": "INFERENCE",
+        "claim": "Reparar storytelling antes de aumentar efectos."
+      },
+      {
+        "id": "MOTION-L03",
+        "kind": "RULE",
+        "claim": "Leer director.md y fuentes pertinentes antes de dirigir una pieza."
+      },
+      {
+        "id": "MOTION-L04",
+        "kind": "RULE",
+        "claim": "Cada movimiento debe comunicar, orientar, emocionar o conectar."
+      },
+      {
+        "id": "MOTION-L05",
+        "kind": "RULE",
+        "claim": "Mantener vínculo causal o visual entre escenas y una idea dominante por beat."
+      },
+      {
+        "id": "MOTION-L06",
+        "kind": "PREFERENCE",
+        "claim": "Integrar imágenes y media con contenido; evitar superficies vacías."
+      },
+      {
+        "id": "MOTION-L07",
+        "kind": "RULE",
+        "claim": "Diseñar música, ambiente, interacción, silencio y payoff con el montaje."
+      },
+      {
+        "id": "MOTION-L08",
+        "kind": "RULE",
+        "claim": "Separar muestreo visual, QA técnico y visionado continuo con escucha."
+      },
+      {
+        "id": "MOTION-L09",
+        "kind": "FACT",
+        "claim": "V6 disponible como proyecto durable; 1080p60, 15 s, 900 frames, audio AAC."
+      },
+      {
+        "id": "MOTION-L10",
+        "kind": "FACT",
+        "claim": "Separar fuentes reales, vectores y fotografías; registrar procedencia."
+      },
+      {
+        "id": "MOTION-L11",
+        "kind": "INFERENCE",
+        "claim": "En esta captura evitar devolver objetos GSAP y comprobar executablePath asíncrono."
+      },
+      {
+        "id": "MOTION-L12",
+        "kind": "DECISION",
+        "claim": "Persistir una skill de entrada reutilizable para motion relacionado."
+      },
+      {
+        "id": "MOTION-L13",
+        "kind": "DECISION",
+        "claim": "Usar skill para entrada, Git para versión, Drive para recuperación y Mem para índice semántico."
+      },
+      {
+        "id": "MOTION-L14",
+        "kind": "OPEN_QUESTION",
+        "claim": "La variante narrativa siguiente y el visionado completo siguen pendientes."
+      },
+      {
+        "id": "MOTION-L15",
+        "kind": "FACT",
+        "claim": "cosecha: hay inventario y alias pero no body recuperado ni brain_query callable."
+      }
+    ],
+    "edges": [
+      {
+        "source": "MOTION-L02",
+        "relation": "FIXED_BY",
+        "target": "MOTION-L03"
+      },
+      {
+        "source": "MOTION-L03",
+        "relation": "DEPENDS_ON",
+        "target": "MOTION-L04"
+      },
+      {
+        "source": "MOTION-L04",
+        "relation": "ENABLES",
+        "target": "MOTION-L05"
+      },
+      {
+        "source": "MOTION-L07",
+        "relation": "CORRELATES_WITH",
+        "target": "MOTION-L05"
+      },
+      {
+        "source": "MOTION-L12",
+        "relation": "REUSES",
+        "target": "MOTION-L03"
+      },
+      {
+        "source": "MOTION-L13",
+        "relation": "ENABLES",
+        "target": "MOTION-L12"
+      },
+      {
+        "source": "MOTION-L14",
+        "relation": "BLOCKS",
+        "target": "CREATIVE_MASTER_PROMOTION"
+      }
+    ]
+  },
+  "recovery": {
+    "goal": "Professional motion work using story, design, real media, motivated transitions, sound and honest QA.",
+    "current_artifact": "V6 unchanged",
+    "next_action": "Create isolated V7 narrative animatic from knowledge-master; then render and compare.",
+    "full_watch": "pending",
+    "source_repo_sha": "f578adea6046bde9f8f36ce2680fe16391da6b97"
+  }
+}

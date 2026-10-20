@@ -1,0 +1,63 @@
+{
+  "schema": "motion-os.local-verification/v1",
+  "profile": "quick",
+  "python": "3.12.14",
+  "cwd": "/workspace/scratch/1726a818fe10/motion-research/motion-OS",
+  "git_sha": null,
+  "results": [
+    {
+      "name": "import-smoke",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-c",
+        "import PIL, pytest, jsonschema; import src"
+      ],
+      "returncode": 0,
+      "duration_s": 0.157,
+      "required": true,
+      "status": "PASS"
+    },
+    {
+      "name": "compileall",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-m",
+        "compileall",
+        "-q",
+        "src",
+        "scripts"
+      ],
+      "returncode": 0,
+      "duration_s": 0.033,
+      "required": true,
+      "status": "PASS"
+    },
+    {
+      "name": "pytest",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "returncode": 0,
+      "duration_s": 5.469,
+      "required": true,
+      "status": "PASS"
+    },
+    {
+      "name": "repo-health",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "scripts/repo_health.py"
+      ],
+      "returncode": 0,
+      "duration_s": 0.021,
+      "required": true,
+      "status": "PASS"
+    }
+  ],
+  "status": "PASS",
+  "environment_note": "Initial bare PYTHONPATH collection failed importing content; using repository src on PYTHONPATH passed. No source edits were required.",
+  "pytest_result": "310 passed, 17 pre-existing Pillow deprecation warnings"
+}
